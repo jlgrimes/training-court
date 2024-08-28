@@ -8,11 +8,11 @@ import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useCallback, useMemo, useState } from "react";
 
-interface AddGameInputProps {
+interface AddBattleLogInputProps {
   user: User;
 }
 
-export const AddGameInput = (props: AddGameInputProps) => {
+export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const { toast } = useToast();
 

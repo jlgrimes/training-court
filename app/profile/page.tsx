@@ -1,6 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { AddGameInput } from "./add-game-input";
+
+import { AddBattleLogInput } from "@/components/battle-logs/AddBattleLogInput";
+import { parseBattleLog } from "@/components/battle-logs/battle-log.utils";
 
 export default async function Profile() {
   const supabase = createClient();
@@ -13,12 +15,18 @@ export default async function Profile() {
     return redirect("/login");
   }
 
+  const { data: logData } = await supabase.from('logs').select('created_at,log').eq('user', user?.id);
+  parseBattleLog(logData[0].log);
+
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-16 sm:max-w-lg justify-between gap-2">
       <div>
         <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">Welcome!</h1>
         <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Games</h2>
-        <AddGameInput user={user} />
+        <AddBattleLogInput user={user} />
+        {logData?.map((battleLog) => (
+          <></>
+        ))}
       </div>
     </div>
   );
