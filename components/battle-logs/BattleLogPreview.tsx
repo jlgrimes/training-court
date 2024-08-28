@@ -7,12 +7,12 @@ import {
 import { formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "./battle-log.types";
 
-interface BattleLogPreviewProps<P1, P2> {
+interface BattleLogPreviewProps {
   // unparsed battle log
-  battleLog: BattleLog<P1, P2>;
+  battleLog: BattleLog;
 }
 
-export function BattleLogPreview<P1, P2> (props: BattleLogPreviewProps<P1, P2>) {
+export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Card>
       <CardHeader>
