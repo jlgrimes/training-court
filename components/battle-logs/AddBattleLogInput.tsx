@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast"
 
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface AddBattleLogInputProps {
   user: User;

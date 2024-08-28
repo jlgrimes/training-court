@@ -14,11 +14,10 @@ interface BattleLogPreviewProps {
 }
 
 export function BattleLogPreview (props: BattleLogPreviewProps) {
-  console.log(props.battleLog.players)
   return (
     <Card>
       <CardHeader>
-        <div>
+        <div style={{ display: 'flex' }}>
           <Sprite name={props.battleLog.players[0].deck} />
           <Sprite name={props.battleLog.players[1].deck} />
         </div>
