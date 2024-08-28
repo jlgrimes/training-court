@@ -24,8 +24,22 @@ export function getPlayerNames(log: string[]): string[] {
   return playerNames;
 }
 
+export function determineWinner(log: string[]): string {
+  for (const line of log) {
+    const winner = /\. (.*) wins\./g.exec(line)?.[1];
+    if (winner) return winner;
+  }
+
+  throw 'No winner found';
+}
+
 export function parseBattleLog(log: string) {
   const cleanedLog = trimBattleLog(log);
   const playerNames = getPlayerNames(cleanedLog);
+
+  // const battleLog: BattleLog = {
+
+  // }
+
   console.log(playerNames);
 }

@@ -2,15 +2,16 @@ export interface BattleLogAction {
   message: string;
 }
 
-export interface BattleLogTurn<P> {
+export interface BattleLogTurn {
   // The player whose turn it is
-  user: P;
+  user: string;
   // Actions taken this turn
   actions: BattleLogAction[];
 }
 
-export interface BattleLog<P1, P2> {
+export interface BattleLog {
+  turns: BattleLogTurn[];
   date: string;
   // The winner of the match
-  winner: P1 | P2;
+  winner: string;
 }
