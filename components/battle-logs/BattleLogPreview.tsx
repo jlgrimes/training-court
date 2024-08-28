@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/card"
 import { formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "./battle-log.types";
+import { Sprite } from "../Sprite";
 
 interface BattleLogPreviewProps {
   // unparsed battle log
@@ -13,9 +14,14 @@ interface BattleLogPreviewProps {
 }
 
 export function BattleLogPreview (props: BattleLogPreviewProps) {
+  console.log(props.battleLog.players)
   return (
     <Card>
       <CardHeader>
+        <div>
+          <Sprite name={props.battleLog.players[0].deck} />
+          <Sprite name={props.battleLog.players[1].deck} />
+        </div>
         <CardTitle>game</CardTitle>
         <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
       </CardHeader>

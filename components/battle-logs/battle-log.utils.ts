@@ -1,3 +1,6 @@
+import { determineArchetype } from "./archetype.utils";
+import { BattleLog, BattleLogPlayer } from "./battle-log.types";
+
 function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
     if (curr.length === 0 || curr === '\n') return acc;
@@ -31,13 +34,20 @@ export function determineWinner(log: string[]): string {
   throw 'No winner found';
 }
 
-export function parseBattleLog(log: string) {
+export function parseBattleLog(log: string, created_at: string) {
   const cleanedLog = trimBattleLog(log);
   const playerNames = getPlayerNames(cleanedLog);
+  const winner = determineWinner(cleanedLog);
+  const players: BattleLogPlayer[] = playerNames.map((player) => ({
+    name: player,
+    deck: determineArchetype(cleanedLog, player),
+    result: (winner === player) ? 'W' : 'L'
+  }));
 
-  // const battleLog: BattleLog = {
+  const battleLog: BattleLog = {
+    players,
+    date: created_at
+  };
 
-  // }
-
-  console.log(playerNames);
+  return battleLog;
 }

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { AddBattleLogInput } from "@/components/battle-logs/AddBattleLogInput";
 import { parseBattleLog } from "@/components/battle-logs/battle-log.utils";
+import { BattleLogPreview } from "@/components/battle-logs/BattleLogPreview";
 
 export default async function Profile() {
   const supabase = createClient();
@@ -16,7 +17,6 @@ export default async function Profile() {
   }
 
   const { data: logData } = await supabase.from('logs').select('created_at,log').eq('user', user?.id);
-  parseBattleLog(logData[0].log);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-16 sm:max-w-lg justify-between gap-2">
@@ -25,7 +25,7 @@ export default async function Profile() {
         <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Games</h2>
         <AddBattleLogInput user={user} />
         {logData?.map((battleLog) => (
-          <></>
+          <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.created_at)} />
         ))}
       </div>
     </div>

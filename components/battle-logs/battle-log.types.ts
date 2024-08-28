@@ -9,9 +9,20 @@ export interface BattleLogTurn {
   actions: BattleLogAction[];
 }
 
+export type RoundResult = 'W' | 'L' | 'T';
+
+export interface BattleLogPlayer {
+  name: string;
+  deck: string | undefined;
+  result: RoundResult;
+}
+
 export interface BattleLog {
-  turns: BattleLogTurn[];
+  players: BattleLogPlayer[];
+  // The turns of the game
+  // turns: BattleLogTurn[];
+  // When the battle took place
   date: string;
   // The winner of the match
-  winner: string;
+  // winner: string;
 }
