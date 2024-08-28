@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { AddGameButton } from "./add-game-button";
+import { AddGameInput } from "./add-game-input";
 
 export default async function Profile() {
   const supabase = createClient();
@@ -18,7 +18,7 @@ export default async function Profile() {
       <div>
         <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">Welcome!</h1>
         <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Games</h2>
-        <AddGameButton />
+        <AddGameInput user={user} />
       </div>
     </div>
   );
