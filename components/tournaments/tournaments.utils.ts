@@ -11,7 +11,7 @@ export const fetchTournament = cache(async (tournamentId: string) => {
 export const fetchRounds = cache(async (tournamentId: string) => {
   const supabase = createClient();
 
-  const { data: rounds } =  await supabase.from('tournament rounds').select('round_num,deck,result').eq('tournament', tournamentId).order('round_num', { ascending: true });
+  const { data: rounds } =  await supabase.from('tournament rounds').select('round_num,deck,result,is_id').eq('tournament', tournamentId).order('round_num', { ascending: true });
   return rounds
 })
 
