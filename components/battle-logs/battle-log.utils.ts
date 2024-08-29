@@ -3,7 +3,7 @@ import { BattleLog, BattleLogAction, BattleLogPlayer } from "./battle-log.types"
 
 function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
-    if (curr.length === 0 || curr === '\n') return acc;
+    if (curr.length === 0 || curr === '\n' || curr.includes('shuffled their deck.')) return acc;
     return [...acc, curr];
   }, []);
 }
