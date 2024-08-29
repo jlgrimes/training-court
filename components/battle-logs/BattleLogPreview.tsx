@@ -19,7 +19,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card>
         <CardHeader>
-          <div style={{ display: 'flex' }}>
+          <div className="flex">
             <Sprite name={props.battleLog.players[0].deck} />
             <Sprite name={props.battleLog.players[1].deck} />
           </div>
