@@ -14,7 +14,6 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
   }
 
   const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at);
-  console.log(battleLog.date)
 
   return (
     <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-lg justify-between gap-2">
