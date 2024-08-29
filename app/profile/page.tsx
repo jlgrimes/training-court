@@ -16,10 +16,10 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full px-8 py-16 sm:max-w-lg justify-between gap-2">
-      <div>
+    <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-lg justify-between gap-2">
+      <div className="flex flex-col gap-4">
         <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">Welcome!</h1>
-        <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Games</h2>
+        <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Live Games</h2>
         <AddBattleLogInput user={user} />
         <MyBattleLogPreviews user={user} />
       </div>
