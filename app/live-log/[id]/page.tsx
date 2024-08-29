@@ -20,7 +20,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
         <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">game</h1>
         {<Sprite name={battleLog.players[0].deck} />}
         {<Sprite name={battleLog.players[1].deck} />}
-        {JSON.stringify(logData.log)}
+        {battleLog.actions.map((action) => <div>{action.message}</div>)}
       </div>
     </div>
   );

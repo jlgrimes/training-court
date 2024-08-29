@@ -1,5 +1,5 @@
 import { determineArchetype } from "./archetype.utils";
-import { BattleLog, BattleLogPlayer } from "./battle-log.types";
+import { BattleLog, BattleLogAction, BattleLogPlayer } from "./battle-log.types";
 
 function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
@@ -34,6 +34,15 @@ export function determineWinner(log: string[]): string {
   throw 'No winner found';
 }
 
+export function getBattleActions(log: string[]): BattleLogAction[] {
+  const playerNames = getPlayerNames(log);
+
+  return log.map((line) => ({
+    owner: playerNames.find((player) => line.includes(player)),
+    message: line
+  }))
+}
+
 export function parseBattleLog(log: string, id: string, created_at: string) {
   const cleanedLog = trimBattleLog(log);
   const playerNames = getPlayerNames(cleanedLog);
@@ -47,7 +56,9 @@ export function parseBattleLog(log: string, id: string, created_at: string) {
   const battleLog: BattleLog = {
     players,
     id,
-    date: created_at
+    date: created_at,
+    winner,
+    actions: getBattleActions(cleanedLog)
   };
 
   return battleLog;

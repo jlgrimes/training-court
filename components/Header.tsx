@@ -22,8 +22,12 @@ export default function Header() {
 
     if (pathname.includes('live-log')) {
       breadcrumbs.push({
+        path: '/profile',
+        label: 'Logs'
+      }),
+      breadcrumbs.push({
         path: pathname,
-        label: 'Game Log'
+        label: pathname.split('/')[pathname.split('/').length - 1]
       });
     }
 
