@@ -19,8 +19,6 @@ export const determineArchetype = (log: string[], playerName: string): string | 
 
     return false;
   });
-  console.log(drawnCardsLines)
-
   const archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
   return archetype?.replace(' ', '-');
 }
