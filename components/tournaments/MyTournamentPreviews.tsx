@@ -13,7 +13,7 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   return (
     <div className="flex flex-col gap-2">
       {tournamentData?.map((tournament) => (
-        <TournamentPreview name={tournament.name} date_from={tournament.date_from} date_to={tournament.date_to} />
+        <TournamentPreview id={tournament.id} name={tournament.name} date_from={tournament.date_from} date_to={tournament.date_to} />
       ))}
     </div>
   )

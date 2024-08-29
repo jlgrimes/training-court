@@ -30,6 +30,15 @@ export default function Header() {
         path: pathname,
         label: pathname.split('/')[pathname.split('/').length - 1]
       });
+    } else if (pathname.includes('tournament')) {
+      breadcrumbs.push({
+        path: '/profile',
+        label: 'Tournaments'
+      }),
+      breadcrumbs.push({
+        path: pathname,
+        label: pathname.split('/')[pathname.split('/').length - 1]
+      });
     }
 
     return breadcrumbs;
