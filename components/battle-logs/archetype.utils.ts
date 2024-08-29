@@ -1,5 +1,6 @@
 const pokemonToFind = [
   'regidrago',
+  'roaring moon',
   'raging bolt',
   'lugia',
   'chien-pao',
@@ -8,8 +9,18 @@ const pokemonToFind = [
   'iron thorns',
   'comfey',
   'charizard',
-  'entei'
+  'entei',
+  'palkia'
 ];
+
+// Pokemon that might not indicate exactly the archetype we can use to infer the archetype
+const associatedPokemon = [{
+  association: 'charmander',
+  deck: 'charizard'
+}, {
+  association: 'frigibax',
+  deck: 'chien-pao'
+}]
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
@@ -19,6 +30,11 @@ export const determineArchetype = (log: string[], playerName: string): string | 
 
     return false;
   });
-  const archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
+  let archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
+
+  if (!archetype) {
+    archetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
+  }
+
   return archetype?.replace(' ', '-');
 }

@@ -9,7 +9,7 @@ interface MyBattleLogPreviewsProps {
 
 export async function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
   const supabase = createClient();
-  const { data: logData } = await supabase.from('logs').select('id,created_at,log').eq('user', props.user?.id);
+  const { data: logData } = await supabase.from('logs').select('id,created_at,log').eq('user', props.user?.id).order('created_at', { ascending: false });
 
   return (
     <div className="flex flex-col gap-2">
