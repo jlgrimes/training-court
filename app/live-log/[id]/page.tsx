@@ -1,4 +1,4 @@
-import { Sprite } from "@/components/Sprite";
+import { Sprite } from "@/components/archetype/Sprite";
 import { parseBattleLog } from "@/components/battle-logs/battle-log.utils";
 import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";

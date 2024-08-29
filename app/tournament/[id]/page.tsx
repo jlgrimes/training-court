@@ -1,5 +1,6 @@
-import { Sprite } from "@/components/Sprite";
+import { Sprite } from "@/components/archetype/Sprite";
 import { parseBattleLog } from "@/components/battle-logs/battle-log.utils";
+import AddTournamentRound from "@/components/tournaments/AddTournamentRound";
 import { createClient } from "@/utils/supabase/server";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { redirect } from "next/navigation";
@@ -23,7 +24,7 @@ export default async function TournamentPage({ params }: { params: { id: string 
         <h3 className="text-sm text-muted-foreground">{format(tournamentData.date_from, "PPP")} - {format(tournamentData.date_to, "PPP")}</h3>
       </div>
         <div>
-          tournament stuff here
+          <AddTournamentRound tournamentId={tournamentData.id} />
         </div>
       </div>
     </div>
