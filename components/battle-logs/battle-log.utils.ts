@@ -34,7 +34,7 @@ export function determineWinner(log: string[]): string {
   throw 'No winner found';
 }
 
-export function parseBattleLog(log: string, created_at: string) {
+export function parseBattleLog(log: string, id: string, created_at: string) {
   const cleanedLog = trimBattleLog(log);
   const playerNames = getPlayerNames(cleanedLog);
   const winner = determineWinner(cleanedLog);
@@ -46,6 +46,7 @@ export function parseBattleLog(log: string, created_at: string) {
 
   const battleLog: BattleLog = {
     players,
+    id,
     date: created_at
   };
 

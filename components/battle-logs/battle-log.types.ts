@@ -18,6 +18,7 @@ export interface BattleLogPlayer {
 }
 
 export interface BattleLog {
+  id: string;
   players: BattleLogPlayer[];
   // The turns of the game
   // turns: BattleLogTurn[];

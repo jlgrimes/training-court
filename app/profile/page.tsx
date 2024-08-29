@@ -16,7 +16,7 @@ export default async function Profile() {
     return redirect("/login");
   }
 
-  const { data: logData } = await supabase.from('logs').select('created_at,log').eq('user', user?.id);
+  const { data: logData } = await supabase.from('logs').select('id,created_at,log').eq('user', user?.id);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-16 sm:max-w-lg justify-between gap-2">
@@ -25,7 +25,7 @@ export default async function Profile() {
         <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Games</h2>
         <AddBattleLogInput user={user} />
         {logData?.map((battleLog) => (
-          <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.created_at)} />
+          <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at)} />
         ))}
       </div>
     </div>

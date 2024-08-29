@@ -13,12 +13,13 @@ const pokemonToFind = [
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (idx > 1 && (log[idx - 1].includes(`${playerName} drew `) || (log[idx - 2].includes(`${playerName} drew `) && log[idx - 1].includes(`drawn cards.`)))) {
+    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `)) {
       return true;
     }
 
     return false;
   });
+  console.log(drawnCardsLines)
 
   const archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
   return archetype?.replace(' ', '-');
