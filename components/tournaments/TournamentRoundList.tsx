@@ -9,11 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Sprite } from "../archetype/Sprite";
+import { fetchRounds } from "./tournaments.utils";
 
 export default async function TournamentRoundList ({ tournamentId }: { tournamentId: string }) {
-  const supabase = createClient();
-
-  const { data: rounds } = await supabase.from('tournament rounds').select('round_num,deck,result').eq('tournament', tournamentId).order('round_num', { ascending: true });
+  const rounds = await fetchRounds(tournamentId);
 
   return (
     <Table>

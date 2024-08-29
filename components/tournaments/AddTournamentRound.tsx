@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../ui/use-toast";
 import { AddArchetype } from "../archetype/AddArchetype";
 
-export default function AddTournamentRound({ tournamentId }: { tournamentId: string }) {
+export default function AddTournamentRound({ tournamentId, userId }: { tournamentId: string, userId: string }) {
   const [editing, setEditing] = useState(false);
   const { toast } = useToast();
 
@@ -46,11 +46,13 @@ export default function AddTournamentRound({ tournamentId }: { tournamentId: str
 
   const handleAddTournament = useCallback(async () => {
     const supabase = createClient();
+
     const { error } = await supabase.from('tournament rounds').insert({
       tournament: tournamentId,
       round_num: roundNumber,
       result: result,
-      deck: deck
+      deck: deck,
+      user: userId
     });
 
     if (error) {

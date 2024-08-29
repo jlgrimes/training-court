@@ -1,15 +1,16 @@
+import { fetchCurrentUser } from "@/components/auth.utils";
 import AddTournamentRound from "@/components/tournaments/AddTournamentRound";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
-import { createClient } from "@/utils/supabase/server";
-import { format, formatDistanceToNowStrict } from "date-fns";
+import TournamentSummaryCard from "@/components/tournaments/TournamentSummaryCard";
+import { fetchTournament } from "@/components/tournaments/tournaments.utils";
+import { format } from "date-fns";
 import { redirect } from "next/navigation";
 
 export default async function TournamentPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+  const tournamentData = await fetchTournament(params.id);
+  const user = await fetchCurrentUser();
 
-  const { data: tournamentData } = await supabase.from('tournaments').select('id,name,date_from,date_to').eq('id', params.id).maybeSingle();
-
-  if (!tournamentData ) {
+  if (!tournamentData) {
     return redirect("/");
   }
 
@@ -23,8 +24,9 @@ export default async function TournamentPage({ params }: { params: { id: string 
         <h3 className="text-sm text-muted-foreground">{format(tournamentData.date_from, "PPP")} - {format(tournamentData.date_to, "PPP")}</h3>
       </div>
         <div>
+          <TournamentSummaryCard tournamentId={tournamentData.id} />
           <TournamentRoundList tournamentId={tournamentData.id} />
-          <AddTournamentRound tournamentId={tournamentData.id} />
+          {user?.id && (user.id === tournamentData.user) && <AddTournamentRound tournamentId={tournamentData.id} userId={user?.id} />}
         </div>
       </div>
     </div>

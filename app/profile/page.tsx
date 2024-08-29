@@ -1,17 +1,13 @@
-import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
 import { AddBattleLogInput } from "@/components/battle-logs/AddBattleLogInput";
 import { MyBattleLogPreviews } from "@/components/battle-logs/MyBattleLogPreviews";
 import TournamentCreate from "@/components/tournaments/TournamentCreate";
 import { MyTournamentPreviews } from "@/components/tournaments/MyTournamentPreviews";
+import { fetchCurrentUser } from "@/components/auth.utils";
 
 export default async function Profile() {
-  const supabase = createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await fetchCurrentUser();
 
   if (!user) {
     return redirect("/login");
