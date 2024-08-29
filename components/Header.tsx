@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
@@ -35,7 +36,7 @@ export default function Header() {
   }, [pathname]);
 
   return (
-    <header className="sticky z-50 flex flex-col px-8 py-4">
+    <header className="sticky z-50 flex flex-col px-8 py-4 gap-4">
       <Breadcrumb>
         <BreadcrumbList>
           {breadcrumbs.map(({ path, label }, idx) => (
@@ -48,6 +49,7 @@ export default function Header() {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
+      <Separator />
     </header>
   );
 }

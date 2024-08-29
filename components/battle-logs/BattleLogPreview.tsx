@@ -19,11 +19,12 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card>
         <CardHeader>
-          <div className="flex">
+          <div className="flex items-center">
             <Sprite name={props.battleLog.players[0].deck} />
+            <div className="font-semibold ml-2 mr-3">vs</div>
             <Sprite name={props.battleLog.players[1].deck} />
           </div>
-          <CardTitle>game</CardTitle>
+          {/* <CardTitle>game</CardTitle> */}
           <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
         </CardHeader>
       </Card>

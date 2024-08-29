@@ -15,12 +15,21 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
   const battleLog = parseBattleLog(logData.log, logData.id, logData.user);
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full px-8 py-16 sm:max-w-lg justify-between gap-2">
-      <div>
-        <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">game</h1>
-        {<Sprite name={battleLog.players[0].deck} />}
-        {<Sprite name={battleLog.players[1].deck} />}
-        {battleLog.actions.map((action) => <div>{action.message}</div>)}
+    <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-lg justify-between gap-2">
+      <div className="flex flex-col gap-8">
+        <div className="flex items-center justify-evenly">
+          <div className="flex items-center gap-2">
+            {<Sprite name={battleLog.players[0].deck} />}
+            <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            {<Sprite name={battleLog.players[1].deck} />}
+            <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
+          </div>
+        </div>
+        <div>
+          {battleLog.actions.map((action) => <div>{action.message}</div>)}
+        </div>
       </div>
     </div>
   );
