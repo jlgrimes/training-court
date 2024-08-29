@@ -49,6 +49,7 @@ export default function AddTournamentRound({ tournamentId }: { tournamentId: str
     const { error } = await supabase.from('tournament rounds').insert({
       tournament: tournamentId,
       round_num: roundNumber,
+      result: result,
       deck: deck
     });
 
@@ -65,7 +66,7 @@ export default function AddTournamentRound({ tournamentId }: { tournamentId: str
       setRoundNumber(undefined)
       setEditing(false);
     }
-  }, [tournamentId, roundNumber, deck]);
+  }, [tournamentId, roundNumber, deck, result]);
 
   if (editing) return (
     <Card>
