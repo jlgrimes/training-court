@@ -10,7 +10,7 @@ export default async function TournamentPreview({ id, name, date_from, date_to, 
 
   return (
     <Link href={`/tournament/${id}`}>
-      <Card>
+      <Card clickable>
         <CardHeader>
           <CardTitle className="text-lg tracking-normal">{name}</CardTitle>
           <CardDescription className="grid grid-cols-4 gap-4 text-lg font-semibold tracking-wider">

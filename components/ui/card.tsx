@@ -4,17 +4,19 @@ import { cn } from "@/lib/utils"
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   result?: 'W' | 'L' | 'T';
+  clickable?: boolean;
 }
 
 const Card = React.forwardRef<
   HTMLDivElement,
   CardProps
->(({ className, result, ...props }, ref) => (
+>(({ className, result, clickable, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border transition-colors bg-card text-card-foreground hover:bg-slate-200",
+      "rounded-lg border transition-colors bg-card text-card-foreground",
       className,
+      clickable && 'hover:bg-slate-100',
       result === 'W' && 'bg-green-100 hover:bg-green-200',
       result === 'T' && 'bg-yellow-100 hover:bg-yellow-200',
       result === 'L' && 'bg-red-100 hover:bg-red-200',
