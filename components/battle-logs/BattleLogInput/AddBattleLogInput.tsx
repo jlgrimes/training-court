@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
+import { parseBattleLog } from "../utils/battle-log.utils";
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'];
@@ -17,6 +18,17 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const { toast } = useToast();
 
   const handleAddButtonClick = async () => {
+    try {
+      parseBattleLog(log, '', '');
+    } catch {
+      setLog('');
+      return toast({
+        variant: "destructive",
+        title: "Your battle log was unable to be parsed.",
+        description: 'Please make sure you directly copy from TCG Live, then try again.'
+      })
+    }
+
     const supabase = createClient();
 
     const { data, error } = await supabase.from('logs').insert({
