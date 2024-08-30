@@ -9,23 +9,33 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { MyProfileAvatar } from "./MyProfileAvatar";
 import HeaderBreadcrumbs from "./HeaderBreadcrumbs";
+import { AvatarSelector } from "../avatar/AvatarSelector";
 
 export default function Header() {
   return (
     <header className="sticky z-50 flex flex-col px-4 py-4 gap-2">
       <div className="flex justify-between">
-        <div className="px-4 py-2 font-semibold text-slate-800">Buddy Poffin</div>
+        <Link href={'/home'}>
+          <div className="px-4 py-2 font-semibold text-slate-800">Buddy Poffin</div>
+        </Link>
         <NavigationMenu>
-          <NavigationMenuList className="gap-2">
+          <NavigationMenuList>
             <NavigationMenuItem>
-            <Link href="/about" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                About
-              </NavigationMenuLink>     
-            </Link>
+              <Link href="/about" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  About
+                </NavigationMenuLink>     
+              </Link>
             </NavigationMenuItem>
             {/* <NavigationMenuItem>
-              <MyProfileAvatar />
+              <Link href="/home" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Home
+                </NavigationMenuLink>     
+              </Link>
+            </NavigationMenuItem> */}
+            {/* <NavigationMenuItem>
+              <AvatarSelector />
             </NavigationMenuItem> */}
           </NavigationMenuList>
         </NavigationMenu>

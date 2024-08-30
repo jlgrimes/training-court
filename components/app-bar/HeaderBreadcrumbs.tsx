@@ -21,7 +21,7 @@ export default function HeaderBreadcrumbs() {
 
     if (pathname.includes('live-log')) {
       breadcrumbs.push({
-        path: '/profile',
+        path: '/home',
         label: 'Logs'
       }),
       breadcrumbs.push({
@@ -30,7 +30,7 @@ export default function HeaderBreadcrumbs() {
       });
     } else if (pathname.includes('tournament')) {
       breadcrumbs.push({
-        path: '/profile',
+        path: '/home',
         label: 'Tournaments'
       }),
       breadcrumbs.push({
