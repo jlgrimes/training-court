@@ -36,8 +36,8 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card className={cn(
-        props.battleLog.winner === props.currentUserScreenName && 'bg-green-100',
-        props.battleLog.winner !== props.currentUserScreenName && 'bg-red-100',
+        props.currentUserScreenName && (props.battleLog.winner === props.currentUserScreenName) && 'bg-green-100',
+        props.currentUserScreenName && (props.battleLog.winner !== props.currentUserScreenName) && 'bg-red-100',
       )}>
         <CardHeader>
           <div className="flex items-center">
