@@ -17,7 +17,7 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex flex-col py-8 px-16 gap-4 w-full h-full">
+    <div className="flex flex-col py-4 lg:py-8 px-8 lg:px-16 gap-4 w-full h-full">
       <div className="flex items-center gap-4">
         <AvatarSelector userId={user.id} />
         <ScreenNameEditable userId={user.id} />
@@ -38,7 +38,7 @@ export default async function Profile() {
             <Trophy className="h-4 w-4" />
             <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Tournaments</h2>
           </div>
-          
+
           <MyTournamentPreviews user={user} />
           <TournamentCreate userId={user.id} />
         </div>
