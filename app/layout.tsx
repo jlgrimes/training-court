@@ -1,7 +1,7 @@
 import { GeistSans } from "geist/font/sans";
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
-import Header from "@/components/Header";
+import Header from "@/components/app-bar/Header";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

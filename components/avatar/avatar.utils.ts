@@ -1,0 +1,1 @@
+export const getAvatarSrc = (fileName: string) => `/assets/trainers/${fileName}`;

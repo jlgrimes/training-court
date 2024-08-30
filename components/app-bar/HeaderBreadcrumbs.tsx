@@ -5,14 +5,12 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-export default function Header() {
+export default function HeaderBreadcrumbs() {
   const pathname = usePathname();
 
   const breadcrumbs: { path: string, label: string}[] = useMemo(() => {
@@ -44,21 +42,22 @@ export default function Header() {
     return breadcrumbs;
   }, [pathname]);
 
+  if (!pathname.includes('profile') && !pathname.includes('tournament') && !pathname.includes('live-log')) {
+    return null;
+  }
+
   return (
-    <header className="sticky z-50 flex flex-col px-8 py-4 gap-4">
-      <Breadcrumb>
-        <BreadcrumbList>
-          {breadcrumbs.map(({ path, label }, idx) => (
-            <>
-                <BreadcrumbItem>
-                <BreadcrumbLink href={path}>{label}</BreadcrumbLink>
-              </BreadcrumbItem>
-              {(idx < breadcrumbs.length - 1) && <BreadcrumbSeparator />}
-            </>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
-      <Separator />
-    </header>
+    <Breadcrumb className="my-2 ml-4">
+    <BreadcrumbList>
+      {breadcrumbs.map(({ path, label }, idx) => (
+        <>
+            <BreadcrumbItem>
+            <BreadcrumbLink href={path}>{label}</BreadcrumbLink>
+          </BreadcrumbItem>
+          {(idx < breadcrumbs.length - 1) && <BreadcrumbSeparator />}
+        </>
+      ))}
+    </BreadcrumbList>
+  </Breadcrumb>
   );
 }

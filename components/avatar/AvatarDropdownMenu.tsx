@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { createClient } from '@/utils/supabase/client';
+import { getAvatarSrc } from './avatar.utils';
 
 interface AvatarDropdownMenuProps {
   images: string[];
@@ -16,7 +17,7 @@ interface AvatarDropdownMenuProps {
 }
 
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? `/assets/trainers/${props.initialAvatar}` : undefined);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? getAvatarSrc(props.initialAvatar) : undefined);
 
   const upsertImage = React.useCallback(async (filename: string) => {
     const supabase = createClient();
