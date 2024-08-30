@@ -1,8 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
 import { determineArchetype } from "../archetype/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer } from "./battle-log.types";
-import { cache } from "react";
-import { Database } from "@/database.types";
 
 function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
@@ -66,9 +63,3 @@ export function parseBattleLog(log: string, id: string, created_at: string) {
 
   return battleLog;
 }
-
-export const fetchBattleLogs = cache(async (userId: string) => {
-  const supabase = createClient();
-  const { data: logData } = await supabase.from('logs').select('*').eq('user', userId).order('created_at', { ascending: false }).returns<Database['public']['Tables']['logs']['Row'][]>();
-  return logData;
-})

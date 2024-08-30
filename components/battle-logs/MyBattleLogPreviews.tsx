@@ -1,4 +1,5 @@
 'use client';
+
 import { BattleLogPreview } from "./BattleLogPreview";
 import { parseBattleLog } from "./battle-log.utils";
 import { Database } from "@/database.types";

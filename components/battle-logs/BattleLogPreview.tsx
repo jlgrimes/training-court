@@ -1,8 +1,9 @@
+'use client';
+
 import {
   Card,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import { formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "./battle-log.types";

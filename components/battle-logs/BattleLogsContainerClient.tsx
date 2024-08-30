@@ -1,13 +1,10 @@
-'use-client';
+'use client';
 
-import { fetchBattleLogs } from "./battle-log.utils";
-import { fetchCurrentUser } from "../auth.utils";
+import { useCallback, useState } from "react";
 import { RadioTower } from "lucide-react";
 import { AddBattleLogInput } from "./AddBattleLogInput";
 import { MyBattleLogPreviews } from "./MyBattleLogPreviews";
 import { Database } from "@/database.types";
-import { User } from "@supabase/supabase-js";
-import { useCallback, useEffect, useState } from "react";
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];

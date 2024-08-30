@@ -1,13 +1,11 @@
 'use client';
 
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Database } from "@/database.types";
-
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { useMemo, useState } from "react";
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'];
