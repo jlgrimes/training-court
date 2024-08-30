@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 interface BattleLogPreviewProps {
   // unparsed battle log
   battleLog: BattleLog;
-  currentUserScreenName: string | undefined;
+  currentUserScreenName: string | null;
 }
 
 export function BattleLogPreview (props: BattleLogPreviewProps) {

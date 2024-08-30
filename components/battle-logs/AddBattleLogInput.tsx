@@ -3,13 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import { Database } from "@/database.types";
 
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useMemo, useState } from "react";
 
 interface AddBattleLogInputProps {
-  user: User;
+  userData: Database['public']['Tables']['user data']['Row'];
+  handleAddLog: (newLog: Database['public']['Tables']['logs']['Row']) => void;
 }
 
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
@@ -19,20 +21,20 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const handleAddButtonClick = async () => {
     const supabase = createClient();
 
-    if (!props.user.email) return console.error('No email specified, for some reason.');
-
-    const { error } = await supabase.from('logs').insert({
-      user: props.user.id,
+    const { data, error } = await supabase.from('logs').insert({
+      user: props.userData.id,
       log: log
-    });
+    }).select().returns<Database['public']['Tables']['logs']['Row']>();
 
-    if (error) {
+    if (error || !data) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error.message,
       })
     } else {
+      props.handleAddLog(data);
+
       toast({
         title: "You did it!",
       })
