@@ -1,3 +1,4 @@
+import { RoundResult } from '@/components/battle-logs/utils/battle-log.types';
 import { createClient } from '@/utils/supabase/server';
 import { cache } from 'react'
 
@@ -15,7 +16,7 @@ export const fetchRounds = cache(async (tournamentId: string) => {
   return rounds
 })
 
-export const getRecord = (rounds: { result: string[] }[]) => {
+export const getRecord = (rounds: { result: RoundResult[] }[]) => {
   const record = {
     wins: 0,
     ties: 0,
@@ -37,7 +38,7 @@ export const getRecord = (rounds: { result: string[] }[]) => {
   return `${record.wins}-${record.losses}-${record.ties}`;
 }
 
-export const convertGameResultsToRoundResult = (result: string[]) => {
+export const convertGameResultsToRoundResult = (result: RoundResult[]) => {
   if (result.length === 1) return result[0];
   if ((result.length === 2) && (result[0] === result[1])) return result[0];
   if (result.length === 3) return result[2];

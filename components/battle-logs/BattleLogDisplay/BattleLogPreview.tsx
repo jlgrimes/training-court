@@ -33,12 +33,16 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     return props.battleLog.players;
   }, [shouldReversePlayers, props.battleLog.players]);
 
+  const gameResult = useMemo(() => {
+    if (!props.currentUserScreenName) return undefined;
+
+    if (props.battleLog.winner === props.currentUserScreenName) return 'W';
+    return 'L';
+  }, [props.currentUserScreenName, props.battleLog.winner]);
+
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
-      <Card className={cn(
-        props.currentUserScreenName && (props.battleLog.winner === props.currentUserScreenName) && 'bg-green-100',
-        props.currentUserScreenName && (props.battleLog.winner !== props.currentUserScreenName) && 'bg-red-100',
-      )}>
+      <Card result={gameResult}>
         <CardHeader>
           <div className="flex items-center">
             <Sprite name={players[0].deck} />

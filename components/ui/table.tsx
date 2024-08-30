@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { RoundResult } from "../battle-logs/utils/battle-log.types"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -51,15 +52,22 @@ const TableFooter = React.forwardRef<
 ))
 TableFooter.displayName = "TableFooter"
 
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+  result?: RoundResult;
+}
+
 const TableRow = React.forwardRef<
   HTMLTableRowElement,
-  React.HTMLAttributes<HTMLTableRowElement>
->(({ className, ...props }, ref) => (
+  TableRowProps
+>(({ className, result, ...props }, ref) => (
   <tr
     ref={ref}
     className={cn(
       "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-      className
+      className,
+      result === 'W' && 'bg-green-100 text-green-700 hover:bg-green-200',
+      result === 'T' && 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+      result === 'L' && 'bg-red-100 text-red-700 hover:bg-red-200',
     )}
     {...props}
   />

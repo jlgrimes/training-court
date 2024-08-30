@@ -2,15 +2,23 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  result?: 'W' | 'L' | 'T';
+}
+
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  CardProps
+>(({ className, result, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
-      className
+      "rounded-lg border transition-colors bg-card text-card-foreground hover:bg-slate-200",
+      className,
+      result === 'W' && 'bg-green-100 hover:bg-green-200',
+      result === 'T' && 'bg-yellow-100 hover:bg-yellow-200',
+      result === 'L' && 'bg-red-100 hover:bg-red-200',
+      result && 'border-transparent'
     )}
     {...props}
   />
