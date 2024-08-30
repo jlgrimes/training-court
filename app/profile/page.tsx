@@ -14,10 +14,10 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex flex-col py-4 px-8 gap-4 w-full h-full">
+    <div className="flex flex-col py-8 px-16 gap-4 w-full h-full">
       <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">Welcome!</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div className="flex flex-col gap-4">
           <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Live Games</h2>
           <AddBattleLogInput user={user} />
