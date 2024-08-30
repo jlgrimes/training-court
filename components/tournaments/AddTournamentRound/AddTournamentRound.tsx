@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
 import { Toggle } from "../../ui/toggle";
-import { HandshakeIcon } from "lucide-react";
+import { HandshakeIcon, Plus } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 
 export default function AddTournamentRound({ tournamentId, userId }: { tournamentId: string, userId: string }) {
@@ -76,6 +76,6 @@ export default function AddTournamentRound({ tournamentId, userId }: { tournamen
   )
 
   return (
-    <Button onClick={() => setEditing(true)}>Add round</Button>
+    <Button size='sm' variant={'outline'} onClick={() => setEditing(true)}><Plus className="mr-2 h-4 w-4" />Add round</Button>
   )
 }

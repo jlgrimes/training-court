@@ -23,7 +23,7 @@ export default async function TournamentPage({ params }: { params: { id: string 
         </div>
         <h3 className="text-sm text-muted-foreground">{format(tournamentData.date_from, "PPP")} - {format(tournamentData.date_to, "PPP")}</h3>
       </div>
-        <div>
+        <div className="flex flex-col gap-4">
           <TournamentSummaryCard tournamentId={tournamentData.id} />
           <TournamentRoundList tournamentId={tournamentData.id} />
           {user?.id && (user.id === tournamentData.user) && <AddTournamentRound tournamentId={tournamentData.id} userId={user?.id} />}
