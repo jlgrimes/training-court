@@ -7,6 +7,7 @@ import { MyTournamentPreviews } from "@/components/tournaments/MyTournamentPrevi
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
+import { RadioTower, Trophy } from "lucide-react";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -24,12 +25,20 @@ export default async function Profile() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div className="flex flex-col gap-4">
-          <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Live Games</h2>
+          <div className="flex gap-2 items-center">
+            <RadioTower className="h-4 w-4" />
+            <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">PTCG Live</h2>
+          </div>
+
           <AddBattleLogInput user={user} />
           <MyBattleLogPreviews user={user} />
         </div>
         <div className="flex flex-col gap-4">
-          <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Tournaments</h2>
+          <div className="flex gap-2 items-center">
+            <Trophy className="h-4 w-4" />
+            <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Tournaments</h2>
+          </div>
+          
           <MyTournamentPreviews user={user} />
           <TournamentCreate userId={user.id} />
         </div>
