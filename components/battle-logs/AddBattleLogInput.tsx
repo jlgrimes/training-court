@@ -22,7 +22,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData.id,
       log: log
-    }).select().returns<Database['public']['Tables']['logs']['Row']>();
+    }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
       toast({
@@ -31,10 +31,11 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
         description: error.message,
       })
     } else {
-      props.handleAddLog(data);
+      props.handleAddLog(data[0]);
+      setLog('');
 
       toast({
-        title: "You did it!",
+        title: "Battle log successfully imported!",
       })
     }
   };

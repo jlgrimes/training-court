@@ -1,5 +1,6 @@
 const pokemonToFind = [
   'regidrago',
+  'gholdengo',
   'roaring moon',
   'raging bolt',
   'lugia',
