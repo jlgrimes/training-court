@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,13 +9,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { createClient } from '@/utils/supabase/client';
 
 interface AvatarDropdownMenuProps {
   images: string[];
+  userId: string;
+  initialAvatar: string | undefined
 }
 
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
-  const [selectedImage, setSelectedImage] = useState<string>();
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? `/assets/trainers/${props.initialAvatar}` : undefined);
+
+  const upsertImage = React.useCallback(async (filename: string) => {
+    const supabase = createClient();
+    await supabase.from('user data').upsert({ id: props.userId, avatar: filename });
+  }, []);
+
+  useEffect(() => {
+    const fileName = selectedImage?.split('/').reverse()[0];
+    fileName && upsertImage(fileName)
+  }, [selectedImage]);
 
   return (
     <div>

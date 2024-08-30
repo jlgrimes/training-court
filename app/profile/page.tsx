@@ -16,7 +16,7 @@ export default async function Profile() {
 
   return (
     <div className="flex flex-col py-8 px-16 gap-4 w-full h-full">
-      <AvatarSelector />
+      <AvatarSelector userId={user.id} />
       <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">Welcome!</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
