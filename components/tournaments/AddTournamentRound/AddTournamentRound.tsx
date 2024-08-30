@@ -51,6 +51,7 @@ export default function AddTournamentRound({ tournamentId, userId }: { tournamen
         title: "You did it!",
       });
       setRoundNumber(undefined)
+      setResult([]);
       setEditing(false);
     }
   }, [tournamentId, roundNumber, deck, result, id]);
