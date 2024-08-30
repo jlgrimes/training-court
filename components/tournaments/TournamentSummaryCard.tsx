@@ -18,9 +18,9 @@ export default async function TournamentSummaryCard ({ tournamentId }: { tournam
 
   return (
     <Card>
-      <CardHeader className="flex flex-row gap-4 items-center">
-        <CardTitle>{getRecord(rounds)}</CardTitle>
+      <CardHeader className="grid grid-cols-4 gap-4 items-center">
         <EditableTournamentArchetype tournament={tournament} />
+        <h2 className="text-xl font-semibold tracking-wider">{getRecord(rounds)}</h2>
       </CardHeader>
     </Card>
   )
