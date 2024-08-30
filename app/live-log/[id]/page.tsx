@@ -1,4 +1,5 @@
 import { Sprite } from "@/components/archetype/Sprite";
+import { BattleLogCarousel } from "@/components/battle-logs/BattleLogDisplay/BattleLogCarousel";
 import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -32,7 +33,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
         <h3 className="text-sm text-muted-foreground">{formatDistanceToNowStrict(battleLog.date)} ago</h3>
       </div>
         <div>
-          {battleLog.actions.map((action) => <div>{action.message}</div>)}
+          <BattleLogCarousel sections={battleLog.sections} />
         </div>
       </div>
     </div>

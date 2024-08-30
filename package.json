@@ -23,6 +23,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.2.0",
     "geist": "^1.2.1",
     "lucide-react": "^0.427.0",
     "next": "latest",
