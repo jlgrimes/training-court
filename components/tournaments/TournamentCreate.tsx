@@ -8,6 +8,7 @@ import { DatePicker } from "../ui/date-picker";
 import { DateRange } from "react-day-picker";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../ui/use-toast";
+import { Plus } from "lucide-react";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -54,6 +55,6 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   )
 
   return (
-    <Button onClick={() => setEditing(true)}>Add tournament</Button>
+    <Button onClick={() => setEditing(true)}><Plus className="mr-2 h-4 w-4" />Add tournament</Button>
   )
 }

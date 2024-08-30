@@ -25,8 +25,8 @@ export default async function Profile() {
         </div>
         <div className="flex flex-col gap-4">
           <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Tournaments</h2>
-          <TournamentCreate userId={user.id} />
           <MyTournamentPreviews user={user} />
+          <TournamentCreate userId={user.id} />
         </div>
       </div>
     </div>

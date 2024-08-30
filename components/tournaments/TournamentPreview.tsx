@@ -12,8 +12,8 @@ export default async function TournamentPreview({ id, name, date_from, date_to, 
     <Link href={`/tournament/${id}`}>
       <Card>
         <CardHeader>
-          <CardTitle>{name}</CardTitle>
-          <CardDescription className="flex flex-row gap-4 text-xl">
+          <CardTitle className="text-xl">{name}</CardTitle>
+          <CardDescription className="flex flex-row gap-4 text-lg">
             {rounds && getRecord(rounds)}
             {deck && <Sprite name={deck} />}
             </CardDescription>

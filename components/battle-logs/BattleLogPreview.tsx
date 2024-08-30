@@ -18,7 +18,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card>
-        <CardHeader className="py-4">
+        <CardHeader>
           <div className="flex items-center">
             <Sprite name={props.battleLog.players[0].deck} />
             <div className="font-semibold ml-2 mr-3">vs</div>
