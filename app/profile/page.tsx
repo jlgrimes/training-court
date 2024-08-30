@@ -6,6 +6,7 @@ import TournamentCreate from "@/components/tournaments/TournamentCreate";
 import { MyTournamentPreviews } from "@/components/tournaments/MyTournamentPreviews";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
+import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -16,8 +17,10 @@ export default async function Profile() {
 
   return (
     <div className="flex flex-col py-8 px-16 gap-4 w-full h-full">
-      <AvatarSelector userId={user.id} />
-      <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">Welcome!</h1>
+      <div className="flex items-center gap-4">
+        <AvatarSelector userId={user.id} />
+        <ScreenNameEditable userId={user.id} />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div className="flex flex-col gap-4">
