@@ -12,7 +12,7 @@ import { createClient } from '@/utils/supabase/client';
 interface AvatarDropdownMenuProps {
   images: string[];
   userId: string;
-  initialAvatar: string | undefined
+  initialAvatar: string | null | undefined
 }
 
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {

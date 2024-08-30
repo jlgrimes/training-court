@@ -1,4 +1,4 @@
-import { fetchBattleLogs } from "./battle-log.server.utils";
+import { fetchBattleLogs } from "./utils/battle-log.server.utils";
 import { fetchCurrentUser } from "../auth.utils";
 import { BattleLogsContainerClient } from "./BattleLogsContainerClient";
 import { fetchUserData } from "../user-data.utils";

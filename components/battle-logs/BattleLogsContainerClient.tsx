@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { RadioTower } from "lucide-react";
-import { AddBattleLogInput } from "./AddBattleLogInput";
-import { MyBattleLogPreviews } from "./MyBattleLogPreviews";
+import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
+import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
 import { Database } from "@/database.types";
 
 interface BattleLogsContainerClientProps {

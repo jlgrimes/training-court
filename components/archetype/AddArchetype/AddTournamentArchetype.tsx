@@ -4,8 +4,8 @@
 import { createClient } from "@/utils/supabase/client";
 import React, { useCallback, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
-import { Sprite } from "./Sprite";
-import { Button } from "../ui/button";
+import { Sprite } from "../Sprite";
+import { Button } from "../../ui/button";
 
 export const EditableTournamentArchetype = ({ tournament }: { tournament: { id: string, deck: string }}) => {
   const [deck, setDeck] = useState('');

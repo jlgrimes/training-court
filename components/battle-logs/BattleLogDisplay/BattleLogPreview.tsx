@@ -6,8 +6,8 @@ import {
   CardHeader,
 } from "@/components/ui/card"
 import { formatDistanceToNowStrict } from "date-fns";
-import { BattleLog } from "./battle-log.types";
-import { Sprite } from "../archetype/Sprite";
+import { BattleLog } from "../utils/battle-log.types";
+import { Sprite } from "../../archetype/Sprite";
 import Link from "next/link";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";

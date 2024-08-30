@@ -1,4 +1,4 @@
-import { determineArchetype } from "../archetype/archetype.utils";
+import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer } from "./battle-log.types";
 
 function trimBattleLog(log: string): string[] {

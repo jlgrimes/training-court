@@ -1,14 +1,10 @@
-import { createClient } from "@/utils/supabase/client";
 import {
   Card,
   CardHeader,
-  CardTitle
 } from "@/components/ui/card"
-import { Sprite } from "../archetype/Sprite";
-import { fetchRounds, fetchTournament, getRecord } from "./tournaments.utils";
-import { AddArchetype } from "../archetype/AddArchetype";
-import { useCallback } from "react";
-import { EditableTournamentArchetype } from "../archetype/AddTournamentArchetype";
+import { fetchRounds, fetchTournament, getRecord } from "./utils/tournaments.utils";
+
+import { EditableTournamentArchetype } from "../archetype/AddArchetype/AddTournamentArchetype";
 
 export default async function TournamentSummaryCard ({ tournamentId }: { tournamentId: string }) {
   const tournament = await fetchTournament(tournamentId);

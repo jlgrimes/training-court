@@ -6,7 +6,7 @@ import { Input } from "../../ui/input";
 import { Card, CardHeader } from "../../ui/card";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
-import { AddArchetype } from "../../archetype/AddArchetype";
+import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
 import { Toggle } from "../../ui/toggle";
 import { HandshakeIcon } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";

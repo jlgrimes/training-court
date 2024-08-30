@@ -1,7 +1,7 @@
 'use client';
 
 import { BattleLogPreview } from "./BattleLogPreview";
-import { parseBattleLog } from "./battle-log.utils";
+import { parseBattleLog } from "../utils/battle-log.utils";
 import { Database } from "@/database.types";
 
 interface MyBattleLogPreviewsProps {

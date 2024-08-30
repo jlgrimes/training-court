@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Sprite } from "../archetype/Sprite";
-import { convertGameResultsToRoundResult, fetchRounds } from "./tournaments.utils";
+import { convertGameResultsToRoundResult, fetchRounds } from "./utils/tournaments.utils";
 import { HandshakeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 

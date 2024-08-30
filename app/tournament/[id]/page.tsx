@@ -2,7 +2,7 @@ import { fetchCurrentUser } from "@/components/auth.utils";
 import AddTournamentRound from "@/components/tournaments/AddTournamentRound/AddTournamentRound";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import TournamentSummaryCard from "@/components/tournaments/TournamentSummaryCard";
-import { fetchTournament } from "@/components/tournaments/tournaments.utils";
+import { fetchTournament } from "@/components/tournaments/utils/tournaments.utils";
 import { format } from "date-fns";
 import { redirect } from "next/navigation";
 

@@ -6,7 +6,7 @@ import { Card, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { createClient } from "@/utils/supabase/client";
 
-export const ScreenNameEditableInputClient = ({ userId, liveScreenName }: { userId: string, liveScreenName: string }) => {
+export const ScreenNameEditableInputClient = ({ userId, liveScreenName }: { userId: string, liveScreenName: string | null | undefined }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [screenNameValue, setScreenNameValue] = useState('');
 
