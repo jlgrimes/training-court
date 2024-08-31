@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import TournamentCreate from "@/components/tournaments/TournamentCreate";
-import { MyTournamentPreviews } from "@/components/tournaments/MyTournamentPreviews";
+import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournamentPreviews";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";

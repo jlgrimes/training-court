@@ -5,18 +5,18 @@ import { cache } from 'react'
 export const fetchTournament = cache(async (tournamentId: string) => {
   const supabase = createClient();
 
-  const { data: tournamentData } = await supabase.from('tournaments').select('id,user,name,date_from,date_to,deck').eq('id', tournamentId).maybeSingle();
+  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('id', tournamentId).maybeSingle();
   return tournamentData;
 });
 
 export const fetchRounds = cache(async (tournamentId: string) => {
   const supabase = createClient();
 
-  const { data: rounds } =  await supabase.from('tournament rounds').select('round_num,deck,result,is_id').eq('tournament', tournamentId).order('round_num', { ascending: true });
+  const { data: rounds } =  await supabase.from('tournament rounds').select('*').eq('tournament', tournamentId).order('round_num', { ascending: true });
   return rounds
 })
 
-export const getRecord = (rounds: { result: RoundResult[] }[]) => {
+export const getRecord = (rounds: { result: string[] }[]) => {
   const record = {
     wins: 0,
     ties: 0,
@@ -38,7 +38,7 @@ export const getRecord = (rounds: { result: RoundResult[] }[]) => {
   return `${record.wins}-${record.losses}-${record.ties}`;
 }
 
-export const convertGameResultsToRoundResult = (result: RoundResult[]) => {
+export const convertGameResultsToRoundResult = (result: string[]) => {
   if (result.length === 1) return result[0];
   if ((result.length === 2) && (result[0] === result[1])) return result[0];
   if (result.length === 3) return result[2];

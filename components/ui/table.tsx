@@ -53,7 +53,7 @@ const TableFooter = React.forwardRef<
 TableFooter.displayName = "TableFooter"
 
 interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
-  result?: RoundResult;
+  result?: string;
 }
 
 const TableRow = React.forwardRef<

@@ -44,30 +44,30 @@ export type Database = {
           deck: string | null
           id: string
           is_id: boolean | null
-          result: string[] | null
-          round_num: number | null
-          tournament: string | null
-          user: string | null
+          result: string[]
+          round_num: number
+          tournament: string
+          user: string
         }
         Insert: {
           created_at?: string
           deck?: string | null
           id?: string
           is_id?: boolean | null
-          result?: string[] | null
-          round_num?: number | null
-          tournament?: string | null
-          user?: string | null
+          result: string[]
+          round_num: number
+          tournament: string
+          user: string
         }
         Update: {
           created_at?: string
           deck?: string | null
           id?: string
           is_id?: boolean | null
-          result?: string[] | null
-          round_num?: number | null
-          tournament?: string | null
-          user?: string | null
+          result?: string[]
+          round_num?: number
+          tournament?: string
+          user?: string
         }
         Relationships: [
           {
@@ -82,30 +82,30 @@ export type Database = {
       tournaments: {
         Row: {
           created_at: string
-          date_from: string | null
-          date_to: string | null
+          date_from: string
+          date_to: string
           deck: string | null
           id: string
-          name: string | null
-          user: string | null
+          name: string
+          user: string
         }
         Insert: {
           created_at?: string
-          date_from?: string | null
-          date_to?: string | null
+          date_from: string
+          date_to: string
           deck?: string | null
           id?: string
-          name?: string | null
-          user?: string | null
+          name: string
+          user: string
         }
         Update: {
           created_at?: string
-          date_from?: string | null
-          date_to?: string | null
+          date_from?: string
+          date_to?: string
           deck?: string | null
           id?: string
-          name?: string | null
-          user?: string | null
+          name?: string
+          user?: string
         }
         Relationships: [
           {

@@ -6,8 +6,9 @@ import React, { useCallback, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
 import { Sprite } from "../Sprite";
 import { Button } from "../../ui/button";
+import { Database } from "@/database.types";
 
-export const EditableTournamentArchetype = ({ tournament }: { tournament: { id: string, deck: string }}) => {
+export const EditableTournamentArchetype = ({ tournament }: { tournament: Database['public']['Tables']['tournaments']['Row']}) => {
   const [deck, setDeck] = useState('');
   
   const setArchetype = useCallback(async () => {

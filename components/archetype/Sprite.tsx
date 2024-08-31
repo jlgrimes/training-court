@@ -1,7 +1,5 @@
-import Image from "next/image"
-
 interface SpriteProps {
-  name: string | undefined;
+  name: string | null | undefined;
 }
 
 export const Sprite = (props: SpriteProps) => {

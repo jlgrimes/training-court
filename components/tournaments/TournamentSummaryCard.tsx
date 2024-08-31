@@ -2,21 +2,22 @@ import {
   Card,
   CardHeader,
 } from "@/components/ui/card"
-import { fetchRounds, fetchTournament, getRecord } from "./utils/tournaments.utils";
+import { getRecord } from "./utils/tournaments.utils";
 
 import { EditableTournamentArchetype } from "../archetype/AddArchetype/AddTournamentArchetype";
+import { Database } from "@/database.types";
 
-export default async function TournamentSummaryCard ({ tournamentId }: { tournamentId: string }) {
-  const tournament = await fetchTournament(tournamentId);
-  const rounds = await fetchRounds(tournamentId);
+interface TournamentSummaryCardProps {
+  tournament: Database['public']['Tables']['tournaments']['Row'];
+  rounds: Database['public']['Tables']['tournament rounds']['Row'][];
+}
 
-  if (!tournament || !rounds) return null;
-
+export default async function TournamentSummaryCard (props: TournamentSummaryCardProps) {
   return (
     <Card>
       <CardHeader className="grid grid-cols-2 gap-4 items-center">
-        <EditableTournamentArchetype tournament={tournament} />
-        <h2 className="text-xl font-semibold tracking-wider">{getRecord(rounds)}</h2>
+        <EditableTournamentArchetype tournament={props.tournament} />
+        <h2 className="text-xl font-semibold tracking-wider">{getRecord(props.rounds)}</h2>
       </CardHeader>
     </Card>
   )
