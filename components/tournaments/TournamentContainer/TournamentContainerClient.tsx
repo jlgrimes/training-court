@@ -12,6 +12,12 @@ interface TournamentContainerClientProps {
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
+/**
+ * TODO for when you get back:
+ * - Define rounds state here, and pass it down client side, then when you add round, update it
+ * - make it so "add round" can only add to the most recent round. Don't even think you need number picker. Making rounds editable is good enough
+ */
+
   return (
     <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-xl justify-between gap-2">
       <div className="flex flex-col gap-8">
