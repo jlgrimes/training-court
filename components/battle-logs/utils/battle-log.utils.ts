@@ -45,8 +45,9 @@ export function getBattleActions(log: string[]): BattleLogAction[] {
 
 export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogSections[] {
   const sections: BattleLogSections[] = [];
-  let currentTitle: string | null = null;
+  let currentTitle: string | null = "Setup"; // Default to "Setup" for the initial section
   let currentBody: string[] = [];
+  let firstTurnFound = false;
 
   cleanedLog.forEach((line) => {
     if (line.match(/Turn\s+#\s+\d+\s+-\s+.*'s\s+Turn/)) {
@@ -54,9 +55,15 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogSect
         sections.push({ turnTitle: currentTitle, body: currentBody.join('\n') });
         currentBody = [];
       }
+
       currentTitle = line;
+      firstTurnFound = true;
     } else {
-      currentBody.push(line);
+      if (!firstTurnFound) {
+        currentBody.push(line);
+      } else {
+        currentBody.push(line);
+      }
     }
   });
 

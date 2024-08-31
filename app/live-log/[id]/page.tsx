@@ -19,20 +19,22 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
   return (
     <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-lg justify-between gap-2">
       <div className="flex flex-col gap-8">
-      <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center justify-evenly w-full">
-          <div className="flex items-center gap-2">
-            <Sprite name={battleLog.players[0].deck} />
-            <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-evenly w-full">
+            <div className="flex items-center gap-2">
+              <Sprite name={battleLog.players[0].deck} />
+              <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sprite name={battleLog.players[1].deck} />
+              <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Sprite name={battleLog.players[1].deck} />
-            <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
-          </div>
+          <h3 className="text-sm text-muted-foreground">
+            {formatDistanceToNowStrict(battleLog.date)} ago
+          </h3>
         </div>
-        <h3 className="text-sm text-muted-foreground">{formatDistanceToNowStrict(battleLog.date)} ago</h3>
-      </div>
-        <div>
+        <div className="mt-6">
           <BattleLogCarousel sections={battleLog.sections} />
         </div>
       </div>
