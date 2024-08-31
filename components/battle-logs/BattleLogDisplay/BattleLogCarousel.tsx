@@ -16,9 +16,9 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogSections[] 
         align: "start",
       }}
       orientation="vertical"
-      className="w-full max-w-xs"
+      className="w-full"
     >
-      <CarouselContent className="-mt-1 h-[550px]">
+      <CarouselContent className="-mt-1 h-[600px]">
         {sections.map((section, index) => (
           <CarouselItem key={index} className="pt-1 basis-1/2">
             <div className="p-1">

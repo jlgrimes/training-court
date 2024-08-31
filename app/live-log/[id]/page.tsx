@@ -22,11 +22,11 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
       <div className="flex flex-col items-center gap-4">
       <div className="flex items-center justify-evenly w-full">
           <div className="flex items-center gap-2">
-            {<Sprite name={battleLog.players[0].deck} />}
+            <Sprite name={battleLog.players[0].deck} />
             <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
           </div>
           <div className="flex items-center gap-2">
-            {<Sprite name={battleLog.players[1].deck} />}
+            <Sprite name={battleLog.players[1].deck} />
             <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
           </div>
         </div>
