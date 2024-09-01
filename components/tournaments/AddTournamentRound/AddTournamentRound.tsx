@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
-import { Card, CardHeader } from "../../ui/card";
+import { Card, CardHeader, CardTitle } from "../../ui/card";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
@@ -11,11 +11,10 @@ import { Toggle } from "../../ui/toggle";
 import { HandshakeIcon, Plus } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 
-export default function AddTournamentRound({ tournamentId, userId }: { tournamentId: string, userId: string }) {
+export default function AddTournamentRound({ tournamentId, userId, roundsLength }: { tournamentId: string, userId: string, roundsLength: number }) {
   const [editing, setEditing] = useState(false);
   const { toast } = useToast();
 
-  const [roundNumber, setRoundNumber] = useState<number | undefined>();
   const [deck, setDeck] = useState<string | undefined>();
   const [result, setResult] = useState<string[]>([]);
   const [id, setId] = useState(false);
@@ -33,7 +32,7 @@ export default function AddTournamentRound({ tournamentId, userId }: { tournamen
 
     const { error } = await supabase.from('tournament rounds').insert({
       tournament: tournamentId,
-      round_num: roundNumber,
+      round_num: roundsLength + 1,
       result: result,
       deck: deck,
       user: userId,
@@ -50,26 +49,27 @@ export default function AddTournamentRound({ tournamentId, userId }: { tournamen
       toast({
         title: "You did it!",
       });
-      setRoundNumber(undefined)
       setResult([]);
       setEditing(false);
     }
-  }, [tournamentId, roundNumber, deck, result, id]);
+  }, [tournamentId, roundsLength, deck, result, id]);
 
   if (editing) return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col w-full gap-2 space-x-2">
-          <div className="flex gap-2">
-            <Input type='number' placeholder="Round number" value={roundNumber} onChange={(e) => setRoundNumber(parseInt(e.target.value))} />
+        <CardTitle className="my-2">Round {roundsLength + 1}</CardTitle>
+        <div className="flex flex-col w-full gap-4">
+          <AddArchetype setArchetype={setDeck} isDisabled={id} />
+          <div className="grid grid-cols-5">
+            <div className="col-span-4">
+            <RoundResultInput result={result} setResult={setResult} />
+            </div>
             <Toggle variant='outline' onPressedChange={setId}>
               <HandshakeIcon className="mr-2 h-4 w-4" />
               ID
             </Toggle>
           </div>
-          <AddArchetype setArchetype={setDeck} isDisabled={id} />
-          <RoundResultInput result={result} setResult={setResult} />
-          <Button onClick={handleAddTournament} type="submit" disabled={!roundNumber || (!id && (!deck || (result.length === 0)))}>Add round</Button>
+          <Button onClick={handleAddTournament} type="submit" disabled={(!id && (!deck || (result.length === 0)))}>Add round</Button>
       </div>
       </CardHeader>
     </Card>

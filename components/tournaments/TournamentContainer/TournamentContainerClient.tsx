@@ -31,7 +31,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <div className="flex flex-col gap-4">
             <TournamentSummaryCard tournament={props.tournament} rounds={props.rounds} />
             <TournamentRoundList rounds={props.rounds} />
-            {props.user?.id && (props.user.id === props.tournament.user) && <AddTournamentRound tournamentId={props.tournament.id} userId={props.user.id} />}
+            {props.user?.id && (props.user.id === props.tournament.user) && <AddTournamentRound tournamentId={props.tournament.id} userId={props.user.id} roundsLength={props.rounds.length} />}
           </div>
         </div>
       </div>

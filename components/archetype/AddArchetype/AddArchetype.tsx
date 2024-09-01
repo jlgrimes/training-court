@@ -17,7 +17,7 @@ export const AddArchetype = (props: AddArchetypeProps) => {
 
   return (
     <div className='grid grid-cols-4 gap-4'>
-      <Input disabled={props.isDisabled} className='col-span-3' value={pokemonName} onChange={e => setPokemonName(e.target.value)} placeholder='Enter name of Pokemon in deck' />
+      <Input autoFocus disabled={props.isDisabled} className='col-span-3' value={pokemonName} onChange={e => setPokemonName(e.target.value)} placeholder='Enter name of Pokemon in deck' />
       {!props.isDisabled && <Sprite name={pokemonName} />}
     </div>
   )
