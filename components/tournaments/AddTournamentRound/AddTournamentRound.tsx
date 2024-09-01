@@ -10,8 +10,9 @@ import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
 import { Toggle } from "../../ui/toggle";
 import { HandshakeIcon, Plus } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
+import { Database } from "@/database.types";
 
-export default function AddTournamentRound({ tournamentId, userId, roundsLength }: { tournamentId: string, userId: string, roundsLength: number }) {
+export default function AddTournamentRound({ tournamentId, userId, roundsLength, updateClientRoundsOnAdd }: { tournamentId: string, userId: string, roundsLength: number, updateClientRoundsOnAdd: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void }) {
   const [editing, setEditing] = useState(false);
   const { toast } = useToast();
 
@@ -30,14 +31,14 @@ export default function AddTournamentRound({ tournamentId, userId, roundsLength 
   const handleAddTournament = useCallback(async () => {
     const supabase = createClient();
 
-    const { error } = await supabase.from('tournament rounds').insert({
+    const { data, error } = await supabase.from('tournament rounds').insert({
       tournament: tournamentId,
       round_num: roundsLength + 1,
       result: result,
       deck: deck,
       user: userId,
       is_id: id
-    });
+    }).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
 
     if (error) {
       toast({
@@ -46,11 +47,10 @@ export default function AddTournamentRound({ tournamentId, userId, roundsLength 
         description: error.message,
       })
     } else {
-      toast({
-        title: "You did it!",
-      });
       setResult([]);
       setEditing(false);
+      setId(false);
+      updateClientRoundsOnAdd(data[0]);
     }
   }, [tournamentId, roundsLength, deck, result, id]);
 

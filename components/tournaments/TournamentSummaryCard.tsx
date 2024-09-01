@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardHeader,
@@ -12,7 +14,7 @@ interface TournamentSummaryCardProps {
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
 }
 
-export default async function TournamentSummaryCard (props: TournamentSummaryCardProps) {
+export default function TournamentSummaryCard (props: TournamentSummaryCardProps) {
   return (
     <Card>
       <CardHeader className="grid grid-cols-2 gap-4 items-center">

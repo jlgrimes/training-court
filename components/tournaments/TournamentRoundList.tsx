@@ -1,4 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+'use client';
+
 import {
   Table,
   TableBody,
@@ -17,7 +18,7 @@ interface TournamentRoundListProps {
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
 }
 
-export default async function TournamentRoundList (props: TournamentRoundListProps) {
+export default function TournamentRoundList (props: TournamentRoundListProps) {
   return (
     <Table>
       <TableHeader>
