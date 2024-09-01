@@ -46,9 +46,9 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   const gameResultAsText = useMemo(() => {
     switch (gameResult) {
       case 'W':
-        return 'win';
+        return 'Win';
       default:
-        return 'loss'
+        return 'Loss'
     }
   }, [gameResult])
 
