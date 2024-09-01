@@ -59,11 +59,11 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card result={gameResult}>
-        <CardHeader className="grid grid-cols-8 items-center">
+        <CardHeader className="grid grid-cols-8 items-center py-2">
           <Sprite faded name={players[0].deck} />
-          {/* <CardTitle>game</CardTitle> */}
-          <div className="col-span-6 ml-4">
-            <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</CardTitle>
+          {/* uh, idk where the mt- is coming from, can't find it so here */}
+          <div className="col-span-6 ml-4 pb-2">
+            <p>{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
             <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
           <Sprite name={players[1].deck} />
