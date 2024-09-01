@@ -31,7 +31,7 @@ export default async function TournamentRoundList (props: TournamentRoundListPro
         {props.rounds?.map((round) => (
           <TableRow result={convertGameResultsToRoundResult(round.result)}>
             <TableCell className="font-medium py-2">{round.round_num}</TableCell>
-            <TableCell className="py-2">{round.is_id ? <div className="flex items-center">
+            <TableCell className="py-2">{round.is_id ? <div className="flex items-center font-bold">
             <HandshakeIcon className="mr-2 h-4 w-4" />
             ID
             </div> : <Sprite name={round.deck} />}</TableCell>
