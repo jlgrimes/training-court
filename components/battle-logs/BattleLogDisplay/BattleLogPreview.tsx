@@ -4,12 +4,13 @@ import {
   Card,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card"
 import { formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 import { Sprite } from "../../archetype/Sprite";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 interface BattleLogPreviewProps {
@@ -31,7 +32,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, [props.battleLog.players, props.currentUserScreenName]);
 
   const players = useMemo(() => {
-    if (shouldReversePlayers) return props.battleLog.players.reverse();
+    if (shouldReversePlayers) return [props.battleLog.players[1], props.battleLog.players[0]];
     return props.battleLog.players;
   }, [shouldReversePlayers, props.battleLog.players]);
 
@@ -42,17 +43,30 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     return 'L';
   }, [props.currentUserScreenName, props.battleLog.winner]);
 
+  const gameResultAsText = useMemo(() => {
+    switch (gameResult) {
+      case 'W':
+        return 'win';
+      default:
+        return 'loss'
+    }
+  }, [gameResult])
+
+  const getDeckAsText = useCallback((deck?: string) => {
+    return deck?.replace('-', ' ');
+  }, []);
+
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card result={gameResult}>
-        <CardHeader>
-          <div className="flex items-center">
-            <Sprite name={players[0].deck} />
-            <div className="font-semibold ml-2 mr-3">vs</div>
-            <Sprite name={players[1].deck} />
-          </div>
+        <CardHeader className="grid grid-cols-8 items-center">
+          <Sprite faded name={players[0].deck} />
           {/* <CardTitle>game</CardTitle> */}
-          <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
+          <div className="col-span-6 ml-4">
+            <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</CardTitle>
+            <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
+          </div>
+          <Sprite name={players[1].deck} />
         </CardHeader>
       </Card>
     </Link>
