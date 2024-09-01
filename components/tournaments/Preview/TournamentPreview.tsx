@@ -11,12 +11,14 @@ export default async function TournamentPreview({ id, name, date_from, date_to, 
   return (
     <Link href={`/tournament/${id}`}>
       <Card clickable>
-        <CardHeader>
-          <CardTitle className="text-lg tracking-normal">{name}</CardTitle>
-          <CardDescription className="grid grid-cols-4 gap-4 text-lg font-semibold tracking-wider">
-            {deck && <Sprite name={deck} />}
-            {rounds && getRecord(rounds)}
+        <CardHeader className="grid grid-cols-6 items-center">
+          {deck ? <Sprite name={deck} /> : <></>}
+          <div className="col-span-4 grid-cols-5">
+            <CardTitle>{name}</CardTitle>
+            <CardDescription className="grid gap-4">
+              {rounds && getRecord(rounds)}
             </CardDescription>
+          </div>
         </CardHeader>
       </Card>
     </Link>
