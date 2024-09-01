@@ -1,5 +1,5 @@
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
-import { BattleLog, BattleLogAction, BattleLogPlayer } from "./battle-log.types";
+import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogSections } from "./battle-log.types";
 
 function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
@@ -43,6 +43,37 @@ export function getBattleActions(log: string[]): BattleLogAction[] {
   }))
 }
 
+export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogSections[] {
+  const sections: BattleLogSections[] = [];
+  let currentTitle: string | null = "Setup"; // Default to "Setup" for the initial section
+  let currentBody: string[] = [];
+  let firstTurnFound = false;
+
+  cleanedLog.forEach((line) => {
+    if (line.match(/Turn\s+#\s+\d+\s+-\s+.*'s\s+Turn/)) {
+      if (currentTitle && currentBody.length > 0) {
+        sections.push({ turnTitle: currentTitle, body: currentBody.join('\n') });
+        currentBody = [];
+      }
+
+      currentTitle = line;
+      firstTurnFound = true;
+    } else {
+      if (!firstTurnFound) {
+        currentBody.push(line);
+      } else {
+        currentBody.push(line);
+      }
+    }
+  });
+
+  if (currentTitle && currentBody.length > 0) {
+    sections.push({ turnTitle: currentTitle, body: currentBody.join('\n') });
+  }
+
+  return sections;
+}
+
 export function parseBattleLog(log: string, id: string, created_at: string) {
   const cleanedLog = trimBattleLog(log);
   const playerNames = getPlayerNames(cleanedLog);
@@ -52,13 +83,15 @@ export function parseBattleLog(log: string, id: string, created_at: string) {
     deck: determineArchetype(cleanedLog, player),
     result: (winner === player) ? 'W' : 'L'
   }));
+  const sections: BattleLogSections[] = [];
 
   const battleLog: BattleLog = {
-    players,
     id,
+    players,
+    actions: getBattleActions(cleanedLog),
     date: created_at,
     winner,
-    actions: getBattleActions(cleanedLog)
+    sections: divideBattleLogIntoSections(cleanedLog)
   };
 
   return battleLog;

@@ -18,6 +18,8 @@ interface BattleLogPreviewProps {
   currentUserScreenName: string | null;
 }
 
+
+//@TODO
 export function BattleLogPreview (props: BattleLogPreviewProps) {
   const shouldReversePlayers = useMemo(() => {
     // because it doesn't matter
