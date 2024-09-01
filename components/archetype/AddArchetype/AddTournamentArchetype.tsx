@@ -2,7 +2,7 @@
 
 
 import { createClient } from "@/utils/supabase/client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
 import { Sprite } from "../Sprite";
 import { Button } from "../../ui/button";
@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Database } from "@/database.types";
+import { isAfter } from "date-fns";
 
 export const EditableTournamentArchetype = ({ tournament }: { tournament: Database['public']['Tables']['tournaments']['Row']}) => {
   const [deck, setDeck] = useState('');
@@ -30,6 +31,11 @@ export const EditableTournamentArchetype = ({ tournament }: { tournament: Databa
 
     setServerDeck(deck);
   }, [createClient, deck]);
+
+  const shouldDisableDeckInput = useMemo(() => {
+    if (isAfter(Date.now(), tournament.date_to)) return false;
+    return true;
+  }, [tournament.date_to])
 
   if (serverDeck) {
     return (
@@ -46,9 +52,14 @@ export const EditableTournamentArchetype = ({ tournament }: { tournament: Databa
         <DialogHeader>
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
         </DialogHeader>
-          <AddArchetype setArchetype={setDeck} />
+          <AddArchetype setArchetype={setDeck} isDisabled={shouldDisableDeckInput} />
+          <p className="my-0 text-sm">
+            Adding your deck before the tournament is over is disabled.
+            This is to preserve the integrity of the tournament
+            for all participants.
+          </p>
           <DialogClose asChild>
-            <Button disabled={deck.length === 0} onClick={setArchetype}>Save</Button>
+            <Button disabled={deck.length === 0 || shouldDisableDeckInput} onClick={setArchetype}>Save</Button>
           </DialogClose>
       </DialogContent>
     </Dialog>
