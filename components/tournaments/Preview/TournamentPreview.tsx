@@ -13,7 +13,7 @@ export default async function TournamentPreview({ id, name, date_from, date_to, 
       <Card clickable>
         <CardHeader className="grid grid-cols-6 items-center">
           {deck ? <Sprite name={deck} /> : <div></div>}
-          <div className="col-span-4 grid-cols-5">
+          <div className="col-span-5 grid-cols-5">
             <CardTitle>{name}</CardTitle>
             <CardDescription className="grid gap-4">
               {rounds && getRecord(rounds)}

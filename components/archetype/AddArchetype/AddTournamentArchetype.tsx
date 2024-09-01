@@ -47,7 +47,7 @@ export const EditableTournamentArchetype = ({ tournament }: { tournament: Databa
 
   return (
     <Dialog>
-      <DialogTrigger>Add deck</DialogTrigger>
+      <DialogTrigger className="text-sm">Add deck</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
