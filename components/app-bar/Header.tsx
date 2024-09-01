@@ -10,6 +10,7 @@ import Link from "next/link";
 import { MyProfileAvatar } from "./MyProfileAvatar";
 import HeaderBreadcrumbs from "./HeaderBreadcrumbs";
 import { AvatarSelector } from "../avatar/AvatarSelector";
+import { LogInOut } from "./LogInOut";
 
 export default function Header() {
   return (
@@ -27,13 +28,9 @@ export default function Header() {
                 </NavigationMenuLink>     
               </Link>
             </NavigationMenuItem>
-            {/* <NavigationMenuItem>
-              <Link href="/home" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Home
-                </NavigationMenuLink>     
-              </Link>
-            </NavigationMenuItem> */}
+            <NavigationMenuItem>
+              <LogInOut />
+            </NavigationMenuItem>
             {/* <NavigationMenuItem>
               <AvatarSelector />
             </NavigationMenuItem> */}
