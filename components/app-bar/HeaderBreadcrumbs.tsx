@@ -51,7 +51,7 @@ export default function HeaderBreadcrumbs() {
   }
 
   return (
-    <Breadcrumb className="my-2 ml-4">
+    <Breadcrumb className="my-2 ml-4 px-4">
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
         <>

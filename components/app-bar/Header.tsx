@@ -14,7 +14,7 @@ import { LogInOut } from "./LogInOut";
 
 export default function Header() {
   return (
-    <header className="sticky z-50 flex flex-col px-4 py-4 gap-2">
+    <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
       <div className="flex justify-between">
         <Link href={'/home'}>
           <div className="px-4 py-2 font-semibold text-slate-800">Buddy Poffin</div>
@@ -38,7 +38,6 @@ export default function Header() {
         </NavigationMenu>
       </div>
       <Separator />
-      <HeaderBreadcrumbs />
     </header>
   );
 }
