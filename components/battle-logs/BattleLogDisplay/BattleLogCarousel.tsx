@@ -28,12 +28,12 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogSections[] 
       orientation="vertical"
       className="w-full"
     >
-      <CarouselContent className="-mt-1 max-h-[600px]">
+      <CarouselContent className="-mt-1 max-h-[60vh]">
         {sections.map((section, index) => (
           <CarouselItem key={index} className="pt-1 basis-1/2">
             <div className="p-1">
-              <Card className={getCardBackgroundColor(index, section)}>
-                <CardContent className="p-6 max-h-[600px] overflow-y-auto">
+              <Card className={` ${getCardBackgroundColor(index, section)}`}>
+                <CardContent className="p-6 max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400">
                   <h4 className="text-xl font-semibold">{section.turnTitle}</h4>
                   <p>{section.body}</p>
                 </CardContent>
