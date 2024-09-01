@@ -8,7 +8,7 @@ interface MyTournamentPreviewsProps {
 
 export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const supabase = createClient();
-  const { data: tournamentData } = await supabase.from('tournaments').select('id,name,date_from,date_to,deck').eq('user', props.user?.id);
+  const { data: tournamentData } = await supabase.from('tournaments').select('id,name,date_from,date_to,deck').eq('user', props.user?.id).order('date_from', { ascending: false });
 
   return (
     <div className="flex flex-col gap-2">
