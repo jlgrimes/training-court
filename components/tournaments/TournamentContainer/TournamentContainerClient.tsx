@@ -27,7 +27,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
       <div className="flex flex-col gap-8">
         <div className="grid grid-cols-7 items-center">
           <div className="flex flex-col gap-1 col-span-5">
-            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight lg:text-4xl">{props.tournament.name}</h1>
+            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{props.tournament.name}</h1>
             <h3 className="text-sm text-muted-foreground">{displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}</h3>
           </div>
           <EditableTournamentArchetype tournament={props.tournament} />

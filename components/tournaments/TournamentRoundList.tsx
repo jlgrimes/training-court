@@ -36,7 +36,7 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
             <HandshakeIcon className="mr-2 h-4 w-4" />
             ID
             </div> : <Sprite name={round.deck} />}</TableCell>
-            <TableCell className="text-right font-bold text-md">{round.result.join('')}</TableCell>
+            <TableCell className="text-right font-bold tracking-wider text-lg leading-4">{round.result.join('')}</TableCell>
           </TableRow>
         ))}
       </TableBody>
