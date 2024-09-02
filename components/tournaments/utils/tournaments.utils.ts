@@ -1,20 +1,5 @@
-import { RoundResult } from '@/components/battle-logs/utils/battle-log.types';
-import { createClient } from '@/utils/supabase/server';
-import { cache } from 'react'
-
-export const fetchTournament = cache(async (tournamentId: string) => {
-  const supabase = createClient();
-
-  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('id', tournamentId).maybeSingle();
-  return tournamentData;
-});
-
-export const fetchRounds = cache(async (tournamentId: string) => {
-  const supabase = createClient();
-
-  const { data: rounds } =  await supabase.from('tournament rounds').select('*').eq('tournament', tournamentId).order('round_num', { ascending: true });
-  return rounds
-})
+import { Database } from "@/database.types";
+import { format, parseISO } from "date-fns";
 
 export const getRecord = (rounds: { result: string[] }[]) => {
   const record = {
@@ -44,4 +29,16 @@ export const convertGameResultsToRoundResult = (result: string[]) => {
   if (result.length === 3) return result[2];
 
   return 'T';
+}
+
+export const displayTournamentDate = (from: string, to: string) => {
+  if (from === to) {
+    return format(from, "PPP");
+  }
+
+  if (parseISO(from).getMonth() === parseISO(from).getMonth()) {
+    return `${format(from, "LLLL dd")} - ${format(to, "dd, yyyy")}`
+  }
+  
+  return `${format(from, "LLLL dd")} - ${format(to, "LLLL dd, yyyy")}`;
 }

@@ -4,13 +4,15 @@ import {
   Card,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card"
 import { formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 import { Sprite } from "../../archetype/Sprite";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { capitalizeName } from "../utils/battle-log.utils";
 
 interface BattleLogPreviewProps {
   // unparsed battle log
@@ -31,7 +33,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, [props.battleLog.players, props.currentUserScreenName]);
 
   const players = useMemo(() => {
-    if (shouldReversePlayers) return props.battleLog.players.reverse();
+    if (shouldReversePlayers) return [props.battleLog.players[1], props.battleLog.players[0]];
     return props.battleLog.players;
   }, [shouldReversePlayers, props.battleLog.players]);
 
@@ -42,17 +44,31 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     return 'L';
   }, [props.currentUserScreenName, props.battleLog.winner]);
 
+  const gameResultAsText = useMemo(() => {
+    switch (gameResult) {
+      case 'W':
+        return 'Win';
+      default:
+        return 'Loss'
+    }
+  }, [gameResult])
+
+  const getDeckAsText = useCallback((deck?: string) => {
+    if (!deck) return '';
+    return capitalizeName(deck.replace('-', ' '));
+  }, []);
+
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
-      <Card result={gameResult}>
-        <CardHeader>
-          <div className="flex items-center">
-            <Sprite name={players[0].deck} />
-            <div className="font-semibold ml-2 mr-3">vs</div>
-            <Sprite name={players[1].deck} />
+      <Card result={gameResult} clickable>
+        <CardHeader className="grid grid-cols-8 items-center py-4">
+          <Sprite name={players[0].deck} />
+          {/* uh, idk where the mt- is coming from, can't find it so here */}
+          <div className="col-span-6 pb-1 ml-4">
+            <p className="text-slate-800 font-semibold tracking-normal text-lg leading-6">{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
+            <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
-          {/* <CardTitle>game</CardTitle> */}
-          <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
+          <Sprite name={players[1].deck} />
         </CardHeader>
       </Card>
     </Link>

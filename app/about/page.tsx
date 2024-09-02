@@ -17,12 +17,19 @@ export default async function About() {
         You can import logs from PTCG Live, and see turns displayed in a beautiful format
         that's miles better than the wall of text the battle log gives you. Visualizing
         the game like this will help with understanding mistakes made in practice, and
-        help in future matches.
+        help in future matches. In the future, expect analytics capabilities to analyze
+        your practice for you!
       </p>
       <p>
         You can also track tournaments you play in, including what decks you play against and
         individual game records for each round. This information persists to your user account,
         so you'll always be able to go back and see the games you've played in.
+      </p>
+      <p>
+        Special thanks to JW Kriewall for helping a ton with development. Hope you all enjoy the app!
+      </p>
+      <p>
+        - Jared
       </p>
     </div>
   );

@@ -1,9 +1,9 @@
 
 import Link from "next/link";
-import { Button } from "../../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import { fetchRounds, fetchTournament, getRecord } from "../utils/tournaments.utils";
+import { getRecord } from "../utils/tournaments.utils";
 import { Sprite } from "../../archetype/Sprite";
+import { fetchRounds } from "../utils/tournaments.server.utils";
 
 export default async function TournamentPreview({ id, name, date_from, date_to, deck }: { id: string, name: string, date_from: Date, date_to: Date, deck: string }) {
   const rounds = await fetchRounds(id);
@@ -11,12 +11,14 @@ export default async function TournamentPreview({ id, name, date_from, date_to, 
   return (
     <Link href={`/tournament/${id}`}>
       <Card clickable>
-        <CardHeader>
-          <CardTitle className="text-lg tracking-normal">{name}</CardTitle>
-          <CardDescription className="grid grid-cols-4 gap-4 text-lg font-semibold tracking-wider">
-            {deck && <Sprite name={deck} />}
-            {rounds && getRecord(rounds)}
+        <CardHeader className="grid grid-cols-6 items-center">
+          {deck ? <Sprite name={deck} /> : <div></div>}
+          <div className="col-span-5 grid-cols-5">
+            <CardTitle>{name}</CardTitle>
+            <CardDescription className="grid gap-4">
+              {rounds && getRecord(rounds)}
             </CardDescription>
+          </div>
         </CardHeader>
       </Card>
     </Link>
