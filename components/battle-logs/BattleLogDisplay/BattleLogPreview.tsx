@@ -60,13 +60,13 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
 
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
-      <Card result={gameResult}>
+      <Card result={gameResult} clickable>
         <CardHeader className="grid grid-cols-8 items-center py-4">
-          <Sprite faded name={players[0].deck} />
+          <Sprite name={players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
-          <div className="col-span-6 ml-4 pb-1">
-            <p className="text-white font-semibold tracking-normal text-lg leading-5">{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
-            <CardDescription className="text-white opacity-60">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
+          <div className="col-span-6 pb-1">
+            <p className="text-slate-800 font-semibold tracking-normal text-lg leading-6">{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
+            <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
           <Sprite name={players[1].deck} />
         </CardHeader>
