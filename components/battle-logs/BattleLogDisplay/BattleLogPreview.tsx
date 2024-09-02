@@ -64,7 +64,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
         <CardHeader className="grid grid-cols-8 items-center py-4">
           <Sprite name={players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
-          <div className="col-span-6 pb-1">
+          <div className="col-span-6 pb-1 ml-4">
             <p className="text-slate-800 font-semibold tracking-normal text-lg leading-6">{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
             <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
