@@ -96,3 +96,7 @@ export function parseBattleLog(log: string, id: string, created_at: string) {
 
   return battleLog;
 }
+
+export const capitalizeName = (name: string) => {
+  return name.split(' ').map((word) => `${word[0].toUpperCase()}${word.slice(1)}`).join(' ');
+}

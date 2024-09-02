@@ -14,13 +14,13 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border transition-colors bg-card text-card-foreground",
+      "rounded-xl border transition-colors bg-card text-card-foreground",
       className,
       clickable && 'hover:bg-slate-100',
-      result === 'W' && 'bg-green-100 hover:bg-green-200',
+      result === 'W' && 'bg-emerald-400 hover:bg-emerald-300 border-solid border-2',
       result === 'T' && 'bg-yellow-100 hover:bg-yellow-200',
-      result === 'L' && 'bg-red-100 hover:bg-red-200',
-      result && 'border-transparent'
+      result === 'L' && 'bg-red-400 hover:bg-red-300',
+      result && 'border-none'
     )}
     {...props}
   />

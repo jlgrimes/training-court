@@ -65,7 +65,7 @@ const TableRow = React.forwardRef<
     className={cn(
       "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
       className,
-      result === 'W' && 'bg-green-100 text-green-700 hover:bg-green-200',
+      result === 'W' && 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200',
       result === 'T' && 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
       result === 'L' && 'bg-red-100 text-red-700 hover:bg-red-200',
     )}

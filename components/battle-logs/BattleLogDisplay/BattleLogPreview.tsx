@@ -12,6 +12,7 @@ import { Sprite } from "../../archetype/Sprite";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { capitalizeName } from "../utils/battle-log.utils";
 
 interface BattleLogPreviewProps {
   // unparsed battle log
@@ -53,18 +54,19 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, [gameResult])
 
   const getDeckAsText = useCallback((deck?: string) => {
-    return deck?.replace('-', ' ');
+    if (!deck) return '';
+    return capitalizeName(deck.replace('-', ' '));
   }, []);
 
   return (
     <Link href={`/live-log/${props.battleLog.id}`}>
       <Card result={gameResult}>
-        <CardHeader className="grid grid-cols-8 items-center py-2">
+        <CardHeader className="grid grid-cols-8 items-center py-4">
           <Sprite faded name={players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
-          <div className="col-span-6 ml-4 pb-2">
-            <p>{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
-            <CardDescription>{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
+          <div className="col-span-6 ml-4 pb-1">
+            <p className="text-white font-semibold tracking-normal text-lg leading-5">{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
+            <CardDescription className="text-white opacity-60">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
           <Sprite name={players[1].deck} />
         </CardHeader>
