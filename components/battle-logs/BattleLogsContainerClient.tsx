@@ -1,10 +1,12 @@
 'use client';
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { RadioTower } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
 import { Database } from "@/database.types";
+import { BattleLogSortBy } from "./utils/battle-log.types";
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];
@@ -13,6 +15,9 @@ interface BattleLogsContainerClientProps {
 
 export function BattleLogsContainerClient (props: BattleLogsContainerClientProps) {
   const [logs, setLogs] = useState<Database['public']['Tables']['logs']['Row'][]>(props.logs);
+  const [sortBy, setSortBy] = useState<BattleLogSortBy>('All');
+
+  const availableSortBys = useMemo((): BattleLogSortBy[] => ['All', 'Day', 'Deck'], []);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -27,6 +32,15 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
       </div>
 
       <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
+
+      <Tabs defaultValue='All' onValueChange={(value) => setSortBy(value as BattleLogSortBy)}>
+        <TabsList>
+          {availableSortBys.map((sortBy) => (
+            <TabsTrigger value={sortBy}>{sortBy}</TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
       <MyBattleLogPreviews userData={props.userData} battleLogs={logs} />
     </div>
   )

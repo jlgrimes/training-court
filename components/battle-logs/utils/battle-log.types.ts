@@ -31,3 +31,5 @@ export interface BattleLog {
   // log separated by turn
   sections: BattleLogTurn[];
 }
+
+export type BattleLogSortBy = 'All' | 'Day' | 'Deck';
