@@ -10,7 +10,6 @@ export interface BattleLogTurn {
   turnTitle: string;
   body: string;
   player: string;
-  prizesTaken: number;
   prizesAfterTurn: Record<string, number>;
   actions: BattleLogAction[];
 }

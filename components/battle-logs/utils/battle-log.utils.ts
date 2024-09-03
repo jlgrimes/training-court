@@ -34,15 +34,6 @@ export function determineWinner(log: string[]): string {
   throw 'No winner found';
 }
 
-function deductPrizesTaken(prizesTaken: number, player: string, prizeMap: Record<string, number>) {
-  if (!prizeMap[player]) return prizeMap;
-
-  return {
-    ...prizeMap,
-    [player]: prizeMap[player] - prizesTaken
-  }
-}
-
 function getTurnActions (turnLines: string[]) {
   const textThatIndicatesSubaction = [
     'A card was added',
@@ -78,13 +69,16 @@ function getTurnActions (turnLines: string[]) {
   return actions;
 }
 
+function getPlayerFromActionLine(line: string, playerNames: string[]) {
+  return playerNames.find((player) => line?.includes(player)) || ''
+}
+
 export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn[] {
   const playerNames = getPlayerNames(cleanedLog);
 
   const sections: BattleLogTurn[] = [];
   let currentTitle: string | null = "Setup"; // Default to "Setup" for the initial section
   let currentBody: string[] = [];
-  let currentPrizesTaken: number = 0;
   let prizes = {
     [playerNames[0]]: 6,
     [playerNames[1]]: 6
@@ -94,19 +88,14 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
   cleanedLog.forEach((line) => {
     if (line.match(/Turn\s+#\s+\d+\s+-\s+.*'s\s+Turn/)) {
       if (currentTitle && currentBody.length > 0) {
-        const currentPlayer = playerNames.find((player) => currentTitle?.includes(player)) || '';
-        prizes = deductPrizesTaken(currentPrizesTaken, currentPlayer, prizes);
-
         sections.push({
           turnTitle: currentTitle,
           body: currentBody.join('\n'),
-          prizesTaken: currentPrizesTaken,
-          player: currentPlayer,
+          player: getPlayerFromActionLine(currentTitle, playerNames),
           prizesAfterTurn: prizes,
           actions: getTurnActions(currentBody)
         });
         currentBody = [];
-        currentPrizesTaken = 0;
         // Do NOT reset the prize map... That should persist
       }
 
@@ -114,11 +103,18 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
       firstTurnFound = true;
     } else {
       if (line.includes('took') && line.includes('Prize card')) {
-        // should never fall back on default
+        let prizesTaken = 0;
+
         if (line.includes('took a Prize card')) {
-          currentPrizesTaken = 1;
+          prizesTaken = 1;
         } else {
-          currentPrizesTaken = parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0');
+          prizesTaken = parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0');
+        }
+
+        const currentPlayer = getPlayerFromActionLine(line, playerNames);
+        prizes = {
+          ...prizes,
+          [currentPlayer]: prizes[currentPlayer] - prizesTaken
         }
       }
       if (!firstTurnFound) {
@@ -130,13 +126,10 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
   });
 
   if (currentTitle && currentBody.length > 0) {
-    const currentPlayer = playerNames.find((player) => currentTitle?.includes(player)) || '';
-    prizes = deductPrizesTaken(currentPrizesTaken, currentPlayer, prizes);
     sections.push({
       turnTitle: currentTitle,
       body: currentBody.join('\n'),
-      prizesTaken: currentPrizesTaken,
-      player: currentPlayer,
+      player: getPlayerFromActionLine(currentTitle, playerNames),
       prizesAfterTurn: prizes,
       actions: getTurnActions(currentBody)
     });

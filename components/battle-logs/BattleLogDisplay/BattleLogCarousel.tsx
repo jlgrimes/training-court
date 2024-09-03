@@ -44,11 +44,16 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogTurn[] }) {
                   <CardTitle>{section.turnTitle}</CardTitle>
                   {index > 2 && (
                     <CardDescription>
-                      {Object.entries(section.prizesAfterTurn).map(([playerName, prizesRemaining]) => (
-                        <span className={cn(
-                          (section.player === playerName) && (section.prizesTaken > 0) && 'font-bold'
-                        )}>{playerName}: {((section.player === playerName) && `${prizesRemaining + section.prizesTaken} → `)}{prizesRemaining} prize{prizesRemaining !== 1 && 's'}<br /></span>
-                      ))}
+                      {Object.entries(section.prizesAfterTurn).map(([playerName, prizesRemaining]) => {
+                        const previousPrizesOfThisPlayer = sections[index - 1].prizesAfterTurn[playerName];
+                        const prizesThisPlayerHasTaken = (index === 0) ? 0 : previousPrizesOfThisPlayer - section.prizesAfterTurn[playerName];
+
+                        return (
+                          <span className={cn(
+                            (prizesThisPlayerHasTaken > 0) && 'font-bold'
+                          )}>{playerName}: {((section.player === playerName || prizesThisPlayerHasTaken > 0) && `${previousPrizesOfThisPlayer} → `)}{prizesRemaining} prize{prizesRemaining !== 1 && 's'}<br /></span>
+                        )
+                      })}
                     </CardDescription>
                   )}
                 </CardHeader>
