@@ -61,7 +61,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Link href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
-        <CardHeader className="grid grid-cols-8 items-center py-4">
+        <CardHeader className="grid grid-cols-8 items-center py-2">
           <Sprite name={players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-6 pb-1 ml-4">
