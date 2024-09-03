@@ -11,7 +11,12 @@ const pokemonToFind = [
   'comfey',
   'charizard',
   'entei',
-  'palkia'
+  'palkia',
+  'great tusk',
+
+  // secondary/rogue
+  'ogerpon',
+  'conkeldurr'
 ];
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
@@ -21,6 +26,9 @@ const associatedPokemon = [{
 }, {
   association: 'frigibax',
   deck: 'chien-pao'
+}, {
+  association: 'ralts',
+  deck: 'gardevoir'
 }]
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
