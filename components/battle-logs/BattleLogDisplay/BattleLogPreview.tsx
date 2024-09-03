@@ -17,7 +17,7 @@ import { capitalizeName } from "../utils/battle-log.utils";
 interface BattleLogPreviewProps {
   // unparsed battle log
   battleLog: BattleLog;
-  currentUserScreenName: string | null;
+  currentUserScreenName: string | null | undefined;
 }
 
 
@@ -59,7 +59,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, []);
 
   return (
-    <Link href={`/live-log/${props.battleLog.id}`}>
+    <Link href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
         <CardHeader className="grid grid-cols-8 items-center py-4">
           <Sprite name={players[0].deck} />

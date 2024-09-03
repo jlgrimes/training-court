@@ -23,9 +23,14 @@ export default function HeaderBreadcrumbs() {
       label: 'Home'
     }];
 
-    if (pathname.includes('live-log')) {
+    if (pathname === '/logs') {
       breadcrumbs.push({
-        path: '/home',
+        path: '/logs',
+        label: 'Logs'
+      });
+    } else if (pathname.includes('logs')) {
+      breadcrumbs.push({
+        path: '/logs',
         label: 'Logs'
       }),
       breadcrumbs.push({
@@ -46,7 +51,7 @@ export default function HeaderBreadcrumbs() {
     return breadcrumbs;
   }, [pathname]);
 
-  if (!pathname.includes('profile') && !pathname.includes('tournament') && !pathname.includes('live-log')) {
+  if (!pathname.includes('profile') && !pathname.includes('tournament') && !pathname.includes('logs')) {
     return null;
   }
 
