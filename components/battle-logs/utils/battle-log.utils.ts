@@ -138,16 +138,30 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
   return sections;
 }
 
-export function parseBattleLog(log: string, id: string, created_at: string) {
+const shouldReversePlayers = (currentScreenName: string | null, playerNames: string[]) => {
+  // because it doesn't matter
+  if (!currentScreenName) return false;
+
+  if (playerNames[1] === currentScreenName) return true;
+
+  return false;
+};
+
+export function parseBattleLog(log: string, id: string, created_at: string, currentUserScreenName: string | null) {
   const cleanedLog = trimBattleLog(log);
-  const playerNames = getPlayerNames(cleanedLog);
+  let playerNames = getPlayerNames(cleanedLog);
+
+  if (shouldReversePlayers(currentUserScreenName, playerNames)) {
+    console.log('true')
+    playerNames = [playerNames[1], playerNames[0]]
+  }
+
   const winner = determineWinner(cleanedLog);
   const players: BattleLogPlayer[] = playerNames.map((player) => ({
     name: player,
     deck: determineArchetype(cleanedLog, player),
     result: (winner === player) ? 'W' : 'L'
   }));
-  const sections: BattleLogTurn[] = [];
 
   const battleLog: BattleLog = {
     id,

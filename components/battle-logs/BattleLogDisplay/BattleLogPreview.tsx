@@ -23,20 +23,6 @@ interface BattleLogPreviewProps {
 
 //@TODO
 export function BattleLogPreview (props: BattleLogPreviewProps) {
-  const shouldReversePlayers = useMemo(() => {
-    // because it doesn't matter
-    if (!props.currentUserScreenName) return false;
-
-    if (props.battleLog.players[1].name === props.currentUserScreenName) return true;
-
-    return false;
-  }, [props.battleLog.players, props.currentUserScreenName]);
-
-  const players = useMemo(() => {
-    if (shouldReversePlayers) return [props.battleLog.players[1], props.battleLog.players[0]];
-    return props.battleLog.players;
-  }, [shouldReversePlayers, props.battleLog.players]);
-
   const gameResult = useMemo(() => {
     if (!props.currentUserScreenName) return undefined;
 
@@ -62,13 +48,13 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     <Link href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
         <CardHeader className="grid grid-cols-8 items-center py-2">
-          <Sprite name={players[0].deck} />
+          <Sprite name={props.battleLog.players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-6 pb-1 ml-4">
-            <p className="text-slate-800 font-semibold tracking-normal text-lg leading-6">{`${gameResultAsText} vs ${getDeckAsText(players[1].deck)}`}</p>
+            <p className="text-slate-800 font-semibold tracking-normal text-lg leading-6">{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</p>
             <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
-          <Sprite name={players[1].deck} />
+          <Sprite name={props.battleLog.players[1].deck} />
         </CardHeader>
       </Card>
     </Link>

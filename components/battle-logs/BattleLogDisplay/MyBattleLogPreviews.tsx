@@ -13,7 +13,7 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
   return (
     <div className="flex flex-col gap-2">
       {props.battleLogs?.map((battleLog) => (
-        <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at)} currentUserScreenName={props.userData?.live_screen_name} />
+        <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, props.userData.live_screen_name)} currentUserScreenName={props.userData?.live_screen_name} />
       ))}
     </div>
   )
