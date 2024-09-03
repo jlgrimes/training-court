@@ -47,7 +47,19 @@ function getTurnActions (turnLines: string[]) {
   const textThatIndicatesSubaction = [
     'A card was added',
     ' was added to ',
-    'is now in the Active Spot'
+    // an action: usually when a Pokemon gets KOd
+    ' was discarded from',
+    // The text that indicates you can't VSTAR again
+    ' can no longer use VSTAR Powers',
+    'is now in the Active Spot',
+    ' for the opening coin flip',
+    ' won the coin toss',
+    // The extra cards drawn on mulligan
+    ' took at least 1 mulligan',
+    // yes we know how to play the game
+    ' drew 7 cards for the opening hand',
+    // When TM evo is discarded, I guess the Pokemon gets "activated"
+    ' was activated.'
   ]
 
   const actions: BattleLogAction[] = [];

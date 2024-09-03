@@ -58,7 +58,7 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogTurn[] }) {
                   ) : (
                     <Accordion type="single" collapsible>
                       <AccordionItem value="item-1">
-                        <AccordionTrigger className="px-0 py-1">{action.title}</AccordionTrigger>
+                        <AccordionTrigger className="px-0 py-1 text-left">{action.title}</AccordionTrigger>
                         <AccordionContent>
                           {action.details.map((detail) => <p>{detail}<br /></p>)}
                         </AccordionContent>
