@@ -44,10 +44,16 @@ function deductPrizesTaken(prizesTaken: number, player: string, prizeMap: Record
 }
 
 function getTurnActions (turnLines: string[]) {
+  const textThatIndicatesSubaction = [
+    'A card was added',
+    ' was added to ',
+    'is now in the Active Spot'
+  ]
+
   const actions: BattleLogAction[] = [];
 
   for (const line of turnLines) {
-    if (line.trim()[0] === '-' || line.trim()[0] === '•') {
+    if (line.trim()[0] === '-' || line.trim()[0] === '•' || textThatIndicatesSubaction.some((text) => line.includes(text))) {
       actions[actions.length - 1].details.push(line);
     } else {
       actions.push({
