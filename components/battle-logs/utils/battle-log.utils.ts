@@ -1,5 +1,5 @@
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
-import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogSections } from "./battle-log.types";
+import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 
 function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
@@ -43,22 +43,57 @@ export function getBattleActions(log: string[]): BattleLogAction[] {
   }))
 }
 
-export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogSections[] {
-  const sections: BattleLogSections[] = [];
+function deductPrizesTaken(prizesTaken: number, player: string, prizeMap: Record<string, number>) {
+  if (!prizeMap[player]) return prizeMap;
+
+  return {
+    ...prizeMap,
+    [player]: prizeMap[player] - prizesTaken
+  }
+}
+
+export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn[] {
+  const playerNames = getPlayerNames(cleanedLog);
+
+  const sections: BattleLogTurn[] = [];
   let currentTitle: string | null = "Setup"; // Default to "Setup" for the initial section
   let currentBody: string[] = [];
+  let currentPrizesTaken: number = 0;
+  let prizes = {
+    [playerNames[0]]: 6,
+    [playerNames[1]]: 6
+  };
   let firstTurnFound = false;
 
   cleanedLog.forEach((line) => {
     if (line.match(/Turn\s+#\s+\d+\s+-\s+.*'s\s+Turn/)) {
       if (currentTitle && currentBody.length > 0) {
-        sections.push({ turnTitle: currentTitle, body: currentBody.join('\n') });
+        const currentPlayer = playerNames.find((player) => currentTitle?.includes(player)) || '';
+        prizes = deductPrizesTaken(currentPrizesTaken, currentPlayer, prizes);
+
+        sections.push({
+          turnTitle: currentTitle,
+          body: currentBody.join('\n'),
+          prizesTaken: currentPrizesTaken,
+          player: currentPlayer,
+          prizesAfterTurn: prizes
+        });
         currentBody = [];
+        currentPrizesTaken = 0;
+        // Do NOT reset the prize map... That should persist
       }
 
       currentTitle = line;
       firstTurnFound = true;
     } else {
+      if (line.includes('took') && line.includes('Prize card')) {
+        // should never fall back on default
+        if (line.includes('took a Prize card')) {
+          currentPrizesTaken = 1;
+        } else {
+          currentPrizesTaken = parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0');
+        }
+      }
       if (!firstTurnFound) {
         currentBody.push(line);
       } else {
@@ -68,7 +103,15 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogSect
   });
 
   if (currentTitle && currentBody.length > 0) {
-    sections.push({ turnTitle: currentTitle, body: currentBody.join('\n') });
+    const currentPlayer = playerNames.find((player) => currentTitle?.includes(player)) || '';
+    prizes = deductPrizesTaken(currentPrizesTaken, currentPlayer, prizes);
+    sections.push({
+      turnTitle: currentTitle,
+      body: currentBody.join('\n'),
+      prizesTaken: currentPrizesTaken,
+      player: currentPlayer,
+      prizesAfterTurn: prizes
+    });
   }
 
   return sections;
@@ -83,7 +126,7 @@ export function parseBattleLog(log: string, id: string, created_at: string) {
     deck: determineArchetype(cleanedLog, player),
     result: (winner === player) ? 'W' : 'L'
   }));
-  const sections: BattleLogSections[] = [];
+  const sections: BattleLogTurn[] = [];
 
   const battleLog: BattleLog = {
     id,

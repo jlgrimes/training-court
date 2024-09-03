@@ -13,9 +13,12 @@ export interface BattleLogPlayer {
   result: RoundResult;
 }
 
-export interface BattleLogSections {
+export interface BattleLogTurn {
   turnTitle: string;
   body: string;
+  player: string;
+  prizesTaken: number;
+  prizesAfterTurn: Record<string, number>;
 }
 
 export interface BattleLog {
@@ -27,6 +30,6 @@ export interface BattleLog {
   date: string;
   // The winner of the match
   winner: string;
-  // log separated by section
-  sections: BattleLogSections[];
+  // log separated by turn
+  sections: BattleLogTurn[];
 }
