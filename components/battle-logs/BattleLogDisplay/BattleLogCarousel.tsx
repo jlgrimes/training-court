@@ -7,6 +7,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { BattleLogTurn } from "../utils/battle-log.types"
 import { cn } from "@/lib/utils";
 
@@ -47,7 +53,18 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogTurn[] }) {
                   )}
                 </CardHeader>
                 <CardContent className="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400">
-                  <p>{section.body}</p>
+                  {section.actions.map((action) => action.details.length === 0 ? (
+                    <p className="py-1">{action.title}</p>
+                  ) : (
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="item-1">
+                        <AccordionTrigger className="px-0 py-1">{action.title}</AccordionTrigger>
+                        <AccordionContent>
+                          {action.details.map((detail) => <p>{detail}<br /></p>)}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  ))}
                 </CardContent>
               </Card>
             </div>

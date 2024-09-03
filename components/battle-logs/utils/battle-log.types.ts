@@ -1,10 +1,3 @@
-export interface BattleLogAction {
-  // The user who should be highlighted as the "owner" of the action.
-  owner: string | undefined;
-  // The action
-  message: string;
-}
-
 export type RoundResult = 'W' | 'L' | 'T';
 
 export interface BattleLogPlayer {
@@ -19,13 +12,19 @@ export interface BattleLogTurn {
   player: string;
   prizesTaken: number;
   prizesAfterTurn: Record<string, number>;
+  actions: BattleLogAction[];
+}
+
+export interface BattleLogAction {
+  // Title of the action
+  title: string;
+  // Details of an action (cards drawn, discarded, etc)
+  details: string[];
 }
 
 export interface BattleLog {
   id: string;
   players: BattleLogPlayer[];
-  // The actions that happen in the game
-  actions: BattleLogAction[];
   // When the battle took place
   date: string;
   // The winner of the match

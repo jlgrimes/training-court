@@ -34,15 +34,6 @@ export function determineWinner(log: string[]): string {
   throw 'No winner found';
 }
 
-export function getBattleActions(log: string[]): BattleLogAction[] {
-  const playerNames = getPlayerNames(log);
-
-  return log.map((line) => ({
-    owner: playerNames.find((player) => line.includes(player)),
-    message: line
-  }))
-}
-
 function deductPrizesTaken(prizesTaken: number, player: string, prizeMap: Record<string, number>) {
   if (!prizeMap[player]) return prizeMap;
 
@@ -50,6 +41,23 @@ function deductPrizesTaken(prizesTaken: number, player: string, prizeMap: Record
     ...prizeMap,
     [player]: prizeMap[player] - prizesTaken
   }
+}
+
+function getTurnActions (turnLines: string[]) {
+  const actions: BattleLogAction[] = [];
+
+  for (const line of turnLines) {
+    if (line.trim()[0] === '-' || line.trim()[0] === '•') {
+      actions[actions.length - 1].details.push(line);
+    } else {
+      actions.push({
+        title: line,
+        details: []
+      });
+    }
+  }
+
+  return actions;
 }
 
 export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn[] {
@@ -76,7 +84,8 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
           body: currentBody.join('\n'),
           prizesTaken: currentPrizesTaken,
           player: currentPlayer,
-          prizesAfterTurn: prizes
+          prizesAfterTurn: prizes,
+          actions: getTurnActions(currentBody)
         });
         currentBody = [];
         currentPrizesTaken = 0;
@@ -110,7 +119,8 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
       body: currentBody.join('\n'),
       prizesTaken: currentPrizesTaken,
       player: currentPlayer,
-      prizesAfterTurn: prizes
+      prizesAfterTurn: prizes,
+      actions: getTurnActions(currentBody)
     });
   }
 
@@ -131,7 +141,6 @@ export function parseBattleLog(log: string, id: string, created_at: string) {
   const battleLog: BattleLog = {
     id,
     players,
-    actions: getBattleActions(cleanedLog),
     date: created_at,
     winner,
     sections: divideBattleLogIntoSections(cleanedLog)
