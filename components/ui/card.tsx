@@ -33,7 +33,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 py-4 px-6", className)}
+    className={cn("flex flex-col space-y-1.5 pt-2 pb-3 px-6", className)}
     {...props}
   />
 ))
@@ -43,10 +43,10 @@ const CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
-  <h3
+  <div
     ref={ref}
     className={cn(
-      "text-lg font-semibold leading-none tracking-tight my-1",
+      "text-slate-800 font-semibold tracking-normal text-md leading-6",
       className
     )}
     {...props}

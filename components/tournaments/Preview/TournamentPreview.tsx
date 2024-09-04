@@ -18,7 +18,9 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
     <Link href={`/tournament/${props.tournament.id}`}>
       <Card clickable>
         <CardHeader className="grid grid-cols-6 items-center">
-          <EditableTournamentArchetype tournament={props.tournament} editDisabled />
+          <div className="grid-cols-1">
+            <EditableTournamentArchetype tournament={props.tournament} editDisabled />
+          </div>
           <div className="col-span-5 grid-cols-5">
             <CardTitle>{props.tournament.name}</CardTitle>
             <CardDescription className="grid gap-4">
