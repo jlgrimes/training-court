@@ -1,12 +1,5 @@
 'use client';
 
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Database } from "@/database.types";
 import { TournamentRound } from "./TournamentRound";
 
@@ -19,24 +12,21 @@ interface TournamentRoundListProps {
 
 export default function TournamentRoundList (props: TournamentRoundListProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Round</TableHead>
-          <TableHead>Deck</TableHead>
-          <TableHead className="text-right">Result</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {props.rounds?.map((round) => (
-          <TournamentRound
-            tournament={props.tournament}
-            userId={props.userId}
-            round={round}
-            updateClientRoundsOnEdit={props.updateClientRoundsOnEdit}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="grid grid-cols-8">
+      <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground p-2">
+        <span className="col-span-1">Round</span>
+        <span className="col-span-6">Deck</span>
+        <span className="col-span-1 text-right">Result</span>
+      </div>
+      {props.rounds?.map((round) => (
+        <TournamentRound
+          key={round.id}
+          tournament={props.tournament}
+          userId={props.userId}
+          round={round}
+          updateClientRoundsOnEdit={props.updateClientRoundsOnEdit}
+        />
+      ))}
+    </div>
   )
 }

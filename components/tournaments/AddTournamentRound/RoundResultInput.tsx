@@ -42,6 +42,7 @@ export const RoundResultInput = (props: RoundResultInputProps) => {
     <div className='flex gap-4'>
       {[0, 1, 2].map((gameNum) => (
         <ToggleGroup
+          key={`game-${gameNum}-toggle`}
           className={cn(
             getIsToggleDisabled(gameNum) ? 'opacity-0 -translate-x-4' : 'opacity-100 translate-x-0',
             'transition ease-in-out'
