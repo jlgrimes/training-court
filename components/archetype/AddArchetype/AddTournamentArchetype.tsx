@@ -53,11 +53,13 @@ export const EditableTournamentArchetype = ({ tournament }: { tournament: Databa
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
         </DialogHeader>
           <AddArchetype setArchetype={setDeck} isDisabled={shouldDisableDeckInput} />
-          <p className="my-0 text-sm">
-            Adding your deck before the tournament is over is disabled.
-            This is to preserve the integrity of the tournament
-            for all participants.
-          </p>
+          {shouldDisableDeckInput && (
+            <p className="my-0 text-sm">
+              Adding your deck before the tournament is over is disabled.
+              This is to preserve the integrity of the tournament
+              for all participants.
+            </p>
+          )}
           <DialogClose asChild>
             <Button disabled={deck.length === 0 || shouldDisableDeckInput} onClick={setArchetype}>Save</Button>
           </DialogClose>
