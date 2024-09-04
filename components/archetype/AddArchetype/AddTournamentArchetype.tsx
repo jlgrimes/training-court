@@ -21,7 +21,7 @@ import { getCookie, setCookie } from 'typescript-cookie';
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
-export const EditableTournamentArchetype = ({ tournament }: { tournament: Database['public']['Tables']['tournaments']['Row']}) => {
+export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
   const [deck, setDeck] = useState('');
   const [serverDeck, setServerDeck] = useState(tournament.deck);
   const [clientDeck, setClientDeck] = useState(getCookie(getLocalDeckCookieKey(tournament.id)));
@@ -30,6 +30,12 @@ export const EditableTournamentArchetype = ({ tournament }: { tournament: Databa
     if (isAfter(Date.now(), tournament.date_to)) return false;
     return true;
   }, [tournament.date_to]);
+
+  useEffect(() => {
+    if (clientDeck && !shouldLocalizeDeckInput) {
+      setArchetype();
+    }
+  }, [clientDeck]);
   
   const setArchetype = useCallback(async () => {
     if (shouldLocalizeDeckInput) {
@@ -60,6 +66,10 @@ export const EditableTournamentArchetype = ({ tournament }: { tournament: Databa
         <Sprite name={serverDeck} /> 
       </div>
     )
+  }
+
+  if (editDisabled) {
+    return null;
   }
 
   return (

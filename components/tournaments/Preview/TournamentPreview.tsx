@@ -4,17 +4,23 @@ import { Card, CardDescription, CardHeader, CardTitle } from "../../ui/card";
 import { getRecord } from "../utils/tournaments.utils";
 import { Sprite } from "../../archetype/Sprite";
 import { fetchRounds } from "../utils/tournaments.server.utils";
+import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
+import { Database } from "@/database.types";
 
-export default async function TournamentPreview({ id, name, date_from, date_to, deck }: { id: string, name: string, date_from: Date, date_to: Date, deck: string }) {
-  const rounds = await fetchRounds(id);
+interface TournamentPreviewProps {
+  tournament: Database['public']['Tables']['tournaments']['Row'];
+}
+
+export default async function TournamentPreview(props: TournamentPreviewProps) {
+  const rounds = await fetchRounds(props.tournament.id);
 
   return (
-    <Link href={`/tournament/${id}`}>
+    <Link href={`/tournament/${props.tournament.id}`}>
       <Card clickable>
         <CardHeader className="grid grid-cols-6 items-center">
-          {deck ? <Sprite name={deck} /> : <div></div>}
+          <EditableTournamentArchetype tournament={props.tournament} editDisabled />
           <div className="col-span-5 grid-cols-5">
-            <CardTitle>{name}</CardTitle>
+            <CardTitle>{props.tournament.name}</CardTitle>
             <CardDescription className="grid gap-4">
               {rounds && getRecord(rounds)}
             </CardDescription>
