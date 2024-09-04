@@ -36,7 +36,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
       <Tabs defaultValue='Day' onValueChange={(value) => setSortBy(value as BattleLogSortBy)}>
         <TabsList>
           {availableSortBys.map((sortBy) => (
-            <TabsTrigger value={sortBy} disabled={!props.userData && (sortBy === 'Day' || sortBy === 'Deck')}>{sortBy}</TabsTrigger>
+            <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData && (sortBy === 'Day' || sortBy === 'Deck')}>{sortBy}</TabsTrigger>
           ))}
         </TabsList>
       </Tabs>

@@ -34,7 +34,7 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
       <DropdownMenu>
         <DropdownMenuTrigger><img src={selectedImage} height='48px' width='48px' className='pixel-image' /></DropdownMenuTrigger>
         <DropdownMenuContent className='grid grid-cols-5'>
-          {props.images.map((image) => <DropdownMenuItem onClick={() => setSelectedImage(image)}><img src={image} height='48px' width='48px' className='pixel-image' /></DropdownMenuItem>)}
+          {props.images.map((image) => <DropdownMenuItem key={image} onClick={() => setSelectedImage(image)}><img src={image} height='48px' width='48px' className='pixel-image' /></DropdownMenuItem>)}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

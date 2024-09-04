@@ -29,7 +29,7 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
   return (
     <div className="flex flex-col gap-2">
       {battleLogs.map((battleLog) => (
-        <BattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+        <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
       ))}
     </div>
   )

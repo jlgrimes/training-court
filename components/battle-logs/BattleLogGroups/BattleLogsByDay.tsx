@@ -44,7 +44,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
   return (
     <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
       {battleLogsByDayList.map(([day, logs]) => (
-        <AccordionItem value={day}>
+        <AccordionItem key={day} value={day}>
           <AccordionTrigger>
             <div className="grid grid-cols-4 w-full items-center">
               <div className="col-span-2 text-left">
@@ -66,7 +66,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
               </Card>
             )}
             {logs.map((battleLog) => (
-              <BattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+              <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
             ))}
           </AccordionContent>
         </AccordionItem>

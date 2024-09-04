@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ShareIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 
@@ -59,7 +59,7 @@ export default function HeaderBreadcrumbs() {
     <Breadcrumb className="my-2 ml-4 px-4">
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
-        <>
+        <Fragment key={path} >
           <BreadcrumbItem>
             <BreadcrumbLink href={path}>{label}</BreadcrumbLink>
             {idx === 2 && <ShareIcon onClick={() => {
@@ -70,7 +70,7 @@ export default function HeaderBreadcrumbs() {
             }} className="mr-2 mb-1 h-4 w-4 cursor-pointer hover:stroke-slate-900" />}
           </BreadcrumbItem>
           {(idx < breadcrumbs.length - 1) && <BreadcrumbSeparator />}
-        </>
+        </Fragment>
       ))}
     </BreadcrumbList>
   </Breadcrumb>
