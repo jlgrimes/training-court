@@ -152,7 +152,6 @@ export function parseBattleLog(log: string, id: string, created_at: string, curr
   let playerNames = getPlayerNames(cleanedLog);
 
   if (shouldReversePlayers(currentUserScreenName, playerNames)) {
-    console.log('true')
     playerNames = [playerNames[1], playerNames[0]]
   }
 

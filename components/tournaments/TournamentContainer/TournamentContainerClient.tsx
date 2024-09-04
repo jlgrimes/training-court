@@ -22,11 +22,10 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   }, [setRounds, rounds]);
 
   const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
-    setRounds([
-      ...rounds.slice(0, pos),
-      newRound,
-      ...rounds.slice(pos + 1)
-    ]);
+    let newRounds = [...rounds];
+    newRounds[pos] = newRound;
+    
+    setRounds(newRounds);
   }, [setRounds, rounds]);
 
   return (

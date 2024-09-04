@@ -27,7 +27,6 @@ export interface TournamentRoundEditProps {
 export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const { toast } = useToast();
 
-  console.log(props.existingRound)
   const [deck, setDeck] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<string[]>([]);
   const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | undefined>();
@@ -100,7 +99,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       <CardHeader>
         <CardTitle className="my-2 flex justify-between items-center">
           <span>Round {props.editedRoundNumber}</span>
-          <ToggleGroup type='single' variant='outline' defaultValue={immediateMatchEnd} onValueChange={(value) => {
+          <ToggleGroup type='single' variant='outline' value={immediateMatchEnd} onValueChange={(value) => {
               if (value === '') return setImmediateMatchEnd(undefined);
               setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
             }}>
@@ -117,7 +116,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
         <div className="flex flex-col w-full gap-2">
           <AddArchetype defaultArchetype={props.existingRound?.deck ?? undefined} setArchetype={setDeck} isDisabled={immediateMatchEnd !== undefined} />
           <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
-          <Button onClick={handleRoundEdit} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>Add round</Button>
+          <Button onClick={handleRoundEdit} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
       </div>
       </CardHeader>
     </Card>

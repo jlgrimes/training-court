@@ -29,14 +29,13 @@ export const TournamentRound = (props: TournamentRoundProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   if (props.userId && isEditing) {
-    console.log(props.round)
     return (
       <TournamentRoundEdit
         tournamentId={props.tournament.id}
         userId={props.userId}
         editedRoundNumber={props.round.round_num}
         existingRound={props.round}
-        updateClientRounds={(updatedRound) => props.updateClientRoundsOnEdit(updatedRound, props.round.round_num)}
+        updateClientRounds={(updatedRound) => props.updateClientRoundsOnEdit(updatedRound, props.round.round_num - 1)}
         editing={isEditing}
         setEditing={setIsEditing}
       />
