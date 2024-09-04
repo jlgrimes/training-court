@@ -19,7 +19,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
   const handleAddButtonClick = async () => {
     try {
-      parseBattleLog(log, '', '');
+      parseBattleLog(log, '', '', null);
     } catch {
       setLog('');
       return toast({
