@@ -18,7 +18,7 @@ export default async function LogsPage() {
   return (
     <div className="flex flex-col gap-2">
       {logs?.map((battleLog) => (
-        <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at)} currentUserScreenName={userData?.live_screen_name} />
+        <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, userData?.live_screen_name ?? null)} currentUserScreenName={userData?.live_screen_name} />
       ))}
     </div>
   )
