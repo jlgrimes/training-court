@@ -43,7 +43,7 @@ export type Database = {
           created_at: string
           deck: string | null
           id: string
-          is_id: boolean | null
+          match_end_reason: string | null
           result: string[]
           round_num: number
           tournament: string
@@ -53,7 +53,7 @@ export type Database = {
           created_at?: string
           deck?: string | null
           id?: string
-          is_id?: boolean | null
+          match_end_reason?: string | null
           result: string[]
           round_num: number
           tournament: string
@@ -63,7 +63,7 @@ export type Database = {
           created_at?: string
           deck?: string | null
           id?: string
-          is_id?: boolean | null
+          match_end_reason?: string | null
           result?: string[]
           round_num?: number
           tournament?: string

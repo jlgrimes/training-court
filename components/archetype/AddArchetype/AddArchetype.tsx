@@ -4,15 +4,22 @@ import { Sprite } from '../Sprite';
 
 interface AddArchetypeProps {
   setArchetype: (deck: string) => void;
+  defaultArchetype?: string;
   isDisabled?: boolean;
 }
 
 export const AddArchetype = (props: AddArchetypeProps) => {
   const [pokemonName, setPokemonName] = useState<string>('');
 
+  useEffect(() => {
+    if (props.defaultArchetype) {
+      setPokemonName(props.defaultArchetype);
+    }
+  }, [props.defaultArchetype]);
+
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setPokemonName(e.target.value.toLowerCase().replace(' ', '-'));
-  }, []);
+  }, [setPokemonName]);
 
   // TODO: have it only update props when img is valid
   useEffect(() => {

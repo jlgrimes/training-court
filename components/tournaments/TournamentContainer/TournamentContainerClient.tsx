@@ -3,11 +3,10 @@
 import { Database } from "@/database.types"
 import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
-import { format } from "date-fns";
 import { useCallback, useState } from "react";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
-import TournamentRoundEdit from "../AddTournamentRound/TournamentRoundEdit";
+import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -44,14 +43,13 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
         
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
-            <TournamentRoundList rounds={rounds} updateClientRoundsOnEdit={updateClientRoundsOnEdit} userHasPermissionsToEdit={props.tournament.user === props.user?.id} />
+            <TournamentRoundList tournament={props.tournament} userId={props.user?.id} rounds={rounds} updateClientRoundsOnEdit={updateClientRoundsOnEdit} />
             {props.user?.id && (props.user.id === props.tournament.user) && (
-              <TournamentRoundEdit
+              <AddTournamentRound
                 tournamentId={props.tournament.id}
                 userId={props.user.id}
                 editedRoundNumber={rounds.length + 1}
                 updateClientRounds={updateClientRoundsOnAdd}
-                shouldUpdate={false}
               />
             )}
           </div>

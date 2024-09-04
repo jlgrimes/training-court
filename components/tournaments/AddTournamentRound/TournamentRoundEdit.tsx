@@ -14,18 +14,21 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 type ImmediateMatchEndScenarios = 'ID' | 'No show';
 
 export interface TournamentRoundEditProps {
+  editing: boolean;
+  setEditing: (editing: boolean) => void;
+
   tournamentId: string;
   userId: string;
   editedRoundNumber: number;
-  shouldUpdate: boolean;
+  existingRound?: Database['public']['Tables']['tournament rounds']['Row'];
   updateClientRounds: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void
 }
 
 export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
-  const [editing, setEditing] = useState(false);
   const { toast } = useToast();
 
-  const [deck, setDeck] = useState<string | undefined>();
+  console.log(props.existingRound)
+  const [deck, setDeck] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<string[]>([]);
   const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | undefined>();
 
@@ -39,6 +42,20 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
     }
   }, [immediateMatchEnd]);
 
+  useEffect(() => {
+    setDeck(props.existingRound?.deck ?? undefined)
+  }, [props.existingRound?.deck]);
+
+  useEffect(() => {
+    setResult(props.existingRound?.result ?? [])
+  }, [props.existingRound?.result]);
+
+  useEffect(() => {
+    if (props.existingRound?.match_end_reason) {
+      setImmediateMatchEnd(props.existingRound.match_end_reason as ImmediateMatchEndScenarios)
+    }
+  }, [props.existingRound?.match_end_reason])
+
   const handleRoundEdit = useCallback(async () => {
     const supabase = createClient();
     let data, error;
@@ -49,10 +66,10 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       result: result,
       deck: deck,
       user: props.userId,
-      is_id: immediateMatchEnd === 'ID'
+      match_end_reason: immediateMatchEnd ?? null
     };
 
-    if (props.shouldUpdate) {
+    if (props.existingRound) {
       const res = await supabase.from('tournament rounds').update(payload).eq('tournament', props.tournamentId).eq('round_num', props.editedRoundNumber).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
 
       data = res.data;
@@ -72,18 +89,18 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       })
     } else if (data) {
       setResult([]);
-      setEditing(false);
+      props.setEditing(false);
       setImmediateMatchEnd(undefined);
       props.updateClientRounds(data[0]);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd]);
+  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing]);
 
-  if (editing) return (
+  if (props.editing) return (
     <Card>
       <CardHeader>
         <CardTitle className="my-2 flex justify-between items-center">
           <span>Round {props.editedRoundNumber}</span>
-          <ToggleGroup type='single' variant='outline' onValueChange={(value) => {
+          <ToggleGroup type='single' variant='outline' defaultValue={immediateMatchEnd} onValueChange={(value) => {
               if (value === '') return setImmediateMatchEnd(undefined);
               setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
             }}>
@@ -98,7 +115,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
           </ToggleGroup>
         </CardTitle>
         <div className="flex flex-col w-full gap-2">
-          <AddArchetype setArchetype={setDeck} isDisabled={immediateMatchEnd !== undefined} />
+          <AddArchetype defaultArchetype={props.existingRound?.deck ?? undefined} setArchetype={setDeck} isDisabled={immediateMatchEnd !== undefined} />
           <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
           <Button onClick={handleRoundEdit} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>Add round</Button>
       </div>
@@ -107,9 +124,9 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   )
 
   return (
-    <Button size='sm' variant={'outline'} onClick={() => setEditing(true)}>
-      {props.shouldUpdate && <><Upload className="mr-2 h-4 w-4" />Update round</>}
-      {!props.shouldUpdate && <><Plus className="mr-2 h-4 w-4" />Add round</>}
+    <Button size='sm' variant={'outline'} onClick={() => props.setEditing(true)}>
+      {props.existingRound && <><Upload className="mr-2 h-4 w-4" />Update round</>}
+      {!props.existingRound && <><Plus className="mr-2 h-4 w-4" />Add round</>}
     </Button>
   )
 }
