@@ -21,7 +21,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
   const battleLogsByDay = useMemo(() => groupBattleLogIntoDays(props.battleLogs), [props.battleLogs]);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col">
       {Object.entries(battleLogsByDay).map(([day, logs]) => (
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
