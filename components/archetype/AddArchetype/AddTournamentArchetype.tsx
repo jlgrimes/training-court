@@ -15,6 +15,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie } from 'typescript-cookie';
@@ -54,9 +59,12 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
 
   if (clientDeck) {
     return (
-      <div>
-        <Sprite name={clientDeck} faded /> 
-      </div>
+      <HoverCard>
+        <HoverCardTrigger className="cursor-pointer"><Sprite name={clientDeck} faded /> </HoverCardTrigger>
+        <HoverCardContent>
+          Archetype will be stored on this device until the tournament is over, then it will be automatically uploaded to the cloud.
+        </HoverCardContent>
+      </HoverCard>
     )
   }
 
