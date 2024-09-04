@@ -22,6 +22,14 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds([...rounds, newRound]);
   }, [setRounds, rounds]);
 
+  const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
+    setRounds([
+      ...rounds.slice(0, pos),
+      newRound,
+      ...rounds.slice(pos + 1)
+    ]);
+  }, [setRounds, rounds]);
+
   return (
     <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-xl justify-between gap-2">
       <div className="flex flex-col gap-4">
@@ -36,7 +44,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
         
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
-            <TournamentRoundList rounds={rounds} />
+            <TournamentRoundList rounds={rounds} updateClientRoundsOnEdit={updateClientRoundsOnEdit} userHasPermissionsToEdit={props.tournament.user === props.user?.id} />
             {props.user?.id && (props.user.id === props.tournament.user) && (
               <TournamentRoundEdit
                 tournamentId={props.tournament.id}

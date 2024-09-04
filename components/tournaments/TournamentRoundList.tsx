@@ -13,9 +13,12 @@ import { Sprite } from "../archetype/Sprite";
 import { convertGameResultsToRoundResult } from "./utils/tournaments.utils";
 import { HandshakeIcon } from "lucide-react";
 import { Database } from "@/database.types";
+import { TournamentRound } from "./TournamentRound";
 
 interface TournamentRoundListProps {
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
+  updateClientRoundsOnEdit: (newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => void;
+  userHasPermissionsToEdit: boolean;
 }
 
 export default function TournamentRoundList (props: TournamentRoundListProps) {
@@ -30,14 +33,7 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
       </TableHeader>
       <TableBody>
         {props.rounds?.map((round) => (
-          <TableRow result={convertGameResultsToRoundResult(round.result)}>
-            <TableCell className="font-medium py-2">{round.round_num}</TableCell>
-            <TableCell className="py-2">{round.is_id ? <div className="flex items-center font-bold">
-            <HandshakeIcon className="mr-2 h-4 w-4" />
-            ID
-            </div> : <Sprite name={round.deck} />}</TableCell>
-            <TableCell className="text-right font-bold tracking-wider text-md leading-4">{round.result.join('')}</TableCell>
-          </TableRow>
+          <TournamentRound round={round}/>
         ))}
       </TableBody>
     </Table>
