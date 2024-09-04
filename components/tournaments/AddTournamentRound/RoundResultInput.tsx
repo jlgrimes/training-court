@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 interface RoundResultInputProps {
   result: string[];
   setResult: (result: string[]) => void;
+  isMatchImmediatelyEnded?: boolean;
 }
 
 export const RoundResultInput = (props: RoundResultInputProps) => {
@@ -26,6 +27,7 @@ export const RoundResultInput = (props: RoundResultInputProps) => {
 
   const getIsToggleDisabled = useCallback((pos: number) => {
     if ((pos >= 1) && (props.result.length >= 1) && (props.result[0] === 'T')) return true;
+    if ((pos >= 1) && props.isMatchImmediatelyEnded) return true;
 
     if (pos === 1) {
       return props.result.length < 1;

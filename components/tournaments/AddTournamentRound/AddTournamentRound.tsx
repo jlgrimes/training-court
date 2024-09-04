@@ -8,9 +8,12 @@ import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
 import { Toggle } from "../../ui/toggle";
-import { HandshakeIcon, Plus } from "lucide-react";
+import { GhostIcon, HandshakeIcon, Plus } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
+type ImmediateMatchEndScenarios = 'ID' | 'No show';
 
 export default function AddTournamentRound({ tournamentId, userId, roundsLength, updateClientRoundsOnAdd }: { tournamentId: string, userId: string, roundsLength: number, updateClientRoundsOnAdd: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void }) {
   const [editing, setEditing] = useState(false);
@@ -18,15 +21,17 @@ export default function AddTournamentRound({ tournamentId, userId, roundsLength,
 
   const [deck, setDeck] = useState<string | undefined>();
   const [result, setResult] = useState<string[]>([]);
-  const [id, setId] = useState(false);
+  const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | undefined>();
 
   useEffect(() => {
-    if (id) {
+    if (immediateMatchEnd === 'ID') {
       setResult(['T']);
+    } else if (immediateMatchEnd === 'No show') {
+      setResult(['W']);
     } else {
       setResult([]);
     }
-  }, [id]);
+  }, [immediateMatchEnd]);
 
   const handleAddTournament = useCallback(async () => {
     const supabase = createClient();
@@ -37,7 +42,7 @@ export default function AddTournamentRound({ tournamentId, userId, roundsLength,
       result: result,
       deck: deck,
       user: userId,
-      is_id: id
+      is_id: immediateMatchEnd === 'ID'
     }).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
 
     if (error) {
@@ -49,27 +54,34 @@ export default function AddTournamentRound({ tournamentId, userId, roundsLength,
     } else {
       setResult([]);
       setEditing(false);
-      setId(false);
+      setImmediateMatchEnd(undefined);
       updateClientRoundsOnAdd(data[0]);
     }
-  }, [tournamentId, roundsLength, deck, result, id]);
+  }, [tournamentId, roundsLength, deck, result, immediateMatchEnd]);
 
   if (editing) return (
     <Card>
       <CardHeader>
-        <CardTitle className="my-2">Round {roundsLength + 1}</CardTitle>
-        <div className="flex flex-col w-full gap-4">
-          <AddArchetype setArchetype={setDeck} isDisabled={id} />
-          <div className="grid grid-cols-5">
-            <div className="col-span-4">
-            <RoundResultInput result={result} setResult={setResult} />
-            </div>
-            <Toggle variant='outline' onPressedChange={setId}>
+        <CardTitle className="my-2 flex justify-between items-center">
+          <span>Round {roundsLength + 1}</span>
+          <ToggleGroup type='single' variant='outline' onValueChange={(value) => {
+              if (value === '') return setImmediateMatchEnd(undefined);
+              setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
+            }}>
+            <ToggleGroupItem value='ID'>
               <HandshakeIcon className="mr-2 h-4 w-4" />
               ID
-            </Toggle>
-          </div>
-          <Button onClick={handleAddTournament} type="submit" disabled={(!id && (!deck || (result.length === 0)))}>Add round</Button>
+            </ToggleGroupItem>
+            <ToggleGroupItem value='No show'>
+              <GhostIcon className="mr-2 h-4 w-4" />
+              No show
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardTitle>
+        <div className="flex flex-col w-full gap-2">
+          <AddArchetype setArchetype={setDeck} isDisabled={immediateMatchEnd !== undefined} />
+          <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
+          <Button onClick={handleAddTournament} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>Add round</Button>
       </div>
       </CardHeader>
     </Card>
