@@ -22,29 +22,27 @@ export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
   const battleLogsByDeck = useMemo(() => groupBattleLogIntoDecks(props.battleLogs), [props.battleLogs]);
 
   return (
-    <div className="flex flex-col">
+    <Accordion type="single" collapsible className="flex flex-col">
       {Object.entries(battleLogsByDeck).map(([deck, logs]) => (
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
-            <AccordionTrigger>
-              <div className="grid grid-cols-4 w-full items-center">
-                <Sprite name={deck} />
-                <div className="col-span-2 text-left">
-                  {capitalizeName(deck)}
-                </div>
-                <h4>
-                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
-                </h4>
+        <AccordionItem value={deck}>
+          <AccordionTrigger>
+            <div className="grid grid-cols-4 w-full items-center">
+              <Sprite name={deck} />
+              <div className="col-span-2 text-left">
+                {capitalizeName(deck)}
               </div>
-            </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-2">
-              {logs.map((battleLog) => (
-                <BattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
-              ))}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+              <h4>
+                {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+              </h4>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="flex flex-col gap-2">
+            {logs.map((battleLog) => (
+              <BattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+            ))}
+          </AccordionContent>
+        </AccordionItem>
       ))}
-    </div>
+    </Accordion>
   )
 }

@@ -17,7 +17,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   const [logs, setLogs] = useState<Database['public']['Tables']['logs']['Row'][]>(props.logs);
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('All');
 
-  const availableSortBys = useMemo((): BattleLogSortBy[] => ['All', 'Day', 'Deck'], []);
+  const availableSortBys = useMemo((): BattleLogSortBy[] => ['Day', 'Deck', 'All'], []);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -33,7 +33,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
 
       <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
 
-      <Tabs defaultValue='All' onValueChange={(value) => setSortBy(value as BattleLogSortBy)}>
+      <Tabs defaultValue='Day' onValueChange={(value) => setSortBy(value as BattleLogSortBy)}>
         <TabsList>
           {availableSortBys.map((sortBy) => (
             <TabsTrigger value={sortBy} disabled={!props.userData && (sortBy === 'Day' || sortBy === 'Deck')}>{sortBy}</TabsTrigger>
