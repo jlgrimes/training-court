@@ -19,10 +19,11 @@ interface BattleLogsByDayProps {
 
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
   const battleLogsByDay = useMemo(() => groupBattleLogIntoDays(props.battleLogs), [props.battleLogs]);
+  const battleLogsByDayList = useMemo(() => Object.entries(battleLogsByDay), [battleLogsByDay]);
 
   return (
-    <Accordion type="single" collapsible className="flex flex-col">
-      {Object.entries(battleLogsByDay).map(([day, logs]) => (
+    <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
+      {battleLogsByDayList.map(([day, logs]) => (
         <AccordionItem value={day}>
           <AccordionTrigger>
             <div className="grid grid-cols-4 w-full items-center">
