@@ -15,7 +15,7 @@ interface BattleLogsContainerClientProps {
 
 export function BattleLogsContainerClient (props: BattleLogsContainerClientProps) {
   const [logs, setLogs] = useState<Database['public']['Tables']['logs']['Row'][]>(props.logs);
-  const [sortBy, setSortBy] = useState<BattleLogSortBy>('All');
+  const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
 
   const availableSortBys = useMemo((): BattleLogSortBy[] => ['Day', 'Deck', 'All'], []);
 
