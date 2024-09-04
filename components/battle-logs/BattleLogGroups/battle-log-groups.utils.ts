@@ -1,9 +1,11 @@
 import { format } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 
+export const convertBattleLogDateIntoDay = (date: string | Date) => format(date, 'PPP');
+
 export const groupBattleLogIntoDays = (battleLogs: BattleLog[]): Record<string, BattleLog[]> => {
   return battleLogs.reduce((acc: Record<string, BattleLog[]>, curr: BattleLog) => {
-    const dayOfLog = format(curr.date, 'PPP');
+    const dayOfLog = convertBattleLogDateIntoDay(curr.date);
 
     if (!acc[dayOfLog]) {
       return {
