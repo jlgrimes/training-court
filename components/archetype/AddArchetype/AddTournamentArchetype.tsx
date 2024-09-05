@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/hover-card"
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
-import { getCookie, setCookie } from 'typescript-cookie';
+import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
@@ -38,13 +38,14 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
 
   useEffect(() => {
     if (clientDeck && !shouldLocalizeDeckInput) {
-      setArchetype();
+      removeCookie(getLocalDeckCookieKey(tournament.id))
+      setArchetype(clientDeck);
     }
   }, [clientDeck]);
   
-  const setArchetype = useCallback(async () => {
+  const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
-      setCookie(getLocalDeckCookieKey(tournament.id), deck);
+      setCookie(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });
       return setClientDeck(deck);
     }
 
@@ -55,7 +56,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     if (error) throw error;
 
     setServerDeck(deck);
-  }, [createClient, deck]);
+  }, [createClient, deck, tournament.id]);
 
   if (clientDeck) {
     return (
@@ -95,7 +96,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
             </p>
           )}
           <DialogClose asChild>
-            <Button disabled={deck.length === 0} onClick={setArchetype}>Save</Button>
+            <Button disabled={deck.length === 0} onClick={() => setArchetype(deck)}>Save</Button>
           </DialogClose>
       </DialogContent>
     </Dialog>
