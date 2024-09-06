@@ -22,13 +22,21 @@ const pokemonToFind = [
   'entei',
   'great tusk',
 
-  // secondary/rogue
-  'ogerpon',
+  // rogue
   'conkeldurr',
   'incineroar',
+  'bloodmoon ursaluna',
+
+  // secondary
+  'iron valiant',
+  'ogerpon',
   'pidgeot',
   'flutter mane',
 ];
+
+const pngMap = {
+  'bloodmoon ursaluna': 'ursaluna-bloodmoon'
+};
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
 const associatedPokemon = [{
@@ -59,6 +67,11 @@ export const determineArchetype = (log: string[], playerName: string): string | 
   let archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
   const associatedArchetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
   if (associatedArchetype) archetype = associatedArchetype;
+
+  const foundMapTypeIdx = archetype ? Object.keys(pngMap).findIndex(key => (key === archetype?.toLowerCase())) : -1;
+  if ((foundMapTypeIdx !== undefined) && (foundMapTypeIdx >= 0)) {
+    return Object.entries(pngMap)[foundMapTypeIdx][1]
+  };
 
   return archetype?.replace(' ', '-');
 }
