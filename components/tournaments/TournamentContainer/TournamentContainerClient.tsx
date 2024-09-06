@@ -29,7 +29,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   }, [setRounds, rounds]);
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-xl justify-between gap-2">
+    <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-7 items-center">
           <div className="flex flex-col gap-1 col-span-5">

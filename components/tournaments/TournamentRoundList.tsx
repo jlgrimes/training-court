@@ -13,7 +13,7 @@ interface TournamentRoundListProps {
 export default function TournamentRoundList (props: TournamentRoundListProps) {
   return (
     <div className="grid grid-cols-8">
-      <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground p-2">
+      <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">
         <span className="col-span-1">Round</span>
         <span className="col-span-6">Deck</span>
         <span className="col-span-1 text-right">Result</span>
