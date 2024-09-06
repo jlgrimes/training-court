@@ -42,7 +42,7 @@ const associatedPokemon = [{
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `)) {
+    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && line.includes(`was Knocked Out`))) {
       return true;
     }
 
