@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from "react";
-import { RadioTower } from "lucide-react";
+import { Notebook, RadioTower } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
@@ -27,8 +27,8 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2 items-center">
-        <RadioTower className="h-4 w-4" />
-        <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">PTCG Live</h2>
+        <Notebook className="h-4 w-4" />
+        <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Battle Logs</h2>
       </div>
 
       <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />

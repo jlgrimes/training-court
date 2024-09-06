@@ -1,6 +1,8 @@
 const pokemonToFind = [
+  // tier one as of 2024
   'regidrago',
-  'gholdengo',
+  'miraidon',
+  'snorlax',
   'roaring moon',
   'raging bolt',
   'lugia',
@@ -8,15 +10,22 @@ const pokemonToFind = [
   'gardevoir',
   'dragapult',
   'iron thorns',
-  'comfey',
   'charizard',
-  'entei',
+
+  // tier two and below
+  'dialga',
   'palkia',
+  'giratina',
+  'arceus',
+  'gholdengo',
+  'comfey',
+  'entei',
   'great tusk',
 
   // secondary/rogue
   'ogerpon',
-  'conkeldurr'
+  'conkeldurr',
+  'pidgeot'
 ];
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
