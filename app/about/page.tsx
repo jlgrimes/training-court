@@ -9,7 +9,7 @@ export default async function About() {
   return (
     <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-2xl gap-4">
       <p>
-        Buddy Poffin was made to consolidate all of your tournaments and practice rounds
+        Training Court was made to consolidate all of your tournaments and practice rounds
         for the Pokemon Trading Card Game. It was made to be as easy-to-use and accessible
         as possible, with the player at the forefront of design.
       </p>
