@@ -25,7 +25,8 @@ const pokemonToFind = [
   // secondary/rogue
   'ogerpon',
   'conkeldurr',
-  'pidgeot'
+  'pidgeot',
+  'flutter mane'
 ];
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
@@ -49,10 +50,8 @@ export const determineArchetype = (log: string[], playerName: string): string | 
     return false;
   });
   let archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
-
-  if (!archetype) {
-    archetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
-  }
+  const associatedArchetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
+  if (associatedArchetype) archetype = associatedArchetype;
 
   return archetype?.replace(' ', '-');
 }
