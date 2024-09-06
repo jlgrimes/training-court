@@ -57,13 +57,13 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   }, [log]);
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col gap-2">
       <Textarea
         className="resize-none"
         disabled={!props.userData.live_screen_name || log.length > 0}
         placeholder="Paste battle log from PTCG Live here"
         value={log} onChange={(e) => setLog(e.target.value)} />
-      <Button onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button>
+      <Button size='sm' onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button>
     </div>
   )
 }

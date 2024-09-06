@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import { Card, CardDescription, CardHeader, CardTitle } from "../../ui/card";
+import { Card, CardDescription, CardTitle, SmallCardHeader } from "../../ui/card";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import { Sprite } from "../../archetype/Sprite";
 import { fetchRounds } from "../utils/tournaments.server.utils";
@@ -17,7 +17,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
   return (
     <Link href={`/tournament/${props.tournament.id}`}>
       <Card clickable>
-        <CardHeader className="grid grid-cols-6 items-center">
+        <SmallCardHeader className="grid grid-cols-6 items-center">
           <div className="grid-cols-1">
             <EditableTournamentArchetype tournament={props.tournament} editDisabled />
           </div>
@@ -28,7 +28,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
             </CardDescription>
           </div>
           <CardTitle className="text-right">{rounds && getRecord(rounds)}</CardTitle>
-        </CardHeader>
+        </SmallCardHeader>
       </Card>
     </Link>
   )

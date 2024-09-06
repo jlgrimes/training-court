@@ -26,7 +26,7 @@ export function DatePicker({ date, setDate }: { date: DateRange | undefined, set
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {(date?.from && date?.to) ? (format(date.from, "PPP") + ' - ' + format(date.to, "PPP")) : date?.from ? (format(date.from, "PPP") + ' - ') : <span>Pick a date</span>}
+          {(date?.from && date?.to) ? (format(date.from, "LLL d") + ' - ' + format(date.to, "LLL d yyyy")) : date?.from ? (format(date.from, "LLL d")) : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

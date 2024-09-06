@@ -43,10 +43,10 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   }, [tournamentName, tournamentDate]);
 
   if (editing) return (
-    <Card>
+    <Card className="py-2">
       <CardHeader>
         <div className="flex flex-col w-full max-w-sm gap-2 space-x-2">
-          <Input placeholder="Tournament name" value={tournamentName} onChange={(e) => setTournamentName(e.target.value)} />
+          <Input className="ml-2" placeholder="Tournament name" value={tournamentName} onChange={(e) => setTournamentName(e.target.value)} />
           <DatePicker date={tournamentDate} setDate={setTournamentDate} />
           <Button onClick={handleAddTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from || !tournamentDate.to}>Add tournament</Button>
       </div>

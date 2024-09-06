@@ -3,8 +3,8 @@
 import {
   Card,
   CardDescription,
-  CardHeader,
   CardTitle,
+  SmallCardHeader,
 } from "@/components/ui/card"
 import { formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
@@ -47,7 +47,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Link href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
-        <CardHeader className="grid grid-cols-8 items-center">
+        <SmallCardHeader className="grid grid-cols-8 items-center">
           <Sprite name={props.battleLog.players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-6 ml-4">
@@ -55,7 +55,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
             <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
           <Sprite name={props.battleLog.players[1].deck} />
-        </CardHeader>
+        </SmallCardHeader>
       </Card>
     </Link>
   )
