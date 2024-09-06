@@ -7,6 +7,7 @@ import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
 import { Database } from "@/database.types";
 import { BattleLogSortBy } from "./utils/battle-log.types";
+import { Card, CardDescription, CardHeader } from "../ui/card";
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];
@@ -36,12 +37,12 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
       <Tabs defaultValue='Day' onValueChange={(value) => setSortBy(value as BattleLogSortBy)}>
         <TabsList>
           {availableSortBys.map((sortBy) => (
-            <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData && (sortBy === 'Day' || sortBy === 'Deck')}>{sortBy}</TabsTrigger>
+            <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}</TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
 
-      <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} />
+      {props.userData.live_screen_name && <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} />}
     </div>
   )
 }
