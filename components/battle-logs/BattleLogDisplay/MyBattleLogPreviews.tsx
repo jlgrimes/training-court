@@ -16,7 +16,7 @@ interface MyBattleLogPreviewsProps {
 
 export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
   const battleLogs: BattleLog[] = useMemo(
-    () => props.battleLogs.map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, props.userData.live_screen_name)), [props.userData.live_screen_name]);
+    () => props.battleLogs.map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, props.userData.live_screen_name)), [props.battleLogs, props.userData.live_screen_name]);
 
   if (props.sortBy === 'Day') {
     return <BattleLogsByDay battleLogs={battleLogs} userData={props.userData} />;
