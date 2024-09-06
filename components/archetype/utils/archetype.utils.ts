@@ -25,8 +25,9 @@ const pokemonToFind = [
   // secondary/rogue
   'ogerpon',
   'conkeldurr',
+  'incineroar',
   'pidgeot',
-  'flutter mane'
+  'flutter mane',
 ];
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
