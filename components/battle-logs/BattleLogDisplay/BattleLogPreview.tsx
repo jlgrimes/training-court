@@ -12,7 +12,7 @@ import { Sprite } from "../../archetype/Sprite";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { capitalizeName } from "../utils/battle-log.utils";
+import { capitalizeName, getTurnOrderOfPlayer } from "../utils/battle-log.utils";
 
 interface BattleLogPreviewProps {
   // unparsed battle log
@@ -50,10 +50,12 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
         <SmallCardHeader className="grid grid-cols-8 items-center">
           <Sprite name={props.battleLog.players[0].deck} />
           {/* uh, idk where the mt- is coming from, can't find it so here */}
-          <div className="col-span-6 ml-4">
+          <div className="col-span-4 ml-4">
             <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
+          <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
+          <div />
           <Sprite name={props.battleLog.players[1].deck} />
         </SmallCardHeader>
       </Card>

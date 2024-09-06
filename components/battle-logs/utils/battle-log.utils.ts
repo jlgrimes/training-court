@@ -73,6 +73,13 @@ function getPlayerFromActionLine(line: string, playerNames: string[]) {
   return playerNames.find((player) => line?.includes(player)) || ''
 }
 
+export function getTurnOrderOfPlayer(battleLog: BattleLog, playerName: string) {
+  const foundTurnIdx = battleLog.sections.findIndex((turn) => turn.player === playerName);
+
+  if (foundTurnIdx === 1) return '1st';
+  return '2nd';
+}
+
 export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn[] {
   const playerNames = getPlayerNames(cleanedLog);
 
