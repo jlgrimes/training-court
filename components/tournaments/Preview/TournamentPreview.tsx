@@ -1,7 +1,7 @@
 
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import { getRecord } from "../utils/tournaments.utils";
+import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import { Sprite } from "../../archetype/Sprite";
 import { fetchRounds } from "../utils/tournaments.server.utils";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
@@ -21,12 +21,13 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
           <div className="grid-cols-1">
             <EditableTournamentArchetype tournament={props.tournament} editDisabled />
           </div>
-          <div className="col-span-5 grid-cols-5">
+          <div className="col-span-4 grid-cols-5">
             <CardTitle>{props.tournament.name}</CardTitle>
             <CardDescription className="grid gap-4">
-              {rounds && getRecord(rounds)}
+              {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
             </CardDescription>
           </div>
+          <CardTitle className="text-right">{rounds && getRecord(rounds)}</CardTitle>
         </CardHeader>
       </Card>
     </Link>

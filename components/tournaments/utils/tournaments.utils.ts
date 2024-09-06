@@ -37,8 +37,8 @@ export const displayTournamentDate = (from: string, to: string) => {
   }
 
   if (parseISO(from).getMonth() === parseISO(from).getMonth()) {
-    return `${format(from, "LLLL dd")} - ${format(to, "dd, yyyy")}`
+    return `${format(from, "LLLL d")}-${format(to, "d, yyyy")}`
   }
   
-  return `${format(from, "LLLL dd")} - ${format(to, "LLLL dd, yyyy")}`;
+  return `${format(from, "LLLL d")}-${format(to, "LLLL d, yyyy")}`;
 }
