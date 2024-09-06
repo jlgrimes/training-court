@@ -13,11 +13,11 @@ const pokemonToFind = [
   'charizard',
 
   // tier two and below
+  'gholdengo',
   'dialga',
   'palkia',
   'giratina',
   'arceus',
-  'gholdengo',
   'comfey',
   'entei',
   'great tusk',
@@ -41,9 +41,15 @@ const associatedPokemon = [{
   deck: 'gardevoir'
 }]
 
+const isCardsMilled = (log: string[], currentIdx: number, playerName: string) => {
+  if (currentIdx < 1) return false;
+
+  return log[currentIdx - 1].includes(`${playerName} moved ${playerName}'s`) && log[currentIdx - 1].includes('cards to the discard pile') && log[currentIdx].includes('•');
+}
+
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && line.includes(`was Knocked Out`))) {
+    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && line.includes(`was Knocked Out`)) || isCardsMilled(log, idx, playerName)) {
       return true;
     }
 
