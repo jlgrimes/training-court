@@ -18,7 +18,7 @@ const mockJWToronto = {
 
 export default async function Index() {
   return (
-    <div className="flex-1 w-full flex flex-col gap-16 md:gap-20 items-center p-6 md:p-12">
+    <div className="flex-1 w-full flex flex-col gap-24 items-center p-8 sm:p-12 max-w-6xl">
       <div className="flex flex-col items-center gap-8 max-w-md py-8">
         <h1 className="font-semibold text-4xl tracking-tight">Training Court</h1>
         <p className="text-center">Once during each player’s turn, that player may put a basic Energy card from their discard pile into their hand.</p>
