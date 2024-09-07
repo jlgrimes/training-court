@@ -29,7 +29,7 @@ const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-dec
 export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
   const [deck, setDeck] = useState('');
   const [serverDeck, setServerDeck] = useState(tournament.deck);
-  const [clientDeck, setClientDeck] = useState(getCookie(getLocalDeckCookieKey(tournament.id)));
+  const [clientDeck, setClientDeck] = useState(!!document && getCookie(getLocalDeckCookieKey(tournament.id)));
 
   const shouldLocalizeDeckInput = useMemo(() => {
     if (isAfter(Date.now(), tournament.date_to)) return false;
