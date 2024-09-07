@@ -54,7 +54,9 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
             <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
           </div>
-          <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
+          <div className="text-right">
+            <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
+          </div>
           <div />
           <Sprite name={props.battleLog.players[1].deck} />
         </SmallCardHeader>

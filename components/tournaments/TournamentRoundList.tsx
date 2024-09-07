@@ -14,8 +14,8 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
   return (
     <div className="grid grid-cols-8">
       <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">
-        <span className="col-span-1">Round</span>
-        <span className="col-span-6">Deck</span>
+        <span className="col-span-2">Round</span>
+        <span className="col-span-5">Deck</span>
         <span className="col-span-1 text-right">Result</span>
       </div>
       {props.rounds?.map((round) => (
