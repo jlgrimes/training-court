@@ -18,13 +18,13 @@ const mockJWToronto = {
 
 export default async function Index() {
   return (
-    <div className="flex-1 w-full flex flex-col gap-20 items-center p-12">
+    <div className="flex-1 w-full flex flex-col gap-20 items-center p-8 md:p-12">
       <div className="flex flex-col items-center gap-8 max-w-md py-8">
         <h1 className="font-semibold text-4xl tracking-tight">Training Court</h1>
         <p className="text-center">Once during each player’s turn, that player may put a basic Energy card from their discard pile into their hand.</p>
         <Button disabled size='lg'>Coming soon</Button>
       </div>
-      <div className="grid grid-cols-2 items-center gap-16">
+      <div className="grid md:grid-cols-2 items-center gap-8 md:gap-16">
         <div className="flex flex-col gap-4">
           <h2 className="font-semibold text-2xl">Battle Logs</h2>
           <p>
@@ -68,7 +68,15 @@ export default async function Index() {
           }} currentUserScreenName='jgrimesey' />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-16 items-center">
+      <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+        <div className="flex flex-col gap-4">
+          <h2 className="font-semibold text-2xl">Tournaments</h2>
+          <p>
+            Keep full record of your IRL Pokemon tournaments - from league cups, 
+            to regionals, to international championships. Share tournament runs with your
+            friends so they can keep up with the action at home.
+          </p>
+        </div>
         <div className="flex flex-col gap-2">
         <Card>
           <SmallCardHeader className="grid grid-cols-6 items-center">
@@ -139,14 +147,6 @@ export default async function Index() {
           }]}
           updateClientRoundsOnEdit={async () => {'use server'}}
         />
-        </div>
-        <div className="flex flex-col gap-4">
-          <h2 className="font-semibold text-2xl">Tournaments</h2>
-          <p>
-            Keep full record of your IRL Pokemon tournaments - from league cups, 
-            to regionals, to international championships. Share tournament runs with your
-            friends so they can keep up with the action at home.
-          </p>
         </div>
       </div>
       <div>
