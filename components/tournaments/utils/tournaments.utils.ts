@@ -32,13 +32,16 @@ export const convertGameResultsToRoundResult = (result: string[]) => {
 }
 
 export const displayTournamentDate = (from: string, to: string) => {
+  const fromDate = parseISO(from);
+  const toDate = parseISO(to);
+
   if (from === to) {
-    return format(from, "PPP");
+    return format(fromDate, "LLLL d, yyyy")
   }
 
-  if (parseISO(from).getMonth() === parseISO(from).getMonth()) {
-    return `${format(from, "LLLL d")}-${format(to, "d, yyyy")}`
+  if (fromDate.getMonth() === toDate.getMonth()) {
+    return `${format(fromDate, "LLLL d")}-${format(toDate, "d, yyyy")}`
   }
   
-  return `${format(from, "LLLL d")}-${format(to, "LLLL d, yyyy")}`;
+  return `${format(fromDate, "LLLL d")}-${format(toDate, "LLLL d, yyyy")}`;
 }
