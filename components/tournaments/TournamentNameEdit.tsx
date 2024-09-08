@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
 import { Database } from "@/database.types";
 import { toast } from "../ui/use-toast";
+import { Input } from "../ui/input";
+import { PencilIcon } from "lucide-react";
 
 interface TournamentNameEditProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -11,6 +13,7 @@ interface TournamentNameEditProps {
 export const TournamentNameEdit = ({ tournament }: TournamentNameEditProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tournamentName, setTournamentName] = useState("");
+  const [hovering, setHovering] = useState(false);
 
   useEffect(() => {
     if (tournament?.name) {
@@ -42,21 +45,33 @@ export const TournamentNameEdit = ({ tournament }: TournamentNameEditProps) => {
     <div>
       {isEditing ? (
         <div className="flex gap-2 items-center">
-          <input
+          <Input
             className="border rounded px-2 py-1"
             value={tournamentName}
             onChange={(e) => setTournamentName(e.target.value)}
+            autoFocus
           />
           <Button onClick={handleSave}>Save</Button>
           <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
         </div>
       ) : (
-        <h1
-          className="scroll-m-20 text-2xl font-bold tracking-tight"
-          onDoubleClick={() => setIsEditing(true)}
+        <div
+          className="relative"
+          onMouseEnter={() => setHovering(true)}
+          onMouseLeave={() => setHovering(false)}
         >
-          {tournamentName ? tournamentName : "Loading..."}
-        </h1>
+          <h1
+            className="scroll-m-20 text-2xl font-bold tracking-tight"
+          >
+            {tournamentName ? tournamentName : "Loading..."}
+          </h1>
+          {hovering && (
+            <PencilIcon
+              className="absolute right-0 top-0 cursor-pointer"
+              onClick={() => setIsEditing(true)}
+            />
+          )}
+        </div>
       )}
     </div>
   );
