@@ -50,6 +50,7 @@ const associatedPokemon = [{
   deck: 'gardevoir'
 }]
 
+// TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...
 const isCardsMilled = (log: string[], currentIdx: number, playerName: string) => {
   if (currentIdx < 1) return false;
 
@@ -58,7 +59,7 @@ const isCardsMilled = (log: string[], currentIdx: number, playerName: string) =>
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && line.includes(`was Knocked Out`)) || isCardsMilled(log, idx, playerName)) {
+    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && line.includes(`was Knocked Out`))) {
       return true;
     }
 
