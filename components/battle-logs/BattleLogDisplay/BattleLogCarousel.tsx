@@ -33,7 +33,7 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogTurn[] }) {
           <Card className={` ${getCardBackgroundColor(index, section)}`}>
             <CardHeader>
               <CardTitle>{section.turnTitle}</CardTitle>
-              {index > 2 && (
+              {index > 0 && (
                 <CardDescription>
                   {Object.entries(section.prizesAfterTurn).map(([playerName, prizesRemaining]) => {
                     const previousPrizesOfThisPlayer = sections[index - 1].prizesAfterTurn[playerName];
