@@ -19,7 +19,7 @@ export default function HeaderBreadcrumbs() {
 
   const breadcrumbs: { path: string, label: string}[] = useMemo(() => {
     const breadcrumbs = [{
-      path: '/',
+      path: '/home',
       label: 'Home'
     }];
 
