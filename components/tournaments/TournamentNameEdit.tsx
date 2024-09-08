@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Database } from "@/database.types";
 import { toast } from "../ui/use-toast";
 import { Input } from "../ui/input";
-import { PencilIcon } from "lucide-react";
+import { CheckIcon, CheckSquareIcon, PencilIcon, XIcon } from "lucide-react";
 
 interface TournamentNameEditProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -51,8 +51,12 @@ export const TournamentNameEdit = ({ tournament }: TournamentNameEditProps) => {
             onChange={(e) => setTournamentName(e.target.value)}
             autoFocus
           />
-          <Button onClick={handleSave}>Save</Button>
-          <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+          <Button onClick={handleSave}>
+            <CheckSquareIcon size={16}/>
+          </Button>
+          <Button variant="outline" onClick={() => setIsEditing(false)}>
+            <XIcon size={16}/>
+          </Button>
         </div>
       ) : (
         <div
