@@ -60,7 +60,9 @@ export const TournamentNameEdit = ({ tournament }: TournamentNameEditProps) => {
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
         >
-          <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
+          <h1 className={`scroll-m-20 text-2xl font-bold tracking-tight transition-colors ${
+              hovering ? "text-gray-600" : "text-black"
+            }`}>
             {tournamentName ? tournamentName : "Loading..."}
           </h1>
           {hovering && (
