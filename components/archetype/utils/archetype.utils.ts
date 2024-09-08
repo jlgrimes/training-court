@@ -4,6 +4,7 @@ const pokemonToFind = [
   'miraidon',
   'snorlax',
   'roaring moon',
+  'banette',
   'raging bolt',
   'lugia',
   'chien-pao',
