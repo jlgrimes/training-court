@@ -33,7 +33,7 @@ export const TournamentNameEdit = ({ tournament }: TournamentNameEditProps) => {
         title: "Uh oh! Tournament name was not saved.",
         description: error.message,
       })
-    } else if (data) {
+    } else {
       toast({
         title: "Tournament name was saved correctly.",
       })
@@ -56,18 +56,16 @@ export const TournamentNameEdit = ({ tournament }: TournamentNameEditProps) => {
         </div>
       ) : (
         <div
-          className="relative"
+          className="flex items-center gap-2 relative"
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
         >
-          <h1
-            className="scroll-m-20 text-2xl font-bold tracking-tight"
-          >
+          <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
             {tournamentName ? tournamentName : "Loading..."}
           </h1>
           {hovering && (
             <PencilIcon
-              className="absolute right-0 top-0 cursor-pointer"
+              className="cursor-pointer"
               onClick={() => setIsEditing(true)}
             />
           )}
