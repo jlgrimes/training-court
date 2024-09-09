@@ -27,6 +27,7 @@ const pokemonToFind = [
   'conkeldurr',
   'incineroar',
   'bloodmoon ursaluna',
+  'venusaur',
 
   // secondary
   'iron valiant',
@@ -49,6 +50,9 @@ const associatedPokemon = [{
 }, {
   association: 'ralts',
   deck: 'gardevoir'
+}, {
+  association: 'shuppet',
+  deck: 'banette'
 }]
 
 // TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...
@@ -60,7 +64,7 @@ const isCardsMilled = (log: string[], currentIdx: number, playerName: string) =>
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && line.includes(`was Knocked Out`))) {
+    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))))) {
       return true;
     }
 
