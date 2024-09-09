@@ -22,6 +22,7 @@ const pokemonToFind = [
   'comfey',
   'entei',
   'great tusk',
+  'klawf',
 
   // rogue
   'conkeldurr',
@@ -34,6 +35,7 @@ const pokemonToFind = [
   'ogerpon',
   'pidgeot',
   'flutter mane',
+  'sneasler'
 ];
 
 const pngMap = {
@@ -53,6 +55,9 @@ const associatedPokemon = [{
 }, {
   association: 'shuppet',
   deck: 'banette'
+}, {
+  association: 'applin',
+  deck: 'dipplin'
 }]
 
 // TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...
