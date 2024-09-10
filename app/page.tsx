@@ -9,7 +9,6 @@ import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { track } from '@vercel/analytics/server';
 
 const mockJWToronto = {
   id: 'toronto',
@@ -33,7 +32,7 @@ export default async function Index() {
       <div className="flex flex-col items-center gap-8 max-w-md py-8">
         <h1 className="font-semibold text-4xl tracking-tight">Training Court</h1>
         <p className="text-center">Don't lose track of a game of Pokemon ever again. From PTCG Live testing phases to Regional Championships, Training Court has your back.</p>
-        <Link href={'login'}><Button size='lg' onClick={() => track('Get started clicked')}>Get started <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
+        <Link href={'login'}><Button size='lg'>Get started <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
       </div>
       <div className="grid md:grid-cols-2 items-center gap-8 md:gap-16">
         <div className="flex flex-col gap-4">
