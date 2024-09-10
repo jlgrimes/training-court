@@ -25,9 +25,11 @@ export default async function Header() {
         </Link>
         <NavigationMenu>
           <NavigationMenuList>
-            <NavigationMenuItem>
-              <ReportBugDialog user={user} />
-            </NavigationMenuItem>
+            {user && (
+              <NavigationMenuItem>
+                <ReportBugDialog user={user} />
+              </NavigationMenuItem>
+            )}
             <NavigationMenuItem>
               <Link href="/about" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
