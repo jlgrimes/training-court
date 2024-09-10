@@ -70,6 +70,9 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
       toast({
         title: "Feedback submitted! Thanks for making Training Court better :)",
       });
+      setFeatureName(undefined);
+      setBugType(undefined);
+      setDescription(undefined);
     }
   }, [toast, createClient, props.user?.id, featureName, bugType, description]);
 
