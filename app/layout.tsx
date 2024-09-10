@@ -1,4 +1,5 @@
 import { GeistSans } from "geist/font/sans";
+import { Analytics } from "@vercel/analytics/react"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 import Header from "@/components/app-bar/Header";
@@ -28,6 +29,7 @@ export default function RootLayout({
           <div className="flex flex-col items-center">
             {children}
             <Toaster />
+            <Analytics />
           </div>
         </main>
       </body>
