@@ -38,7 +38,7 @@ export default async function Profile() {
         <div className="flex flex-col gap-4">
           <div className="flex gap-2 items-center">
             <Trophy className="h-4 w-4" />
-            <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">Tournaments</h2>
+            <h2 className="scroll-m-20 text-xl font-semibold">Tournaments</h2>
           </div>
 
           <MyTournamentPreviews user={user} />
