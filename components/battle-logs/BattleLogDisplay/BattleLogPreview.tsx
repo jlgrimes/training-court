@@ -40,7 +40,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, [gameResult])
 
   const getDeckAsText = useCallback((deck?: string) => {
-    if (!deck) return '';
+    if (!deck) return 'unknown';
     return capitalizeName(deck.replace('-', ' '));
   }, []);
 
