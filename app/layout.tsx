@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground">
-        {process.env.NODE_ENV !== 'production' && <Header />}
+        <Header />
         <main className="min-h-screen pt-16">
           <HeaderBreadcrumbs />
           <div className="flex flex-col items-center">

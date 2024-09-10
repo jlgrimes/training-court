@@ -15,7 +15,7 @@ export default async function Profile() {
   const userData = user ? await fetchUserData(user.id) : null;
 
   if (!user) {
-    return redirect("/login");
+    return redirect("/");
   }
 
   return (
