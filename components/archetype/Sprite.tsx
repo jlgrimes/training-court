@@ -12,7 +12,7 @@ export const Sprite = (props: SpriteProps) => {
     <HoverCard>
       <HoverCardTrigger className="flex justify-center w-[40px]" ><HelpCircle className="h-6 w-6 stroke-slate-600" /></HoverCardTrigger>
       <HoverCardContent>
-        Deck is unknown. Report this in the "Report a bug" tab so we can add it!
+        Deck is unknown. Report this in the "Feedback" tab so we can add it!
       </HoverCardContent>
     </HoverCard>
   );

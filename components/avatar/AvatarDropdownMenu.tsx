@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +16,18 @@ interface AvatarDropdownMenuProps {
   initialAvatar: string | null | undefined
 }
 
+const exclusiveAvatars = ['ace trainer', 'cynthia', 'pokemon-center-lady'];
+
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
+  const mainAvatars = useMemo(() => props.images.filter((img) => !exclusiveAvatars.some((avatar) => img.includes(avatar))), [exclusiveAvatars])
+
   const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? getAvatarSrc(props.initialAvatar) : undefined);
+
+  const renderImage = useCallback((image: string) => (
+    <DropdownMenuItem key={image} onClick={() => setSelectedImage(image)}>
+      <img src={image} height='48px' width='48px' className='pixel-image' />
+    </DropdownMenuItem>
+  ), [setSelectedImage]);
 
   const upsertImage = React.useCallback(async (filename: string) => {
     const supabase = createClient();
@@ -34,7 +44,10 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
       <DropdownMenu>
         <DropdownMenuTrigger><img src={selectedImage} height='48px' width='48px' className='pixel-image' /></DropdownMenuTrigger>
         <DropdownMenuContent className='grid grid-cols-5'>
-          {props.images.map((image) => <DropdownMenuItem key={image} onClick={() => setSelectedImage(image)}><img src={image} height='48px' width='48px' className='pixel-image' /></DropdownMenuItem>)}
+          <div className='col-span-5 grid grid-cols-5'>
+            
+          </div>
+          {mainAvatars.map(renderImage)}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

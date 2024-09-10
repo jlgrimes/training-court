@@ -76,11 +76,11 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
   return (
     <Dialog>
       <DialogTrigger className={navigationMenuTriggerStyle()}>
-        Report a bug
+        Feedback
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Report a bug</DialogTitle>
+          <DialogTitle>Submit feedback</DialogTitle>
         </DialogHeader>
 
         <div>
@@ -136,7 +136,7 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
           )
         }
         <DialogFooter>
-          <Button disabled={!description} onClick={submitFeedback}>Submit feedback</Button>
+          <Button disabled={!description} onClick={submitFeedback}>Submit</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
