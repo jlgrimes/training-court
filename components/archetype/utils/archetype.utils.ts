@@ -29,6 +29,7 @@ const pokemonToFind = [
   'incineroar',
   'bloodmoon ursaluna',
   'venusaur',
+  'espathra',
 
   // secondary
   'iron valiant',
@@ -69,7 +70,7 @@ const isCardsMilled = (log: string[], currentIdx: number, playerName: string) =>
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))))) {
+    if (line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))))) {
       return true;
     }
 
