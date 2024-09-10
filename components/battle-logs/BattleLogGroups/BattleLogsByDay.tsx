@@ -50,7 +50,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
               <div className="col-span-2 text-left">
                 {day}
               </div>
-              <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? '')))} />
+              <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
               <h4>
                 {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
               </h4>
