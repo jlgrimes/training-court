@@ -31,13 +31,13 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-7 items-center">
-          <div className="flex flex-col gap-1 col-span-5">
+        <div className="grid grid-cols-4 md:grid-cols-7 items-center">
+          <div className="flex flex-col gap-1 col-span-2 md:col-span-5">
             <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{props.tournament.name}</h1>
             <h3 className="text-sm text-muted-foreground">{displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}</h3>
           </div>
           <EditableTournamentArchetype tournament={props.tournament} />
-          <h2 className="text-xl font-semibold tracking-wider">{getRecord(props.rounds)}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-wider text-right">{getRecord(props.rounds)}</h2>
         </div>
         
         <div className="flex flex-col gap-4">

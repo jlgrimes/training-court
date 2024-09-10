@@ -19,9 +19,9 @@ export default async function Header() {
 
   return (
     <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <Link href={'/home'}>
-          <div className="px-4 py-2 font-semibold text-slate-800">Training Court</div>
+          <div className="px-4 py-2 font-semibold text-sm sm:text-md text-slate-800">Training Court</div>
         </Link>
         <NavigationMenu>
           <NavigationMenuList>
