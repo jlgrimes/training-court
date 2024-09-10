@@ -1,5 +1,6 @@
 'use client';
 
+import { track } from '@vercel/analytics';
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea"
@@ -45,6 +46,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     } else {
       props.handleAddLog(data[0]);
       setLog('');
+      track('Import battle log');
 
       toast({
         title: "Battle log successfully imported!",

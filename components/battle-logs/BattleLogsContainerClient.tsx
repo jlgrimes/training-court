@@ -8,6 +8,7 @@ import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
 import { Database } from "@/database.types";
 import { BattleLogSortBy } from "./utils/battle-log.types";
 import { Card, CardDescription, CardHeader } from "../ui/card";
+import { track } from '@vercel/analytics';
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];
@@ -34,7 +35,10 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
 
       <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
 
-      <Tabs defaultValue='Day' onValueChange={(value) => setSortBy(value as BattleLogSortBy)}>
+      <Tabs defaultValue='Day' onValueChange={(value) => {
+        track('Battle log sort by changed', { value })
+        setSortBy(value as BattleLogSortBy)
+      }}>
         <TabsList>
           {availableSortBys.map((sortBy) => (
             <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}</TabsTrigger>

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { createClient } from '@/utils/supabase/client';
 import { getAvatarSrc } from './avatar.utils';
+import { track } from '@vercel/analytics';
 
 interface AvatarDropdownMenuProps {
   images: string[];
@@ -32,7 +33,8 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
   const upsertImage = React.useCallback(async (filename: string) => {
     const supabase = createClient();
     await supabase.from('user data').upsert({ id: props.userId, avatar: filename });
-  }, []);
+    track('Avatar changed', { avatar: filename });
+  }, [createClient]);
 
   useEffect(() => {
     const fileName = selectedImage?.split('/').reverse()[0];
@@ -45,7 +47,7 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
         <DropdownMenuTrigger><img src={selectedImage} height='48px' width='48px' className='pixel-image' /></DropdownMenuTrigger>
         <DropdownMenuContent className='grid grid-cols-5'>
           <div className='col-span-5 grid grid-cols-5'>
-            
+
           </div>
           {mainAvatars.map(renderImage)}
         </DropdownMenuContent>

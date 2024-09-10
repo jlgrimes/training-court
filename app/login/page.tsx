@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { track } from '@vercel/analytics/server';
 import { redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ export default function Login({
       return redirect("/login?message=Could not authenticate user");
     }
 
+    track('User logged in');
     return redirect("/home");
   };
 
