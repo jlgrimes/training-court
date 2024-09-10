@@ -23,6 +23,7 @@ const pokemonToFind = [
   'entei',
   'great tusk',
   'klawf',
+  'iron hands',
 
   // rogue
   'conkeldurr',
