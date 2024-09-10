@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 
-export const convertBattleLogDateIntoDay = (date: string | Date) => format(date, "LLLL d, yyyy");
+export const convertBattleLogDateIntoDay = (date: string | Date) => format(date, "LLL d, yyyy");
 
 export const groupBattleLogIntoDays = (battleLogs: BattleLog[]): Record<string, BattleLog[]> => {
   return battleLogs.reduce((acc: Record<string, BattleLog[]>, curr: BattleLog) => {
