@@ -11,8 +11,12 @@ import { MyProfileAvatar } from "./MyProfileAvatar";
 import HeaderBreadcrumbs from "./HeaderBreadcrumbs";
 import { AvatarSelector } from "../avatar/AvatarSelector";
 import { LogInOut } from "./LogInOut";
+import { ReportBugDialog } from "./ReportBugDialog";
+import { fetchCurrentUser } from "../auth.utils";
 
-export default function Header() {
+export default async function Header() {
+  const user = await fetchCurrentUser();
+
   return (
     <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
       <div className="flex justify-between">
@@ -21,6 +25,9 @@ export default function Header() {
         </Link>
         <NavigationMenu>
           <NavigationMenuList>
+            <NavigationMenuItem>
+              <ReportBugDialog user={user} />
+            </NavigationMenuItem>
             <NavigationMenuItem>
               <Link href="/about" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>

@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      feedback: {
+        Row: {
+          bug_type: string | null
+          created_at: string
+          description: string | null
+          feature_name: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          bug_type?: string | null
+          created_at?: string
+          description?: string | null
+          feature_name: string
+          id?: number
+          user_id?: string
+        }
+        Update: {
+          bug_type?: string | null
+          created_at?: string
+          description?: string | null
+          feature_name?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           created_at: string
