@@ -30,6 +30,7 @@ const pokemonToFind = [
   'bloodmoon ursaluna',
   'venusaur',
   'espathra',
+  'kingdra',
 
   // secondary
   'iron valiant',
