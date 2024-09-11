@@ -17,7 +17,7 @@ interface AvatarDropdownMenuProps {
   initialAvatar: string | null | undefined
 }
 
-const exclusiveAvatars = ['ace trainer', 'cynthia', 'pokemon-center-lady'];
+const exclusiveAvatars = ['ace trainer', 'cynthia', 'pokemon-center-lady', 'N.png', 'ghetsis', 'riley'];
 
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
   const mainAvatars = useMemo(() => props.images.filter((img) => !exclusiveAvatars.some((avatar) => img.includes(avatar))), [exclusiveAvatars])
