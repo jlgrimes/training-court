@@ -1,5 +1,6 @@
 import { Database } from "@/database.types";
 import { format, parseISO } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 export const getRecord = (rounds: { result: string[] }[]) => {
   const record = {
@@ -32,10 +33,19 @@ export const convertGameResultsToRoundResult = (result: string[]) => {
 }
 
 export const displayTournamentDate = (from: string, to: string) => {
-  const fromDate = parseISO(from);
-  const toDate = parseISO(to);
+  return displayTournamentDateRange({
+    from: parseISO(from),
+    to: parseISO(to)
+  })
+}
 
-  if (from === to) {
+export const displayTournamentDateRange = (range: DateRange) => {
+  const fromDate = range.from
+  const toDate = range.to;
+
+  if (!fromDate || !toDate) return '';
+
+  if (format(fromDate, "LLLL d") === format(toDate, "LLLL d")) {
     return format(fromDate, "LLLL d, yyyy")
   }
 

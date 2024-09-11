@@ -28,7 +28,7 @@ export default function AddTournamentRound(props: AddTournamentRoundProps) {
   )
 
   return (
-    <Button size='sm' variant={'outline'} onClick={() => setEditing(true)}>
+    <Button size='sm' variant={'secondary'} onClick={() => setEditing(true)}>
       <Plus className="mr-2 h-4 w-4" />Add round
     </Button>
   )

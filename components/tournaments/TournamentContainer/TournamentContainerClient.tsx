@@ -5,8 +5,11 @@ import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
 import { useCallback, useState } from "react";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
-import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
+import { displayTournamentDate, displayTournamentDateRange, getRecord } from "../utils/tournaments.utils";
 import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
+import { TournamentEditDialog } from "./TournamentEditDialog";
+import { DateRange } from "react-day-picker";
+import { parseISO } from "date-fns";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -16,6 +19,8 @@ interface TournamentContainerClientProps {
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const [rounds, setRounds] = useState(props.rounds);
+  const [tournamentName, setTournamentName] = useState(props.tournament.name);
+  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
@@ -28,17 +33,35 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange) => {
+    setTournamentDate(newDate);
+    setTournamentName(newName);
+  }, [setTournamentDate, setTournamentName]);
+
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-4 md:grid-cols-7 items-center">
           <div className="flex flex-col gap-1 col-span-2 md:col-span-5">
-            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{props.tournament.name}</h1>
-            <h3 className="text-sm text-muted-foreground">{displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}</h3>
+            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
+            <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
           </div>
           <EditableTournamentArchetype tournament={props.tournament} />
           <h2 className="text-lg sm:text-xl font-semibold tracking-wider text-right">{getRecord(props.rounds)}</h2>
         </div>
+        {
+          props.user && (props.user.id === props.tournament.user) && (
+            <div>
+              <TournamentEditDialog
+                tournamentId={props.tournament.id}
+                tournamentName={tournamentName}
+                tournamentDateRange={tournamentDate}
+                user={props.user}
+                updateClientTournament={updateClientTournamentDataOnEdit}
+              />
+            </div>
+          )
+        }
         
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
