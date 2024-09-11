@@ -63,7 +63,7 @@ export default function HeaderBreadcrumbs() {
           <BreadcrumbItem>
             <BreadcrumbLink href={path}>{label}</BreadcrumbLink>
             {idx === 2 && <ShareIcon onClick={() => {
-              navigator.clipboard.writeText('https://buddypoffin.com' + pathname);
+              navigator.clipboard.writeText('https://trainingcourt.app' + pathname);
               toast({
                 title: "Copied sharable link to clipboard!",
               })
