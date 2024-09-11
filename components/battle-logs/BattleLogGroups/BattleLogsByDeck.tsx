@@ -23,7 +23,7 @@ export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
 
   return (
     <Accordion type="single" collapsible className="flex flex-col">
-      {Object.entries(battleLogsByDeck).map(([deck, logs]) => (
+      {Object.entries(battleLogsByDeck).sort((a, b) => b[1].length - a[1].length).map(([deck, logs]) => (
         <AccordionItem value={deck}>
           <AccordionTrigger>
             <div className="grid grid-cols-4 w-full items-center">
