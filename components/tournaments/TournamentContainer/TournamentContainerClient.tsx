@@ -1,9 +1,9 @@
 'use client';
 
-import { Database } from "@/database.types"
+import { Database } from "@/database.types";
 import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
@@ -16,17 +16,28 @@ interface TournamentContainerClientProps {
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const [rounds, setRounds] = useState(props.rounds);
+  const [record, setRecord] = useState("");
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
-    setRounds([...rounds, newRound]);
-  }, [setRounds, rounds]);
+    setRounds((prevRounds) => [...prevRounds, newRound]);
+  }, []);
 
   const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
-    let newRounds = [...rounds];
-    newRounds[pos] = newRound;
-    
-    setRounds(newRounds);
-  }, [setRounds, rounds]);
+    setRounds((prevRounds) => {
+      const updatedRounds = [...prevRounds];
+      updatedRounds[pos] = newRound; 
+      return updatedRounds;
+    });
+  }, []);
+
+  useEffect(() => {
+    const updatedRecord = getRecord(rounds);
+    setRecord(updatedRecord);
+  }, [rounds]);
+
+  useEffect(() => {
+    setRecord(getRecord(props.rounds)); 
+  }, [props.rounds]);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
@@ -37,23 +48,26 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
             <h3 className="text-sm text-muted-foreground">{displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}</h3>
           </div>
           <EditableTournamentArchetype tournament={props.tournament} />
-          <h2 className="text-lg sm:text-xl font-semibold tracking-wider text-right">{getRecord(props.rounds)}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-wider text-right">{record}</h2>
         </div>
         
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-4">
-            <TournamentRoundList tournament={props.tournament} userId={props.user?.id} rounds={rounds} updateClientRoundsOnEdit={updateClientRoundsOnEdit} />
-            {props.user?.id && (props.user.id === props.tournament.user) && (
-              <AddTournamentRound
-                tournamentId={props.tournament.id}
-                userId={props.user.id}
-                editedRoundNumber={rounds.length + 1}
-                updateClientRounds={updateClientRoundsOnAdd}
-              />
-            )}
-          </div>
+          <TournamentRoundList
+            tournament={props.tournament}
+            userId={props.user?.id}
+            rounds={rounds}
+            updateClientRoundsOnEdit={updateClientRoundsOnEdit}
+          />
+          {props.user?.id && props.user.id === props.tournament.user && (
+            <AddTournamentRound
+              tournamentId={props.tournament.id}
+              userId={props.user.id}
+              editedRoundNumber={rounds.length + 1}
+              updateClientRounds={updateClientRoundsOnAdd}
+            />
+          )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
