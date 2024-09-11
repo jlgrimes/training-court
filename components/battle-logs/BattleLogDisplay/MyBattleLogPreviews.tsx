@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { BattleLog, BattleLogSortBy } from "../utils/battle-log.types";
 import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
+import { Label } from "@/components/ui/label";
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
@@ -28,6 +29,7 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
 
   return (
     <div className="flex flex-col gap-2">
+      <Label className="mb-2">{battleLogs.length} total battle logs</Label>
       {battleLogs.map((battleLog) => (
         <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
       ))}
