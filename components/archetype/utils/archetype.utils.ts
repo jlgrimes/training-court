@@ -1,4 +1,7 @@
 const pokemonToFind = [
+  // niche unplayed decks that have priority over the others for some reason
+  'gouging fire',
+
   // tier one as of 2024
   'regidrago',
   'miraidon',
@@ -15,8 +18,6 @@ const pokemonToFind = [
 
   // tier two and below
   'gholdengo',
-  'dialga',
-  'palkia',
   'giratina',
   'arceus',
   'comfey',
@@ -29,6 +30,8 @@ const pokemonToFind = [
   'conkeldurr',
   'incineroar',
   'bloodmoon ursaluna',
+  'origin forme dialga',
+  'origin forme palkia',
   'venusaur',
   'espathra',
   'kingdra',
@@ -42,7 +45,9 @@ const pokemonToFind = [
 ];
 
 const pngMap = {
-  'bloodmoon ursaluna': 'ursaluna-bloodmoon'
+  'bloodmoon ursaluna': 'ursaluna-bloodmoon',
+  'origin forme dialga': 'dialga-origin',
+  'origin forme palkia': 'palkia-origin',
 };
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
