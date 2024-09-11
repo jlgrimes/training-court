@@ -10,6 +10,7 @@ import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
 import { TournamentEditDialog } from "./TournamentEditDialog";
 import { DateRange } from "react-day-picker";
 import { parseISO } from "date-fns";
+import { TournamentDeleteDialog } from "./TournamentDeleteDialog";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -51,13 +52,17 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
         </div>
         {
           props.user && (props.user.id === props.tournament.user) && (
-            <div>
+            <div className="flex gap-1">
               <TournamentEditDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
                 tournamentDateRange={tournamentDate}
                 user={props.user}
                 updateClientTournament={updateClientTournamentDataOnEdit}
+              />
+              <TournamentDeleteDialog
+                tournamentId={props.tournament.id}
+                tournamentName={tournamentName}
               />
             </div>
           )
