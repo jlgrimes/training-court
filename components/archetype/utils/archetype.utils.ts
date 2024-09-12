@@ -18,6 +18,9 @@ const pokemonToFind = [
 
   // tier two and below
   'gholdengo',
+  'origin forme palkia',
+  'terapagos',
+  'cinderace',
   'giratina',
   'arceus',
   'comfey',
@@ -31,7 +34,6 @@ const pokemonToFind = [
   'incineroar',
   'bloodmoon ursaluna',
   'origin forme dialga',
-  'origin forme palkia',
   'venusaur',
   'espathra',
   'kingdra',
