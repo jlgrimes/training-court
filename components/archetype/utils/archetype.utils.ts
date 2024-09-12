@@ -57,6 +57,9 @@ const associatedPokemon = [{
   association: 'charmander',
   deck: 'charizard'
 }, {
+  association: 'dreepy',
+  deck: 'dragapult'
+}, {
   association: 'frigibax',
   deck: 'chien-pao'
 }, {
