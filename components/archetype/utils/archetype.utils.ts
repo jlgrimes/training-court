@@ -17,6 +17,7 @@ const pokemonToFind = [
   'charizard',
 
   // tier two and below
+  'regigigas',
   'gholdengo',
   'origin forme palkia',
   'terapagos',
