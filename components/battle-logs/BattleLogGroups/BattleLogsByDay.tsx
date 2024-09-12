@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -11,8 +11,8 @@ import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
-import { formatDistanceToNowStrict, getDay, isAfter, isThisWeek, isToday, isWithinInterval, isYesterday, subWeeks } from "date-fns";
-import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { isAfter, parseISO } from "date-fns";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface BattleLogsByDayProps {
   battleLogs: BattleLog[];
@@ -41,17 +41,6 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
     })
   }, [battleLogsByDay]);
 
-  const formatDay = useCallback((date: string) => {
-    const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-
-    if (isToday(date)) return 'Today';
-    if (isYesterday(date)) return 'Yesterday';
-    if (isThisWeek(date)) return `This ${weekday[getDay(date)]}`;
-    if (isWithinInterval(date, { start: subWeeks(new Date(), 1), end: new Date()})) return `Last ${weekday[getDay(date)]}`
-
-    return convertBattleLogDateIntoDay(date);
-  }, []);
-
   return (
     <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
       {battleLogsByDayList.map(([day, logs]) => (
@@ -59,7 +48,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
           <AccordionTrigger>
             <div className="grid grid-cols-4 w-full items-center">
               <div className="col-span-2 text-left">
-                {formatDay(logs[0].date)}
+                {day}
               </div>
               <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
               <h4>
