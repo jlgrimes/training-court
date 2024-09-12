@@ -6,7 +6,7 @@ import {
   CardTitle,
   SmallCardHeader,
 } from "@/components/ui/card"
-import { formatDistanceToNowStrict } from "date-fns";
+import { format, formatDistanceToNowStrict } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 import { Sprite } from "../../archetype/Sprite";
 import Link from "next/link";
@@ -44,6 +44,10 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     return capitalizeName(deck.replace('-', ' '));
   }, []);
 
+  const cardSubtitle = useMemo(() => {
+    return format(props.battleLog.date, 'LLL d, h:mm a');
+  }, [props.battleLog.date]);
+
   return (
     <Link href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
@@ -52,7 +56,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-4 ml-4">
             <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>
-            <CardDescription className="text-slate-800 opacity-50">{formatDistanceToNowStrict(props.battleLog.date)} ago</CardDescription>
+            <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
           </div>
           <div className="text-right">
             <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
