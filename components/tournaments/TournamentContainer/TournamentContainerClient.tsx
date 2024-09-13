@@ -48,7 +48,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
             <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
           </div>
           <EditableTournamentArchetype tournament={props.tournament} />
-          <h2 className="text-lg sm:text-xl font-semibold tracking-wider text-right">{getRecord(props.rounds)}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-wider text-right">{getRecord(rounds)}</h2>
         </div>
         {
           props.user && (props.user.id === props.tournament.user) && (
