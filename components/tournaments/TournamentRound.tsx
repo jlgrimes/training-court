@@ -47,7 +47,11 @@ export const TournamentRound = (props: TournamentRoundProps) => {
       <span className="col-span-2 font-bold text-sm">{props.round.round_num}</span>
       <span className="col-span-5">{props.round.match_end_reason === 'ID' ? <div className="flex items-center font-bold text-lg ml-2">
       ID
-      </div> : <Sprite name={props.round.deck} />}</span>
+      </div> : props.round.match_end_reason === 'No show' ? (
+        <div className="flex items-center text-sm font-bold">
+          No show
+        </div>
+      ) : <Sprite name={props.round.deck} />}</span>
       <span className="text-right font-bold tracking-wider text-md leading-4">{props.round.result.join('')}</span>
     </div>
   )
