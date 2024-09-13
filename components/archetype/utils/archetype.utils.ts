@@ -41,6 +41,7 @@ const pokemonToFind = [
   'venusaur',
   'espathra',
   'kingdra',
+  'venomoth',
 
   // secondary
   'iron valiant',
@@ -75,6 +76,9 @@ const associatedPokemon = [{
 }, {
   association: 'applin',
   deck: 'dipplin'
+}, {
+  association: 'joltik',
+  deck: 'galvantula'
 }]
 
 // TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...
