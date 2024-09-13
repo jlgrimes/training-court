@@ -31,6 +31,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
             {isBefore(new Date(), props.tournament.date_from) && (
               <Badge className="mt-2 bg-purple-100" variant='secondary'><Watch className="h-4 w-4 mr-1" /> Live in {formatDistanceToNowStrict(props.tournament.date_from, {
                 roundingMethod: 'ceil',
+                unit: 'day'
               })}</Badge>
             )}
             {isAfter(new Date(), props.tournament.date_from) && isBefore(new Date(), props.tournament.date_to) && (

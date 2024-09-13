@@ -29,8 +29,11 @@ const pokemonToFind = [
   'great tusk',
   'klawf',
   'iron hands',
+  'galvantula',
+  'lunatone',
 
   // rogue
+  'toedscruel',
   'conkeldurr',
   'incineroar',
   'bloodmoon ursaluna',
