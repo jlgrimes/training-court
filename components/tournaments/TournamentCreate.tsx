@@ -33,12 +33,8 @@ export default function TournamentCreate({ userId }: { userId: string }) {
         description: error.message,
       })
     } else {
-      toast({
-        title: "You did it!",
-      });
-      setTournamentDate(undefined);
-      setTournamentName('')
-      setEditing(false);
+      // TODO: actually make this update the front end instead of refreshing the whole page
+      window.location.href = '/';
     }
   }, [tournamentName, tournamentDate]);
 
