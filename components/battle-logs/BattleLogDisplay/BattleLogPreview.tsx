@@ -26,7 +26,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   const gameResult = useMemo(() => {
     if (!props.currentUserScreenName) return undefined;
 
-    if (props.battleLog.winner === props.currentUserScreenName) return 'W';
+    if (props.battleLog.winner.toLowerCase() === props.currentUserScreenName.toLowerCase()) return 'W';
     return 'L';
   }, [props.currentUserScreenName, props.battleLog.winner]);
 
