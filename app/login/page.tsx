@@ -44,7 +44,7 @@ export default function Login({
       email,
       password,
       options: {
-        emailRedirectTo: `${origin}/auth/callback`,
+        emailRedirectTo: `trainingcourt.app/auth/callback`,
       },
     });
 
