@@ -22,7 +22,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
     const { error } = await supabase.from('tournaments').insert({
       name: tournamentName,
       date_from: tournamentDate?.from,
-      date_to: tournamentDate?.to,
+      date_to: tournamentDate?.to ?? tournamentDate?.from,
       user: userId
     });
 
@@ -44,7 +44,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
         <div className="flex flex-col w-full max-w-sm gap-2 space-x-2">
           <Input className="ml-2" placeholder="Tournament name" value={tournamentName} onChange={(e) => setTournamentName(e.target.value)} />
           <DatePicker date={tournamentDate} setDate={setTournamentDate} />
-          <Button onClick={handleAddTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from || !tournamentDate.to}>Add tournament</Button>
+          <Button onClick={handleAddTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from }>Add tournament</Button>
       </div>
       </CardHeader>
     </Card>
