@@ -13,6 +13,7 @@ import { AvatarSelector } from "../avatar/AvatarSelector";
 import { LogInOut } from "./LogInOut";
 import { ReportBugDialog } from "./ReportBugDialog";
 import { fetchCurrentUser } from "../auth.utils";
+import Image from "next/image";
 
 export default async function Header() {
   const user = await fetchCurrentUser();
@@ -21,7 +22,7 @@ export default async function Header() {
     <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
       <div className="flex justify-between items-center">
         <Link href={'/home'}>
-          <div className="px-4 py-2 font-semibold text-slate-800">Training Court</div>
+          <Image src={'/logo.png'} alt='logo' width={150} height={20} />
         </Link>
         <NavigationMenu>
           <NavigationMenuList>
