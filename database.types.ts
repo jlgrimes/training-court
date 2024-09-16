@@ -119,7 +119,7 @@ export type Database = {
           created_at: string
           date_from: string
           date_to: string
-          deck: string | null
+          deck: string[] | null
           id: string
           name: string
           user: string
@@ -128,7 +128,7 @@ export type Database = {
           created_at?: string
           date_from: string
           date_to: string
-          deck?: string | null
+          deck?: string[] | null
           id?: string
           name: string
           user: string
@@ -137,7 +137,7 @@ export type Database = {
           created_at?: string
           date_from?: string
           date_to?: string
-          deck?: string | null
+          deck?: string[] | null
           id?: string
           name?: string
           user?: string

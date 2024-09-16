@@ -3,33 +3,54 @@ import { Input } from '../../ui/input';
 import { Sprite } from '../Sprite';
 
 interface AddArchetypeProps {
-  setArchetype: (deck: string) => void;
-  defaultArchetype?: string;
+  setArchetype: (deck: string[]) => void;
+  defaultArchetype?: string[];
   isDisabled?: boolean;
 }
 
 export const AddArchetype = (props: AddArchetypeProps) => {
-  const [pokemonName, setPokemonName] = useState<string>('');
-
+  const [pokemonNamePrimary, setPokemonNamePrimary] = useState<string>('');
+  const [pokemonNameSecondary, setPokemonNameSecondary] = useState<string>('');
+  
   useEffect(() => {
     if (props.defaultArchetype) {
-      setPokemonName(props.defaultArchetype);
+      setPokemonNamePrimary(props.defaultArchetype[0] || '');
+      setPokemonNameSecondary(props.defaultArchetype[1] || '');
     }
   }, [props.defaultArchetype]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPokemonName(e.target.value.toLowerCase().replace(' ', '-'));
-  }, [setPokemonName]);
+  const handlePrimaryInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPokemonNamePrimary(e.target.value.toLowerCase().replace(' ', '-'));
+  }, []);
 
-  // TODO: have it only update props when img is valid
+  const handleSecondaryInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPokemonNameSecondary(e.target.value.toLowerCase().replace(' ', '-'));
+  }, []);
+
   useEffect(() => {
-    props.setArchetype(pokemonName);
-  }, [pokemonName]);
+    props.setArchetype([pokemonNamePrimary, pokemonNameSecondary]);
+  }, [pokemonNamePrimary, pokemonNameSecondary]);
 
   return (
     <div className='grid grid-cols-4 gap-4'>
-      <Input autoFocus disabled={props.isDisabled} className='col-span-3' value={pokemonName} onChange={handleInputChange} placeholder='Enter name of Pokemon in deck' />
-      {!props.isDisabled && <Sprite name={pokemonName} />}
+      <Input
+        autoFocus
+        disabled={props.isDisabled}
+        className='col-span-3'
+        value={pokemonNamePrimary}
+        onChange={handlePrimaryInputChange}
+        placeholder='Enter name of primary Pokemon in deck'
+      />
+      {!props.isDisabled && <Sprite name={pokemonNamePrimary} />}
+      
+      <Input
+        disabled={props.isDisabled}
+        className='col-span-3'
+        value={pokemonNameSecondary}
+        onChange={handleSecondaryInputChange}
+        placeholder='Enter name of secondary Pokemon in deck'
+      />
+      {!props.isDisabled && <Sprite name={pokemonNameSecondary} />}
     </div>
-  )
-}
+  );
+};
