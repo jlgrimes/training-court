@@ -76,7 +76,7 @@ export type Database = {
       "tournament rounds": {
         Row: {
           created_at: string
-          deck: string | null
+          deck: string[] | null
           id: string
           match_end_reason: string | null
           result: string[]
@@ -86,7 +86,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          deck?: string | null
+          deck?: string[] | null
           id?: string
           match_end_reason?: string | null
           result: string[]
@@ -96,7 +96,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          deck?: string | null
+          deck?: string[] | null
           id?: string
           match_end_reason?: string | null
           result?: string[]

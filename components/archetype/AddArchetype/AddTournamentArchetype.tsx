@@ -95,7 +95,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
           <AddArchetype setArchetype={setDeck} />
           {shouldLocalizeDeckInput && (
             <p className="my-0 text-sm">
-              Adding your deck before the tournament is over will be localized, and not uploaded to the cloud until after the tournament is over.
+              Adding your deck before the tournament is over will not uploaded until after the tournament is over.
               This is to preserve the integrity of the tournament for all participants.
             </p>
           )}
