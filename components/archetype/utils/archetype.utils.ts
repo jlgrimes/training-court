@@ -1,6 +1,7 @@
 const pokemonToFind = [
   // niche unplayed decks that have priority over the others for some reason
   'gouging fire',
+  'cinderace',
 
   // tier one as of 2024
   'regidrago',
@@ -20,8 +21,8 @@ const pokemonToFind = [
   'regigigas',
   'gholdengo',
   'origin forme palkia',
+  'hisuian zoroark',
   'terapagos',
-  'cinderace',
   'giratina',
   'arceus',
   'comfey',
@@ -55,6 +56,7 @@ const pngMap = {
   'bloodmoon ursaluna': 'ursaluna-bloodmoon',
   'origin forme dialga': 'dialga-origin',
   'origin forme palkia': 'palkia-origin',
+  'hisuian zoroark': 'zoroark-hisui'
 };
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
@@ -79,6 +81,9 @@ const associatedPokemon = [{
 }, {
   association: 'joltik',
   deck: 'galvantula'
+}, {
+  association: 'venonat',
+  deck: 'venomoth'
 }]
 
 // TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...
