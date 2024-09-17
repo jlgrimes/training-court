@@ -78,10 +78,10 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     }
   }, [shouldLocalizeDeckInput, tournament.id]);
 
-  if (loading) {
-    // @TODO: Loading Spinner here
-    return null;
-  }
+  // @TODO: Loading Spinner here
+  if (loading) return null;
+
+  if (editDisabled) return null;
 
   if (clientDeck && clientDeck.length > 0) {
     return (
@@ -106,10 +106,6 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
         ))}
       </div>
     );
-  }
-
-  if (editDisabled) {
-    return null;
   }
 
   return (
