@@ -22,12 +22,14 @@ import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 
+
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`;
 
 export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
   const [deck, setDeck] = useState<string[]>([]);
-  const [serverDeck, setServerDeck] = useState<string[] | null>();
-  const [clientDeck, setClientDeck] = useState<string[] | undefined>();
+  const [serverDeck, setServerDeck] = useState<string[] | null>(null);
+  const [clientDeck, setClientDeck] = useState<string[] | undefined>(undefined);
+  const [loading, setLoading] = useState(true); // New loading state
 
   const shouldLocalizeDeckInput = useMemo(() => {
     return !isAfter(Date.now(), tournament.date_to);
@@ -42,7 +44,19 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
         console.error("Error parsing saved deck from cookie:", error);
       }
     }
+    setLoading(false);
   }, [tournament.id]);
+
+  useEffect(() => {
+    if (tournament.deck) {
+      try {
+        const parsedDeck = Array.isArray(tournament.deck) ? tournament.deck : JSON.parse(tournament.deck);
+        setServerDeck(parsedDeck);
+      } catch (error) {
+        console.error("Error parsing tournament.deck:", error);
+      }
+    }
+  }, [tournament.deck]);
 
   useEffect(() => {
     if (clientDeck && !shouldLocalizeDeckInput) {
@@ -65,16 +79,21 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     }
   }, [shouldLocalizeDeckInput, tournament.id]);
 
+  if (loading) {
+    // @TODO: Loading Spinner here
+    return null;
+  }
+
   if (clientDeck && clientDeck.length > 0) {
     return (
       <HoverCard>
-        <HoverCardTrigger className="cursor-pointer">
-          {clientDeck.map((sprite, index) => (
+        <HoverCardTrigger className="cursor-pointer flex space-x-1">
+          {clientDeck.filter(sprite => sprite !== "").map((sprite, index) => (
             <Sprite key={index} name={sprite} faded />
           ))}
         </HoverCardTrigger>
         <HoverCardContent>
-          Adding your deck before the tournament is over will not be uploaded until after the tournament concludes. This is to preserve the integrity of the tournament for all participants.
+          Adding your deck before the tournament is over will save it to your device only. It will not be officially uploaded until after the tournament concludes to preserve the integrity of the tournament for all participants.
         </HoverCardContent>
       </HoverCard>
     );
@@ -82,8 +101,8 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
 
   if (serverDeck && serverDeck.length > 0) {
     return (
-      <div>
-        {serverDeck.map((sprite, index) => (
+      <div className="flex space-x-1">
+        {serverDeck.filter(sprite => sprite !== "").map((sprite, index) => (
           <Sprite key={index} name={sprite} />
         ))}
       </div>
@@ -104,8 +123,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
         <AddArchetype setArchetype={setDeck} />
         {shouldLocalizeDeckInput && (
           <p className="my-0 text-sm">
-            Adding your deck before the tournament is over will not be uploaded until after the tournament is over.
-            This is to preserve the integrity of the tournament for all participants.
+            Adding your deck before the tournament is over will save it to your device only. It will not be officially uploaded until after the tournament concludes to preserve the integrity of the tournament for all participants.
           </p>
         )}
         <DialogClose asChild>
