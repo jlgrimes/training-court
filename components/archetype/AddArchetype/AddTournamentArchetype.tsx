@@ -22,14 +22,13 @@ import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 
-
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`;
 
 export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
   const [deck, setDeck] = useState<string[]>([]);
   const [serverDeck, setServerDeck] = useState<string[] | null>(null);
   const [clientDeck, setClientDeck] = useState<string[] | undefined>(undefined);
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
 
   const shouldLocalizeDeckInput = useMemo(() => {
     return !isAfter(Date.now(), tournament.date_to);
@@ -41,7 +40,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
       try {
         setClientDeck(JSON.parse(savedDeck));
       } catch (error) {
-        console.error("Error parsing saved deck from cookie:", error);
+        console.error("Error parsing saved deck from cookie: ", error);
       }
     }
     setLoading(false);
@@ -53,7 +52,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
         const parsedDeck = Array.isArray(tournament.deck) ? tournament.deck : JSON.parse(tournament.deck);
         setServerDeck(parsedDeck);
       } catch (error) {
-        console.error("Error parsing tournament.deck:", error);
+        console.error("Error parsing tournament.deck: ", error);
       }
     }
   }, [tournament.deck]);
