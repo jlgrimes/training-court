@@ -32,7 +32,7 @@ export const AddArchetype = (props: AddArchetypeProps) => {
   }, [pokemonNamePrimary, pokemonNameSecondary]);
 
   return (
-    <div className='grid grid-cols-4 gap-4'>
+    <div className='grid grid-cols-4 gap-4 flex items-center'>
       <Input
         autoFocus
         disabled={props.isDisabled}
