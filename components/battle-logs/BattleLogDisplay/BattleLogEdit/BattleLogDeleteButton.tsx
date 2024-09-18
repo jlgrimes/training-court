@@ -45,12 +45,10 @@ export const BattleLogDeleteButton = (props: BattleLogDeleteButtonProps) => {
       <DialogTrigger disabled={!props.isEditing} className={
         cn(
           "absolute right-4 transition-opacity ease-in duration-75",
-          !props.isEditing && 'hidden'
+          !props.isEditing && 'hidden',
         )
       }>
-        <Button className={cn(
-          props.isEditing ? 'opacity-100' : 'opacity-0'
-        )} size='icon' variant='ghost'><TrashIcon className="h-4 w-4" /></Button>
+        <TrashIcon className="h-4 w-4" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
