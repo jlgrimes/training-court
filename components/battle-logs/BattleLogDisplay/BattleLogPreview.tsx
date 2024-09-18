@@ -31,7 +31,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, [props.currentUserScreenName, props.battleLog.winner]);
 
   const userIsNotInTheBattleLog = useMemo(() => {
-    return (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[0].name.toLowerCase()) || (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[1].name.toLowerCase());
+    return (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[0].name.toLowerCase()) && (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[1].name.toLowerCase());
   }, [props.battleLog.players[0].name, props.battleLog.players[1].name, props.currentUserScreenName])
 
   const gameResultAsText = useMemo(() => {
