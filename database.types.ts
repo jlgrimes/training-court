@@ -16,6 +16,7 @@ export type Database = {
           description: string | null
           feature_name: string
           id: number
+          is_fixed: boolean | null
           user_id: string
         }
         Insert: {
@@ -24,6 +25,7 @@ export type Database = {
           description?: string | null
           feature_name: string
           id?: number
+          is_fixed?: boolean | null
           user_id?: string
         }
         Update: {
@@ -32,6 +34,7 @@ export type Database = {
           description?: string | null
           feature_name?: string
           id?: number
+          is_fixed?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -46,18 +49,21 @@ export type Database = {
       }
       logs: {
         Row: {
+          archetype: string | null
           created_at: string
           id: string
           log: string
           user: string
         }
         Insert: {
+          archetype?: string | null
           created_at?: string
           id?: string
           log: string
           user: string
         }
         Update: {
+          archetype?: string | null
           created_at?: string
           id?: string
           log?: string
@@ -183,7 +189,12 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pilot_users: {
+        Row: {
+          user: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

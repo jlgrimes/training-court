@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { EditIcon, Notebook, PencilIcon, RadioTower } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
@@ -27,6 +27,11 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
     // Puts most recent (now) in the front
     setLogs([newLog, ...logs])
   }, [setLogs, logs]);
+
+  // Disable edit mode every time we change tabs because that makes sense
+  useEffect(() => {
+    setIsEditing(false);
+  }, [sortBy]);
 
   return (
     <div className="flex flex-col gap-4">

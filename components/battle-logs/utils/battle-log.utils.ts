@@ -154,7 +154,7 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
   return false;
 };
 
-export function parseBattleLog(log: string, id: string, created_at: string, currentUserScreenName: string | null) {
+export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, currentUserScreenName: string | null) {
   const cleanedLog = trimBattleLog(log);
   let playerNames = getPlayerNames(cleanedLog);
 
@@ -165,7 +165,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, curr
   const winner = determineWinner(cleanedLog);
   const players: BattleLogPlayer[] = playerNames.map((player) => ({
     name: player,
-    deck: determineArchetype(cleanedLog, player),
+    deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player),
     result: (winner === player) ? 'W' : 'L'
   }));
 

@@ -8,13 +8,13 @@ import { redirect } from "next/navigation";
 export default async function LiveLog({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
-  const { data: logData } = await supabase.from('logs').select('id,user,created_at,log').eq('id', params.id).maybeSingle();
+  const { data: logData } = await supabase.from('logs').select('id,user,created_at,log,archetype').eq('id', params.id).maybeSingle();
 
   if (!logData ) {
     return redirect("/");
   }
 
-  const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, null);
+  const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, null);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2">
