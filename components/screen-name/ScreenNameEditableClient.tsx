@@ -20,7 +20,7 @@ export const ScreenNameEditableInputClient = ({ userId, liveScreenName }: { user
   if (isEditing || !liveScreenName) {
     return (
       <div className="flex w-full max-w-sm items-center space-x-2 gap-2">
-        <Input autoFocus value={screenNameValue} onChange={(e) => setScreenNameValue(e.target.value)} placeholder="Screen name" />
+        <Input autoFocus value={screenNameValue} onChange={(e) => setScreenNameValue(e.target.value)} placeholder="PTCG Live screen name" />
         <Button disabled={screenNameValue.length === 0} onClick={() => upsertScreenName()}>Submit</Button>
       </div>
     )
