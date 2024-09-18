@@ -43,6 +43,8 @@ const pokemonToFind = [
   'espathra',
   'kingdra',
   'venomoth',
+  'tinkaton',
+  'tsareena',
 
   // secondary
   'iron valiant',
