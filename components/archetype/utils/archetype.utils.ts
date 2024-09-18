@@ -95,7 +95,7 @@ const isCardsMilled = (log: string[], currentIdx: number, playerName: string) =>
 
 export const determineArchetype = (log: string[], playerName: string): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))))) {
+    if (line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || (line.includes(`${playerName} drew `) && line.includes(`and played it to the Bench`)) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))))) {
       return true;
     }
 
