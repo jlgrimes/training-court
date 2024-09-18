@@ -149,7 +149,7 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
   // because it doesn't matter
   if (!currentScreenName) return false;
 
-  if (playerNames[1] === currentScreenName) return true;
+  if (playerNames[1].toLowerCase() === currentScreenName.toLowerCase()) return true;
 
   return false;
 };
