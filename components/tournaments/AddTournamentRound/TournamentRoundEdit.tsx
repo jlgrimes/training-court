@@ -27,7 +27,7 @@ export interface TournamentRoundEditProps {
 export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const { toast } = useToast();
 
-  const [deck, setDeck] = useState<string | undefined>(undefined);
+  const [deck, setDeck] = useState<string[] | undefined>(undefined);
   const [result, setResult] = useState<string[]>([]);
   const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | undefined>();
 
