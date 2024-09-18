@@ -51,9 +51,12 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
                 {day}
               </div>
               <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
-              <h4>
-                {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
-              </h4>
+              <div className="text-right mr-2">
+                <h4 className="leading-5">
+                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+                </h4>
+                <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
