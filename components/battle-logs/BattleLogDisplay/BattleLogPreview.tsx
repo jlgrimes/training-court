@@ -14,7 +14,7 @@ import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { capitalizeName, getTurnOrderOfPlayer } from "../utils/battle-log.utils";
 
-interface BattleLogPreviewProps {
+export interface BattleLogPreviewProps {
   // unparsed battle log
   battleLog: BattleLog;
   currentUserScreenName: string | null | undefined;
@@ -49,7 +49,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }, [props.battleLog.date]);
 
   return (
-    <Link href={`/logs/${props.battleLog.id}`}>
+    <Link className="flex-grow" href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
         <SmallCardHeader className="grid grid-cols-8 items-center">
           <Sprite name={props.battleLog.players[0].deck} />

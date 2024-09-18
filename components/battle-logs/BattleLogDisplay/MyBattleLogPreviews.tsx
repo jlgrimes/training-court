@@ -8,11 +8,13 @@ import { BattleLog, BattleLogSortBy } from "../utils/battle-log.types";
 import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
+import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
   battleLogs: Database['public']['Tables']['logs']['Row'][]
   sortBy: BattleLogSortBy
+  isEditing: boolean;
 }
 
 export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
@@ -20,18 +22,18 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
     () => props.battleLogs.map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, props.userData.live_screen_name)), [props.battleLogs, props.userData.live_screen_name]);
 
   if (props.sortBy === 'Day') {
-    return <BattleLogsByDay battleLogs={battleLogs} userData={props.userData} />;
+    return <BattleLogsByDay battleLogs={battleLogs} userData={props.userData} isEditing={props.isEditing} />;
   }
 
   if (props.sortBy === 'Deck') {
-    return <BattleLogsByDeck battleLogs={battleLogs} userData={props.userData} />
+    return <BattleLogsByDeck battleLogs={battleLogs} userData={props.userData} isEditing={props.isEditing} />
   }
 
   return (
     <div className="flex flex-col gap-2">
       <Label className="mb-2">{battleLogs.length} total battle logs</Label>
       {battleLogs.map((battleLog) => (
-        <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+        <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
       ))}
     </div>
   )

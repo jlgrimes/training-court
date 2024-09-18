@@ -7,16 +7,17 @@ import {
 } from "@/components/ui/accordion";
 import { BattleLog } from "../utils/battle-log.types"
 import { convertBattleLogDateIntoDay, groupBattleLogIntoDays } from "./battle-log-groups.utils";
-import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { isAfter, parseISO } from "date-fns";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
 
 interface BattleLogsByDayProps {
   battleLogs: BattleLog[];
   userData: Database['public']['Tables']['user data']['Row'];
+  isEditing: boolean;
 }
 
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
@@ -69,7 +70,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
               </Card>
             )}
             {logs.map((battleLog) => (
-              <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+              <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
             ))}
           </AccordionContent>
         </AccordionItem>
