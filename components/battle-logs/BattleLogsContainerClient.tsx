@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from "react";
-import { Notebook, PencilIcon, RadioTower } from "lucide-react";
+import { EditIcon, Notebook, PencilIcon, RadioTower } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
@@ -52,7 +52,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
         <div>
           <ToggleGroup type='multiple' className="justify-start" size='sm'>
             <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
-              <PencilIcon className="h-4 w-4 mr-2" /> Edit logs
+              <EditIcon className="h-4 w-4 mr-2" /> Edit logs
             </ToggleGroupItem>
           </ToggleGroup>
           <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} isEditing={isEditing} />
