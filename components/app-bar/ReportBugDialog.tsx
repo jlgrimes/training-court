@@ -24,6 +24,7 @@ import { Button } from "../ui/button";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useToast } from "../ui/use-toast";
+import { CardDescription } from "../ui/card";
 
 const Bugs = {
   BattleLogs: {
@@ -130,6 +131,9 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
         </div>
           )
         }
+        {((bugType === Bugs.BattleLogs.WrongDeck) || (bugType === Bugs.BattleLogs.MissingDeck)) && (
+          <CardDescription>To fix this issue yourself, click "Edit logs" on the top of battle logs, click the edit button, and change/add the deck that isn't being recognized correctly. Of course, we would still love feedback!</CardDescription>
+        )}
         {
           (featureName === 'other' || bugType) && (
             <div>
