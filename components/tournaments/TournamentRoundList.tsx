@@ -11,7 +11,6 @@ interface TournamentRoundListProps {
 }
 
 export default function TournamentRoundList (props: TournamentRoundListProps) {
-  console.log("Tournament" + props.tournament)
   return (
     <div className="grid grid-cols-8">
       <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">

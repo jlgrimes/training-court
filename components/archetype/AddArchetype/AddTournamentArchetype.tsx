@@ -38,9 +38,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     const savedDeck = getCookie(getLocalDeckCookieKey(tournament.id));
     if (savedDeck) {
       try {
-        console.log(JSON.parse(savedDeck))
         setClientDeck(JSON.parse(savedDeck));
-        console.log("Client deck " + clientDeck)
       } catch (error) {
         console.error("Error parsing saved deck from cookie: ", error);
       }
@@ -83,8 +81,6 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
   // @TODO: Loading Spinner here
   if (loading) return null;
 
-  if (editDisabled) return null;
-
   if (clientDeck && clientDeck.length > 0) {
     return (
       <HoverCard>
@@ -109,6 +105,8 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
       </div>
     );
   }
+
+  if (editDisabled) return null;
 
   return (
     <Dialog>
