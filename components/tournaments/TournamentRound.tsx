@@ -17,7 +17,6 @@ interface TournamentRoundProps {
 export const TournamentRound = (props: TournamentRoundProps) => {
   const userHasPermissionsToEdit = useMemo(() => props.userId === props.tournament.user, [props.userId, props.tournament.user]);
   const result = useMemo(() => convertGameResultsToRoundResult(props.round.result), [convertGameResultsToRoundResult, props.round.result]);
-  console.log(props.round)
   const deck: string[] = props.round.deck ?? [];
 
   const [isEditing, setIsEditing] = useState(false);
