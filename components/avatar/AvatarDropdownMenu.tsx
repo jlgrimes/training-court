@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { createClient } from '@/utils/supabase/client';
-import { getAvatarSrc } from './avatar.utils';
+import { getAvatarSrc, getMainSelectableAvatars } from './avatar.utils';
 import { track } from '@vercel/analytics';
 
 interface AvatarDropdownMenuProps {
@@ -17,11 +17,8 @@ interface AvatarDropdownMenuProps {
   initialAvatar: string | null | undefined
 }
 
-const exclusiveAvatars = ['ace trainer', 'cynthia', 'pokemon-center-lady', 'N.png', 'ghetsis', 'riley'];
 
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
-  const mainAvatars = useMemo(() => props.images.filter((img) => !exclusiveAvatars.some((avatar) => img.includes(avatar))), [exclusiveAvatars])
-
   const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? getAvatarSrc(props.initialAvatar) : undefined);
 
   const renderImage = useCallback((image: string) => (
@@ -49,7 +46,7 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
           <div className='col-span-5 grid grid-cols-5'>
 
           </div>
-          {mainAvatars.map(renderImage)}
+          {getMainSelectableAvatars(props.images).map(renderImage)}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

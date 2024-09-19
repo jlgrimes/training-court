@@ -14,6 +14,7 @@ export type Database = {
           bug_type: string | null
           created_at: string
           description: string | null
+          dev_notes: string | null
           feature_name: string
           id: number
           is_fixed: boolean | null
@@ -23,6 +24,7 @@ export type Database = {
           bug_type?: string | null
           created_at?: string
           description?: string | null
+          dev_notes?: string | null
           feature_name: string
           id?: number
           is_fixed?: boolean | null
@@ -32,6 +34,7 @@ export type Database = {
           bug_type?: string | null
           created_at?: string
           description?: string | null
+          dev_notes?: string | null
           feature_name?: string
           id?: number
           is_fixed?: boolean | null
@@ -197,7 +200,13 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      avatar_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar: string
+          avatar_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

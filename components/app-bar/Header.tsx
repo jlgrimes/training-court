@@ -28,7 +28,7 @@ export default async function Header() {
         </Link>
         <NavigationMenu>
           <NavigationMenuList>
-            {user && !isUserAnAdmin(user) && (
+            {user && (
               <NavigationMenuItem>
                 <ReportBugDialog user={user} />
               </NavigationMenuItem>
