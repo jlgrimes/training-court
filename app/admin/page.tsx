@@ -1,12 +1,21 @@
 import { redirect } from "next/navigation";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { isUserAnAdmin } from "@/components/admin/admin.utils";
-import { fetchCommonlyUsedAvatars } from "@/components/admin/admin.server.utils";
+import { fetchAllFeedback, fetchCommonlyUsedAvatars } from "@/components/admin/admin.server.utils";
 import { Label } from "@/components/ui/label";
 import { fetchAvatarImages } from "@/components/avatar/avatar.server.utils";
 import { getMainSelectableAvatars } from "@/components/avatar/avatar.utils";
-import { CardDescription, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatDistanceToNowStrict } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge";
 
 export default async function AdminPage() {
   const user = await fetchCurrentUser();
@@ -17,6 +26,7 @@ export default async function AdminPage() {
 
   const allAvatarImages = fetchAvatarImages();
   const mostCommonlyUsedAvatars = await fetchCommonlyUsedAvatars();
+  const allFeedback = await fetchAllFeedback();
 
   const unusedAvatars = getMainSelectableAvatars(allAvatarImages).filter((availableAvatar) => !mostCommonlyUsedAvatars?.some(({ avatar }) => avatar === availableAvatar));
 
@@ -46,7 +56,24 @@ export default async function AdminPage() {
           </>
         </TabsContent>
         <TabsContent value="feedback">
-          WIP
+          <ScrollArea className="h-full">
+            <div className="flex flex-col gap-2">
+              {allFeedback?.map((feedback) => (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{`${feedback.feature_name} > ${feedback.bug_type}`}                     {feedback.is_fixed && <Badge variant='secondary' className="bg-green-200 ml-1">Resolved</Badge>}</CardTitle>
+                    <CardDescription>{formatDistanceToNowStrict(feedback.created_at, { addSuffix: true })}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <>
+                      <p>{feedback.description}</p>
+                      {feedback.dev_notes && <CardDescription className="mt-2">Dev notes: {feedback.dev_notes}</CardDescription>}
+                    </>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
         </TabsContent>
       </Tabs>
     </div>
