@@ -56,9 +56,15 @@ export default async function AdminPage() {
           </>
         </TabsContent>
         <TabsContent value="feedback">
+        <Tabs defaultValue="unresolved">
+          <TabsList>
+            <TabsTrigger value="unresolved">Unresolved</TabsTrigger>
+            <TabsTrigger value="resolved">Resolved</TabsTrigger>
+          </TabsList>
+          <TabsContent value="unresolved">
           <ScrollArea className="h-full">
             <div className="flex flex-col gap-2">
-              {allFeedback?.map((feedback) => (
+              {allFeedback?.filter(({ is_fixed }) => !is_fixed).map((feedback) => (
                 <Card>
                   <CardHeader>
                     <CardTitle>{`${feedback.feature_name} > ${feedback.bug_type}`}                     {feedback.is_fixed && <Badge variant='secondary' className="bg-green-200 ml-1">Resolved</Badge>}</CardTitle>
@@ -74,6 +80,28 @@ export default async function AdminPage() {
               ))}
             </div>
           </ScrollArea>
+          </TabsContent>
+          <TabsContent value="resolved">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col gap-2">
+              {allFeedback?.filter(({ is_fixed }) => is_fixed).map((feedback) => (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{`${feedback.feature_name} > ${feedback.bug_type}`}                     {feedback.is_fixed && <Badge variant='secondary' className="bg-green-200 ml-1">Resolved</Badge>}</CardTitle>
+                    <CardDescription>{formatDistanceToNowStrict(feedback.created_at, { addSuffix: true })}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <>
+                      <p>{feedback.description}</p>
+                      {feedback.dev_notes && <CardDescription className="mt-2">Dev notes: {feedback.dev_notes}</CardDescription>}
+                    </>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+          </TabsContent>
+        </Tabs>
         </TabsContent>
       </Tabs>
     </div>
