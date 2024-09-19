@@ -14,11 +14,15 @@ export const AddArchetype = (props: AddArchetypeProps) => {
   
   useEffect(() => {
     if (props.defaultArchetype) {
-      
-      let archetype = props.defaultArchetype;
-      console.log(archetype)
-      setPokemonNamePrimary(archetype[0] || '');
-      setPokemonNameSecondary(archetype[1] || '');
+      try {
+        const archetypeArray: string[] = JSON.parse(props.defaultArchetype);
+        if (Array.isArray(archetypeArray)) {
+          setPokemonNamePrimary(prev => prev || archetypeArray[0] || '');
+          setPokemonNameSecondary(prev => prev || archetypeArray[1] || '');
+        }
+      } catch (error) {
+        console.error("Error parsing defaultArchetype", error);
+      }
     }
   }, [props.defaultArchetype]);
 

@@ -23,6 +23,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
 
+
+  console.log(rounds);
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
   }, [setRounds, rounds]);

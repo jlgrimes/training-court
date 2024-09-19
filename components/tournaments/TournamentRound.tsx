@@ -57,7 +57,7 @@ export const TournamentRound = (props: TournamentRoundProps) => {
         ) : (
           <div className="flex items-center w-8 h-8">
             {deck ? (
-              deck.filter((sprite) => sprite !== "" && sprite.trim()).map((spriteName, index) => (
+              JSON.parse(deck).filter((sprite: string) => sprite !== "" && sprite.trim()).map((spriteName: string, index: number) => (
                 <Sprite key={index} name={spriteName} />
               ))
             ) : (

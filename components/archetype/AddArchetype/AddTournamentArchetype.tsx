@@ -72,7 +72,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
       setClientDeck(newDeck);
     } else {
       const supabase = createClient();
-      const { error } = await supabase.from('tournaments').update({ deck: newDeck }).eq('id', tournament.id);
+      const { error } = await supabase.from('tournaments').update({ deck: JSON.stringify(newDeck) }).eq('id', tournament.id);
 
       if (error) throw error;
 
