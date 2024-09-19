@@ -38,7 +38,9 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     const savedDeck = getCookie(getLocalDeckCookieKey(tournament.id));
     if (savedDeck) {
       try {
+        console.log(JSON.parse(savedDeck))
         setClientDeck(JSON.parse(savedDeck));
+        console.log("Client deck " + clientDeck)
       } catch (error) {
         console.error("Error parsing saved deck from cookie: ", error);
       }
@@ -49,7 +51,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
   useEffect(() => {
     if (tournament.deck) {
       try {
-        const parsedDeck = Array.isArray(tournament.deck) ? tournament.deck : JSON.parse(tournament.deck);
+        const parsedDeck = typeof tournament.deck === 'string' ? JSON.parse(tournament.deck) : tournament.deck;
         setServerDeck(parsedDeck);
       } catch (error) {
         console.error("Error parsing tournament.deck: ", error);

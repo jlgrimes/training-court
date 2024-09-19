@@ -17,7 +17,8 @@ interface TournamentRoundProps {
 export const TournamentRound = (props: TournamentRoundProps) => {
   const userHasPermissionsToEdit = useMemo(() => props.userId === props.tournament.user, [props.userId, props.tournament.user]);
   const result = useMemo(() => convertGameResultsToRoundResult(props.round.result), [convertGameResultsToRoundResult, props.round.result]);
-  const deck: string[] = JSON.parse(props.round.deck) ?? [];
+  console.log(props.round)
+  const deck: string[] = props.round.deck ?? [];
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -56,7 +57,7 @@ export const TournamentRound = (props: TournamentRoundProps) => {
           <div className="flex items-center text-sm font-bold">No show</div>
         ) : (
           <div className="flex items-center w-8 h-8">
-            {deck.length > 0 ? (
+            {deck ? (
               deck.filter((sprite) => sprite !== "" && sprite.trim()).map((spriteName, index) => (
                 <Sprite key={index} name={spriteName} />
               ))

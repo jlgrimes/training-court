@@ -16,7 +16,7 @@ const mockJWToronto = {
   created_at: '',
   date_from: '2024-10-27',
   date_to: '2024-10-29',
-  deck : 'miraidon',
+  deck : ['miraidon'],
   user: ''
 }
 
@@ -97,7 +97,7 @@ export default async function Index() {
                 created_at: '',
                 date_from: '2024-10-28',
                 date_to: '2024-10-29',
-                deck : 'miraidon',
+                deck : ['miraidon'],
                 user: ''
               }} editDisabled />
             </div>
@@ -130,7 +130,7 @@ export default async function Index() {
           rounds={[{
             id: '',
             created_at: '',
-            deck: 'goodra',
+            deck: ['goodra'],
             round_num: 16,
             match_end_reason: null,
             result: ['W', 'W'],
@@ -139,7 +139,7 @@ export default async function Index() {
           },{
             id: '',
             created_at: '',
-            deck: 'lugia',
+            deck: ['lugia'],
             round_num: 17,
             match_end_reason: null,
             result: ['W', 'W'],
@@ -148,7 +148,7 @@ export default async function Index() {
           }, {
             id: '',
             created_at: '',
-            deck: 'gardevoir',
+            deck: ['gardevoir'],
             round_num: 18,
             match_end_reason: null,
             result: ['W', 'W'],
