@@ -17,7 +17,18 @@ interface TournamentRoundProps {
 export const TournamentRound = (props: TournamentRoundProps) => {
   const userHasPermissionsToEdit = useMemo(() => props.userId === props.tournament.user, [props.userId, props.tournament.user]);
   const result = useMemo(() => convertGameResultsToRoundResult(props.round.result), [convertGameResultsToRoundResult, props.round.result]);
-  const deck: string[] = props.round.deck ?? [];
+  const deck: string[] = useMemo(() => {
+    if (!props.round.deck) return [];
+    if (typeof props.round.deck === 'string') {
+      try {
+        return JSON.parse(props.round.deck);
+      } catch (e) {
+        console.error("Failed to parse deck JSON", e);
+        return props.round.deck.split(',').map((item: string) => item.trim());
+      }
+    }
+    return props.round.deck;
+  }, [props.round.deck]);
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -57,7 +68,7 @@ export const TournamentRound = (props: TournamentRoundProps) => {
         ) : (
           <div className="flex items-center w-8 h-8">
             {deck ? (
-              JSON.parse(deck).filter((sprite: string) => sprite !== "" && sprite.trim()).map((spriteName: string, index: number) => (
+              deck.filter((sprite: string) => sprite !== "" && sprite.trim()).map((spriteName: string, index: number) => (
                 <Sprite key={index} name={spriteName} />
               ))
             ) : (

@@ -8,7 +8,6 @@ import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype
 import { Database } from "@/database.types";
 import { formatDistanceToNowStrict, isAfter, isBefore } from "date-fns";
 import { RadioTower, Watch } from "lucide-react";
-import { Sprite } from "@/components/archetype/Sprite";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
