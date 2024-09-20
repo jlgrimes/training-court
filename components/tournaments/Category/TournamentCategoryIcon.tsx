@@ -1,4 +1,4 @@
-import { Earth, MapPinHouse, Plane, Swords, Trees, Trophy } from "lucide-react";
+import { Earth, Map, MapPinHouse, Plane, Swords, Trees, Trophy } from "lucide-react";
 import { TournamentCategory } from "./tournament-category.types"
 
 interface TournamentCategoryIconProps {
@@ -16,7 +16,7 @@ export const TournamentCategoryIcon = (props: TournamentCategoryIconProps) => {
     case 'cup':
       return <Trophy className={commonClassName} />;
     case 'regional':
-      return <Trees className={commonClassName} />;
+      return <Map className={commonClassName} />;
     case 'international':
       return <Plane className={commonClassName} />
     case 'world':
