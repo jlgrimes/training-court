@@ -20,6 +20,9 @@ export function displayTournamentCategory(cat: TournamentCategory) {
 
 export function displayTournamentCategoryTab(cat: TournamentCategoryTab) {
   if (cat === 'all') return 'All';
+  if (cat === 'challenge') return 'Challenges'
+  if (cat === 'regional') return 'Regs';
+  if (cat === 'international') return 'ICs';
   return displayTournamentCategory(cat);
 }
 
