@@ -7,15 +7,17 @@ import {
 } from "@/components/ui/accordion";
 import { BattleLog } from "../utils/battle-log.types"
 import { groupBattleLogIntoDecks } from "./battle-log-groups.utils";
-import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
 import { Database } from "@/database.types";
 import { Sprite } from "@/components/archetype/Sprite";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { capitalizeName } from "../utils/battle-log.utils";
+import { CardDescription } from "@/components/ui/card";
+import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
 
 interface BattleLogsByDeckProps {
   battleLogs: BattleLog[];
   userData: Database['public']['Tables']['user data']['Row'];
+  isEditing: boolean;
 }
 
 export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
@@ -31,14 +33,17 @@ export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
               <div className="col-span-2 text-left">
                 {capitalizeName(deck)}
               </div>
-              <h4>
-                {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
-              </h4>
+              <div className="text-right mr-2">
+                <h4 className="leading-5">
+                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+                </h4>
+                <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
             {logs.map((battleLog) => (
-              <BattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+              <EditableBattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
             ))}
           </AccordionContent>
         </AccordionItem>

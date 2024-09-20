@@ -7,16 +7,17 @@ import {
 } from "@/components/ui/accordion";
 import { BattleLog } from "../utils/battle-log.types"
 import { convertBattleLogDateIntoDay, groupBattleLogIntoDays } from "./battle-log-groups.utils";
-import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { isAfter, parseISO } from "date-fns";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
 
 interface BattleLogsByDayProps {
   battleLogs: BattleLog[];
   userData: Database['public']['Tables']['user data']['Row'];
+  isEditing: boolean;
 }
 
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
@@ -51,9 +52,12 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
                 {day}
               </div>
               <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
-              <h4>
-                {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
-              </h4>
+              <div className="text-right mr-2">
+                <h4 className="leading-5">
+                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+                </h4>
+                <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
@@ -66,7 +70,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
               </Card>
             )}
             {logs.map((battleLog) => (
-              <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+              <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
             ))}
           </AccordionContent>
         </AccordionItem>

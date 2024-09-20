@@ -14,6 +14,8 @@ import { LogInOut } from "./LogInOut";
 import { ReportBugDialog } from "./ReportBugDialog";
 import { fetchCurrentUser } from "../auth.utils";
 import Image from "next/image";
+import { isUserAnAdmin } from "../admin/admin.utils";
+import { NavigationMenuContent, NavigationMenuTrigger } from "@radix-ui/react-navigation-menu";
 
 export default async function Header() {
   const user = await fetchCurrentUser();
@@ -29,6 +31,15 @@ export default async function Header() {
             {user && (
               <NavigationMenuItem>
                 <ReportBugDialog user={user} />
+              </NavigationMenuItem>
+            )}
+            {user && isUserAnAdmin(user) && (
+              <NavigationMenuItem>
+                <Link href="/admin" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Admin panel
+                  </NavigationMenuLink>     
+                </Link>
               </NavigationMenuItem>
             )}
             <NavigationMenuItem>

@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -23,10 +24,12 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {tournamentData?.map((tournament) => (
-        <TournamentPreview tournament={tournament}/>
-      ))}
-    </div>
+    <ScrollArea className="h-[36rem] pr-4">
+      <div className="flex flex-col gap-2">
+        {tournamentData?.map((tournament) => (
+          <TournamentPreview tournament={tournament}/>
+        ))}
+        </div>
+    </ScrollArea>
   )
 }

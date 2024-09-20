@@ -19,7 +19,7 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex flex-col py-4 lg:py-8 px-8 lg:px-16 gap-4 w-full h-full">
+    <div className="flex flex-col py-4 lg:py-8 pl-8 pr-6 lg:px-16 gap-4 w-full h-full">
       {!userData?.live_screen_name && (
         <Card className="px-1 py-2">
           <CardHeader>
@@ -33,7 +33,7 @@ export default async function Profile() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <BattleLogsContainer />
         <div className="flex flex-col gap-4">
           <div className="flex gap-2 items-center">

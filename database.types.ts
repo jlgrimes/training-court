@@ -14,24 +14,30 @@ export type Database = {
           bug_type: string | null
           created_at: string
           description: string | null
+          dev_notes: string | null
           feature_name: string
           id: number
+          is_fixed: boolean | null
           user_id: string
         }
         Insert: {
           bug_type?: string | null
           created_at?: string
           description?: string | null
+          dev_notes?: string | null
           feature_name: string
           id?: number
+          is_fixed?: boolean | null
           user_id?: string
         }
         Update: {
           bug_type?: string | null
           created_at?: string
           description?: string | null
+          dev_notes?: string | null
           feature_name?: string
           id?: number
+          is_fixed?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -46,18 +52,21 @@ export type Database = {
       }
       logs: {
         Row: {
+          archetype: string | null
           created_at: string
           id: string
           log: string
           user: string
         }
         Insert: {
+          archetype?: string | null
           created_at?: string
           id?: string
           log: string
           user: string
         }
         Update: {
+          archetype?: string | null
           created_at?: string
           id?: string
           log?: string
@@ -183,10 +192,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pilot_users: {
+        Row: {
+          user: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      avatar_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar: string
+          avatar_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
