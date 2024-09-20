@@ -125,6 +125,7 @@ export type Database = {
       }
       tournaments: {
         Row: {
+          category: string | null
           created_at: string
           date_from: string
           date_to: string
@@ -134,6 +135,7 @@ export type Database = {
           user: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           date_from: string
           date_to: string
@@ -143,6 +145,7 @@ export type Database = {
           user: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           date_from?: string
           date_to?: string
