@@ -35,7 +35,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   }, [sortBy]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <div className="flex gap-2 items-center">
         <Notebook className="h-4 w-4" />
         <h2 className="scroll-m-20 text-xl font-semibold">Battle Logs</h2>

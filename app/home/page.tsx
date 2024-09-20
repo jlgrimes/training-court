@@ -33,9 +33,9 @@ export default async function Profile() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <BattleLogsContainer />
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <div className="flex gap-2 items-center">
             <Trophy className="h-4 w-4" />
             <h2 className="scroll-m-20 text-xl font-semibold">Tournaments</h2>
