@@ -27,6 +27,8 @@ import { useToast } from "../../ui/use-toast";
 import { Pencil } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TournamentCategory, allTournamentCategories, displayTournamentCategory } from "../Category/tournament-category.types";
+import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 
 const Bugs = {
   BattleLogs: {
@@ -46,9 +48,10 @@ const Bugs = {
 interface TournamentEditDialogProps {
   tournamentId: string;
   tournamentName: string;
+  tournamentCategory: TournamentCategory | null;
   tournamentDateRange: DateRange;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange) => void;
+  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
@@ -56,6 +59,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
+  const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
 
   useEffect(() => {
     setTournamentName(props.tournamentName);
@@ -65,12 +69,17 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     setTournamentDate(props.tournamentDateRange);
   }, [props.tournamentDateRange]);
 
+  useEffect(() => {
+    setTournamentCategory(props.tournamentCategory);
+  }, [props.tournamentCategory])
+
   const handleUpdateTournament = useCallback(async () => {
     const supabase = createClient();
     const { error } = await supabase.from('tournaments').update({
       name: tournamentName,
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to,
+      category: tournamentCategory
     }).eq('id', props.tournamentId);
 
     if (error) {
@@ -80,13 +89,13 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         description: error.message,
       })
     } else {
-      props.updateClientTournament(tournamentName, tournamentDate as DateRange);
+      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory);
 
       toast({
         title: "Tournament changes saved.",
       });
     }
-  }, [tournamentName, tournamentDate]);
+  }, [tournamentName, tournamentDate, tournamentCategory]);
 
   return (
     <Dialog>
@@ -101,6 +110,21 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         <div className="flex flex-col w-full max-w-sm gap-2 space-x-2">
           <Input className="ml-2" placeholder="Tournament name" value={tournamentName} onChange={(e) => setTournamentName(e.target.value)} />
             <DatePicker date={tournamentDate} setDate={setTournamentDate} />
+            <Select value={tournamentCategory ? (tournamentCategory as string) : undefined} onValueChange={(value) => setTournamentCategory(value as TournamentCategory)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select tournament category" />
+            </SelectTrigger>
+            <SelectContent>
+              {allTournamentCategories.map((cat) => (
+                <SelectItem value={cat}>
+                  <div className="flex items-center pl-1">
+                    <TournamentCategoryIcon category={cat} />
+                    <p>{displayTournamentCategory(cat)}</p>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <DialogFooter>
         <DialogClose asChild>

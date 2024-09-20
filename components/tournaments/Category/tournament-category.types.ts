@@ -10,9 +10,9 @@ export function displayTournamentCategory(cat: TournamentCategory) {
     case 'cup':
       return 'Cup';
     case 'regional':
-      return 'Regional';
+      return 'Regionals';
     case 'international':
-      return 'International';
+      return 'Internationals';
     case 'world':
       return 'Worlds';
   }

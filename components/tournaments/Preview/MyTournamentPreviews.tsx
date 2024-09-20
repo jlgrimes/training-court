@@ -3,7 +3,7 @@ import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { Database } from "@/database.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
@@ -35,13 +35,22 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         <Tabs defaultValue='all'>
           <TabsList>
             {availableTournamentCategories.map((cat) => (
-              <TabsTrigger key={cat} value={cat}>{cat !== 'all' && <TournamentCategoryIcon category={cat} />}{displayTournamentCategoryTab(cat)}</TabsTrigger>
+              <TabsTrigger key={cat} value={cat}>{displayTournamentCategoryTab(cat)}</TabsTrigger>
             ))}
           </TabsList>
+          <TabsContent value='all'>
+            {tournamentData?.map((tournament) => (
+              <TournamentPreview tournament={tournament}/>
+            ))}
+          </TabsContent>
+          {availableTournamentCategories.map((cat) => (
+            <TabsContent value={cat}>
+              {tournamentData?.filter((tournament) => tournament.category === cat).map((tournament) => (
+                <TournamentPreview tournament={tournament} shouldHideCategoryBadge />
+              ))}
+            </TabsContent>
+          ))}
         </Tabs>
-        {tournamentData?.map((tournament) => (
-          <TournamentPreview tournament={tournament}/>
-        ))}
         </div>
     </ScrollArea>
   )
