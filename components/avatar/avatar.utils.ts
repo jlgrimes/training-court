@@ -1,5 +1,12 @@
 export const getAvatarSrc = (fileName: string) => `/assets/trainers/${fileName}`;
 
-const exclusiveAvatars = ['ace trainer', 'cynthia', 'pokemon-center-lady', 'N.png', 'ghetsis', 'riley'];
+export const getMainSelectableAvatars = (images: string[], userId: string) => {
+  let exclusiveAvatars = ['ace trainer', 'cynthia', 'bunny', 'pokemon-center-lady', 'N.png', 'ghetsis', 'riley'];
+  const bunnyUserId = 'f0a37b75-3ecb-4aaa-a5ac-ecb679685ed2';
 
-export const getMainSelectableAvatars = (images: string[]) => images.filter((img) => !exclusiveAvatars.some((avatar) => img.includes(avatar)));
+  if (userId === bunnyUserId) {
+    exclusiveAvatars = exclusiveAvatars.filter((avatar) => avatar !== 'bunny');
+  }
+
+  return images.filter((img) => !exclusiveAvatars.some((avatar) => img.includes(avatar)));
+}

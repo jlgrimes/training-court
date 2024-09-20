@@ -46,7 +46,7 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
           <div className='col-span-5 grid grid-cols-5'>
 
           </div>
-          {getMainSelectableAvatars(props.images).map(renderImage)}
+          {getMainSelectableAvatars(props.images, props.userId).map(renderImage)}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

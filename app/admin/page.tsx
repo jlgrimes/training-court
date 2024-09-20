@@ -28,7 +28,7 @@ export default async function AdminPage() {
   const mostCommonlyUsedAvatars = await fetchCommonlyUsedAvatars();
   const allFeedback = await fetchAllFeedback();
 
-  const unusedAvatars = getMainSelectableAvatars(allAvatarImages).filter((availableAvatar) => !mostCommonlyUsedAvatars?.some(({ avatar }) => avatar === availableAvatar));
+  const unusedAvatars = getMainSelectableAvatars(allAvatarImages, '').filter((availableAvatar) => !mostCommonlyUsedAvatars?.some(({ avatar }) => avatar === availableAvatar));
 
   return (
     <div className="flex flex-col py-4 lg:py-8 px-8 lg:px-16 gap-4 w-full h-full">
