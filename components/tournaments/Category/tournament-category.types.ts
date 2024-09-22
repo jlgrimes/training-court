@@ -1,8 +1,10 @@
-export type TournamentCategory = 'local' | 'challenge' | 'cup' | 'regional' | 'international' | 'world';
+export type TournamentCategory = 'online' | 'local' | 'challenge' | 'cup' | 'regional' | 'international' | 'world';
 export type TournamentCategoryTab = TournamentCategory | 'all';
 
 export function displayTournamentCategory(cat: TournamentCategory) {
   switch (cat) {
+    case 'online':
+      return 'Online';
     case 'local':
       return 'Locals';
     case 'challenge':
@@ -26,5 +28,5 @@ export function displayTournamentCategoryTab(cat: TournamentCategoryTab) {
   return displayTournamentCategory(cat);
 }
 
-export const allTournamentCategories: TournamentCategory[] = ['local', 'challenge', 'cup', 'regional', 'international', 'world'];
-export const allTournamentCategoryTabs: TournamentCategoryTab[] = ['all', 'local', 'challenge', 'cup', 'regional', 'international', 'world'];
+export const allTournamentCategories: TournamentCategory[] = ['online', 'local', 'challenge', 'cup', 'regional', 'international', 'world'];
+export const allTournamentCategoryTabs: TournamentCategoryTab[] = ['all', 'online', 'local', 'challenge', 'cup', 'regional', 'international', 'world'];
