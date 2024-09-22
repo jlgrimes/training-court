@@ -7,10 +7,11 @@ import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
 import { Database } from "@/database.types";
 import { BattleLogSortBy } from "./utils/battle-log.types";
-import { Card, CardDescription, CardHeader } from "../ui/card";
 import { track } from '@vercel/analytics';
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
-import { ScrollArea } from "../ui/scroll-area";
+import { isPremiumUser } from "../premium/premium.utils";
+import { User } from "@supabase/supabase-js";
+import { PremiumBattleLogs } from "../premium/battle-logs/PremiumBattleLogs";
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];
@@ -36,7 +37,10 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
+      <div className="flex flex-col gap-4">
+        <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
+        {isPremiumUser(props.userData as unknown as User) && <PremiumBattleLogs logs={props.logs} />}
+      </div>
 
       <div>
         <div className="flex justify-between">
@@ -59,9 +63,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
 
         {props.userData.live_screen_name && (
           <div>
-            <ScrollArea className="h-[38rem] pr-4">
-              <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} isEditing={isEditing} />
-            </ScrollArea>
+            <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} isEditing={isEditing} />
           </div>
         )}
       </div>

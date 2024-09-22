@@ -37,13 +37,11 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       ))}
     </TabsList>
     <TabsContent value='all'>
-      <ScrollArea className="h-[36rem] pr-4">
-        <div className="flex flex-col gap-2">
-          {tournamentData?.map((tournament) => (
-              <TournamentPreview tournament={tournament}/>
-          ))}
-        </div>
-      </ScrollArea>
+      <div className="flex flex-col gap-2">
+        {tournamentData?.map((tournament) => (
+            <TournamentPreview tournament={tournament}/>
+        ))}
+      </div>
     </TabsContent>
     {availableTournamentCategories.filter((cat) => cat !== 'all').map((cat) => (
       <TabsContent value={cat}>
