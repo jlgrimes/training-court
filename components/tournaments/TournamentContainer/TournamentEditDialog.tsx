@@ -128,7 +128,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         </div>
         <DialogFooter>
         <DialogClose asChild>
-          <Button onClick={handleUpdateTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from || !tournamentDate.to}>Save changes</Button>
+          <Button onClick={handleUpdateTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from}>Save changes</Button>
         </DialogClose>
         </DialogFooter>
       </DialogContent>
