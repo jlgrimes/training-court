@@ -1,7 +1,7 @@
 "use client"
 
 import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -18,47 +18,65 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Database } from "@/database.types"
+import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils"
+import { getBattleLogsByDayList, groupBattleLogIntoDays } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils"
+import { BattleLog } from "@/components/battle-logs/utils/battle-log.types"
+import { format } from "date-fns"
 
 export const description = "A stacked area chart"
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
-
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
+  wins: {
+    label: "Wins",
     color: "hsl(var(--chart-2))",
   },
-} satisfies ChartConfig
+  losses: {
+    label: "Losses",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
 
 interface LogWinRatesProps {
   logs: Database['public']['Tables']['logs']['Row'][];
+  currentUserScreenName: string | null;
 }
 
 export function LogWinRates(props: LogWinRatesProps) {
+  const parsedBattleLogs = props.logs.map((log) => parseBattleLog(log.log, log.id, log.created_at, log.archetype, props.currentUserScreenName));
+  const battleLogsByDayList = getBattleLogsByDayList(groupBattleLogIntoDays(parsedBattleLogs));
+  const logsByDay = battleLogsByDayList.slice(0, 7).reverse();
+  const data = logsByDay.map(([date, battleLogs]) => {
+    const { wins, losses } = battleLogs.reduce((acc: { wins: number, losses: number }, curr: BattleLog) => {
+      if (curr.winner === props.currentUserScreenName) {
+        return {
+          wins: acc.wins + 1,
+          losses: acc.losses
+        }
+      } else {
+        return {
+          wins: acc.wins,
+          losses: acc.losses + 1
+        }
+      }
+    }, { wins: 0, losses: 0 });
+
+    return {
+      date: battleLogs[0].date,
+      wins,
+      losses
+    }
+  });
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
-        <CardDescription>
-          Showing total visitors for the last 6 months
-        </CardDescription>
+        <CardTitle>{`Most recent games`}</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <AreaChart
+          <BarChart
             accessibilityLayer
-            data={chartData}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -66,47 +84,35 @@ export function LogWinRates(props: LogWinRatesProps) {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => format(value, 'M/d')}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
+              content={<ChartTooltipContent indicator="dot" labelFormatter={(value) => format(value, "LLL d")} />}
             />
-            <Area
-              dataKey="mobile"
+            <Bar
+              dataKey="losses"
               type="natural"
-              fill="var(--color-mobile)"
-              fillOpacity={0.4}
-              stroke="var(--color-mobile)"
+              fill="hsl(var(--chart-1))"
+              radius={[0, 0, 4, 4]}
+              stroke="hsl(var(--chart-1))"
               stackId="a"
             />
-            <Area
-              dataKey="desktop"
+            <Bar
+              dataKey="wins"
               type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              fill="hsl(var(--chart-2))"
+              stroke="hsl(var(--chart-2))"
+              radius={[4, 4, 0, 0]}
               stackId="a"
             />
-          </AreaChart>
+          </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   )
 }

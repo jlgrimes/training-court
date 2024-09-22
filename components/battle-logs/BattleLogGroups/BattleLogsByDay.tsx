@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { BattleLog } from "../utils/battle-log.types"
-import { convertBattleLogDateIntoDay, groupBattleLogIntoDays } from "./battle-log-groups.utils";
+import { convertBattleLogDateIntoDay, getBattleLogsByDayList, groupBattleLogIntoDays } from "./battle-log-groups.utils";
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
@@ -30,17 +30,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
     return logsByDay;
   }, [props.battleLogs]);
 
-  const battleLogsByDayList = useMemo(() => {
-    return Object.entries(battleLogsByDay).sort((a, b) => {
-      // brings the current date, the empty one, to the front
-      if (a[1].length === 0) return -1;
-      if (b[1].length === 0) return 1;
-
-      if (isAfter(a[1][0].date, b[1][0].date)) return -1;
-      if (isAfter(a[1][0].date, b[1][0].date)) return 1;
-      return 0;
-    })
-  }, [battleLogsByDay]);
+  const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay), [battleLogsByDay])
 
   return (
     <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>

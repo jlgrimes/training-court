@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isAfter } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 
 export const convertBattleLogDateIntoDay = (date: string | Date) => format(date, "LLL d, yyyy");
@@ -20,6 +20,18 @@ export const groupBattleLogIntoDays = (battleLogs: BattleLog[]): Record<string, 
     }
   }, {});
 }
+
+export const getBattleLogsByDayList = (battleLogsByDay: Record<string, BattleLog[]>) => {
+  return Object.entries(battleLogsByDay).sort((a, b) => {
+    // brings the current date, the empty one, to the front
+    if (a[1].length === 0) return -1;
+    if (b[1].length === 0) return 1;
+
+    if (isAfter(a[1][0].date, b[1][0].date)) return -1;
+    if (isAfter(a[1][0].date, b[1][0].date)) return 1;
+    return 0;
+  })
+};
 
 export const groupBattleLogIntoDecks = (battleLogs: BattleLog[]): Record<string, BattleLog[]> => {
   return battleLogs.reduce((acc: Record<string, BattleLog[]>, curr: BattleLog) => {
