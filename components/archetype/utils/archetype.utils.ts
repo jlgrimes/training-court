@@ -115,3 +115,7 @@ export const determineArchetype = (log: string[], playerName: string): string | 
 
   return archetype?.replace(' ', '-');
 }
+
+export const toArray = (deck: string) => {
+  return deck.split(',').map(name => name.trim()).filter(Boolean);
+}

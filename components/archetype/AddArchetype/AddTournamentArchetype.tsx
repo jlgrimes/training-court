@@ -1,6 +1,5 @@
 'use client';
 
-
 import { createClient } from "@/utils/supabase/client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
@@ -22,6 +21,7 @@ import {
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
+import { toArray } from "../utils/archetype.utils";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
@@ -44,7 +44,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
       removeCookie(getLocalDeckCookieKey(tournament.id))
       setArchetype(clientDeck);
     }
-  }, [clientDeck]);
+  }, [clientDeck, shouldLocalizeDeckInput]);
   
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
@@ -64,7 +64,13 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
   if (clientDeck) {
     return (
       <HoverCard>
-        <HoverCardTrigger className="cursor-pointer"><Sprite name={clientDeck} faded /> </HoverCardTrigger>
+        <HoverCardTrigger className="cursor-pointer">
+          <div className="flex gap-1">
+            {toArray(clientDeck).map((name, index) => (
+              <Sprite key={index} name={name} faded />
+            ))}
+          </div>
+        </HoverCardTrigger>
         <HoverCardContent>
           Archetype will be stored on this device until the tournament is over, then it will be automatically uploaded to the cloud.
         </HoverCardContent>
@@ -74,8 +80,10 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
 
   if (serverDeck) {
     return (
-      <div>
-        <Sprite name={serverDeck} /> 
+      <div className="flex gap-1">
+        {toArray(serverDeck).map((name, index) => (
+          <Sprite key={index} name={name} faded />
+        ))}
       </div>
     )
   }
