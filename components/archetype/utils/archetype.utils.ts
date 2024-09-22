@@ -34,6 +34,8 @@ const pokemonToFind = [
   'lunatone',
 
   // rogue
+  'flamigo',
+  'aegislash',
   'toedscruel',
   'conkeldurr',
   'incineroar',
