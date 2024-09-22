@@ -82,7 +82,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     return (
       <div className="flex gap-1">
         {toArray(serverDeck).map((name, index) => (
-          <Sprite key={index} name={name} faded />
+          <Sprite key={index} name={name} />
         ))}
       </div>
     )
