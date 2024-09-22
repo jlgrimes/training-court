@@ -6,6 +6,7 @@ import { Database } from "@/database.types";
 import { useMemo, useState } from "react";
 import TournamentRoundEdit from "./AddTournamentRound/TournamentRoundEdit";
 import { cn } from "@/lib/utils";
+import { toArray } from "../archetype/utils/archetype.utils";
 
 interface TournamentRoundProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -19,6 +20,10 @@ export const TournamentRound = (props: TournamentRoundProps) => {
   const result = useMemo(() => convertGameResultsToRoundResult(props.round.result), [convertGameResultsToRoundResult, props.round.result])
 
   const [isEditing, setIsEditing] = useState(false);
+
+  const pokemonNames = useMemo(() => {
+    return props.round.deck ? toArray(props.round.deck) : [];
+  }, [props.round.deck]);
 
   if (props.userId && isEditing) {
     return (
@@ -51,7 +56,11 @@ export const TournamentRound = (props: TournamentRoundProps) => {
         <div className="flex items-center text-sm font-bold">
           No show
         </div>
-      ) : <Sprite name={props.round.deck} />}</span>
+      ) : 
+        <div className="flex gap-1">
+          {pokemonNames.map((name, index) => (<Sprite key={index} name={name} />))}
+        </div>}
+      </span>
       <span className="text-right font-bold tracking-wider text-md leading-4">{props.round.result.join('')}</span>
     </div>
   )
