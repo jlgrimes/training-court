@@ -35,39 +35,36 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   }, [sortBy]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2 items-center">
-        <Notebook className="h-4 w-4" />
-        <h2 className="scroll-m-20 text-xl font-semibold">Battle Logs</h2>
-      </div>
-
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
 
-      <div className="flex justify-between">
-        <Tabs defaultValue='Day' onValueChange={(value) => {
-          track('Battle log sort by changed', { value })
-          setSortBy(value as BattleLogSortBy)
-        }}>
-          <TabsList>
-            {availableSortBys.map((sortBy) => (
-              <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <ToggleGroup type='multiple' className="justify-start" size='sm'>
-          <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
-            <EditIcon className="h-4 w-4 mr-2" /> Edit logs
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-
-      {props.userData.live_screen_name && (
-        <div>
-          <ScrollArea className="h-[26rem] pr-4">
-            <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} isEditing={isEditing} />
-          </ScrollArea>
+      <div>
+        <div className="flex justify-between">
+          <Tabs defaultValue='Day' onValueChange={(value) => {
+            track('Battle log sort by changed', { value })
+            setSortBy(value as BattleLogSortBy)
+          }}>
+            <TabsList>
+              {availableSortBys.map((sortBy) => (
+                <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <ToggleGroup type='multiple' className="justify-start" size='sm'>
+            <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
+              <EditIcon className="h-4 w-4 mr-2" /> Edit logs
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
-      )}
+
+        {props.userData.live_screen_name && (
+          <div>
+            <ScrollArea className="h-[38rem] pr-4">
+              <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} isEditing={isEditing} />
+            </ScrollArea>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

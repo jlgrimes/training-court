@@ -5,10 +5,11 @@ import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournam
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
-import { Trophy } from "lucide-react";
+import { Notebook, Trophy } from "lucide-react";
 import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -33,18 +34,27 @@ export default async function Profile() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <BattleLogsContainer />
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 items-center">
-            <Trophy className="h-4 w-4" />
-            <h2 className="scroll-m-20 text-xl font-semibold">Tournaments</h2>
+      <Tabs defaultValue="battle-logs">
+        <TabsList className="mb-2">
+          <TabsTrigger value="battle-logs">
+            Battle Logs
+          </TabsTrigger>
+          <TabsTrigger value="tournaments">
+            Tournaments
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="battle-logs">
+          <BattleLogsContainer />
+        </TabsContent>
+        <TabsContent value="tournaments">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col">
+            <TournamentCreate userId={user.id} />
           </div>
-
           <MyTournamentPreviews user={user} />
-          <TournamentCreate userId={user.id} />
         </div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
