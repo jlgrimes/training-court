@@ -65,6 +65,7 @@ export default async function AdminPage() {
           <TabsContent value="unresolved">
           <ScrollArea className="h-full">
             <div className="flex flex-col gap-2">
+              <Label>{allFeedback?.filter(({ is_fixed }) => !is_fixed).length} pieces of unresolved feedback. Get to work!</Label>
               {allFeedback?.filter(({ is_fixed }) => !is_fixed).map((feedback) => (
                 <FeedbackCard feedback={feedback} />
               ))}
@@ -74,6 +75,7 @@ export default async function AdminPage() {
           <TabsContent value="resolved">
           <ScrollArea className="h-full">
             <div className="flex flex-col gap-2">
+              <Label>You have fixed {allFeedback?.filter(({ is_fixed }) => is_fixed).length} customer feedbacks. Good job!</Label>
               {allFeedback?.filter(({ is_fixed }) => is_fixed).map((feedback) => (
                 <FeedbackCard feedback={feedback} />
               ))}
