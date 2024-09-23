@@ -210,6 +210,21 @@ export type Database = {
           avatar_count: number
         }[]
       }
+      getusertournamentresults: {
+        Args: {
+          userid: string
+        }
+        Returns: {
+          tournament_deck: string
+          round_deck: string
+          total_wins: number
+          total_losses: number
+          total_ties: number
+          total_matches: number
+          win_rate: number
+          tie_rate: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
