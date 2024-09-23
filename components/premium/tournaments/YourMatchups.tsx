@@ -51,13 +51,13 @@ export const YourMatchups = (props: YourMatchupsProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your matchups</CardTitle>
+        <CardTitle>Your matchup spread</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={yourDecks[0]}>
           <TabsList>
             {yourDecks.map((deck) => (
-              <TabsTrigger value={deck}><Sprite name={deck} /></TabsTrigger>
+              <TabsTrigger value={deck}><Sprite name={deck} small /></TabsTrigger>
             ))}
           </TabsList>
           {yourDecks.map((deck) => {
@@ -74,47 +74,56 @@ export const YourMatchups = (props: YourMatchupsProps) => {
 
             return (
               <TabsContent value={deck}>
-                <ChartContainer config={chartConfig}>
-              <BarChart
-                accessibilityLayer
-                data={chartData}
-                layout="vertical"
-                margin={{
-                  left: -20,
-                }}
-              >
-                <XAxis type="number" dataKey="win_rate" hide />
-                <YAxis
-                  dataKey="round_deck"
-                  type="category"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 4)}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  labelFormatter={(label) => {
-                    const dataIntoDeck = chartData.find(({ round_deck }) => round_deck === label);
-                    if (!dataIntoDeck) return label;
+                <div className="grid grid-cols-12 items-center">
+                  <div className="hidden sm:flex flex-col h-full justify-evenly pb-8">
+                    {chartData.map(({ round_deck }) => <Sprite name={round_deck} small />)}
+                  </div>
+                  <ChartContainer config={chartConfig} className={`col-span-12 sm:col-span-11 sm:aspect-square xl:aspect-video`}>
+                    <BarChart
+                      accessibilityLayer
+                      data={chartData}
+                      layout="vertical"
+                      height={300}
+                      margin={{
+                        left: -20,
+                      }}
+                    >
+                      <XAxis type="number" dataKey="win_rate" hide />
+                      <YAxis
+                        dataKey="round_deck"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        hide
+                        // tickFormatter={(value) =>
+                        //   value
+                        // }
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        labelFormatter={(label) => {
+                          const dataIntoDeck = chartData.find(({ round_deck }) => round_deck === label);
+                          if (!dataIntoDeck) return label;
 
-                    return (
-                      <div className="flex items-center gap-2">
-                        <Sprite name={label} />
-                        <div className="text-lg">
-                          {dataIntoDeck.total_wins}-{dataIntoDeck.total_losses}-{dataIntoDeck.total_ties}
-                        </div>
-                      </div>
-                    )
-                  }}
-                  content={<ChartTooltipContent />}
-                />
-                <Bar dataKey="win_rate" fill="hsl(var(--chart-2))" radius={[5, 0, 0, 5]} stackId='a' />
-                <Bar dataKey="tie_rate" fill="hsl(var(--chart-4))" radius={[0, 0, 0, 0]} stackId='a' />
-                <Bar dataKey="loss_rate" fill="hsl(var(--chart-1))" radius={[0, 5, 5, 0]} stackId='a' />
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
+                          return (
+                            <div className="flex items-center gap-2">
+                              <Sprite name={label} />
+                              <div className="text-lg">
+                                {dataIntoDeck.total_wins}-{dataIntoDeck.total_losses}-{dataIntoDeck.total_ties}
+                              </div>
+                            </div>
+                          )
+                        }}
+                        content={<ChartTooltipContent />}
+                      />
+                      <Bar dataKey="win_rate" fill="hsl(var(--chart-2))" radius={[5, 0, 0, 5]} stackId='a' />
+                      <Bar dataKey="tie_rate" fill="hsl(var(--chart-4))" radius={[0, 0, 0, 0]} stackId='a' />
+                      <Bar dataKey="loss_rate" fill="hsl(var(--chart-1))" radius={[0, 5, 5, 0]} stackId='a' />
+                      <ChartLegend content={<ChartLegendContent />} />
+                    </BarChart>
+                  </ChartContainer>
+                </div>
               </TabsContent>
             )
           })}
