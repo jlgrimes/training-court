@@ -87,10 +87,10 @@ export const YourMatchups = (props: YourMatchupsProps) => {
       </CardHeader>
       <CardContent>
       <div className="grid grid-cols-12 items-center">
-                  <div className="hidden sm:flex flex-col h-full justify-evenly pb-8">
+                  <div className="flex flex-col h-full justify-evenly pb-8">
                     {chartData.map(({ round_deck }) => <Sprite name={round_deck} small />)}
                   </div>
-                  <ChartContainer config={chartConfig} className={`col-span-12 sm:col-span-11 sm:aspect-square xl:aspect-video`}>
+                  <ChartContainer config={chartConfig} className={`col-span-11 aspect-square xl:aspect-video`}>
                     <BarChart
                       accessibilityLayer
                       data={chartData}
