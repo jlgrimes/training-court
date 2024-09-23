@@ -14,6 +14,8 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
@@ -94,6 +96,7 @@ export function LogWinRates(props: LogWinRatesProps) {
               cursor={false}
               content={<ChartTooltipContent indicator="dot" labelFormatter={(value) => format(value, "LLL d")} />}
             />
+            <ChartLegend content={<ChartLegendContent />} />
             <Bar
               dataKey="wins"
               type="natural"
