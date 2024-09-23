@@ -10,6 +10,8 @@ import { formatDistanceToNowStrict, isAfter, isBefore } from "date-fns";
 import { RadioTower, Watch } from "lucide-react";
 import { TournamentCategoryBadge } from "../Category/TournamentCategoryBadge";
 import { TournamentCategory } from "../Category/tournament-category.types";
+import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge";
+import { TournamentPlacement } from "../Placement/tournament-placement.types";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -33,6 +35,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
             </CardDescription>
             <div className="flex gap-1">
               {props.tournament.category && !props.shouldHideCategoryBadge && <TournamentCategoryBadge category={props.tournament.category as TournamentCategory} />}
+              {props.tournament.placement && <TournamentPlacementBadge placement={props.tournament.placement as TournamentPlacement} />}
               {isBefore(new Date(), props.tournament.date_from) && (
                 <Badge className="mt-2 bg-purple-100" variant='secondary'><Watch className="h-4 w-4 mr-1" /> Live in {formatDistanceToNowStrict(props.tournament.date_from, {
                   roundingMethod: 'ceil',

@@ -132,6 +132,7 @@ export type Database = {
           deck: string | null
           id: string
           name: string
+          placement: string | null
           user: string
         }
         Insert: {
@@ -142,6 +143,7 @@ export type Database = {
           deck?: string | null
           id?: string
           name: string
+          placement?: string | null
           user: string
         }
         Update: {
@@ -152,6 +154,7 @@ export type Database = {
           deck?: string | null
           id?: string
           name?: string
+          placement?: string | null
           user?: string
         }
         Relationships: [

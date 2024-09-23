@@ -27,6 +27,8 @@ import { DateRange } from "react-day-picker";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TournamentCategory, allTournamentCategories, displayTournamentCategory } from "../Category/tournament-category.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
+import { TournamentPlacement } from "../Placement/tournament-placement.types";
+import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
 
 const Bugs = {
   BattleLogs: {
@@ -47,9 +49,10 @@ interface TournamentEditDialogProps {
   tournamentId: string;
   tournamentName: string;
   tournamentCategory: TournamentCategory | null;
+  tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null) => void;
+  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
@@ -58,6 +61,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
+  const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
 
   useEffect(() => {
     setTournamentName(props.tournamentName);
@@ -71,13 +75,18 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     setTournamentCategory(props.tournamentCategory);
   }, [props.tournamentCategory])
 
+  useEffect(() => {
+    setTournamentCategory(props.tournamentCategory);
+  }, [props.tournamentCategory])
+
   const handleUpdateTournament = useCallback(async () => {
     const supabase = createClient();
     const { error } = await supabase.from('tournaments').update({
       name: tournamentName,
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to,
-      category: tournamentCategory
+      category: tournamentCategory,
+      placement: tournamentPlacement
     }).eq('id', props.tournamentId);
 
     if (error) {
@@ -87,13 +96,13 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         description: error.message,
       })
     } else {
-      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory);
+      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement);
 
       toast({
         title: "Tournament changes saved.",
       });
     }
-  }, [tournamentName, tournamentDate, tournamentCategory]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
 
   return (
     <Dialog>
@@ -123,6 +132,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
               ))}
             </SelectContent>
           </Select>
+          <TournamentPlacementSelect value={tournamentPlacement} onChange={(newPlacement: TournamentPlacement) => setTournamentPlacement(newPlacement)} />
         </div>
         <DialogFooter>
         <DialogClose asChild>
