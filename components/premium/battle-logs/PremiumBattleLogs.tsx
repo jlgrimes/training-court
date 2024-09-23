@@ -1,5 +1,5 @@
 import { Database } from "@/database.types"
-import { LogWinRates } from "./LogWinRates"
+import { GamesOverTime } from "./GamesOverTime"
 
 interface PremiumBattleLogsProps {
   logs: Database['public']['Tables']['logs']['Row'][];
@@ -9,7 +9,7 @@ interface PremiumBattleLogsProps {
 export const PremiumBattleLogs = (props: PremiumBattleLogsProps) => {
   return (
     <div>
-      <LogWinRates logs={props.logs} currentUserScreenName={props.currentUserScreenName} />
+      <GamesOverTime logs={props.logs} currentUserScreenName={props.currentUserScreenName} />
     </div>
   )
 }
