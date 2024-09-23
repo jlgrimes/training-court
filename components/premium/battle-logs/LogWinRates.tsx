@@ -95,19 +95,19 @@ export function LogWinRates(props: LogWinRatesProps) {
               content={<ChartTooltipContent indicator="dot" labelFormatter={(value) => format(value, "LLL d")} />}
             />
             <Bar
-              dataKey="losses"
-              type="natural"
-              fill="hsl(var(--chart-1))"
-              radius={[0, 0, 4, 4]}
-              stroke="hsl(var(--chart-1))"
-              stackId="a"
-            />
-            <Bar
               dataKey="wins"
               type="natural"
               fill="hsl(var(--chart-2))"
               stroke="hsl(var(--chart-2))"
+              radius={[0, 0, 4, 4]}
+              stackId="a"
+            />
+            <Bar
+              dataKey="losses"
+              type="natural"
+              fill="hsl(var(--chart-1))"
               radius={[4, 4, 0, 0]}
+              stroke="hsl(var(--chart-1))"
               stackId="a"
             />
           </BarChart>
