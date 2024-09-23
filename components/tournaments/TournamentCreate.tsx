@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
+import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
+import { TournamentPlacement } from "./Placement/tournament-placement.types";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -27,6 +29,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
+  const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
 
   const handleAddTournament = useCallback(async () => {
     setIsCreatingTournament(true);
@@ -36,7 +39,8 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to ?? tournamentDate?.from,
       user: userId,
-      category: tournamentCategory
+      category: tournamentCategory,
+      placement: tournamentPlacement
     });
 
     if (error) {
@@ -50,7 +54,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       window.location.href = '/';
     }
     setIsCreatingTournament(true);
-  }, [tournamentName, tournamentDate, tournamentCategory]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
 
   if (editing) return (
     <Card className="py-2">
@@ -73,6 +77,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
               ))}
             </SelectContent>
           </Select>
+          <TournamentPlacementSelect value={tournamentPlacement} onChange={(newPlacement: TournamentPlacement) => setTournamentPlacement(newPlacement)} />
           <Button onClick={handleAddTournament} type="submit" disabled={isCreatingTournament || (tournamentName.length === 0) || !tournamentDate?.from }>
             {isCreatingTournament ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add tournament"}
           </Button>
