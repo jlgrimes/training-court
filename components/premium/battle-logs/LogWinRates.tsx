@@ -24,6 +24,7 @@ import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils"
 import { getBattleLogsByDayList, groupBattleLogIntoDays } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils"
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types"
 import { format } from "date-fns"
+import { useMemo } from "react"
 
 export const description = "A stacked area chart"
 
@@ -69,10 +70,17 @@ export function LogWinRates(props: LogWinRatesProps) {
     }
   });
 
+  const winRate = useMemo(() => {
+    const totalLosses = data.reduce((acc, curr) => acc + curr.losses , 0);
+    const totalWins = data.reduce((acc, curr) => acc + curr.wins , 0);
+
+    return totalWins / (totalLosses + totalWins);
+  }, [data])
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{`Most recent games`}</CardTitle>
+        <CardTitle>{`Games played over last week`}</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -116,6 +124,18 @@ export function LogWinRates(props: LogWinRatesProps) {
           </BarChart>
         </ChartContainer>
       </CardContent>
+      <CardFooter>
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2 font-medium leading-none">
+              You have a {(winRate * 100).toFixed(2)}% win rate <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="flex items-center gap-2 leading-none text-muted-foreground">
+              {format(data[0].date, 'LLL d')} - {format(data[data.length - 1].date, 'LLL d')}
+            </div>
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   )
 }
