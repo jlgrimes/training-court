@@ -16,6 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge";
+import { FeedbackCard } from "@/components/admin/FeedbackCard";
 
 export default async function AdminPage() {
   const user = await fetchCurrentUser();
@@ -65,18 +66,7 @@ export default async function AdminPage() {
           <ScrollArea className="h-full">
             <div className="flex flex-col gap-2">
               {allFeedback?.filter(({ is_fixed }) => !is_fixed).map((feedback) => (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{`${feedback.feature_name} > ${feedback.bug_type}`}                     {feedback.is_fixed && <Badge variant='secondary' className="bg-green-200 ml-1">Resolved</Badge>}</CardTitle>
-                    <CardDescription>{formatDistanceToNowStrict(feedback.created_at, { addSuffix: true })}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <>
-                      <p>{feedback.description}</p>
-                      {feedback.dev_notes && <CardDescription className="mt-2">Dev notes: {feedback.dev_notes}</CardDescription>}
-                    </>
-                  </CardContent>
-                </Card>
+                <FeedbackCard feedback={feedback} />
               ))}
             </div>
           </ScrollArea>
@@ -85,18 +75,7 @@ export default async function AdminPage() {
           <ScrollArea className="h-full">
             <div className="flex flex-col gap-2">
               {allFeedback?.filter(({ is_fixed }) => is_fixed).map((feedback) => (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{`${feedback.feature_name} > ${feedback.bug_type}`}                     {feedback.is_fixed && <Badge variant='secondary' className="bg-green-200 ml-1">Resolved</Badge>}</CardTitle>
-                    <CardDescription>{formatDistanceToNowStrict(feedback.created_at, { addSuffix: true })}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <>
-                      <p>{feedback.description}</p>
-                      {feedback.dev_notes && <CardDescription className="mt-2">Dev notes: {feedback.dev_notes}</CardDescription>}
-                    </>
-                  </CardContent>
-                </Card>
+                <FeedbackCard feedback={feedback} />
               ))}
             </div>
           </ScrollArea>
