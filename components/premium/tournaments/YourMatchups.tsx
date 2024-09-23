@@ -19,8 +19,9 @@ import {
 } from "@/components/ui/chart"
 import { Database } from "@/database.types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Sprite } from "@/components/archetype/Sprite"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface YourMatchupsProps {
   matchupData: Database['public']['Functions']['getusertournamentresults']['Returns'] | null;
@@ -42,39 +43,50 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export const YourMatchups = (props: YourMatchupsProps) => {
+  const [currentDeck, setCurrentDeck] = useState<string>();
+
+  useEffect(() => {
+    setCurrentDeck(props.matchupData?.[0].tournament_deck)
+  }, [props.matchupData]);
+
   const yourDecks = useMemo(() => {
     return Array.from(new Set(props.matchupData?.map(({ tournament_deck }) => tournament_deck)));
   }, [props.matchupData]);
 
-  if (!props.matchupData) return null;
+  if (!currentDeck) return null;
+
+  const matchups = props.matchupData!.filter(({ tournament_deck }) => tournament_deck === currentDeck).slice(0, 10);
+  const chartData = matchups.map(({ round_deck, win_rate, tie_rate, total_wins, total_losses, total_ties }) => ({
+    round_deck,
+    win_rate,
+    tie_rate,
+    loss_rate: 100 - win_rate - tie_rate,
+    total_wins,
+    total_losses,
+    total_ties
+  }))
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Your matchup spread</CardTitle>
+        <Select value={currentDeck} onValueChange={(deck) => setCurrentDeck(deck)}>
+          <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {yourDecks.map((deck) => (
+                <SelectItem value={deck}>
+                  <div className="flex items-center gap-2">
+                    <Sprite name={deck} small /> {deck}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={yourDecks[0]}>
-          <TabsList>
-            {yourDecks.map((deck) => (
-              <TabsTrigger value={deck}><Sprite name={deck} small /></TabsTrigger>
-            ))}
-          </TabsList>
-          {yourDecks.map((deck) => {
-            const matchups = props.matchupData!.filter(({ tournament_deck }) => tournament_deck === deck).slice(0, 10);
-            const chartData = matchups.map(({ round_deck, win_rate, tie_rate, total_wins, total_losses, total_ties }) => ({
-              round_deck,
-              win_rate,
-              tie_rate,
-              loss_rate: 100 - win_rate - tie_rate,
-              total_wins,
-              total_losses,
-              total_ties
-            }))
-
-            return (
-              <TabsContent value={deck}>
-                <div className="grid grid-cols-12 items-center">
+      <div className="grid grid-cols-12 items-center">
                   <div className="hidden sm:flex flex-col h-full justify-evenly pb-8">
                     {chartData.map(({ round_deck }) => <Sprite name={round_deck} small />)}
                   </div>
@@ -124,10 +136,6 @@ export const YourMatchups = (props: YourMatchupsProps) => {
                     </BarChart>
                   </ChartContainer>
                 </div>
-              </TabsContent>
-            )
-          })}
-        </Tabs>
       </CardContent>
     </Card>
   )
