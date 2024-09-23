@@ -1,4 +1,4 @@
-import { Earth, Map, MapPinHouse, Plane, Swords, Trees, Trophy } from "lucide-react";
+import { Earth, Map, MapPinHouse, Plane, Swords, Trophy, Laptop } from "lucide-react";
 import { TournamentCategory } from "./tournament-category.types"
 
 interface TournamentCategoryIconProps {
@@ -9,6 +9,8 @@ export const TournamentCategoryIcon = (props: TournamentCategoryIconProps) => {
   const commonClassName = "h-4 w-4 mr-2";
 
   switch (props.category) {
+    case 'online':
+      return <Laptop className={commonClassName} />
     case 'local':
       return <MapPinHouse className={commonClassName} />
     case 'challenge':

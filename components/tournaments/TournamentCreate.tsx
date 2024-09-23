@@ -8,7 +8,7 @@ import { DatePicker } from "../ui/date-picker";
 import { DateRange } from "react-day-picker";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../ui/use-toast";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { TournamentCategory, allTournamentCategories, displayTournamentCategory } from "./Category/tournament-category.types";
 import {
   Select,
@@ -21,6 +21,7 @@ import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
+  const [isCreatingTournament, setIsCreatingTournament] = useState(false);
   const { toast } = useToast();
 
   const [tournamentName, setTournamentName] = useState('');
@@ -28,6 +29,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
 
   const handleAddTournament = useCallback(async () => {
+    setIsCreatingTournament(true);
     const supabase = createClient();
     const { error } = await supabase.from('tournaments').insert({
       name: tournamentName,
@@ -47,6 +49,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       // TODO: actually make this update the front end instead of refreshing the whole page
       window.location.href = '/';
     }
+    setIsCreatingTournament(true);
   }, [tournamentName, tournamentDate, tournamentCategory]);
 
   if (editing) return (
@@ -70,7 +73,9 @@ export default function TournamentCreate({ userId }: { userId: string }) {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={handleAddTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from }>Add tournament</Button>
+          <Button onClick={handleAddTournament} type="submit" disabled={isCreatingTournament || (tournamentName.length === 0) || !tournamentDate?.from }>
+            {isCreatingTournament ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add tournament"}
+          </Button>
       </div>
       </CardHeader>
     </Card>
