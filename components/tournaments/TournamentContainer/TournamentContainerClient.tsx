@@ -3,9 +3,9 @@
 import { Database } from "@/database.types"
 import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
-import { displayTournamentDate, displayTournamentDateRange, getRecord } from "../utils/tournaments.utils";
+import { displayTournamentDateRange, getRecord } from "../utils/tournaments.utils";
 import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
 import { TournamentEditDialog } from "./TournamentEditDialog";
 import { DateRange } from "react-day-picker";
@@ -15,6 +15,9 @@ import { TournamentCategoryBadge } from "../Category/TournamentCategoryBadge";
 import { TournamentCategory } from "../Category/tournament-category.types";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge";
+import { preload } from "swr";
+import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
+import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -28,6 +31,10 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
+
+  useEffect(() => {
+    preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
+  }, []);
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
