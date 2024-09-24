@@ -15,7 +15,7 @@ export const Sprite = (props: SpriteProps) => {
   const nameSplit = useMemo(() => props.name?.split(','), [props.name]);
 
   return nameSplit ? (
-    <div className="flex">
+    <div className="flex items-center gap-1">
       {nameSplit.map((name) => (
         <SpriteFromUrl url={pkmnToImgSrc(name)} />
       ))}
