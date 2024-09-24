@@ -22,6 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={GeistSans.className}>
+      <head>
+        <link rel="preload" href="/api/pokedex" as="fetch" crossOrigin="anonymous" />
+      </head>
       <body className="bg-background text-foreground">
         <Header />
         <main className="min-h-screen pt-16">

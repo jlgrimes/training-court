@@ -13,12 +13,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { DetailedHTMLProps, HTMLAttributes, JSX, ReactNode, Ref, RefAttributes, useEffect, useState } from "react";
 import { AddArchetypeProps } from "./AddArchetype";
 import { imgSrcToPkmnName, pkmnToImgSrc } from "../sprites/sprites.utils";
 import { SpriteFromUrl } from "../sprites/SpriteFromUrl";
 import { cn } from "@/lib/utils";
 import { useLimitlessSprites } from "../sprites/sprites.hooks";
+import { useCommandState } from "cmdk";
 
 interface PokemonLabelProps {
   url: string;
@@ -31,6 +32,22 @@ const PokemonLabel = (props: PokemonLabelProps) => {
       {imgSrcToPkmnName(props.url)}
     </div>
   )
+}
+
+const SubItem = (props: JSX.IntrinsicAttributes & Omit<{ children?: ReactNode; } & Omit<Pick<Pick<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, "key" | keyof HTMLAttributes<HTMLDivElement>> & { ref?: Ref<HTMLDivElement>; } & { asChild?: boolean; }, "key" | keyof HTMLAttributes<HTMLDivElement> | "asChild">, "onSelect" | "value" | "disabled"> & { disabled?: boolean; onSelect?: (value: string) => void; value?: string; keywords?: string[]; forceMount?: boolean; } & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<HTMLDivElement>) => {
+  const search = useCommandState((state) => state.search)
+  if (!search || search.length < 2) return null
+  return <CommandItem {...props} />
+}
+
+const PkmnEmptyState = () => {
+  const search = useCommandState((state) => state.search)
+
+  if (search.length >= 2) {
+    return <CommandEmpty>No pokemon found with name "{search}"</CommandEmpty>
+  }
+
+  return <CommandEmpty>Start typing a Pokemon name...</CommandEmpty>
 }
 
 export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
@@ -59,13 +76,16 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[300px]">
-        <Command>
+        <Command   filter={(value, search) => {
+          if (imgSrcToPkmnName(value).includes(search.toLowerCase().replace(' ', '-'))) return 1
+          return 0
+        }}>
           <CommandInput placeholder="Search pokemon..." />
           <CommandList>
-            <CommandEmpty>No pokemon found.</CommandEmpty>
+          <PkmnEmptyState />
             <CommandGroup>
               {loadedPokemonUrls?.map((url) => (
-                <CommandItem
+                <SubItem
                   key={url}
                   value={url}
                   onSelect={(currentValue) => {
@@ -81,7 +101,7 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
                     )}
                   />
                     <PokemonLabel url={url} />
-                </CommandItem>
+                </SubItem>
               ))}
             </CommandGroup>
           </CommandList>
