@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../../ui/button";
 import { Card, CardHeader, CardTitle } from "../../ui/card";
 import { createClient } from "@/utils/supabase/client";
@@ -29,7 +29,11 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
 
   const [deck, setDeck] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<string[]>([]);
-  const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | undefined>();
+  const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | null>(null);
+
+  const ifChangesWereMade: boolean = useMemo(() => {
+    return (props.existingRound?.deck !== deck) || (props.existingRound?.result.join() !== result.join()) || (props.existingRound.match_end_reason !== immediateMatchEnd);
+  }, [props.existingRound, deck, result, immediateMatchEnd]);
 
   useEffect(() => {
     if (immediateMatchEnd === 'ID') {
@@ -89,7 +93,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
     } else if (data) {
       setResult([]);
       props.setEditing(false);
-      setImmediateMatchEnd(undefined);
+      setImmediateMatchEnd(null);
       props.updateClientRounds(data[0]);
     }
   }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing]);
@@ -99,8 +103,8 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       <CardHeader>
         <CardTitle className="my-2 flex justify-between items-center">
           <span>Round {props.editedRoundNumber}</span>
-          <ToggleGroup type='single' variant='outline' value={immediateMatchEnd} onValueChange={(value) => {
-              if (value === '') return setImmediateMatchEnd(undefined);
+          <ToggleGroup type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
+              if (value === '') return setImmediateMatchEnd(null);
               setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
             }}>
             <ToggleGroupItem value='ID'>
@@ -117,7 +121,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
           <AddArchetype defaultArchetype={props.existingRound?.deck ?? undefined} setArchetype={setDeck} isDisabled={immediateMatchEnd !== undefined} />
           <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
           <div className="grid grid-cols-3 gap-2">
-            <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
+            <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={(!ifChangesWereMade || ((immediateMatchEnd === undefined) && (!deck || (result.length === 0))))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
             <Button variant='secondary' onClick={() => props.setEditing(false)}>Cancel</Button>
           </div>
       </div>
