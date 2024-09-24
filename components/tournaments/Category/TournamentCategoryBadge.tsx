@@ -9,7 +9,7 @@ interface TournamentCategoryBadgeProps {
 export const TournamentCategoryBadge = (props: TournamentCategoryBadgeProps) => {
   return (
     <div>
-      <Badge variant='outline' className="py-1 mt-2">
+      <Badge variant='outline' className="py-1">
         <div className="flex items-center pl-1">
           <TournamentCategoryIcon category={props.category} />
           <p>{displayTournamentCategory(props.category)}</p>

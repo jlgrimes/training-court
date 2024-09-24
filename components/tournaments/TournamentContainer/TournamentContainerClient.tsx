@@ -61,7 +61,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <div className="flex flex-col gap-1 col-span-2 md:col-span-5">
             <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
             <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
-            <div className="flex gap-1">
+            <div className="flex flex-col sm:flex-row gap-1 mt-2">
               {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
               {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
             </div>

@@ -8,7 +8,7 @@ interface TournamentPlacementBadgeProps {
 export const TournamentPlacementBadge = (props: TournamentPlacementBadgeProps) => {
   return (
     <div>
-      <Badge variant='outline' className="py-1 mt-2">
+      <Badge variant='outline' className="py-1">
         {renderTournamentPlacement(props.placement)}
       </Badge>
     </div>

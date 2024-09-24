@@ -29,12 +29,12 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
           <div className="grid-cols-1">
             <Sprite name={props.tournament.deck} shouldSmush />
           </div>
-          <div className="col-span-4 grid-cols-5">
+          <div className="col-span-4 grid-cols-5 ml-2">
             <CardTitle>{props.tournament.name}</CardTitle>
             <CardDescription className="grid gap-4">
               {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
             </CardDescription>
-            <div className="flex gap-1">
+            <div className="flex gap-1 mt-2 flex-col sm:flex-row">
               {props.tournament.category && !props.shouldHideCategoryBadge && <TournamentCategoryBadge category={props.tournament.category as TournamentCategory} />}
               {props.tournament.placement && <TournamentPlacementBadge placement={props.tournament.placement as TournamentPlacement} />}
               {isBefore(new Date(), props.tournament.date_from) && (
@@ -48,7 +48,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
               )}
             </div>
           </div>
-          <CardTitle className="text-right">{rounds && getRecord(rounds)}</CardTitle>
+          <CardTitle className="text-right whitespace-nowrap">{rounds && getRecord(rounds)}</CardTitle>
         </SmallCardHeader>
       </Card>
     </Link>
