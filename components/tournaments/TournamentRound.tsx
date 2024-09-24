@@ -12,15 +12,15 @@ interface TournamentRoundProps {
   userId: string | undefined;
   round: Database['public']['Tables']['tournament rounds']['Row'];
   updateClientRoundsOnEdit: (newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => void;
+  isEditing: boolean;
+  handleEditingRoundToggle: () => void;
 }
 
 export const TournamentRound = (props: TournamentRoundProps) => {
   const userHasPermissionsToEdit = useMemo(() => props.userId === props.tournament.user, [props.userId, props.tournament.user])
   const result = useMemo(() => convertGameResultsToRoundResult(props.round.result), [convertGameResultsToRoundResult, props.round.result])
 
-  const [isEditing, setIsEditing] = useState(false);
-
-  if (props.userId && isEditing) {
+  if (props.userId && props.isEditing) {
     return (
       <div className="col-span-8">
         <TournamentRoundEdit
@@ -29,15 +29,15 @@ export const TournamentRound = (props: TournamentRoundProps) => {
           editedRoundNumber={props.round.round_num}
           existingRound={props.round}
           updateClientRounds={(updatedRound) => props.updateClientRoundsOnEdit(updatedRound, props.round.round_num - 1)}
-          editing={isEditing}
-          setEditing={setIsEditing}
+          editing={props.isEditing}
+          setEditing={props.handleEditingRoundToggle}
         />
       </div>
     )
   }
 
   return (
-    <div onClick={() => userHasPermissionsToEdit && setIsEditing(true)} className={cn(
+    <div onClick={() => userHasPermissionsToEdit && props.handleEditingRoundToggle()} className={cn(
       'col-span-8 grid grid-cols-8 items-center px-4 border-b h-12',
       userHasPermissionsToEdit && 'cursor-pointer',
       result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200',
