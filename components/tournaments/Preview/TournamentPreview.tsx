@@ -12,6 +12,7 @@ import { TournamentCategoryBadge } from "../Category/TournamentCategoryBadge";
 import { TournamentCategory } from "../Category/tournament-category.types";
 import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
+import { Sprite } from "@/components/archetype/sprites/Sprite";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -26,7 +27,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
       <Card clickable>
         <SmallCardHeader className="grid grid-cols-6 items-center">
           <div className="grid-cols-1">
-            <EditableTournamentArchetype tournament={props.tournament} editDisabled />
+            <Sprite name={props.tournament.deck} shouldSmush />
           </div>
           <div className="col-span-4 grid-cols-5">
             <CardTitle>{props.tournament.name}</CardTitle>

@@ -9,13 +9,17 @@ interface SpriteProps {
   name: string | null | undefined;
   faded?: boolean;
   small?: boolean;
+  shouldSmush?: boolean;
 }
 
 export const Sprite = (props: SpriteProps) => {
   const nameSplit = useMemo(() => props.name?.split(','), [props.name]);
 
   return nameSplit ? (
-    <div className="flex items-center gap-1">
+    <div className={cn(
+      "flex items-center",
+      props.shouldSmush ? 'flex-col xl:flex-row xl:gap-1' : 'gap-1'
+    )}>
       {nameSplit.map((name) => (
         <SpriteFromUrl url={pkmnToImgSrc(name)} />
       ))}
