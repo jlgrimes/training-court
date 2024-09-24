@@ -76,8 +76,8 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   }, [props.tournamentCategory])
 
   useEffect(() => {
-    setTournamentCategory(props.tournamentCategory);
-  }, [props.tournamentCategory])
+    setTournamentPlacement(props.tournamentPlacement);
+  }, [props.tournamentPlacement])
 
   const handleUpdateTournament = useCallback(async () => {
     const supabase = createClient();
