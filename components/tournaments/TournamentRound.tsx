@@ -30,7 +30,9 @@ export const TournamentRound = (props: TournamentRoundProps) => {
           existingRound={props.round}
           updateClientRounds={(updatedRound) => props.updateClientRoundsOnEdit(updatedRound, props.round.round_num - 1)}
           editing={props.isEditing}
-          setEditing={props.handleEditingRoundToggle}
+          // a little deceptive whoops, but we don't need to pass set is editing true or false.
+          // maybe change this prop...
+          setEditing={() => props.handleEditingRoundToggle()}
         />
       </div>
     )

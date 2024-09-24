@@ -116,7 +116,10 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
         <div className="flex flex-col w-full gap-2">
           <AddArchetype defaultArchetype={props.existingRound?.deck ?? undefined} setArchetype={setDeck} isDisabled={immediateMatchEnd !== undefined} />
           <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
-          <Button onClick={handleRoundEdit} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
+          <div className="grid grid-cols-3 gap-2">
+            <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={((immediateMatchEnd === undefined) && (!deck || (result.length === 0)))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
+            <Button variant='secondary' onClick={() => props.setEditing(false)}>Cancel</Button>
+          </div>
       </div>
       </CardHeader>
     </Card>

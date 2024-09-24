@@ -15,6 +15,10 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
   const [editingRoundIdx, setEditingRoundIdx] = useState<number | null>(null);
 
   const handleEditingRoundToggle = useCallback((roundIdx: number) => {
+    if (roundIdx === editingRoundIdx) {
+      return setEditingRoundIdx(null);
+    }
+
     // this function seems pointless, but when we add the close button it will matter
     setEditingRoundIdx(roundIdx)
   }, [editingRoundIdx, setEditingRoundIdx]);
