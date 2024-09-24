@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Input } from '../../ui/input';
-import { Sprite } from '../Sprite';
+import { Sprite } from '../sprites/Sprite';
 
 interface AddArchetypeProps {
   setArchetype: (deck: string) => void;

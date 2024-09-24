@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { format } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
-import { Sprite } from "../../archetype/Sprite";
+import { Sprite } from "../../archetype/sprites/Sprite";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";

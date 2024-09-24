@@ -8,7 +8,7 @@ import {
 import { BattleLog } from "../utils/battle-log.types"
 import { convertBattleLogDateIntoDay, getBattleLogsByDayList, groupBattleLogIntoDays } from "./battle-log-groups.utils";
 import { Database } from "@/database.types";
-import { SpriteLayer } from "@/components/archetype/SpriteLayer";
+import { SpriteLayer } from "@/components/archetype/sprites/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { isAfter, parseISO } from "date-fns";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

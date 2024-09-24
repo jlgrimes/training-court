@@ -4,7 +4,7 @@
 import { createClient } from "@/utils/supabase/client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
-import { Sprite } from "../Sprite";
+import { Sprite } from "../sprites/Sprite";
 import { Button } from "../../ui/button";
 import {
   Dialog,

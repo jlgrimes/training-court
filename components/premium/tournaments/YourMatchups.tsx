@@ -20,7 +20,7 @@ import {
 import { Database } from "@/database.types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useEffect, useMemo, useState } from "react"
-import { Sprite } from "@/components/archetype/Sprite"
+import { Sprite } from "@/components/archetype/sprites/Sprite"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface YourMatchupsProps {

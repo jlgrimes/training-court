@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { HelpCircle } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../ui/hover-card";
 
 interface SpriteProps {
   name: string | null | undefined;
