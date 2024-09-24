@@ -68,6 +68,7 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
           role="combobox"
           aria-expanded={open}
           className="justify-between w-[300px]"
+          disabled={props.isDisabled}
         >
           {selected
             ? <PokemonLabel url={selected} />
@@ -80,7 +81,7 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
           if (imgSrcToPkmnName(value).includes(search.toLowerCase().replace(' ', '-'))) return 1
           return 0
         }}>
-          <CommandInput placeholder="Search pokemon..." />
+          <CommandInput placeholder="Search pokemon..."/>
           <CommandList>
           <PkmnEmptyState />
             <CommandGroup>
