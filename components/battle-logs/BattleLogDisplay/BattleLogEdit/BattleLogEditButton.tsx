@@ -15,7 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { PencilIcon, TrashIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BattleLog, BattleLogPlayer } from "../../utils/battle-log.types";
 import { AddArchetype } from "@/components/archetype/AddArchetype/AddArchetype";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,10 @@ interface BattleLogEditButtonProps {
 export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   const [newArchetype, setNewArchetype] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    props.currentPlayer.deck && setNewArchetype(props.currentPlayer.deck);
+  }, [props.currentPlayer.deck]);
   
   const handleEditLog = useCallback(async () => {
     const supabase = createClient();
@@ -61,7 +65,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
           <DialogTitle>Edit log</DialogTitle>
         </DialogHeader>
           <Label>My deck</Label>
-          <AddArchetype setArchetype={setNewArchetype} defaultArchetype={props.currentPlayer.deck} />
+          <AddArchetype archetype={newArchetype} setArchetype={setNewArchetype} />
         <DialogFooter>
           <DialogClose asChild>
             <Button variant={'secondary'}>Cancel</Button>

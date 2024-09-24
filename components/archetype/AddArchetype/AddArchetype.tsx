@@ -7,8 +7,8 @@ import { useLimitlessSprites } from '../sprites/sprites.hooks';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface AddArchetypeProps {
+  archetype: string | undefined;
   setArchetype: (deck: string) => void;
-  defaultArchetype?: string;
   isDisabled?: boolean;
 }
 
@@ -17,10 +17,10 @@ export const AddArchetype = (props: AddArchetypeProps) => {
   const [pokemonName, setPokemonName] = useState<string>('');
 
   useEffect(() => {
-    if (props.defaultArchetype) {
-      setPokemonName(props.defaultArchetype);
+    if (props.archetype) {
+      setPokemonName(props.archetype);
     }
-  }, [props.defaultArchetype]);
+  }, [props.archetype]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setPokemonName(e.target.value.toLowerCase().replace(' ', '-'));
@@ -31,12 +31,33 @@ export const AddArchetype = (props: AddArchetypeProps) => {
     props.setArchetype(pokemonName);
   }, [pokemonName]);
 
+  const getArchetypeByIdx = useCallback((idx: number) => {
+    if (!props.archetype) return undefined;
+    const splitArchetype = props.archetype.split(',');
+
+    if (idx === 1 && splitArchetype.length === 1) return undefined;
+    return splitArchetype[idx];
+  }, [props.archetype]);
+
+  const setArchetype = useCallback((idx: number, newArchetype: string) => {
+    const splitArchetype = (props.archetype ?? '').split(',');
+
+    if (idx === 0 && splitArchetype.length === 1) props.setArchetype(newArchetype);
+    if (idx === 0 && splitArchetype.length === 2) props.setArchetype(`${newArchetype},${splitArchetype[1]}`);
+    if (idx === 1) props.setArchetype(`${splitArchetype[0]},${newArchetype}`);
+  }, [props.archetype, props.setArchetype]);
+
   if (isLoadingLimitlessUrls) {
     return <Skeleton className="h-[42px] w-[300px] rounded-xl" />
   }
 
   if (loadedPokemonUrls && loadedPokemonUrls.length > 0) {
-    return <AddLimitlessArchetype {...props} />
+    return (
+      <div className='grid grid-cols-2'>
+        <AddLimitlessArchetype {...props} archetype={getArchetypeByIdx(0)} setArchetype={(deck: string) => setArchetype(0, deck)} />
+        <AddLimitlessArchetype {...props} archetype={getArchetypeByIdx(1)} setArchetype={(deck: string) => setArchetype(1, deck)} />
+      </div>
+    )
   }
 
   // fallback input field if api fails

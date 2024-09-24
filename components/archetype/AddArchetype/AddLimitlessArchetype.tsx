@@ -53,12 +53,12 @@ const PkmnEmptyState = () => {
 export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
   const { data: loadedPokemonUrls } = useLimitlessSprites();
 
-  const [selected, setSelected] = useState(props.defaultArchetype ? pkmnToImgSrc(props.defaultArchetype) : undefined);
+  const [selected, setSelected] = useState(props.archetype ? pkmnToImgSrc(props.archetype) : undefined);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    props.defaultArchetype && setSelected(pkmnToImgSrc(props.defaultArchetype));
-  }, [props.defaultArchetype]);
+    props.archetype && setSelected(pkmnToImgSrc(props.archetype));
+  }, [props.archetype]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -67,7 +67,7 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between w-[300px]"
+          className="justify-between"
           disabled={props.isDisabled}
         >
           {selected

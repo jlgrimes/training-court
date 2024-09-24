@@ -3,6 +3,7 @@ import { HelpCircle } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../ui/hover-card";
 import { SpriteFromUrl } from "./SpriteFromUrl";
 import { pkmnToImgSrc } from "./sprites.utils";
+import { useMemo } from "react";
 
 interface SpriteProps {
   name: string | null | undefined;
@@ -11,5 +12,13 @@ interface SpriteProps {
 }
 
 export const Sprite = (props: SpriteProps) => {
-  return props.name && <SpriteFromUrl url={pkmnToImgSrc(props.name)} />
+  const nameSplit = useMemo(() => props.name?.split(','), [props.name]);
+
+  return nameSplit ? (
+    <div className="flex">
+      {nameSplit.map((name) => (
+        <SpriteFromUrl url={pkmnToImgSrc(name)} />
+      ))}
+    </div>
+  ) : <SpriteFromUrl url={undefined} />;
 }
