@@ -5,7 +5,6 @@ import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournam
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
-import { Notebook, Trophy } from "lucide-react";
 import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import { isPremiumUser } from "@/components/premium/premium.utils";
 import { PremiumTournamentCharts } from "@/components/premium/tournaments/PremiumTournamentCharts";
 import Link from "next/link";
 
-export default async function Profile() {
+export default async function Tournaments() {
   const user = await fetchCurrentUser();
   const userData = user ? await fetchUserData(user.id) : null;
 
@@ -37,19 +36,27 @@ export default async function Profile() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      <Tabs defaultValue="battle-logs">
+      <Tabs defaultValue="tournaments">
         <TabsList className="mb-2">
-          <TabsTrigger value="battle-logs">
-            Battle Logs
-          </TabsTrigger>
-          <Link href='/tournaments'>
-            <TabsTrigger value="tournaments">
-              Tournaments
+          <Link href='/home'>
+            <TabsTrigger value="battle-logs">
+              Battle Logs
             </TabsTrigger>
           </Link>
+          <TabsTrigger value="tournaments">
+            Tournaments
+          </TabsTrigger>
         </TabsList>
       </Tabs>
-      <BattleLogsContainer />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col">
+          <div className="flex flex-col gap-4">
+            <TournamentCreate userId={user.id} />
+            {isPremiumUser(user) && <PremiumTournamentCharts userId={user.id} />}
+          </div>
+        </div>
+        <MyTournamentPreviews user={user} />
+      </div>
     </div>
   );
 }
