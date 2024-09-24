@@ -23,6 +23,7 @@ import {
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
+import { Edit } from "lucide-react";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
@@ -46,6 +47,10 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
       setArchetype(clientDeck);
     }
   }, [clientDeck]);
+
+  useEffect(() => {
+    serverDeck && setDeck(serverDeck);
+  }, [serverDeck]);
   
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
@@ -73,21 +78,17 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     )
   }
 
-  if (serverDeck) {
-    return (
-      <div>
-        <Sprite name={serverDeck} /> 
-      </div>
-    )
-  }
-
   if (editDisabled) {
+    if (serverDeck) {
+      return <Sprite name={serverDeck} />
+    }
+
     return null;
   }
 
   return (
     <Dialog>
-      <DialogTrigger className="text-sm">Add deck</DialogTrigger>
+      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} /> : 'Add deck'}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
