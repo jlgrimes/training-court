@@ -69,8 +69,9 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
                   key={url}
                   value={url}
                   onSelect={(currentValue) => {
-                    setSelected(currentValue === selected ? "" : currentValue)
-                    setOpen(false)
+                    setSelected(currentValue === selected ? "" : currentValue);
+                    props.setArchetype(currentValue === selected ? "" : imgSrcToPkmnName(currentValue));
+                    setOpen(false);
                   }}
                 >
                   <Check
