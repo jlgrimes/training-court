@@ -1,9 +1,3 @@
-import { Sprite } from "@/components/archetype/Sprite";
-import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
-import { createClient } from "@/utils/supabase/server";
-import { formatDistanceToNowStrict } from "date-fns";
-import { redirect } from "next/navigation";
-
 export default async function About() {
 
   return (
