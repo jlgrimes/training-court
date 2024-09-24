@@ -1,4 +1,4 @@
-import { Sprite } from "@/components/archetype/Sprite";
+import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { BattleLogCarousel } from "@/components/battle-logs/BattleLogDisplay/BattleLogCarousel";
 import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { createClient } from "@/utils/supabase/server";

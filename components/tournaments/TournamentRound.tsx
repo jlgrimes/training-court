@@ -1,6 +1,6 @@
 'use client';
 
-import { Sprite } from "../archetype/Sprite";
+import { Sprite } from "../archetype/sprites/Sprite";
 import { convertGameResultsToRoundResult } from "./utils/tournaments.utils";
 import { Database } from "@/database.types";
 import { useMemo, useState } from "react";
