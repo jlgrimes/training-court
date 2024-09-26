@@ -38,13 +38,13 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
               {props.tournament.category && !props.shouldHideCategoryBadge && <TournamentCategoryBadge category={props.tournament.category as TournamentCategory} />}
               {props.tournament.placement && <TournamentPlacementBadge placement={props.tournament.placement as TournamentPlacement} />}
               {isBefore(new Date(), props.tournament.date_from) && (
-                <Badge className="mt-2 bg-purple-100" variant='secondary'><Watch className="h-4 w-4 mr-1" /> Live in {formatDistanceToNowStrict(props.tournament.date_from, {
+                <Badge className="bg-purple-100" variant='secondary'><Watch className="h-4 w-4 mr-1" /> Live in {formatDistanceToNowStrict(props.tournament.date_from, {
                   roundingMethod: 'ceil',
                   unit: 'day'
                 })}</Badge>
               )}
               {isAfter(new Date(), props.tournament.date_from) && isBefore(new Date(), props.tournament.date_to) && (
-                <Badge className="mt-2 bg-green-100" variant='secondary'><RadioTower className="h-4 w-4 mr-1" /> Live</Badge>
+                <Badge className="bg-green-100" variant='secondary'><RadioTower className="h-4 w-4 mr-1" /> Live</Badge>
               )}
             </div>
           </div>
