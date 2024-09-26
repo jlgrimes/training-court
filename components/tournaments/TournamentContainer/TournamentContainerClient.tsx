@@ -63,7 +63,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
             <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
             <div className="flex flex-col sm:flex-row gap-1 mt-2">
               {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
-              {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
+              {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
             </div>
           </div>
           <EditableTournamentArchetype tournament={props.tournament} editDisabled={props.tournament.user !== props.user?.id} />

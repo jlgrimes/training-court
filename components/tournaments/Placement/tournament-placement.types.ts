@@ -1,4 +1,4 @@
-export type TournamentPlacement = 't1024' | 't512' | 't256' | 't128' | 't64' | 't32' | 't16' | 't8' | 't4' | 'finalist' | 'champion';
+export type TournamentPlacement = 'no placement' | 'dropped' | 't1024' | 't512' | 't256' | 't128' | 't64' | 't32' | 't16' | 't8' | 't4' | 'finalist' | 'champion';
 
 export function renderTournamentPlacement(placement: TournamentPlacement) {
   switch (placement) {
@@ -23,6 +23,10 @@ export function renderTournamentPlacement(placement: TournamentPlacement) {
     case 't512':
       return 'Top 512';
     case 't1024':
-      return 'Top 1024'
+      return 'Top 1024';
+    case 'dropped':
+      return 'Dropped';
+    case 'no placement':
+      return 'No placement';
   }
 }

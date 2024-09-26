@@ -6,11 +6,13 @@ interface TournamentPlacementBadgeProps {
 }
 
 export const TournamentPlacementBadge = (props: TournamentPlacementBadgeProps) => {
-  return (
-    <div>
-      <Badge variant='outline' className="py-1">
-        {renderTournamentPlacement(props.placement)}
-      </Badge>
-    </div>
-  )
+  if(props.placement !== 'no placement' && props.placement !== null) {
+      return (
+        <div>
+        <Badge variant='outline' className="py-1">
+          {renderTournamentPlacement(props.placement)}
+        </Badge>
+      </div>
+    )
+  }
 }
