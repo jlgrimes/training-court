@@ -66,6 +66,11 @@ export const YourMatchups = (props: YourMatchupsProps) => {
     total_ties
   }))
 
+  const formatDeckName = (deck: string): string => {
+    // Here's where we can do aliasing. For instance - if the deck contains Roaring Moon and Flutter Mane we can call it 'Ancient Box'.
+    return deck.split(',').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -78,7 +83,7 @@ export const YourMatchups = (props: YourMatchupsProps) => {
               {yourDecks.map((deck) => (
                 <SelectItem value={deck}>
                   <div className="flex items-center gap-2">
-                    <Sprite name={deck} small /> {deck}
+                    <Sprite name={deck} small /> {formatDeckName(deck)}
                   </div>
                 </SelectItem>
               ))}
