@@ -67,13 +67,13 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between"
+          className="justify-between pr-2"
           disabled={props.isDisabled}
         >
-          {selected
-            ? <PokemonLabel url={selected} />
-            : "Select pokemon..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <span className="inline-block overflow-hidden whitespace-nowrap">
+    {selected ? <PokemonLabel url={selected} /> : "Select pokemon..."}
+  </span>
+          <ChevronsUpDown className="ml-0 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[300px]">
