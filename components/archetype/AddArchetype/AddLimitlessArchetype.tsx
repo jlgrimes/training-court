@@ -71,8 +71,8 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
           disabled={props.isDisabled}
         >
           <span className="inline-block overflow-hidden whitespace-nowrap">
-    {selected ? <PokemonLabel url={selected} /> : "Select pokemon..."}
-  </span>
+            {selected ? <PokemonLabel url={selected} /> : "Select pokemon..."}
+          </span>
           <ChevronsUpDown className="ml-0 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
