@@ -5,6 +5,7 @@ import { convertGameResultsToRoundResult } from "./utils/tournaments.utils";
 import { Database } from "@/database.types";
 import { useMemo } from "react";
 import TournamentRoundEdit from "./AddTournamentRound/TournamentRoundEdit";
+import { MATCH_END_REASONS } from "./TournamentConstants/constants";
 import { cn } from "@/lib/utils";
 
 interface TournamentRoundProps {
@@ -47,16 +48,16 @@ export const TournamentRound = (props: TournamentRoundProps) => {
       result === 'L' && 'bg-red-100 text-red-600 hover:bg-red-200',
     )}>
       <span className="col-span-2 font-bold text-sm">{props.round.round_num}</span>
-      <span className="col-span-5">{props.round.match_end_reason === 'ID' ? 
+      <span className="col-span-5">{props.round.match_end_reason === MATCH_END_REASONS.ID ? 
         <div className="flex items-center font-bold text-lg ml-2">
-          ID
-        </div> : props.round.match_end_reason === 'No show' ? (
+          {MATCH_END_REASONS.ID}
+        </div> : props.round.match_end_reason === MATCH_END_REASONS.NO_SHOW ? (
         <div className="flex items-center text-sm font-bold">
-          No show
+          {MATCH_END_REASONS.NO_SHOW}
         </div>
-      ) : props.round.match_end_reason === 'Bye' ? ( 
+      ) : props.round.match_end_reason === MATCH_END_REASONS.BYE ? ( 
         <div className="flex items-center text-sm font-bold">
-          Bye
+          {MATCH_END_REASONS.BYE}
         </div>
       ) : <Sprite name={props.round.deck} />}</span>
       <span className="text-right font-bold tracking-wider text-md leading-4">{props.round.result.join('')}</span>
