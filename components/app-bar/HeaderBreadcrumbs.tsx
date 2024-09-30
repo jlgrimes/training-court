@@ -10,7 +10,6 @@ import {
 import { ShareIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Fragment, useMemo } from "react";
-import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 
 export default function HeaderBreadcrumbs() {
@@ -61,7 +60,13 @@ export default function HeaderBreadcrumbs() {
       {breadcrumbs.map(({ path, label }, idx) => (
         <Fragment key={path} >
           <BreadcrumbItem>
-            <BreadcrumbLink href={path}>{label}</BreadcrumbLink>
+            <BreadcrumbLink href={path} className={
+              idx === breadcrumbs.length - 1
+                ? "max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                : undefined
+                }>
+              {label}
+            </BreadcrumbLink>
             {idx === 2 && <ShareIcon onClick={() => {
               navigator.clipboard.writeText('https://trainingcourt.app' + pathname);
               toast({
