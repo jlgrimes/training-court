@@ -108,15 +108,15 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
             }}>
             <ToggleGroupItem value={MATCH_END_REASONS.ID}>
               <HandshakeIcon className="mr-1 h-4 w-4" />
-              ID
+              {MATCH_END_REASONS.ID}
             </ToggleGroupItem>
             <ToggleGroupItem value={MATCH_END_REASONS.NO_SHOW}>
               <GhostIcon className="mr-1 h-4 w-4" />
-              No show
+              {MATCH_END_REASONS.NO_SHOW}
             </ToggleGroupItem>
             <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
               <Smile className="mr-1 h-4 w-4" />
-              Bye
+              {MATCH_END_REASONS.BYE}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardTitle>

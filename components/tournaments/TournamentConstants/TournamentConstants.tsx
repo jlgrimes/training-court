@@ -1,5 +1,5 @@
 export const MATCH_END_REASONS = {
-    ID: 'Intentional Draw',
+    ID: 'ID',
     NO_SHOW: 'No show',
     BYE: 'Bye',
   };
