@@ -4,5 +4,5 @@ export const MATCH_END_REASONS = {
     BYE: 'Bye',
   };
   
-export type ImmediateMatchEndScenarios = typeof MATCH_END_REASONS[keyof typeof MATCH_END_REASONS];
+export type ImmediateMatchEndScenarios = 'ID' | 'No show' | 'Bye';
   

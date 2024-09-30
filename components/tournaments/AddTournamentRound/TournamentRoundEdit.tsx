@@ -10,7 +10,7 @@ import { GhostIcon, HandshakeIcon, Plus, Smile, Upload } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/TournamentConstants";
+import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/constants";
 
 export interface TournamentRoundEditProps {
   editing: boolean;
