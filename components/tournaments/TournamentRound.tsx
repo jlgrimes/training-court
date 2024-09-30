@@ -3,7 +3,7 @@
 import { Sprite } from "../archetype/sprites/Sprite";
 import { convertGameResultsToRoundResult } from "./utils/tournaments.utils";
 import { Database } from "@/database.types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import TournamentRoundEdit from "./AddTournamentRound/TournamentRoundEdit";
 import { cn } from "@/lib/utils";
 
@@ -47,11 +47,16 @@ export const TournamentRound = (props: TournamentRoundProps) => {
       result === 'L' && 'bg-red-100 text-red-600 hover:bg-red-200',
     )}>
       <span className="col-span-2 font-bold text-sm">{props.round.round_num}</span>
-      <span className="col-span-5">{props.round.match_end_reason === 'ID' ? <div className="flex items-center font-bold text-lg ml-2">
-      ID
-      </div> : props.round.match_end_reason === 'No show' ? (
+      <span className="col-span-5">{props.round.match_end_reason === 'ID' ? 
+        <div className="flex items-center font-bold text-lg ml-2">
+          ID
+        </div> : props.round.match_end_reason === 'No show' ? (
         <div className="flex items-center text-sm font-bold">
           No show
+        </div>
+      ) : props.round.match_end_reason === 'Bye' ? ( 
+        <div className="flex items-center text-sm font-bold">
+          Bye
         </div>
       ) : <Sprite name={props.round.deck} />}</span>
       <span className="text-right font-bold tracking-wider text-md leading-4">{props.round.result.join('')}</span>

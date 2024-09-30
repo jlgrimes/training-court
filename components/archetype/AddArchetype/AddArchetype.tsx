@@ -53,7 +53,7 @@ export const AddArchetype = (props: AddArchetypeProps) => {
 
   if (loadedPokemonUrls && loadedPokemonUrls.length > 0) {
     return (
-      <div className='grid grid-cols-2'>
+      <div className='grid grid-cols-2 gap-2'>
         <AddLimitlessArchetype {...props} archetype={getArchetypeByIdx(0)} setArchetype={(deck: string) => setArchetype(0, deck)} />
         <AddLimitlessArchetype {...props} archetype={getArchetypeByIdx(1)} setArchetype={(deck: string) => setArchetype(1, deck)} />
       </div>

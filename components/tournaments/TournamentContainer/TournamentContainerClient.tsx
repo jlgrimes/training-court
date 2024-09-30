@@ -61,38 +61,37 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <div className="flex flex-col gap-1 col-span-2 sm:col-span-5">
             <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
             <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
-            <div className="flex flex-col  gap-1 mt-2">
+            <div className="flex flex-col gap-1 mt-2">
               {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
               {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
             </div>
           </div>
-          <div className="flex flex-col items-center justify-center col-span-2">
-    <EditableTournamentArchetype
-      tournament={props.tournament}
-      editDisabled={props.tournament.user !== props.user?.id}
-    />
-    <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>
-  </div>
+          <div className="flex flex-col items-end col-span-2 gap-1 px-1">
+          <EditableTournamentArchetype
+            tournament={props.tournament}
+            editDisabled={props.tournament.user !== props.user?.id}
+          />
+          <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>
         </div>
-        {
-          props.user && (props.user.id === props.tournament.user) && (
-            <div className="flex gap-1">
-              <TournamentEditDialog
-                tournamentId={props.tournament.id}
-                tournamentName={tournamentName}
-                tournamentDateRange={tournamentDate}
-                tournamentCategory={tournamentCategory}
-                tournamentPlacement={tournamentPlacement}
-                user={props.user}
-                updateClientTournament={updateClientTournamentDataOnEdit}
-              />
-              <TournamentDeleteDialog
-                tournamentId={props.tournament.id}
-                tournamentName={tournamentName}
-              />
-            </div>
-          )
-        }
+      </div>
+        {props.user && (props.user.id === props.tournament.user) && (
+          <div className="flex gap-1">
+            <TournamentEditDialog
+              tournamentId={props.tournament.id}
+              tournamentName={tournamentName}
+              tournamentDateRange={tournamentDate}
+              tournamentCategory={tournamentCategory}
+              tournamentPlacement={tournamentPlacement}
+              user={props.user}
+              updateClientTournament={updateClientTournamentDataOnEdit}
+            />
+            <TournamentDeleteDialog
+              tournamentId={props.tournament.id}
+              tournamentName={tournamentName}
+            />
+          </div>
+        )
+      }
         
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">

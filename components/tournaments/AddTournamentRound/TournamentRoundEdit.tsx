@@ -6,12 +6,11 @@ import { Card, CardHeader, CardTitle } from "../../ui/card";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
-import { GhostIcon, HandshakeIcon, Plus, Upload } from "lucide-react";
+import { GhostIcon, HandshakeIcon, Plus, Smile, Upload } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
-type ImmediateMatchEndScenarios = 'ID' | 'No show';
+import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/TournamentConstants";
 
 export interface TournamentRoundEditProps {
   editing: boolean;
@@ -36,9 +35,9 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   }, [props.existingRound, deck, result, immediateMatchEnd]);
 
   useEffect(() => {
-    if (immediateMatchEnd === 'ID') {
+    if (immediateMatchEnd === MATCH_END_REASONS.ID) {
       setResult(['T']);
-    } else if (immediateMatchEnd === 'No show') {
+    } else if (immediateMatchEnd === MATCH_END_REASONS.NO_SHOW || immediateMatchEnd === MATCH_END_REASONS.BYE) {
       setResult(['W']);
     } else {
       setResult([]);
@@ -107,13 +106,17 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
               if (value === '') return setImmediateMatchEnd(null);
               setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
             }}>
-            <ToggleGroupItem value='ID'>
-              <HandshakeIcon className="mr-2 h-4 w-4" />
+            <ToggleGroupItem value={MATCH_END_REASONS.ID}>
+              <HandshakeIcon className="mr-1 h-4 w-4" />
               ID
             </ToggleGroupItem>
-            <ToggleGroupItem value='No show'>
-              <GhostIcon className="mr-2 h-4 w-4" />
+            <ToggleGroupItem value={MATCH_END_REASONS.NO_SHOW}>
+              <GhostIcon className="mr-1 h-4 w-4" />
               No show
+            </ToggleGroupItem>
+            <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
+              <Smile className="mr-1 h-4 w-4" />
+              Bye
             </ToggleGroupItem>
           </ToggleGroup>
         </CardTitle>
