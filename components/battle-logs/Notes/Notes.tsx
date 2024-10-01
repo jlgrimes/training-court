@@ -37,7 +37,7 @@ export const Notes = (props: NotesProps) => {
         <Button size='sm' variant='ghost' onClick={() => setIsEditing(!isEditing)}><EditIcon className="h-4 w-4" /></Button>
       </SmallCardHeader>
       <CardContent>
-        {isEditing ? <Textarea autoFocus maxLength={500} value={renderedNotes ?? ''} onChange={(e) => setRenderedNotes(e.target.value)} /> : <p>{renderedNotes}</p>}
+        {isEditing ? <Textarea autoFocus maxLength={500} value={renderedNotes ?? ''} onChange={(e) => setRenderedNotes(e.target.value)} /> : <p className="whitespace-pre-wrap">{renderedNotes}</p>}
       </CardContent>
       {isEditing && (
         <CardFooter>
