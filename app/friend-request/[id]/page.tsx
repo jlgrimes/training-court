@@ -4,6 +4,7 @@ import { FriendRequestAcceptPage } from "@/components/friends/friend-requests/Fr
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { fetchUserData } from "@/components/user-data.utils";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function FriendRequestReceivePage({ params }: { params: { id: string } }) {
@@ -20,7 +21,9 @@ export default async function FriendRequestReceivePage({ params }: { params: { i
       return (
         <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2 p-4">
           <Label>You can't accept your own friend request silly!</Label>
-          <Button onClick={() => redirect("/")}>Home</Button>
+          <Link href='/home'>
+            <Button>Home</Button>
+          </Link>
         </div>
       )
     }
@@ -32,7 +35,9 @@ export default async function FriendRequestReceivePage({ params }: { params: { i
       return (
         <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2 p-4">
           <Label>Friend request error has expired. Ask your friend to send a new one!</Label>
-          <Button onClick={() => redirect("/")}>Home</Button>
+          <Link href='/home'>
+            <Button>Home</Button>
+          </Link>
         </div>
       )
     }

@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isPremiumUser } from "@/components/premium/premium.utils";
 import { PremiumTournamentCharts } from "@/components/premium/tournaments/PremiumTournamentCharts";
 import Link from "next/link";
+import { isUserAnAdmin } from "@/components/admin/admin.utils";
+import { FriendsDisplay } from "@/components/friends/FriendsDisplay";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -36,6 +38,8 @@ export default async function Profile() {
         <AvatarSelector userId={user.id} />
         <ScreenNameEditable userId={user.id} />
       </div>
+
+      {isUserAnAdmin(user) && <FriendsDisplay userId={user.id} />}
 
       <Tabs defaultValue="battle-logs">
         <TabsList className="mb-2">
