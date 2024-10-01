@@ -53,19 +53,19 @@ export type Database = {
       "friend requests": {
         Row: {
           created_at: string
-          id: number
+          id: string
           user_sending: string
           uses_remaining: number
         }
         Insert: {
           created_at?: string
-          id?: number
+          id?: string
           user_sending?: string
           uses_remaining?: number
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: string
           user_sending?: string
           uses_remaining?: number
         }
@@ -77,26 +77,33 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "friend requests_user_sending_fkey1"
+            columns: ["user_sending"]
+            isOneToOne: false
+            referencedRelation: "user data"
+            referencedColumns: ["id"]
+          },
         ]
       }
       friends: {
         Row: {
           created_at: string
-          friend: string | null
+          friend: string
           id: number
-          user: string | null
+          user: string
         }
         Insert: {
           created_at?: string
-          friend?: string | null
+          friend: string
           id?: number
-          user?: string | null
+          user: string
         }
         Update: {
           created_at?: string
-          friend?: string | null
+          friend?: string
           id?: number
-          user?: string | null
+          user?: string
         }
         Relationships: [
           {
@@ -107,10 +114,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "friends_friend_fkey1"
+            columns: ["friend"]
+            isOneToOne: false
+            referencedRelation: "user data"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "friends_user_fkey"
             columns: ["user"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friends_user_fkey1"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "user data"
             referencedColumns: ["id"]
           },
         ]

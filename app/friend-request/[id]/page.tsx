@@ -1,5 +1,5 @@
 import { fetchCurrentUser } from "@/components/auth.utils";
-import { fetchFriendRequest, FetchFriendRequestError } from "@/components/friends/friend-requests/friend-requests.server.utils";
+import { fetchFriendRequestWithUserData, FetchFriendRequestError } from "@/components/friends/friend-requests/friend-requests.server.utils";
 import { FriendRequestAcceptPage } from "@/components/friends/friend-requests/FriendRequestAcceptPage";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,9 +14,9 @@ export default async function FriendRequestReceivePage({ params }: { params: { i
       return redirect('/');
     }
 
-    const friendRequest = await fetchFriendRequest(params.id);
+    const friendRequest = await fetchFriendRequestWithUserData(params.id);
 
-    if (user && (user.id === friendRequest.user_sending)) {
+    if (user && (user.id === friendRequest.user_sending.id)) {
       return (
         <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2 p-4">
           <Label>You can't accept your own friend request silly!</Label>
@@ -25,8 +25,7 @@ export default async function FriendRequestReceivePage({ params }: { params: { i
       )
     }
 
-    const senderUserData = await fetchUserData(friendRequest.user_sending);
-    return <FriendRequestAcceptPage senderUserData={senderUserData} accepterUserId={user.id} friendRequestData={friendRequest} />;
+    return <FriendRequestAcceptPage accepterUserId={user.id} friendRequestData={friendRequest} />;
 
   } catch (error) {
     if (error === FetchFriendRequestError.HasExpired) {

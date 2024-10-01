@@ -8,10 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Database } from "@/database.types"
 import { redirect } from "next/navigation"
 import { addFriend } from "./friend-requests.utils";
+import { FriendRequestWithUserData } from "./friend-requests.server.utils";
 
 interface FriendRequestAcceptPageProps {
-  friendRequestData: Database['public']['Tables']['friend requests']['Row'];
-  senderUserData: Database['public']['Tables']['user data']['Row'] | null;
+  friendRequestData: FriendRequestWithUserData;
   accepterUserId: string;
 }
 
@@ -21,10 +21,10 @@ export const FriendRequestAcceptPage = (props: FriendRequestAcceptPageProps) => 
       <Card>
         <CardContent>
         <div>
-          {props.senderUserData ? (
+          {props.friendRequestData ? (
             <div className='flex gap-1'>
-              {props.senderUserData.avatar && <AvatarImage className="pixel-image" src={getAvatarSrc(props.senderUserData.avatar)} />}
-              <strong>{props.senderUserData.live_screen_name}</strong>
+              {props.friendRequestData.user_sending.avatar && <AvatarImage className="pixel-image" src={getAvatarSrc(props.friendRequestData.user_sending.avatar)} />}
+              <strong>{props.friendRequestData.user_sending.live_screen_name}</strong>
             </div>
           ) : <strong>Someone</strong>}
           sent you a friend request.
