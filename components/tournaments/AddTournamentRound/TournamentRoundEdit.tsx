@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle } from "../../ui/card";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
-import { GhostIcon, HandshakeIcon, Plus, Smile, Upload } from "lucide-react";
+import { GhostIcon, HandIcon, HandshakeIcon, Plus, Upload } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -115,7 +115,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
               {MATCH_END_REASONS.NO_SHOW}
             </ToggleGroupItem>
             <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
-              <Smile className="mr-1 h-4 w-4" />
+              <HandIcon className="mr-1 h-4 w-4" />
               {MATCH_END_REASONS.BYE}
             </ToggleGroupItem>
           </ToggleGroup>
