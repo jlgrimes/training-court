@@ -50,6 +50,71 @@ export type Database = {
           },
         ]
       }
+      "friend requests": {
+        Row: {
+          created_at: string
+          id: number
+          user_sending: string
+          uses_remaining: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          user_sending?: string
+          uses_remaining?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          user_sending?: string
+          uses_remaining?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend requests_user_sending_fkey"
+            columns: ["user_sending"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friends: {
+        Row: {
+          created_at: string
+          friend: string | null
+          id: number
+          user: string | null
+        }
+        Insert: {
+          created_at?: string
+          friend?: string | null
+          id?: number
+          user?: string | null
+        }
+        Update: {
+          created_at?: string
+          friend?: string | null
+          id?: number
+          user?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friends_friend_fkey"
+            columns: ["friend"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friends_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           archetype: string | null
