@@ -26,8 +26,8 @@ export const FriendsDisplay = async (props: FriendsDisplayProps) => {
       <CardContent>
         {(!friends || friends.length === 0) && <Label>{`You have no friends :(`}</Label>}
         {friends?.map(({ friend }) => (
-          <div className="flex gap-1">
-            {friend.avatar && <AvatarImage className="pixel-image" src={getAvatarSrc(friend.avatar)} />}
+          <div className="flex gap-1 items-center">
+            {friend.avatar && <img className="h-10 w-10 pixel-image" src={getAvatarSrc(friend.avatar)} />}
             <Label>{friend.live_screen_name}</Label>
           </div>
         ))}

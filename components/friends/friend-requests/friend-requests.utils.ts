@@ -7,8 +7,11 @@ export async function addFriend(friendRequest: FriendRequestWithUserData, accept
 
   await supabase.from('friend requests').update({ uses_remaining: friendRequest.uses_remaining - 1 }).eq('id', friendRequest.id);
 
-  await supabase.from('friends').insert({ user: friendRequest.user_sending, friend: accepterId });
-  await supabase.from('friends').insert({ user: accepterId, friend: friendRequest.user_sending });
+  const { error } = await supabase.from('friends').insert({ user: friendRequest.user_sending.id, friend: accepterId });
+
+  if (error) return console.error(error);
+
+  await supabase.from('friends').insert({ user: accepterId, friend: friendRequest.user_sending.id });
 
   window.location.href = '/home';
 }
