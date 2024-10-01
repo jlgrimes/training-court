@@ -56,6 +56,7 @@ export type Database = {
           created_at: string
           id: string
           log: string
+          notes: string | null
           user: string
         }
         Insert: {
@@ -63,6 +64,7 @@ export type Database = {
           created_at?: string
           id?: string
           log: string
+          notes?: string | null
           user: string
         }
         Update: {
@@ -70,6 +72,7 @@ export type Database = {
           created_at?: string
           id?: string
           log?: string
+          notes?: string | null
           user?: string
         }
         Relationships: [
@@ -92,6 +95,7 @@ export type Database = {
           round_num: number
           tournament: string
           user: string
+          went_first: boolean | null
         }
         Insert: {
           created_at?: string
@@ -102,6 +106,7 @@ export type Database = {
           round_num: number
           tournament: string
           user: string
+          went_first?: boolean | null
         }
         Update: {
           created_at?: string
@@ -112,6 +117,7 @@ export type Database = {
           round_num?: number
           tournament?: string
           user?: string
+          went_first?: boolean | null
         }
         Relationships: [
           {
