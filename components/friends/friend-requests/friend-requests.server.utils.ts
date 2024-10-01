@@ -13,6 +13,13 @@ export type FriendRequestWithUserData = {
   uses_remaining: number;
 };
 
+export type FriendWithUserData = {
+  created_at: string;
+  friend: Database['public']['Tables']['user data']['Row'];
+  id: number;
+  user: string;
+}
+
 export async function fetchFriendRequestWithUserData(friendRequestId: string) {
   const supabase = createClient();
 
@@ -26,6 +33,6 @@ export async function fetchFriendRequestWithUserData(friendRequestId: string) {
 
 export async function fetchFriends(userId: string) {
   const supabase = createClient();
-  const { data, error } = await supabase.from('friends').select().eq('user', userId).returns<Database['public']['Tables']['friends']['Row'][]>();
+  const { data, error } = await supabase.from('friends').select().eq('user', userId).returns<FriendWithUserData[] | null>();
   return data;
 }
