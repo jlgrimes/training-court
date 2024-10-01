@@ -32,10 +32,10 @@ export const Notes = (props: NotesProps) => {
 
   return (
     <Card>
-      <SmallCardHeader className="flex flex-row justify-between items-center">
+      <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle>Notes</CardTitle>
         <Button size='sm' variant='ghost' onClick={() => setIsEditing(!isEditing)}><EditIcon className="h-4 w-4" /></Button>
-      </SmallCardHeader>
+      </CardHeader>
       <CardContent>
         {isEditing ? <Textarea autoFocus maxLength={500} value={renderedNotes ?? ''} onChange={(e) => setRenderedNotes(e.target.value)} /> : <p className="whitespace-pre-wrap">{renderedNotes}</p>}
       </CardContent>
