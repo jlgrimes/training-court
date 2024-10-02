@@ -52,7 +52,7 @@ export default async function Tournaments() {
         <div className="flex flex-col">
           <div className="flex flex-col gap-4">
             <TournamentCreate userId={user.id} />
-            {isPremiumUser(user) && <PremiumTournamentCharts userId={user.id} />}
+            {isPremiumUser(user.id) && <PremiumTournamentCharts userId={user.id} />}
           </div>
         </div>
         <MyTournamentPreviews user={user} />

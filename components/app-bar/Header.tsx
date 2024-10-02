@@ -33,7 +33,7 @@ export default async function Header() {
                 <ReportBugDialog user={user} />
               </NavigationMenuItem>
             )}
-            {user && isUserAnAdmin(user) && (
+            {user && isUserAnAdmin(user.id) && (
               <NavigationMenuItem>
                 <Link href="/admin" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>

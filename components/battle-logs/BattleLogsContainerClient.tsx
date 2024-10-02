@@ -23,7 +23,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const availableSortBys = useMemo((): BattleLogSortBy[] => ['Day', 'Deck', 'All'], []);
+  const availableSortBys = useMemo((): BattleLogSortBy[] => ['Day', 'Deck', 'All'], [isPremiumUser(props.userData.id)]);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -39,7 +39,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
         <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
-        {isPremiumUser(props.userData as unknown as User) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData.live_screen_name}/>}
+        {isPremiumUser(props.userData.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData.live_screen_name}/>}
       </div>
 
       <div>

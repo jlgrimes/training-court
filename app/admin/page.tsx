@@ -21,7 +21,7 @@ import { FeedbackCard } from "@/components/admin/FeedbackCard";
 export default async function AdminPage() {
   const user = await fetchCurrentUser();
 
-  if (!user || !isUserAnAdmin(user)) {
+  if (!user || !isUserAnAdmin(user.id)) {
     return redirect("/");
   }
 

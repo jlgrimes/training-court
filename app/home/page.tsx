@@ -39,7 +39,7 @@ export default async function Profile() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      {isUserAnAdmin(user) && <FriendsDisplay userId={user.id} />}
+      {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />}
 
       <Tabs defaultValue="battle-logs">
         <TabsList className="mb-2">
