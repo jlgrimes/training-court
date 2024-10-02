@@ -13,15 +13,6 @@ export async function BattleLogsContainer () {
   const logData = await fetchBattleLogs(user.id);
   let userData = await fetchUserData(user.id);
 
-  if (!userData) {
-    userData = {
-      id: user.id,
-      created_at: '',
-      avatar: null,
-      live_screen_name: null
-    }
-  }
-
   if (!logData) return null;
 
   return (
