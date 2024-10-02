@@ -16,7 +16,7 @@ import { PremiumIcon } from "../premium/PremiumIcon";
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];
-  userData: Database['public']['Tables']['user data']['Row'];
+  userData: Database['public']['Tables']['user data']['Row'] | null;
 }
 
 export function BattleLogsContainerClient (props: BattleLogsContainerClientProps) {
@@ -24,7 +24,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const availableSortBys = useMemo((): BattleLogSortBy[] => isPremiumUser(props.userData.id) ? ['Day', 'Deck', 'Matchups', 'All'] : ['Day', 'Deck', 'All'], [isPremiumUser(props.userData.id)]);
+  const availableSortBys = useMemo((): BattleLogSortBy[] => isPremiumUser(props.userData?.id) ? ['Day', 'Deck', 'Matchups', 'All'] : ['Day', 'Deck', 'All'], [isPremiumUser(props.userData?.id)]);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -40,7 +40,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
         <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
-        {isPremiumUser(props.userData.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData.live_screen_name}/>}
+        {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>}
       </div>
 
       <div>
@@ -51,7 +51,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
           }}>
             <TabsList>
               {availableSortBys.map((sortBy) => (
-                <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
+                <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData?.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
@@ -62,7 +62,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
           </ToggleGroup>
         </div>
 
-        {props.userData.live_screen_name && (
+        {props.userData?.live_screen_name && (
           <div>
             <MyBattleLogPreviews userData={props.userData} battleLogs={logs} sortBy={sortBy} isEditing={isEditing} />
           </div>

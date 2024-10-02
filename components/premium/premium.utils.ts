@@ -2,6 +2,6 @@ import { isUserAnAdmin } from "../admin/admin.utils";
 
 export const bunnyUserId = 'f0a37b75-3ecb-4aaa-a5ac-ecb679685ed2';
 
-export function isPremiumUser(userId: string | null) {
+export function isPremiumUser(userId: string | null | undefined) {
   return isUserAnAdmin(userId);
 }

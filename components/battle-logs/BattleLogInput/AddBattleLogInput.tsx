@@ -10,7 +10,7 @@ import { createClient } from "@/utils/supabase/client";
 import { parseBattleLog } from "../utils/battle-log.utils";
 
 interface AddBattleLogInputProps {
-  userData: Database['public']['Tables']['user data']['Row'];
+  userData: Database['public']['Tables']['user data']['Row'] | null;
   handleAddLog: (newLog: Database['public']['Tables']['logs']['Row']) => void;
 }
 
@@ -33,7 +33,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     const supabase = createClient();
 
     const { data, error } = await supabase.from('logs').insert({
-      user: props.userData.id,
+      user: props.userData?.id ?? null,
       log: log
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
@@ -62,7 +62,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     <div className="flex flex-col gap-2">
       <Textarea
         className="resize-none"
-        disabled={!props.userData.live_screen_name || log.length > 0}
+        disabled={!props.userData?.live_screen_name || log.length > 0}
         placeholder="Paste battle log from PTCG Live here"
         value={log} onChange={(e) => setLog(e.target.value)} />
       <Button size='sm' onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button>
