@@ -23,7 +23,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const availableSortBys = useMemo((): BattleLogSortBy[] => ['Day', 'Deck', 'All'], [isPremiumUser(props.userData.id)]);
+  const availableSortBys = useMemo((): BattleLogSortBy[] => isPremiumUser(props.userData.id) ? ['Day', 'Deck', 'Matchups', 'All'] : ['Day', 'Deck', 'All'], [isPremiumUser(props.userData.id)]);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front

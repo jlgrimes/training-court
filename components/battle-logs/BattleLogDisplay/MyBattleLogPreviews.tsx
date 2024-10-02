@@ -9,6 +9,7 @@ import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
 import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
+import { BattleLogsByMatchupPremium } from "../BattleLogGroups/BattleLogsByMatchupPremium";
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
@@ -27,6 +28,10 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
 
   if (props.sortBy === 'Deck') {
     return <BattleLogsByDeck battleLogs={battleLogs} userData={props.userData} isEditing={props.isEditing} />
+  }
+
+  if (props.sortBy === 'Matchups') {
+    return <BattleLogsByMatchupPremium battleLogs={battleLogs} userData={props.userData} isEditing={props.isEditing} />
   }
 
   return (

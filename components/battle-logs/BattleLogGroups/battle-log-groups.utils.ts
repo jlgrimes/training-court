@@ -1,5 +1,6 @@
 import { format, isAfter } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
+import { getRecordObj } from "@/components/tournaments/utils/tournaments.utils";
 
 export const convertBattleLogDateIntoDay = (date: string | Date) => format(date, "LLL d, yyyy");
 
@@ -51,4 +52,48 @@ export const groupBattleLogIntoDecks = (battleLogs: BattleLog[]): Record<string,
       [myDeck]: [...acc[myDeck], curr]
     }
   }, {});
+}
+
+export const groupBattleLogIntoDecksAndMatchups = (battleLogs: BattleLog[]): Record<string, Record<string, BattleLog[]>> => {
+  return battleLogs.reduce((acc: Record<string, Record<string, BattleLog[]>>, curr: BattleLog) => {
+    const myDeck = curr.players[0].deck;
+    const oppDeck = curr.players[1].deck ?? '_unknown';
+
+    if (!myDeck) return acc;
+
+    if (!acc[myDeck]) {
+      return {
+        ...acc,
+        [myDeck]: {
+          [oppDeck]: [curr]
+        }
+      }
+    }
+
+    if (!acc[myDeck][oppDeck]) {
+      return {
+        ...acc,
+        [myDeck]: {
+          ...acc[myDeck],
+          [oppDeck]: [curr]
+        }
+      }
+    }
+
+    return {
+      ...acc,
+      [myDeck]: {
+        ...acc[myDeck],
+        [oppDeck]: [
+          ...acc[myDeck][oppDeck],
+          curr
+        ]
+      }
+    }
+  }, {});
+}
+
+export const getWinRate = (logs: BattleLog[]) => {
+  const record = getRecordObj(logs.map((log) => ({ result: [log.players[0].result] })));
+  return (record.wins + (record.ties / 3)) / logs.length;
 }

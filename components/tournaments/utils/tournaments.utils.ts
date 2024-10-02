@@ -2,7 +2,7 @@ import { Database } from "@/database.types";
 import { format, parseISO } from "date-fns";
 import { DateRange } from "react-day-picker";
 
-export const getRecord = (rounds: { result: string[] }[]) => {
+export const getRecordObj = (rounds: { result: string[] }[]) => {
   const record = {
     wins: 0,
     ties: 0,
@@ -16,6 +16,12 @@ export const getRecord = (rounds: { result: string[] }[]) => {
     if (roundResult === 'L') record.losses++;
     if (roundResult === 'T') record.ties++;
   }
+
+  return record;
+}
+
+export const getRecord = (rounds: { result: string[] }[]) => {
+  const record = getRecordObj(rounds);
 
   if (record.ties === 0) {
     return `${record.wins}-${record.losses}`;

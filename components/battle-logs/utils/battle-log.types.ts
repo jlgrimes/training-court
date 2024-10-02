@@ -32,4 +32,4 @@ export interface BattleLog {
   sections: BattleLogTurn[];
 }
 
-export type BattleLogSortBy = 'All' | 'Day' | 'Deck';
+export type BattleLogSortBy = 'All' | 'Day' | 'Deck' | 'Matchups';
