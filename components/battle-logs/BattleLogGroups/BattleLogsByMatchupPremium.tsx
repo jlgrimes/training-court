@@ -11,7 +11,7 @@ import { Database } from "@/database.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { capitalizeName } from "../utils/battle-log.utils";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
 
 interface BattleLogsByDeckProps {
@@ -22,10 +22,9 @@ interface BattleLogsByDeckProps {
 
 export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
   const battleLogsByDeck = useMemo(() => groupBattleLogIntoDecksAndMatchups(props.battleLogs), [props.battleLogs]);
-  console.log(battleLogsByDeck)
 
   return (
-    <Accordion type="single" collapsible className="flex flex-col">
+    <Accordion type="single" collapsible className="flex flex-col" defaultValue={Object.keys(battleLogsByDeck)[0]}>
       {Object.entries(battleLogsByDeck).map(([deck, logsByMatchup]) => (
         <AccordionItem value={deck}>
           <AccordionTrigger>
@@ -40,6 +39,8 @@ export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
             </div>
           </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
+              <Card>
+              <CardHeader>
               {
                 Object.entries(logsByMatchup).sort((a, b) => b[1].length - a[1].length).map(([matchupDeck, logs]) => (
                   <div className="grid grid-cols-4 w-full items-center">
@@ -58,6 +59,8 @@ export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
                   </div>
                 ))
               }
+              </CardHeader>
+              </Card>
             <Accordion type="single" collapsible>
             </Accordion>
           </AccordionContent>

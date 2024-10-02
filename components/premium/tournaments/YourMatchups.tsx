@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useEffect, useMemo, useState } from "react"
 import { Sprite } from "@/components/archetype/sprites/Sprite"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PremiumIcon } from "../PremiumIcon"
 
 interface YourMatchupsProps {
   matchupData: Database['public']['Functions']['getusertournamentresults']['Returns'] | null;
@@ -74,7 +75,7 @@ export const YourMatchups = (props: YourMatchupsProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your matchup spread</CardTitle>
+        <CardTitle className="flex items-center">Your matchup spread<PremiumIcon /></CardTitle>
         <Select value={currentDeck} onValueChange={(deck) => setCurrentDeck(deck)}>
           <SelectTrigger>
               <SelectValue />

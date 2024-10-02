@@ -12,6 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { isPremiumUser } from "../premium/premium.utils";
 import { User } from "@supabase/supabase-js";
 import { PremiumBattleLogs } from "../premium/battle-logs/PremiumBattleLogs";
+import { PremiumIcon } from "../premium/PremiumIcon";
 
 interface BattleLogsContainerClientProps {
   logs: Database['public']['Tables']['logs']['Row'][];
@@ -50,7 +51,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
           }}>
             <TabsList>
               {availableSortBys.map((sortBy) => (
-                <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}</TabsTrigger>
+                <TabsTrigger key={sortBy} value={sortBy} disabled={!props.userData.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
               ))}
             </TabsList>
           </Tabs>

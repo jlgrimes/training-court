@@ -25,6 +25,7 @@ import { getBattleLogsByDayList, groupBattleLogIntoDays } from "@/components/bat
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types"
 import { format, interval, isThisWeek, isWithinInterval, subWeeks } from "date-fns"
 import { useMemo } from "react"
+import { PremiumIcon } from "../PremiumIcon"
 
 export const description = "A stacked area chart"
 
@@ -80,7 +81,7 @@ export function GamesOverTime(props: GamesOverTimeProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{`Games played in the last week`}</CardTitle>
+        <CardTitle className="flex items-center">{`Games played in the last week`}<PremiumIcon /></CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 && (
