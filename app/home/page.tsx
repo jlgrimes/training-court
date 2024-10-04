@@ -37,7 +37,6 @@ export default async function Profile() {
 
       {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
-      <h1 className="text-2xl tracking-wide font-semibold text-slate-800">Logs</h1>
       <BattleLogsHomePreview />
     </div>
   );

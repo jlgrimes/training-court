@@ -36,23 +36,11 @@ export default async function Tournaments() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      <Tabs defaultValue="tournaments">
-        <TabsList className="mb-2">
-          <Link href='/home'>
-            <TabsTrigger value="battle-logs">
-              Battle Logs
-            </TabsTrigger>
-          </Link>
-          <TabsTrigger value="tournaments">
-            Tournaments
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <div className="flex flex-col gap-4">
             <TournamentCreate userId={user.id} />
-            {isPremiumUser(user.id) && <PremiumTournamentCharts userId={user.id} />}
+            {/* {isPremiumUser(user.id) && <PremiumTournamentCharts userId={user.id} />} */}
           </div>
         </div>
         <MyTournamentPreviews user={user} />
