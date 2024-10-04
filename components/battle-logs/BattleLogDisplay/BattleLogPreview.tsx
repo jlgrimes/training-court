@@ -56,14 +56,14 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     return (
       <Card className="flex-grow">
         <SmallCardHeader className="grid grid-cols-8 items-center">
-          <Sprite name={props.battleLog.players[0].deck} />
+          <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-5 ml-4">
             <CardTitle>{`${getDeckAsText(props.battleLog.players[0].deck)} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
           </div>
           <div />
-          <Sprite name={props.battleLog.players[1].deck} />
+          <Sprite name={props.battleLog.players[1].deck} shouldSmush={true}/>
         </SmallCardHeader>
         <SmallCardHeader>
           <CardDescription>{`It doesn't look like you are in this battle log. If this is a mistake, edit your screen name at the top of the page to match your PTCG live screen name.`}</CardDescription>
@@ -78,7 +78,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     <Link className="flex-grow" href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
         <SmallCardHeader className="grid grid-cols-8 items-center">
-          <Sprite name={props.battleLog.players[0].deck} />
+          <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-4 ml-4">
             <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>

@@ -29,7 +29,7 @@ export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
         <AccordionItem value={deck}>
           <AccordionTrigger>
             <div className="grid grid-cols-4 w-full items-center">
-              <Sprite name={deck} />
+              <Sprite name={deck} shouldSmush={true}/>
               <div className="col-span-2 text-left">
                 {capitalizeName(deck)}
               </div>
