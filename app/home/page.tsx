@@ -11,6 +11,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { BattleLogsHomePreview } from "@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview";
+import { TournamentsHomePreview } from "@/components/tournaments/TournamentsHome/TournamentsHomePreview";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -37,7 +38,10 @@ export default async function Profile() {
 
       {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
-      <BattleLogsHomePreview />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <BattleLogsHomePreview />
+        <TournamentsHomePreview user={user} />
+      </div>
     </div>
   );
 }

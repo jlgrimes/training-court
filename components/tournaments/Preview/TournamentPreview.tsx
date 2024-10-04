@@ -1,7 +1,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge"
-import { Card, CardDescription, CardTitle, SmallCardHeader } from "../../ui/card";
+import { Card, CardDescription, CardHeader, CardTitle, SmallCardHeader } from "../../ui/card";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import { fetchRounds } from "../utils/tournaments.server.utils";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";

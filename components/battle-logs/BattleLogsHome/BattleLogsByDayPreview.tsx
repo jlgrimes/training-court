@@ -18,6 +18,7 @@ import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
 import { Button } from "@/components/ui/button";
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+import { SeeMoreButton } from "@/components/SeeMoreButton";
 
 interface BattleLogsByDayProps {
   battleLogs: BattleLog[];
@@ -71,11 +72,7 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
         </AccordionItem>
       ))}
     </Accordion>
-    <Button asChild variant='outline'>
-      <Link href='/logs'>
-       See more <ChevronRightIcon className="h-4 w-4 ml-2" />
-      </Link>
-    </Button>
+    <SeeMoreButton href="/logs" />
     </div>
   )
 }
