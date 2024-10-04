@@ -32,14 +32,14 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    props.currentPlayer.deck && setNewArchetype(props.currentPlayer.deck);
+    setNewArchetype(props.currentPlayer.deck || '');
+    setNewOppArchetype(props.currentPlayer.oppDeck || '');
   }, [props.currentPlayer.deck, props.currentPlayer.oppDeck]);
   
   const handleEditLog = useCallback(async () => {
     const supabase = createClient();
     const { error } = await supabase.from('logs').update({ archetype: newArchetype, opp_archetype: newOppArchetype }).eq('id', props.log.id);
 
-    console.log
     if (error) {
       toast({
         variant: "destructive",
