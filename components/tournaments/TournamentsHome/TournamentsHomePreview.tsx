@@ -33,14 +33,14 @@ export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) 
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h1 className="text-xl tracking-wide font-semibold text-slate-800">Tournaments</h1>
       <div className="flex flex-col gap-2">
         {tournamentData?.map((tournament) => (
           <TournamentPreview tournament={tournament} />
         ))}
+        <SeeMoreButton href="/tournaments" />
       </div>
-      <SeeMoreButton href="/tournaments" />
       <TournamentCreate userId={props.user.id} />
     </div>
   )

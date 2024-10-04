@@ -38,7 +38,7 @@ export default async function Profile() {
 
       {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <BattleLogsHomePreview />
         <TournamentsHomePreview user={user} />
       </div>
