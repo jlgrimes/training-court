@@ -5,16 +5,13 @@ import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournam
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
-import { Notebook, Trophy } from "lucide-react";
 import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { isPremiumUser } from "@/components/premium/premium.utils";
-import { PremiumTournamentCharts } from "@/components/premium/tournaments/PremiumTournamentCharts";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { isUserAnAdmin } from "@/components/admin/admin.utils";
-import { FriendsDisplay } from "@/components/friends/FriendsDisplay";
+import { BattleLogsHomePreview } from "@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview";
+import { TournamentsHomePreview } from "@/components/tournaments/TournamentsHome/TournamentsHomePreview";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -25,7 +22,7 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex flex-col py-4 lg:py-8 pl-8 pr-6 lg:px-16 gap-4 w-full h-full">
+    <div className="flex flex-col py-6 lg:py-8 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
       {!userData?.live_screen_name && (
         <Card className="px-1 py-2">
           <CardHeader>
@@ -34,26 +31,17 @@ export default async function Profile() {
           </CardHeader>
         </Card>
       )}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-center gap-4">
         <AvatarSelector userId={user.id} />
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />}
+      {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
-      <Tabs defaultValue="battle-logs">
-        <TabsList className="mb-2">
-          <TabsTrigger value="battle-logs">
-            Battle Logs
-          </TabsTrigger>
-          <Link href='/tournaments'>
-            <TabsTrigger value="tournaments">
-              Tournaments
-            </TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
-      <BattleLogsContainer />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <BattleLogsHomePreview />
+        <TournamentsHomePreview user={user} />
+      </div>
     </div>
   );
 }

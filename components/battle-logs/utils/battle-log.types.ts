@@ -3,6 +3,7 @@ export type RoundResult = 'W' | 'L' | 'T';
 export interface BattleLogPlayer {
   name: string;
   deck: string | undefined;
+  oppDeck: string | undefined;
   result: RoundResult;
 }
 

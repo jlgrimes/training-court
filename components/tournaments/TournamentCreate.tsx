@@ -20,6 +20,7 @@ import {
 import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
+import { Database } from "@/database.types";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -34,14 +35,14 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const handleAddTournament = useCallback(async () => {
     setIsCreatingTournament(true);
     const supabase = createClient();
-    const { error } = await supabase.from('tournaments').insert({
+    const { data, error } = await supabase.from('tournaments').insert({
       name: tournamentName,
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to ?? tournamentDate?.from,
       user: userId,
       category: tournamentCategory,
       placement: tournamentPlacement
-    });
+    }).select().returns<Database['public']['Tables']['tournaments']['Row'][]>();
 
     if (error) {
       toast({
@@ -50,8 +51,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
         description: error.message,
       })
     } else {
-      // TODO: actually make this update the front end instead of refreshing the whole page
-      window.location.href = '/';
+      window.location.href = `/tournaments/${data[0].id}`;
     }
     setIsCreatingTournament(true);
   }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
@@ -87,6 +87,6 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   )
 
   return (
-    <Button onClick={() => setEditing(true)}><Plus className="mr-2 h-4 w-4" />New tournament</Button>
+    <Button size='lg' onClick={() => setEditing(true)}><Plus className="mr-2 h-4 w-4" />New tournament</Button>
   )
 }

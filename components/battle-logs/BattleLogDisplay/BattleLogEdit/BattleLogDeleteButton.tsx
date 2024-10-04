@@ -36,7 +36,7 @@ export const BattleLogDeleteButton = (props: BattleLogDeleteButtonProps) => {
         description: error.message,
       })
     } else {
-      window.location.href = '/home';
+      window.location.href = '/logs';
     }
   }, [toast]);
 

@@ -1,8 +1,7 @@
 import { fetchCurrentUser } from "@/components/auth.utils"
-import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
-import { fetchBattleLogs } from "@/components/battle-logs/utils/battle-log.server.utils"
-import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
-import { fetchUserData } from "@/components/user-data.utils";
+import { AvatarSelector } from "@/components/avatar/AvatarSelector";
+import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
+import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 import { redirect } from "next/navigation";
 
 export default async function LogsPage() {
@@ -12,14 +11,13 @@ export default async function LogsPage() {
     redirect('/');
   }
 
-  const logs = await fetchBattleLogs(currentUser.id);
-  const userData = await fetchUserData(currentUser.id);
-  
   return (
-    <div className="flex flex-col gap-2">
-      {logs?.map((battleLog) => (
-        <BattleLogPreview battleLog={parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, userData?.live_screen_name ?? null)} currentUserScreenName={userData?.live_screen_name} />
-      ))}
+    <div className="flex flex-col py-4 lg:py-8 pl-8 pr-6 lg:px-16 gap-4 w-full h-full">
+      <div className="flex items-center gap-4">
+        <AvatarSelector userId={currentUser.id} />
+        <ScreenNameEditable userId={currentUser.id} />
+      </div>
+      <BattleLogsContainer />
     </div>
   )
 }

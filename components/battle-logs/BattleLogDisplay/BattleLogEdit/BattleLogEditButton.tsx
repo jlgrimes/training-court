@@ -33,7 +33,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
 
   useEffect(() => {
     props.currentPlayer.deck && setNewArchetype(props.currentPlayer.deck);
-  }, [props.currentPlayer.deck]);
+  }, [props.currentPlayer.deck, props.currentPlayer.oppDeck]);
   
   const handleEditLog = useCallback(async () => {
     const supabase = createClient();
@@ -47,11 +47,9 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
         description: error.message,
       })
     } else {
-      
-      //@TODO This should just refresh essentially? We don't want to redirect here especially since home doesn't have to default to the battle logs page.
-      window.location.href = '/home';
+      window.location.href = '/logs';
     }
-  }, [toast, newArchetype]);
+  }, [toast, newArchetype, newOppArchetype]);
 
   return (
     <Dialog>
