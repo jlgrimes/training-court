@@ -88,7 +88,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
             <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
           </div>
           <div />
-          <Sprite name={props.battleLog.players[1].deck} />
+          <Sprite name={props.battleLog.players[0].oppDeck} shouldSmush={true} />
         </SmallCardHeader>
       </Card>
     </Link>
