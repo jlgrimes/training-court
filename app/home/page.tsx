@@ -22,7 +22,7 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex flex-col py-4 lg:py-8 pl-8 pr-6 lg:px-16 gap-4 w-full h-full">
+    <div className="flex flex-col py-6 lg:py-8 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
       {!userData?.live_screen_name && (
         <Card className="px-1 py-2">
           <CardHeader>
