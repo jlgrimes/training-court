@@ -6,7 +6,7 @@ interface TournamentCategoryIconProps {
 }
 
 export const TournamentCategoryIcon = (props: TournamentCategoryIconProps) => {
-  const commonClassName = "h-4 w-4 mr-2";
+  const commonClassName = "h-4 w-4 mr-2 stroke-muted-foreground";
 
   switch (props.category) {
     case 'online':

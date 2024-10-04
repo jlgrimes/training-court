@@ -39,7 +39,7 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     <TabsContent value='all'>
       <div className="flex flex-col gap-2">
         {tournamentData?.map((tournament) => (
-            <TournamentPreview tournament={tournament} shouldHideCategoryBadge/>
+            <TournamentPreview tournament={tournament}/>
         ))}
       </div>
     </TabsContent>

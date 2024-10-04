@@ -13,8 +13,8 @@ export const BattleLogsHomePreview = async () => {
   let userData = await fetchUserData(user.id);
 
   return userData && logData && (
-    <div>
-      <h1 className="text-2xl tracking-wide font-semibold text-slate-800">Logs</h1>
+    <div className="flex flex-col gap-2">
+      <h1 className="text-xl tracking-wide font-semibold text-slate-800">Logs</h1>
       <BattleLogsHomePreviewClient userData={userData} battleLogs={logData} />
     </div>
   )

@@ -14,6 +14,7 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { renderTournamentPlacement, TournamentPlacement } from "../Placement/tournament-placement.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { Label } from "@/components/ui/label";
+import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -31,7 +32,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
               <div className="flex flex-col gap-1">
                 <Sprite name={props.tournament.deck} />
                 <div>
-                  <CardTitle className="flex gap-2">{props.tournament.name}{props.tournament.category && !props.shouldHideCategoryBadge && <TournamentCategoryBadge category={props.tournament.category as TournamentCategory} />}</CardTitle>
+                  <CardTitle className="flex gap-2 items-center">{props.tournament.name}{props.tournament.category && !props.shouldHideCategoryBadge && <TournamentCategoryIcon category={props.tournament.category as TournamentCategory} />}</CardTitle>
                   <CardDescription className="grid gap-4">
                     {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
                   </CardDescription>
