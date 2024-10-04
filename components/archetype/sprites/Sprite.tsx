@@ -15,6 +15,14 @@ interface SpriteProps {
 export const Sprite = (props: SpriteProps) => {
   const nameSplit = useMemo(() => props.name?.split(','), [props.name]);
 
+  // if (props.name == 'NULL' || props.name == 'null') {
+  //   return (
+  //     <div className={cn("flex items-center justify-center", props.small ? "w-6 h-6" : "w-10 h-10")}>
+  //       <HelpCircle className="text-gray-500" />
+  //     </div>
+  //   );
+  // }
+
   return nameSplit ? (
     <div className={cn(
       "flex items-center",

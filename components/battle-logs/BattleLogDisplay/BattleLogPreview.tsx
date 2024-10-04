@@ -45,7 +45,8 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
 
   const getDeckAsText = useCallback((deck?: string) => {
     if (!deck) return 'unknown';
-    return capitalizeName(deck.replace('-', ' '));
+    const formattedDeck = deck.replace(/-/g, ' ').split(',').map(capitalizeName);
+    return formattedDeck.join(' ');
   }, []);
 
   const cardSubtitle = useMemo(() => {
@@ -59,7 +60,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-5 ml-4">
-            <CardTitle>{`${getDeckAsText(props.battleLog.players[0].deck)} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>
+            <CardTitle>{`${getDeckAsText(props.battleLog.players[0].deck)} vs ${getDeckAsText(props.battleLog.players[0].oppDeck)}`}</CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
           </div>
           <div />
@@ -81,7 +82,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-4 ml-4">
-            <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[1].deck)}`}</CardTitle>
+            <CardTitle>{`${gameResultAsText} vs ${getDeckAsText(props.battleLog.players[0].oppDeck)}`}</CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
           </div>
           <div className="text-right">
