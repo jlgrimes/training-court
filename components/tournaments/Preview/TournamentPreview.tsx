@@ -23,7 +23,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
   const rounds = await fetchRounds(props.tournament.id);
 
   return (
-    <Link href={`/tournament/${props.tournament.id}`}>
+    <Link href={`/tournaments/${props.tournament.id}`}>
       <Card clickable>
         <SmallCardHeader className="grid grid-cols-6 items-center">
           <div className="grid-cols-1">

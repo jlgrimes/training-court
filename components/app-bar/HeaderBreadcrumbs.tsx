@@ -11,6 +11,7 @@ import { ShareIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Fragment, useMemo } from "react";
 import { useToast } from "../ui/use-toast";
+import Link from "next/link";
 
 export default function HeaderBreadcrumbs() {
   const pathname = usePathname();
@@ -22,25 +23,28 @@ export default function HeaderBreadcrumbs() {
       label: 'Home'
     }];
 
-    if (pathname === '/logs') {
+    if (pathname.includes('/logs')) {
       breadcrumbs.push({
-        path: '/home',
+        path: '/logs',
         label: 'Logs'
       });
-    } else if (pathname.includes('logs')) {
-      breadcrumbs.push({
-        path: '/home',
-        label: 'Logs'
-      }),
+    }
+
+    if (pathname.includes('logs/')) {
       breadcrumbs.push({
         path: pathname,
         label: pathname.split('/')[pathname.split('/').length - 1]
       });
-    } else if (pathname.includes('tournament')) {
+    }
+
+    if (pathname.includes('/tournaments')) {
       breadcrumbs.push({
         path: '/tournaments',
         label: 'Tournaments'
-      }),
+      });
+    }
+    
+    if (pathname.includes('tournaments/')) {
       breadcrumbs.push({
         path: pathname,
         label: pathname.split('/')[pathname.split('/').length - 1]
@@ -50,22 +54,20 @@ export default function HeaderBreadcrumbs() {
     return breadcrumbs;
   }, [pathname]);
 
-  if (!pathname.includes('profile') && !pathname.includes('tournament/') && !pathname.includes('logs')) {
-    return null;
-  }
-
   return (
     <Breadcrumb className="my-2 ml-4 px-4">
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
         <Fragment key={path} >
           <BreadcrumbItem>
-            <BreadcrumbLink href={path} className={
-              idx === breadcrumbs.length - 1
-                ? "max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
-                : undefined
-                }>
-              {label}
+            <BreadcrumbLink asChild>
+              <Link href={path} className={
+                idx === breadcrumbs.length - 1
+                  ? "max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                  : undefined
+                  }>
+                {label}
+              </Link>
             </BreadcrumbLink>
             {idx === 2 && <ShareIcon onClick={() => {
               navigator.clipboard.writeText('https://trainingcourt.app' + pathname);

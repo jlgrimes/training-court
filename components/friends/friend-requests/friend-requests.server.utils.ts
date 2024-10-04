@@ -34,6 +34,5 @@ export async function fetchFriendRequestWithUserData(friendRequestId: string) {
 export async function fetchFriends(userId: string) {
   const supabase = createClient();
   const { data, error } = await supabase.from('friends').select('created_at, id, user, friend ( * )').eq('user', userId).returns<FriendWithUserData[] | null>();
-  console.log(data, error)
   return data;
 }
