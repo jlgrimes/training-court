@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -29,6 +28,7 @@ interface BattleLogEditButtonProps {
 
 export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   const [newArchetype, setNewArchetype] = useState('');
+  const [newOppArchetype, setNewOppArchetype] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -37,8 +37,9 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   
   const handleEditLog = useCallback(async () => {
     const supabase = createClient();
-    const { error } = await supabase.from('logs').update({ archetype: newArchetype }).eq('id', props.log.id);
+    const { error } = await supabase.from('logs').update({ archetype: newArchetype, opp_archetype: newOppArchetype }).eq('id', props.log.id);
 
+    console.log
     if (error) {
       toast({
         variant: "destructive",
@@ -46,6 +47,8 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
         description: error.message,
       })
     } else {
+      
+      //@TODO This should just refresh essentially? We don't want to redirect here especially since home doesn't have to default to the battle logs page.
       window.location.href = '/home';
     }
   }, [toast, newArchetype]);
@@ -64,8 +67,13 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
         <DialogHeader>
           <DialogTitle>Edit log</DialogTitle>
         </DialogHeader>
+
           <Label>My deck</Label>
           <AddArchetype archetype={newArchetype} setArchetype={setNewArchetype} />
+
+          <Label>Opponent's deck</Label>
+          <AddArchetype archetype={newOppArchetype} setArchetype={setNewOppArchetype} />
+
         <DialogFooter>
           <DialogClose asChild>
             <Button variant={'secondary'}>Cancel</Button>

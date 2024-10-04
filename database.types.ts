@@ -139,6 +139,7 @@ export type Database = {
       logs: {
         Row: {
           archetype: string | null
+          opp_archetype: string | null
           created_at: string
           id: string
           log: string
