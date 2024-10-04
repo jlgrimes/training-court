@@ -72,7 +72,7 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
         description: error.message,
       })
     } else {
-      window.location.href = '/home';
+      window.location.href = '/tournaments';
     }
   }, [toast]);
 
