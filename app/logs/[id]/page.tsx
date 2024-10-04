@@ -20,7 +20,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
     return redirect("/");
   }
 
-  const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, userData?.live_screen_name ?? null);
+  const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, logData.opp_archetype, userData?.live_screen_name ?? null);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2 p-4">
@@ -32,7 +32,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
               <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <Sprite name={battleLog.players[1].deck} />
+              <Sprite name={battleLog.players[0].oppDeck} />
               <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
             </div>
           </div>
