@@ -2,6 +2,7 @@ import { fetchCurrentUser } from "@/components/auth.utils";
 import { fetchBattleLogs } from "../utils/battle-log.server.utils";
 import { fetchUserData } from "@/components/user-data.utils";
 import { BattleLogsHomePreviewClient } from "./BattleLogsHomePreviewClient";
+import Link from "next/link";
 
 export const BattleLogsHomePreview = async () => {
   const user = await fetchCurrentUser();
@@ -14,7 +15,9 @@ export const BattleLogsHomePreview = async () => {
 
   return userData && logData && (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl tracking-wide font-semibold text-slate-800">Logs</h1>
+      <Link href='/logs'>
+        <h1 className="text-xl tracking-wide font-semibold text-slate-800">Logs</h1>
+      </Link>
       <BattleLogsHomePreviewClient userData={userData} battleLogs={logData} />
     </div>
   )
