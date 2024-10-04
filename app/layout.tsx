@@ -28,9 +28,9 @@ export default function RootLayout({
           <HeaderBreadcrumbs />
           <div className="flex flex-col items-center">
             {children}
-            <Toaster />
-            <Analytics />
           </div>
+          <Toaster />
+          <Analytics />
         </main>
       </body>
     </html>

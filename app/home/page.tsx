@@ -10,6 +10,7 @@ import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { BattleLogsHomePreview } from "@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -36,7 +37,7 @@ export default async function Profile() {
 
       {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
-      <BattleLogsContainer />
+      <BattleLogsHomePreview />
     </div>
   );
 }
