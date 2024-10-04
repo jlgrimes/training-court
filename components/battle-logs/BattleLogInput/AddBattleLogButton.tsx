@@ -66,6 +66,6 @@ export const AddBattleLogButton = (props: AddBattleLogInputProps) => {
   };
 
   return (
-    <Button size='lg' variant='outline' onClick={handleAddButtonClick}><ClipboardCopyIcon className='h-4 w-4 mr-2' /> Import PTCG Live log from clipboard</Button>
+    <Button size='lg' onClick={handleAddButtonClick}><ClipboardCopyIcon className='h-4 w-4 mr-2' /> Import PTCG Live log from clipboard</Button>
   )
 }

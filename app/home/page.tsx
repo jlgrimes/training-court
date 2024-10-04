@@ -30,13 +30,14 @@ export default async function Profile() {
           </CardHeader>
         </Card>
       )}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-center gap-4">
         <AvatarSelector userId={user.id} />
         <ScreenNameEditable userId={user.id} />
       </div>
 
       {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
+      <h1 className="text-2xl tracking-wide font-semibold text-slate-800">Logs</h1>
       <BattleLogsHomePreview />
     </div>
   );

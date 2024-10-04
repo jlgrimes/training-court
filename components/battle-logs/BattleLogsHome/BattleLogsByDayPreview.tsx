@@ -15,6 +15,9 @@ import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { isAfter, parseISO } from "date-fns";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
+import { Button } from "@/components/ui/button";
+import { ChevronRightIcon } from "lucide-react";
+import Link from "next/link";
 
 interface BattleLogsByDayProps {
   battleLogs: BattleLog[];
@@ -31,10 +34,11 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
     return logsByDay;
   }, [props.battleLogs]);
 
-  const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay).slice(0, 5), [battleLogsByDay])
+  const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay).slice(0, 3), [battleLogsByDay])
 
   return (
-    <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
+    <div className="flex flex-col gap-4">
+          <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
       {battleLogsByDayList.map(([day, logs]) => (
         <AccordionItem key={day} value={day}>
           <AccordionTrigger>
@@ -67,5 +71,11 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
         </AccordionItem>
       ))}
     </Accordion>
+    <Button asChild variant='outline'>
+      <Link href='/logs'>
+       See more <ChevronRightIcon className="h-4 w-4 ml-2" />
+      </Link>
+    </Button>
+    </div>
   )
 }

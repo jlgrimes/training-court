@@ -21,7 +21,7 @@ export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientP
   }, [setLogs, logs]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="flex flex-col">
       <AddBattleLogButton userData={props.userData} handleAddLog={handleAddLog} />
 
       <div>
