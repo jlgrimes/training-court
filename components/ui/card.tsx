@@ -17,9 +17,9 @@ const Card = React.forwardRef<
       "rounded-xl border transition-colors bg-card text-card-foreground",
       className,
       clickable && 'hover:bg-slate-100',
-      result === 'W' && 'bg-emerald-100 hover:bg-emerald-200',
-      result === 'T' && 'bg-yellow-100 hover:bg-yellow-200',
-      result === 'L' && 'bg-red-100 hover:bg-red-200',
+      result === 'W' && 'bg-emerald-100 hover:bg-emerald-100 md:hover:bg-emerald-200',
+      result === 'T' && 'bg-yellow-100 hover:bg-yellow-100 md:hover:bg-yellow-200',
+      result === 'L' && 'bg-red-100 hover:bg-red-100 md:hover:bg-red-200',
       result && 'border-none'
     )}
     {...props}
