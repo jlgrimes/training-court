@@ -1,9 +1,8 @@
 'use client';
 
 import { track } from '@vercel/analytics';
-import { useMemo, useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
@@ -17,10 +16,10 @@ interface AddBattleLogInputProps {
 
 export const AddBattleLogButton = (props: AddBattleLogInputProps) => {
   const mostRecentlyAddedLog: React.MutableRefObject<string | null> = useRef(null);
-  const [log, setLog] = useState('');
   const { toast } = useToast();
 
   const handleAddButtonClick = async () => {
+    const log = await navigator.clipboard.readText();
     if (log === mostRecentlyAddedLog.current) {
       return toast({
         variant: "destructive",
@@ -32,7 +31,6 @@ export const AddBattleLogButton = (props: AddBattleLogInputProps) => {
     try {
       parseBattleLog(log, '', '', '', null);
     } catch {
-      setLog('');
       return toast({
         variant: "destructive",
         title: "Your battle log was unable to be parsed.",
@@ -56,7 +54,6 @@ export const AddBattleLogButton = (props: AddBattleLogInputProps) => {
     } else {
       props.handleAddLog(data[0]);
       mostRecentlyAddedLog.current = data[0].log;
-      setLog('');
       track('Import battle log');
 
       toast({
