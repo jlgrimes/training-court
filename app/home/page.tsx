@@ -5,16 +5,11 @@ import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournam
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
-import { Notebook, Trophy } from "lucide-react";
 import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { isPremiumUser } from "@/components/premium/premium.utils";
-import { PremiumTournamentCharts } from "@/components/premium/tournaments/PremiumTournamentCharts";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { isUserAnAdmin } from "@/components/admin/admin.utils";
-import { FriendsDisplay } from "@/components/friends/FriendsDisplay";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -39,20 +34,8 @@ export default async function Profile() {
         <ScreenNameEditable userId={user.id} />
       </div>
 
-      {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />}
+      {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 
-      <Tabs defaultValue="battle-logs">
-        <TabsList className="mb-2">
-          <TabsTrigger value="battle-logs">
-            Battle Logs
-          </TabsTrigger>
-          <Link href='/tournaments'>
-            <TabsTrigger value="tournaments">
-              Tournaments
-            </TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
       <BattleLogsContainer />
     </div>
   );
