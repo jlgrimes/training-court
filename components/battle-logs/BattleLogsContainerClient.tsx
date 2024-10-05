@@ -40,7 +40,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
-        <AddBattleLogButton userData={props.userData} handleAddLog={handleAddLog} />
+        <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
         {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
       </div>
 

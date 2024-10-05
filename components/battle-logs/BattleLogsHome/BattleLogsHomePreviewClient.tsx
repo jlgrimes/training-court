@@ -27,7 +27,7 @@ export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientP
           <BattleLogsByDayPreview userData={props.userData} battleLogs={logs.map( log => (parseBattleLog(log.log, log.id, log.created_at, log.archetype, props.userData.live_screen_name)))}  />
         )}
       </div>
-      <AddBattleLogButton userData={props.userData} handleAddLog={handleAddLog} />
+      <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
     </div>
   )
 }
