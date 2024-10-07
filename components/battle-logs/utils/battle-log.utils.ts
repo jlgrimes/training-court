@@ -1,3 +1,4 @@
+import { detectBattleLogLanguage } from "@/lib/i18n/battle-log";
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 
@@ -155,6 +156,10 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
 };
 
 export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, currentUserScreenName: string | null) {
+  const language = detectBattleLogLanguage(log);
+
+  if (!language) throw 'Language not supported. Please DM @training_court on X with your battle log so we can add your language!';
+
   const cleanedLog = trimBattleLog(log);
   let playerNames = getPlayerNames(cleanedLog);
 
