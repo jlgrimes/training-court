@@ -1,4 +1,4 @@
-import { detectBattleLogLanguage } from "@/lib/i18n/battle-log";
+import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromTurnLine, Language } from "@/lib/i18n/battle-log";
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 
@@ -9,12 +9,12 @@ function trimBattleLog(log: string): string[] {
   }, []);
 }
 
-export function getPlayerNames(log: string[]): string[] {
+export function getPlayerNames(log: string[], language: Language): string[] {
   const playerNames = log.reduce((acc: string[], curr: string) => {
-    if (!curr.toLowerCase().includes(`'s turn`)) return acc;
+    if (!curr.toLowerCase().includes(BattleLogDetectedStrings[language].turn_indicator.toLowerCase())) return acc;
     if (acc.some((player) => curr.includes(player))) return acc;
 
-    const name = /- (.*)'s Turn/g.exec(curr)?.[1];
+    const name = getPlayerNameFromTurnLine(curr, language);
 
     if (!name) throw Error('Name not found in correct log line');
 
@@ -26,9 +26,9 @@ export function getPlayerNames(log: string[]): string[] {
   return playerNames;
 }
 
-export function determineWinner(log: string[]): string {
+export function determineWinner(log: string[], language: Language): string {
   for (const line of log) {
-    const winner = /\. (.*) wins\./g.exec(line)?.[1];
+    const winner = determineWinnerFromLine(line, language)
     if (winner) return winner;
   }
 
@@ -81,8 +81,8 @@ export function getTurnOrderOfPlayer(battleLog: BattleLog, playerName: string) {
   return '2nd';
 }
 
-export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn[] {
-  const playerNames = getPlayerNames(cleanedLog);
+export function divideBattleLogIntoSections(cleanedLog: string[], language: Language): BattleLogTurn[] {
+  const playerNames = getPlayerNames(cleanedLog, language);
 
   const sections: BattleLogTurn[] = [];
   let currentTitle: string | null = "Setup"; // Default to "Setup" for the initial section
@@ -110,7 +110,7 @@ export function divideBattleLogIntoSections(cleanedLog: string[]): BattleLogTurn
       currentTitle = line;
       firstTurnFound = true;
     } else {
-      if (line.includes('took') && line.includes('Prize card')) {
+      if (line.includes(BattleLogDetectedStrings[language].took) && line.includes(BattleLogDetectedStrings[language].prize_card)) {
         let prizesTaken = 0;
 
         if (line.includes('took a Prize card')) {
@@ -161,13 +161,13 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
   if (!language) throw 'Language not supported. Please DM @training_court on X with your battle log so we can add your language!';
 
   const cleanedLog = trimBattleLog(log);
-  let playerNames = getPlayerNames(cleanedLog);
+  let playerNames = getPlayerNames(cleanedLog, language);
 
   if (shouldReversePlayers(currentUserScreenName, playerNames)) {
     playerNames = [playerNames[1], playerNames[0]]
   }
 
-  const winner = determineWinner(cleanedLog);
+  const winner = determineWinner(cleanedLog, language);
   const players: BattleLogPlayer[] = playerNames.map((player) => ({
     name: player,
     deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player),
@@ -179,7 +179,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
     players,
     date: created_at,
     winner,
-    sections: divideBattleLogIntoSections(cleanedLog)
+    sections: divideBattleLogIntoSections(cleanedLog, language)
   };
 
   return battleLog;
