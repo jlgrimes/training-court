@@ -8,10 +8,11 @@ export const detectBattleLogLanguage = (log: string): Language | null => {
   return null;
 }
 
-export type BattleLogParseKey = 'prize_card' | 'setup' | 'shuffled'  | 'took' | 'turn_indicator';
+export type BattleLogParseKey = 'benched' | 'prize_card' | 'setup' | 'shuffled' | 'took' | 'turn_indicator';
 
 export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey, string>> = {
   en: {
+    benched: 'and played it to the Bench',
     prize_card: 'Prize card',
     setup: 'Setup',
     shuffled: 'shuffled their deck.',
@@ -19,6 +20,7 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
     turn_indicator: `'s turn`
   },
   de: {
+    benched: ' auf die Bank gelegt.',
     prize_card: 'Preiskarten aufgenommen',
     setup: 'Vorbereitung',
     shuffled: 'eigene Deck gemischt.',
@@ -64,10 +66,10 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
 export const getIfLineCouldContainArchetype = (line: string, playerName: string, language: Language) => {
   switch (language) {
     case 'en':
-      return line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || (line.includes(`${playerName} drew `) && line.includes(`and played it to the Bench`)) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))));
+      return line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || (line.includes(`${playerName} drew `) && line.includes(BattleLogDetectedStrings.en.benched)) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))));
     case 'de':
-      return line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')
+      return (line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')) || (line.includes(`${playerName} hat`) && line.includes(BattleLogDetectedStrings.de.benched));
     default:
-      return 0;
+      return false;
   }
 }
