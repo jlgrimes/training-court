@@ -97,3 +97,19 @@ export const getWinRate = (logs: BattleLog[]) => {
   const record = getRecordObj(logs.map((log) => ({ result: [log.players[0].result] })));
   return (record.wins + (record.ties / 3)) / logs.length;
 }
+
+export const getIfWentFirst = (log: BattleLog, playerName: string) => log.sections[1].player === playerName;
+
+export const filterGamesWithTurnOrder = (logs: BattleLog[], went: 'first' | 'second') => {
+  const currentPlayer = logs[0]?.players[0];
+
+  if (!currentPlayer) return [];
+
+  return logs.filter((log) => {
+    const didIGoFirst = getIfWentFirst(log, currentPlayer.name);
+    console.log(didIGoFirst)
+
+    if (went === 'first') return didIGoFirst;
+    return !didIGoFirst;
+  });
+}
