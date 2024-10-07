@@ -8,10 +8,11 @@ export const detectBattleLogLanguage = (log: string): Language | null => {
   return null;
 }
 
-export type BattleLogParseKey = 'benched' | 'prize_card' | 'setup' | 'shuffled' | 'took' | 'turn_indicator';
+export type BattleLogParseKey = 'a_single' | 'benched' | 'prize_card' | 'setup' | 'shuffled' | 'took' | 'turn_indicator';
 
 export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey, string>> = {
   en: {
+    a_single: 'one',
     benched: 'and played it to the Bench',
     prize_card: 'Prize card',
     setup: 'Setup',
@@ -20,6 +21,7 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
     turn_indicator: `'s turn`
   },
   de: {
+    a_single: 'eine',
     benched: ' auf die Bank gelegt.',
     prize_card: 'Preiskarten aufgenommen',
     setup: 'Vorbereitung',
@@ -55,8 +57,10 @@ export const determineWinnerFromLine = (line: string, language: Language) => {
 export const getPrizesTakenFromLine = (line: string, language: Language) => {
   switch (language) {
     case 'en':
+      if (line.includes('took a Prize card')) return 1;
       return parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     case 'de':
+      if (line.includes('hat eine Preiskarten aufgenommen')) return 1;
       return parseInt(line.match(/hat ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     default:
       return 0;

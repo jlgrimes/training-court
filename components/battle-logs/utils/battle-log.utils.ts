@@ -113,11 +113,7 @@ export function divideBattleLogIntoSections(cleanedLog: string[], language: Lang
       if (line.includes(BattleLogDetectedStrings[language].took) && line.includes(BattleLogDetectedStrings[language].prize_card)) {
         let prizesTaken = 0;
 
-        if (line.includes('took a Prize card')) {
-          prizesTaken = 1;
-        } else {
-          prizesTaken = getPrizesTakenFromLine(line, language);
-        }
+        prizesTaken = getPrizesTakenFromLine(line, language);
 
         const currentPlayer = getPlayerFromActionLine(line, playerNames);
         prizes = {
