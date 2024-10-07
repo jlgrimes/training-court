@@ -44,7 +44,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
           <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
         )}
         <div className="mt-6">
-          <BattleLogCarousel sections={battleLog.sections} />
+          <BattleLogCarousel battleLog={battleLog} />
         </div>
       </div>
     </div>

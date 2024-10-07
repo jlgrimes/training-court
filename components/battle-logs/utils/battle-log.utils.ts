@@ -172,6 +172,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
 
   const battleLog: BattleLog = {
     id,
+    language,
     players,
     date: created_at,
     winner,
