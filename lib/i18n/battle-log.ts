@@ -33,12 +33,12 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
   },
   es: {
     a_single: 'una',
-    benched: 'y lo jugó en la banca',
-    prize_card: 'Carta de premio',
+    benched: ' en la Banca.',
+    prize_card: 'cartas de Premio',
     setup: 'Preparación',
     shuffled: 'barajó su mazo.',
     took: 'tomó',
-    turn_indicator: `es el turno de `
+    turn_indicator: `turno de `
   },
   fr: {
     a_single: 'un',
@@ -56,6 +56,10 @@ export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
     return /- (.*)'s Turn/g.exec(line)?.[1]
   }
 
+  if (language === 'es') {
+    return / - Turno de (.*)/g.exec(line)?.[1];
+  }
+
   if (language === 'de') {
     return / - Zug von (.*)/g.exec(line)?.[1];
   }
@@ -67,6 +71,8 @@ export const determineWinnerFromLine = (line: string, language: Language) => {
   switch (language) {
     case 'en':
       return /\. (.*) wins\./g.exec(line)?.[1];
+    case 'es':
+      return /\. (.*) ganó\./.exec(line)?.[1];
     case 'de':
       return /\. (.*) hat gewonnen\./.exec(line)?.[1];
     default:
@@ -78,7 +84,10 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
   switch (language) {
     case 'en':
       if (line.includes('took a Prize card')) return 1;
-      return parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0')
+      return parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0');
+    case 'es':
+      // if (line.includes('took a Prize card')) return 1;
+      return parseInt(line.match(/tomó ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     case 'de':
       if (line.includes('hat eine Preiskarten aufgenommen')) return 1;
       return parseInt(line.match(/hat ([0-9])/g)?.[0].split(' ')[1] ?? '0')
@@ -91,6 +100,8 @@ export const getIfLineCouldContainArchetype = (line: string, playerName: string,
   switch (language) {
     case 'en':
       return line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || (line.includes(`${playerName} drew `) && line.includes(BattleLogDetectedStrings.en.benched)) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))));
+    case 'es':
+      return line.includes(`${playerName} puso en juego a`) && line.includes(BattleLogDetectedStrings.es.benched);
     case 'de':
       return (line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')) || (line.includes(`${playerName} hat`) && line.includes(BattleLogDetectedStrings.de.benched));
     default:

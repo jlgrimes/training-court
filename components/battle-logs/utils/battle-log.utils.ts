@@ -21,7 +21,7 @@ export function getPlayerNames(log: string[], language: Language): string[] {
     return [...acc, name]
   }, []);
 
-  if (playerNames.length !== 2) throw Error('Error: not two players found in battle log.');
+  if (playerNames.length !== 2) throw Error('Not two players found in battle log.');
 
   return playerNames;
 }
