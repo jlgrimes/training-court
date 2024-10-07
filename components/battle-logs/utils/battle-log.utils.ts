@@ -170,7 +170,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
   const winner = determineWinner(cleanedLog, language);
   const players: BattleLogPlayer[] = playerNames.map((player) => ({
     name: player,
-    deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player),
+    deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player, language),
     result: (winner === player) ? 'W' : 'L'
   }));
 

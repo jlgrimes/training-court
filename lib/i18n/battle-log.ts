@@ -60,3 +60,14 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
       return 0;
   }
 }
+
+export const getIfLineCouldContainArchetype = (line: string, playerName: string, language: Language) => {
+  switch (language) {
+    case 'en':
+      return line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || (line.includes(`${playerName} drew `) && line.includes(`and played it to the Bench`)) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))));
+    case 'de':
+      return line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')
+    default:
+      return 0;
+  }
+}

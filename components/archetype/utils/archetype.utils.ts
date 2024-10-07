@@ -1,63 +1,5 @@
-const pokemonToFind = [
-  // niche unplayed decks that have priority over the others for some reason
-  'gouging fire',
-  'cinderace',
-
-  // tier one as of 2024
-  'regidrago',
-  'miraidon',
-  'snorlax',
-  'roaring moon',
-  'banette',
-  'raging bolt',
-  'lugia',
-  'chien-pao',
-  'gardevoir',
-  'dragapult',
-  'iron thorns',
-  'charizard',
-
-  // tier two and below
-  'regigigas',
-  'gholdengo',
-  'origin forme palkia',
-  'hisuian zoroark',
-  'terapagos',
-  'giratina',
-  'arceus',
-  'comfey',
-  'entei',
-  'great tusk',
-  'klawf',
-  'iron hands',
-  'galvantula',
-  'lunatone',
-
-  // rogue
-  'flamigo',
-  'aegislash',
-  'toedscruel',
-  'conkeldurr',
-  'incineroar',
-  'bloodmoon ursaluna',
-  'origin forme dialga',
-  'venusaur',
-  'espathra',
-  'kingdra',
-  'venomoth',
-  'tinkaton',
-  'tsareena',
-  'hydrapple',
-  'okidogi',
-  'blissey',
-
-  // secondary
-  'iron valiant',
-  'ogerpon',
-  'pidgeot',
-  'flutter mane',
-  'sneasler'
-];
+import { getIfLineCouldContainArchetype, Language } from "@/lib/i18n/battle-log";
+import { getEnglishPokemon, getPokemonToFind } from "@/lib/i18n/pokemon";
 
 const pngMap = {
   'bloodmoon ursaluna': 'ursaluna-bloodmoon',
@@ -100,15 +42,14 @@ const isCardsMilled = (log: string[], currentIdx: number, playerName: string) =>
   return log[currentIdx - 1].includes(`${playerName} moved ${playerName}'s`) && log[currentIdx - 1].includes('cards to the discard pile') && log[currentIdx].includes('•');
 }
 
-export const determineArchetype = (log: string[], playerName: string): string | undefined => {
+export const determineArchetype = (log: string[], playerName: string, language: Language): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
-    if (line.includes(`${playerName} attached`) || line.includes(`${playerName} played `) || (line.includes(`${playerName} drew `) && line.includes(`and played it to the Bench`)) || line.includes(`${playerName} evolved `) || (line.includes(`${playerName}'s `) && (line.includes(`was Knocked Out`) || (line.includes(` used`) && !line.includes('damage'))))) {
-      return true;
-    }
-
-    return false;
+    return getIfLineCouldContainArchetype(line, playerName, language);
   });
+
+  const pokemonToFind = getPokemonToFind(language);
   let archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
+
   const associatedArchetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
   if (associatedArchetype) archetype = associatedArchetype;
 
@@ -117,5 +58,5 @@ export const determineArchetype = (log: string[], playerName: string): string | 
     return Object.entries(pngMap)[foundMapTypeIdx][1]
   };
 
-  return archetype?.replace(' ', '-');
+  return getEnglishPokemon(archetype, language);
 }
