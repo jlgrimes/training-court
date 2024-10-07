@@ -1,4 +1,7 @@
 export type RoundResult = 'W' | 'L' | 'T';
+export type TurnOrder = 'first' | 'second';
+
+export const AvailableTurnOrders: TurnOrder[] = ['first', 'second'];
 
 export interface BattleLogPlayer {
   name: string;
