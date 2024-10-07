@@ -5,7 +5,7 @@ import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { Database } from "@/database.types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, Plus } from "lucide-react";
 import TournamentCreate from "../TournamentCreate";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
 
@@ -21,31 +21,32 @@ export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) 
     return null;
   }
 
-  if (tournamentData && tournamentData?.length === 0) {
-    return (
-      <Card className="border-none">
-        <CardHeader className="px-2">
-          <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
-          <CardDescription>Click Add Tournament to get started!</CardDescription>
-        </CardHeader>
-      </Card>
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-6">
-      <Link href='/tournaments'>
-        <h1 className="text-xl tracking-wide font-semibold text-slate-800">Tournaments</h1>
-      </Link>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          {tournamentData?.map((tournament) => (
-            <TournamentPreview tournament={tournament} />
-          ))}
+    <div>
+      {tournamentData && tournamentData.length === 0 ? (
+        <Card className="border-none">
+          <CardHeader className="px-2">
+            <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
+            <CardDescription>Click New Tournament to get started!</CardDescription>
+          </CardHeader>
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <Link href='/tournaments'>
+            <h1 className="text-xl tracking-wide font-semibold text-slate-800">Tournaments</h1>
+          </Link>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              {tournamentData?.map((tournament) => (
+                <TournamentPreview tournament={tournament} key={tournament.id} />
+              ))}
+            </div>
+            <SeeMoreButton href="/tournaments" />
+          </div>
         </div>
-        <SeeMoreButton href="/tournaments" />
-      </div>
+      )}
       <TournamentCreate userId={props.user.id} />
     </div>
   )
+  
 }

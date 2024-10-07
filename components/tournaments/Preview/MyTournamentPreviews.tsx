@@ -21,7 +21,7 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       <Card className="border-none">
         <CardHeader className="px-2">
           <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
-          <CardDescription>Click Add Tournament to get started!</CardDescription>
+          <CardDescription>Click New Tournament to get started!</CardDescription>
         </CardHeader>
       </Card>
     )
