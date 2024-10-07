@@ -51,34 +51,34 @@ export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
                     const winRateAgainstDeck = getWinRate(logs);
 
                     return (
-                      <div className="grid grid-cols-4 w-full items-center">
+                      <div className="grid grid-cols-6 w-full items-center">
                         <Sprite name={matchupDeck} />
                         <div className="col-span-2 text-left">
                           {capitalizeName(matchupDeck)}
                         </div>
-                        <div className="flex items-center gap-2 justify-end">
-                        <CardDescription>
-                            {getRecordFromLogs(logs)}
-                          </CardDescription>
                           <CardTitle>
                             {(winRateAgainstDeck * 100).toPrecision(3)}%
                           </CardTitle>
-                        </div>
+                          <div />
+                          <CardDescription>
+                            {getRecordFromLogs(logs)}
+                          </CardDescription>
                         {AvailableTurnOrders.map((turnOrder) => {
-                          const winRateAgainstDeckWithTurnOrder = getWinRate(filterGamesWithTurnOrder(logs, turnOrder));
+                          const filteredLogs = filterGamesWithTurnOrder(logs, turnOrder);
+                          const winRateAgainstDeckWithTurnOrder = getWinRate(filteredLogs);
                           return (
                             <>
                               <div />
                               <CardDescription className="col-span-2">
-                                Going {turnOrder}
+                                {capitalizeName(turnOrder)}
                               </CardDescription>
-                              <div className="flex items-center gap-2 justify-end">
-                                <WinRatePercentDeltaIcon initialWinRate={winRateAgainstDeck} modifiedWinRate={winRateAgainstDeckWithTurnOrder} />
                                 <CardDescription>
                                   {(winRateAgainstDeckWithTurnOrder * 100).toPrecision(3)}%
                                 </CardDescription>
-                                
-                              </div>
+                                <WinRatePercentDeltaIcon initialWinRate={winRateAgainstDeck} modifiedWinRate={winRateAgainstDeckWithTurnOrder} />
+                              <CardDescription>
+                                {getRecordFromLogs(filteredLogs)}
+                              </CardDescription>
                             </>
                           )
                         })}
