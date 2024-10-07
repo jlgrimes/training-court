@@ -1,19 +1,45 @@
 import { Language } from "./battle-log";
 
-type PokemonStringsKey = 'chien_pao' | 'dialga_origin' | 'palkia_origin';
+type PokemonStringsKey = 'charizard' | 'chien_pao' | 'dialga_origin' | 'dragapult' | 'palkia_origin' | 'raging_bolt' | 'snorlax';
 
 export const PokemonStrings: Record<Language, Record<PokemonStringsKey, string>> = {
   en: {
+    charizard: 'charizard',
     chien_pao: 'chien-pao',
     dialga_origin: 'origin forme dialga',
+    dragapult: 'dragapult',
     palkia_origin: 'origin forme palkia',
+    raging_bolt: 'raging bolt',
+    snorlax: 'snorlax'
   },
   de: {
+    charizard: 'glurak',
     chien_pao: 'baojian',
     dialga_origin: 'ur-dialga',
+    dragapult: 'katapuldra',
     palkia_origin: 'ur-palkia',
+    raging_bolt: 'furienblitz',
+    snorlax: 'relaxo'
+  },
+  es: {
+    charizard: 'charizard',
+    chien_pao: 'chien-pao',
+    dragapult: 'dragapult',
+    dialga_origin: 'forma origen dialga',
+    palkia_origin: 'forma origen palkia',
+    raging_bolt: 'electrofuria',
+    snorlax: 'snorlax'
+  },
+  fr: {
+    charizard: 'dracaufeu',
+    chien_pao: 'baojian',
+    dragapult: 'lanssorien',
+    dialga_origin: 'dialga forme originelle',
+    palkia_origin: 'palkia forme originelle',
+    raging_bolt: 'ire-foudre',
+    snorlax: 'ronflex'
   }
-}
+};
 
 export function getEnglishPokemon(pokemonInAnotherLanguage: string | undefined, thatLanguage: Language) {
   const translatedPokemonName = Object.entries(PokemonStrings[thatLanguage]).find(([_, val]) => val === pokemonInAnotherLanguage);
@@ -34,16 +60,16 @@ export function getPokemonToFind(language: Language) {
     // tier one as of 2024
     'regidrago',
     'miraidon',
-    'snorlax',
+    PokemonStrings[language].snorlax,
     'roaring moon',
     'banette',
     'raging bolt',
-    'lugia',
+    'lugia', // same in every language
     PokemonStrings[language].chien_pao,
     'gardevoir',
-    'dragapult',
+    PokemonStrings[language].dragapult,
     'iron thorns',
-    'charizard',
+    PokemonStrings[language].charizard,
   
     // tier two and below
     'regigigas',

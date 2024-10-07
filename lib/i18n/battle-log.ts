@@ -1,10 +1,12 @@
 
 
-export type Language = 'en' | 'de';
+export type Language = 'en' | 'de' | 'es' | 'fr';
 
 export const detectBattleLogLanguage = (log: string): Language | null => {
   if (log.includes('Setup')) return 'en';
   if (log.includes('Vorbereitung')) return 'de';
+  if (log.includes('Preparación')) return 'es';
+  if (log.includes('Mise en place')) return 'fr';
   return null;
 }
 
@@ -28,8 +30,26 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
     shuffled: 'eigene Deck gemischt.',
     took: 'hat',
     turn_indicator: `Zug von `
+  },
+  es: {
+    a_single: 'una',
+    benched: 'y lo jugó en la banca',
+    prize_card: 'Carta de premio',
+    setup: 'Preparación',
+    shuffled: 'barajó su mazo.',
+    took: 'tomó',
+    turn_indicator: `es el turno de `
+  },
+  fr: {
+    a_single: 'un',
+    benched: 'et l\'a placé sur le banc',
+    prize_card: 'Carte Récompense',
+    setup: 'Mise en place',
+    shuffled: 'a mélangé son deck.',
+    took: 'a pris',
+    turn_indicator: `c\'est le tour de `
   }
-}
+};
 
 export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
   if (language === 'en') {
