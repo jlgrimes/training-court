@@ -46,6 +46,17 @@ export const determineWinnerFromLine = (line: string, language: Language) => {
     case 'de':
       return /\. (.*) hat gewonnen\./.exec(line)?.[1];
     default:
-      throw 'Language not supported';
+      return null;
+  }
+}
+
+export const getPrizesTakenFromLine = (line: string, language: Language) => {
+  switch (language) {
+    case 'en':
+      return parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0')
+    case 'de':
+      return parseInt(line.match(/hat ([0-9])/g)?.[0].split(' ')[1] ?? '0')
+    default:
+      return 0;
   }
 }

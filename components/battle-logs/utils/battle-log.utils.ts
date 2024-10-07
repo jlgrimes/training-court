@@ -1,4 +1,4 @@
-import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromTurnLine, Language } from "@/lib/i18n/battle-log";
+import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromTurnLine, getPrizesTakenFromLine, Language } from "@/lib/i18n/battle-log";
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 
@@ -116,7 +116,7 @@ export function divideBattleLogIntoSections(cleanedLog: string[], language: Lang
         if (line.includes('took a Prize card')) {
           prizesTaken = 1;
         } else {
-          prizesTaken = parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0');
+          prizesTaken = getPrizesTakenFromLine(line, language);
         }
 
         const currentPlayer = getPlayerFromActionLine(line, playerNames);
