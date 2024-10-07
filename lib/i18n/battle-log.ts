@@ -8,17 +8,19 @@ export const detectBattleLogLanguage = (log: string): Language | null => {
   return null;
 }
 
-export type BattleLogParseKey = 'prize_card' | 'shuffled'  | 'took' | 'turn_indicator';
+export type BattleLogParseKey = 'prize_card' | 'setup' | 'shuffled'  | 'took' | 'turn_indicator';
 
 export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey, string>> = {
   en: {
     prize_card: 'Prize card',
+    setup: 'Setup',
     shuffled: 'shuffled their deck.',
     took: 'took',
     turn_indicator: `'s turn`
   },
   de: {
     prize_card: 'Preiskarten aufgenommen',
+    setup: 'Vorbereitung',
     shuffled: 'eigene Deck gemischt.',
     took: 'hat',
     turn_indicator: `Zug von `
@@ -34,7 +36,7 @@ export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
     return / - Zug von (.*)/g.exec(line)?.[1];
   }
 
-  throw 'Language not supported';
+  return null;
 }
 
 export const determineWinnerFromLine = (line: string, language: Language) => {

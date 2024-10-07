@@ -85,7 +85,7 @@ export function divideBattleLogIntoSections(cleanedLog: string[], language: Lang
   const playerNames = getPlayerNames(cleanedLog, language);
 
   const sections: BattleLogTurn[] = [];
-  let currentTitle: string | null = "Setup"; // Default to "Setup" for the initial section
+  let currentTitle: string | null = BattleLogDetectedStrings[language].setup; // Default to "Setup" for the initial section
   let currentBody: string[] = [];
   let prizes = {
     [playerNames[0]]: 6,
@@ -94,7 +94,7 @@ export function divideBattleLogIntoSections(cleanedLog: string[], language: Lang
   let firstTurnFound = false;
 
   cleanedLog.forEach((line) => {
-    if (line.match(/Turn\s+#\s+\d+\s+-\s+.*'s\s+Turn/)) {
+    if (getPlayerNameFromTurnLine(line, language)) {
       if (currentTitle && currentBody.length > 0) {
         sections.push({
           turnTitle: currentTitle,
