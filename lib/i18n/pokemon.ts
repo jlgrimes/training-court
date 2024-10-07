@@ -1,14 +1,15 @@
 import { Language } from "./battle-log";
 
-type PokemonStringsKey = 'dialga_origin' | 'palkia_origin';
+type PokemonStringsKey = 'chien_pao' | 'dialga_origin' | 'palkia_origin';
 
 export const PokemonStrings: Record<Language, Record<PokemonStringsKey, string>> = {
   en: {
+    chien_pao: 'chien-pao',
     dialga_origin: 'origin forme dialga',
     palkia_origin: 'origin forme palkia',
   },
   de: {
-    // astrisk means that it was translated and needs to be translated back to english for image lookup
+    chien_pao: 'baojian',
     dialga_origin: 'ur-dialga',
     palkia_origin: 'ur-palkia',
   }
@@ -38,7 +39,7 @@ export function getPokemonToFind(language: Language) {
     'banette',
     'raging bolt',
     'lugia',
-    'chien-pao',
+    PokemonStrings[language].chien_pao,
     'gardevoir',
     'dragapult',
     'iron thorns',
