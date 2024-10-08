@@ -115,7 +115,7 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
       if (line.includes('hat eine Preiskarten aufgenommen')) return 1;
       return parseInt(line.match(/hat ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     case 'it':
-      if (line.includes('ha preso una carte Premio')) return 1;
+      if (line.includes('ha preso una carta Premio')) return 1;
       return parseInt(line.match(/preso ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     default:
       return 0;
