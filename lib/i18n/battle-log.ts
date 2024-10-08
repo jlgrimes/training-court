@@ -1,12 +1,19 @@
 
 
-export type Language = 'en' | 'de' | 'es' | 'fr';
+export type Language = 'en' | 'de' | 'es' | 'fr' | 'it';
+const AllSupportedLanguages: Language[] = ['en', 'de', 'es', 'fr', 'it'];
 
 export const detectBattleLogLanguage = (log: string): Language | null => {
+  for (const language of AllSupportedLanguages) {
+    if (log.includes(BattleLogDetectedStrings[language].setup)) {
+
+    }
+  }
   if (log.includes('Setup')) return 'en';
   if (log.includes('Vorbereitung')) return 'de';
   if (log.includes('Preparación')) return 'es';
   if (log.includes('Mise en place')) return 'fr';
+  if (log.includes('Allestimento')) return 'it';
   return null;
 }
 
@@ -48,6 +55,16 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
     shuffled: 'a mélangé son deck.',
     took: 'a pris',
     turn_indicator: `c\'est le tour de `
+  },
+  it: {
+    a_single: 'una',
+    benched: ' in panchina.',
+    prize_card: 'carte Premio',
+    setup: 'Allestimento',
+    shuffled: 'ha rimischiato il proprio mazzo.',
+    // has taken, but is how it is in live logs
+    took: 'ha preso',
+    turn_indicator: 'Turno di'
   }
 };
 
@@ -64,6 +81,10 @@ export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
     return / - Zug von (.*)/g.exec(line)?.[1];
   }
 
+  if (language === 'it') {
+    return / - Turno di (.*)/g.exec(line)?.[1];
+  }
+
   return null;
 }
 
@@ -75,6 +96,8 @@ export const determineWinnerFromLine = (line: string, language: Language) => {
       return /\. (.*) ganó\./.exec(line)?.[1];
     case 'de':
       return /\. (.*) hat gewonnen\./.exec(line)?.[1];
+    case 'it':
+      return /\. (.*) ha vinto\./.exec(line)?.[1];
     default:
       return null;
   }
@@ -91,6 +114,9 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
     case 'de':
       if (line.includes('hat eine Preiskarten aufgenommen')) return 1;
       return parseInt(line.match(/hat ([0-9])/g)?.[0].split(' ')[1] ?? '0')
+    case 'it':
+      if (line.includes('ha preso una carte Premio')) return 1;
+      return parseInt(line.match(/preso ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     default:
       return 0;
   }
@@ -104,6 +130,9 @@ export const getIfLineCouldContainArchetype = (line: string, playerName: string,
       return line.includes(`${playerName} puso en juego a`) && line.includes(BattleLogDetectedStrings.es.benched);
     case 'de':
       return (line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')) || (line.includes(`${playerName} hat`) && line.includes(BattleLogDetectedStrings.de.benched));
+    case 'it':
+      // drew and played, to the bench
+      return line.includes(`${playerName} ha pescato e giocato`) && line.includes(BattleLogDetectedStrings.it.benched);
     default:
       return false;
   }
