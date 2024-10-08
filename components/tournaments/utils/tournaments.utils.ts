@@ -64,3 +64,7 @@ export const displayTournamentDateRange = (range: DateRange) => {
   
   return `${format(fromDate, "LLLL d")}-${format(toDate, "LLLL d, yyyy")}`;
 }
+
+export const getTournamentRoundsFromUserRounds = (allRounds: Database['public']['Tables']['tournament rounds']['Row'][], tournament: Database['public']['Tables']['tournaments']['Row']) => {
+  return allRounds.filter((round) => round.tournament === tournament.id);
+}

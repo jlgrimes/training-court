@@ -18,12 +18,11 @@ import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
+  rounds: Database['public']['Tables']['tournament rounds']['Row'][];
   shouldHideCategoryBadge?: boolean;
 }
 
 export default async function TournamentPreview(props: TournamentPreviewProps) {
-  const rounds = await fetchRounds(props.tournament.id);
-
   return (
     <Link href={`/tournaments/${props.tournament.id}`}>
       <Card clickable>
@@ -50,7 +49,7 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <CardTitle className="text-right whitespace-nowrap text-lg">{rounds && getRecord(rounds)}</CardTitle>
+                <CardTitle className="text-right whitespace-nowrap text-lg">{props.rounds && getRecord(props.rounds)}</CardTitle>
                 {props.tournament.placement && <Label className="text-muted-foreground">{renderTournamentPlacement(props.tournament.placement as TournamentPlacement)}</Label>}
               </div>
             </div>
