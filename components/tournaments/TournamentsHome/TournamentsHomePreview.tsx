@@ -8,6 +8,8 @@ import Link from "next/link";
 import { ChevronRightIcon, Plus } from "lucide-react";
 import TournamentCreate from "../TournamentCreate";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
+import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
+import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -16,6 +18,7 @@ interface MyTournamentPreviewsProps {
 export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
   const supabase = createClient();
   const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).limit(3).returns<Database['public']['Tables']['tournaments']['Row'][]>();
+  const rounds = await fetchRoundsForUser(props.user?.id);
 
   if (!props.user) {
     return null;
@@ -37,8 +40,8 @@ export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) 
           </Link>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              {tournamentData?.map((tournament) => (
-                <TournamentPreview tournament={tournament} key={tournament.id} />
+              {tournamentData?.map((tournament) => rounds && (
+                <TournamentPreview tournament={tournament} key={tournament.id} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)} />
               ))}
             </div>
             <SeeMoreButton href="/tournaments" />
