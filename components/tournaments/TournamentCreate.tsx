@@ -87,7 +87,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   )
 
   return (
-    <div className="flex flex-col w-full max-w-sm gap-2 space-x-2">
+    <div className="flex flex-col w-full gap-2 space-x-2">
       <Button size='lg' onClick={() => setEditing(true)}><Plus className="mr-2 h-4 w-4" />New tournament</Button>
     </div>
   )

@@ -22,7 +22,7 @@ export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) 
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       {tournamentData && tournamentData.length === 0 ? (
         <Card className="border-none">
           <CardHeader className="px-2">
