@@ -20,8 +20,8 @@ export const Sprite = (props: SpriteProps) => {
       "flex items-center",
       props.shouldSmush ? 'flex-col xl:flex-row xl:gap-1' : 'gap-1'
     )}>
-      {nameSplit.map((name) => (
-        <SpriteFromUrl url={pkmnToImgSrc(name)} />
+      {nameSplit.map((name, index) => (
+        <SpriteFromUrl key={index + name} url={pkmnToImgSrc(name)} />
       ))}
     </div>
   ) : <SpriteFromUrl url={undefined} />;
