@@ -26,6 +26,25 @@ export function getPlayerNames(log: string[], language: Language): string[] {
   return playerNames;
 }
 
+// export function getPlayerNames(log: string[], language: Language): string[] {
+//   const playerNames = log.reduce((acc: string[], curr: string) => {
+//     // Look for the line "<Player_Name> drew 7 cards for the opening hand."
+//     const match = curr.match(/(.*) drew 7 cards for the opening hand/);
+//     if (match) {
+//       const playerName = match[1].trim();
+//       if (!acc.includes(playerName)) {
+//         return [...acc, playerName]; // Add unique player names
+//       }
+//     }
+//     return acc;
+//   }, []);
+
+//   // Ensure we have exactly two players
+//   if (playerNames.length !== 2) throw Error(`Two players were not found in battle log. Found: ${playerNames}`);
+
+//   return playerNames;
+// }
+
 export function determineWinner(log: string[], language: Language): string {
   for (const line of log) {
     const winner = determineWinnerFromLine(line, language)
@@ -167,6 +186,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
   const players: BattleLogPlayer[] = playerNames.map((player) => ({
     name: player,
     deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player, language),
+    oppDeck: "",
     result: (winner === player) ? 'W' : 'L'
   }));
 
