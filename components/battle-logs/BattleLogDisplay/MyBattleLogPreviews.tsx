@@ -9,7 +9,7 @@ import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
 import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
-import { BattleLogsByMatchupPremium } from "../BattleLogGroups/BattleLogsByMatchupPremium";
+import { BattleLogsByMatchupPremium } from "../BattleLogGroups/BattleLogsByMatchup/BattleLogsByMatchupPremium";
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];

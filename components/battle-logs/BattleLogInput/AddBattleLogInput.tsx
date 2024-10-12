@@ -21,12 +21,12 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const handleAddButtonClick = async () => {
     try {
       parseBattleLog(log, '', '', '', null);
-    } catch {
+    } catch(error) {
       setLog('');
       return toast({
         variant: "destructive",
         title: "Your battle log was unable to be parsed.",
-        description: 'Please make sure you directly copy from TCG Live, then try again.'
+        description: `${error}`
       })
     }
 

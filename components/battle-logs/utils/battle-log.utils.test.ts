@@ -6,7 +6,15 @@ describe('battle log utils', () => {
       `Turn # 1 - comp0cker's Turn`,
       `Turn # 1 - millenniumfabi's Turn'`
     ];
-    expect(getPlayerNames(mockLog)).toEqual(['comp0cker', 'millenniumfabi'])
+    expect(getPlayerNames(mockLog, 'en')).toEqual(['comp0cker', 'millenniumfabi'])
+  });
+
+  it('should correctly extract player names in German', () => {
+    const mockLog = [
+      `Turn # 3 - Zug von comp0cker`,
+      `Turn # 3 - Zug von player`
+    ];
+    expect(getPlayerNames(mockLog, 'de')).toEqual(['comp0cker', 'player'])
   });
 
   describe('determineWinner', () => {
@@ -15,7 +23,7 @@ describe('battle log utils', () => {
         `Professor's Research was added to comp0cker's hand.`,
         `Knocked Out all your opponent's Pokémon in play and took all your Prize cards. comp0cker wins.`
       ];
-      expect(determineWinner(mockLog)).toBe('comp0cker');
+      expect(determineWinner(mockLog, 'en')).toBe('comp0cker');
     });
 
     it('should determine winner on concession', () => {
@@ -24,7 +32,7 @@ describe('battle log utils', () => {
         `- Aezart5 drew a card.`,
         `Opponent conceded. comp0cker wins.`
       ];
-      expect(determineWinner(mockLog)).toBe('comp0cker');
+      expect(determineWinner(mockLog, 'en')).toBe('comp0cker');
     })
 
     it('should determine winner for opponent', () => {
@@ -33,7 +41,7 @@ describe('battle log utils', () => {
         `- Aezart5 drew a card.`,
         `comp0cker conceded. Aezart5 wins.`
       ];
-      expect(determineWinner(mockLog)).toBe('Aezart5');
+      expect(determineWinner(mockLog, 'en')).toBe('Aezart5');
     })
   });
 });

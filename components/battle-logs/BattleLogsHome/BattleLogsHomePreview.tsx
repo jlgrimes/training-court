@@ -3,22 +3,23 @@ import { fetchBattleLogs } from "../utils/battle-log.server.utils";
 import { fetchUserData } from "@/components/user-data.utils";
 import { BattleLogsHomePreviewClient } from "./BattleLogsHomePreviewClient";
 import Link from "next/link";
+import { Database } from "@/database.types";
 
-export const BattleLogsHomePreview = async () => {
-  const user = await fetchCurrentUser();
+interface BattleLogsHomePreviewProps {
+  userData: Database['public']['Tables']['user data']['Row'] | null;
+}
 
-  // TODO: Update these to return something useful
-  if (!user) return null;
+export const BattleLogsHomePreview = async (props: BattleLogsHomePreviewProps) => {
+  if (!props.userData) return null;
 
-  const logData = await fetchBattleLogs(user.id);
-  let userData = await fetchUserData(user.id);
+  const logData = await fetchBattleLogs(props.userData.id);
 
-  return userData && logData && (
+  return logData && (
     <div className="flex flex-col gap-4">
       <Link href='/logs'>
         <h1 className="text-xl tracking-wide font-semibold text-slate-800">Logs</h1>
       </Link>
-      <BattleLogsHomePreviewClient userData={userData} battleLogs={logData} />
+      <BattleLogsHomePreviewClient userData={props.userData} battleLogs={logData} />
     </div>
   )
 }

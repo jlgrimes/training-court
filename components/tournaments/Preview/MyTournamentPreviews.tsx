@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { Database } from "@/database.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
+import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
+import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -15,13 +17,14 @@ interface MyTournamentPreviewsProps {
 export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const supabase = createClient();
   const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).returns<Database['public']['Tables']['tournaments']['Row'][]>();
+  const rounds = await fetchRoundsForUser(props.user?.id);
 
   if (tournamentData && tournamentData?.length === 0) {
     return (
       <Card className="border-none">
         <CardHeader className="px-2">
           <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
-          <CardDescription>Click Add Tournament to get started!</CardDescription>
+          <CardDescription>Click New Tournament to get started!</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -38,8 +41,8 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     </TabsList>
     <TabsContent value='all'>
       <div className="flex flex-col gap-2">
-        {tournamentData?.map((tournament) => (
-            <TournamentPreview tournament={tournament}/>
+        {tournamentData?.map((tournament) => rounds && (
+            <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}/>
         ))}
       </div>
     </TabsContent>
@@ -47,8 +50,8 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       <TabsContent value={cat}>
         <ScrollArea className="h-[36rem] pr-4">
           <div className="flex flex-col gap-2">
-            {tournamentData?.filter((tournament) => tournament.category === cat).map((tournament) => (
-              <TournamentPreview tournament={tournament} shouldHideCategoryBadge />
+            {tournamentData?.filter((tournament) => tournament.category === cat).map((tournament) => rounds && (
+              <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)} shouldHideCategoryBadge />
             ))}
           </div>
         </ScrollArea>

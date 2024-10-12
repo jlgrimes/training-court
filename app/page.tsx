@@ -61,7 +61,8 @@ export default async function Index() {
             }],
             date: '2024-09-06 21:12:35.529016+00',
             winner: 'jgrimesey',
-            sections: []
+            sections: [],
+            language: 'en'
           }} currentUserScreenName='jgrimesey' />
           <BattleLogPreview battleLog={{
             id: '',
@@ -76,7 +77,8 @@ export default async function Index() {
             }],
             date: '2024-09-06 21:12:35.529016+00',
             winner: 'flexdaddy',
-            sections: []
+            sections: [],
+            language: 'en'
           }} currentUserScreenName='jgrimesey' />
         </div>
       </div>

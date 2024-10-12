@@ -13,15 +13,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { BattleLogTurn } from "../utils/battle-log.types"
+import { BattleLog, BattleLogTurn } from "../utils/battle-log.types"
 import { cn } from "@/lib/utils";
+import { BattleLogDetectedStrings } from "@/lib/i18n/battle-log"
 
-export function BattleLogCarousel({ sections }: { sections: BattleLogTurn[] }) {
+interface BattleLogCarouselProps {
+  battleLog: BattleLog;
+}
+
+export function BattleLogCarousel(props: BattleLogCarouselProps) {
     
     function getCardBackgroundColor(index: number, section: BattleLogTurn): string | undefined {
-        if (index % 2 == 0 && !section.turnTitle.includes("Setup")) {
+        if (index % 2 == 0 && !section.turnTitle.includes(BattleLogDetectedStrings[props.battleLog.language].setup)) {
             return 'bg-blue-100';
-          } else if (index % 2 == 1 && !section.turnTitle.includes("Setup")) {
+          } else if (index % 2 == 1 && !section.turnTitle.includes(BattleLogDetectedStrings[props.battleLog.language].setup)) {
             return 'bg-red-100';
           }
           return 'bg-gray-100';
@@ -29,14 +34,14 @@ export function BattleLogCarousel({ sections }: { sections: BattleLogTurn[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-        {sections.map((section, index) => (
+        {props.battleLog.sections.map((section, index) => (
           <Card className={` ${getCardBackgroundColor(index, section)}`}>
             <CardHeader>
               <CardTitle>{section.turnTitle}</CardTitle>
               {index > 0 && (
                 <CardDescription>
                   {Object.entries(section.prizesAfterTurn).map(([playerName, prizesRemaining]) => {
-                    const previousPrizesOfThisPlayer = sections[index - 1].prizesAfterTurn[playerName];
+                    const previousPrizesOfThisPlayer = props.battleLog.sections[index - 1].prizesAfterTurn[playerName];
                     const prizesThisPlayerHasTaken = (index === 0) ? 0 : previousPrizesOfThisPlayer - section.prizesAfterTurn[playerName];
 
                     return (

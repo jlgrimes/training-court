@@ -1,3 +1,4 @@
+import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
 import { Database } from "@/database.types";
 import { format, parseISO } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -30,6 +31,8 @@ export const getRecord = (rounds: { result: string[] }[]) => {
   return `${record.wins}-${record.losses}-${record.ties}`;
 }
 
+export const getRecordFromLogs = (logs: BattleLog[]) => getRecord(logs.map((log) => ({ result: [log.players[0].result] })));
+
 export const convertGameResultsToRoundResult = (result: string[]) => {
   if (result.length === 1) return result[0];
   if ((result.length === 2) && (result[0] === result[1])) return result[0];
@@ -60,4 +63,8 @@ export const displayTournamentDateRange = (range: DateRange) => {
   }
   
   return `${format(fromDate, "LLLL d")}-${format(toDate, "LLLL d, yyyy")}`;
+}
+
+export const getTournamentRoundsFromUserRounds = (allRounds: Database['public']['Tables']['tournament rounds']['Row'][], tournament: Database['public']['Tables']['tournaments']['Row']) => {
+  return allRounds.filter((round) => round.tournament === tournament.id);
 }

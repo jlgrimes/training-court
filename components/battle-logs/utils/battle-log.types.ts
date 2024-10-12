@@ -1,4 +1,9 @@
+import { Language } from "@/lib/i18n/battle-log";
+
 export type RoundResult = 'W' | 'L' | 'T';
+export type TurnOrder = 'first' | 'second';
+
+export const AvailableTurnOrders: TurnOrder[] = ['first', 'second'];
 
 export interface BattleLogPlayer {
   name: string;
@@ -23,6 +28,7 @@ export interface BattleLogAction {
 }
 
 export interface BattleLog {
+  language: Language;
   id: string;
   players: BattleLogPlayer[];
   // When the battle took place
