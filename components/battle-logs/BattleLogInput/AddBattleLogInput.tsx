@@ -19,8 +19,9 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const { toast } = useToast();
 
   const handleAddButtonClick = async () => {
+    let parsedLog;
     try {
-      parseBattleLog(log, '', '', '', '', null);
+      parsedLog = parseBattleLog(log, '', '', '', '', null);
     } catch(error) {
       setLog('');
       return toast({
@@ -34,6 +35,8 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
+      archetype: parsedLog.players[0]?.deck ?? 'unknown',
+      opp_archetype: parsedLog.players[0]?.oppDeck ?? 'unknown',
       log: log
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 

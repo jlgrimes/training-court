@@ -43,11 +43,8 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
     }
   }, [gameResult])
 
-  //@TODO!!
   const formatDeckName = useCallback((deck?: string) => {
     if (!deck) return 'unknown';
-    // const formattedDeck = deck.replace(/-/g, ' ').split(',').map(capitalizeName);
-    // return formattedDeck.join(' / ');
     return capitalizeName(deck);
   }, []);
 
