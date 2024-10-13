@@ -179,8 +179,9 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
       : (determineArchetype(cleanedLog, playerNames[1], language) || ""),
   };
 
-  const players: BattleLogPlayer[] = playerNames.map((player) => {
+  const players: BattleLogPlayer[] = playerNames.map((player, index) => {
     const isCurrentUser = currentUserScreenName && player.toLowerCase() === currentUserScreenName.toLowerCase();
+    const opponentIndex = index === 0 ? 1 : 0;
 
     return {
       name: player,
@@ -188,8 +189,8 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
         ? user_entered_archetype 
         : determineArchetype(cleanedLog, player, language),
       oppDeck: isCurrentUser 
-        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[1 - playerNames.indexOf(player)], language)) 
-        : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[1 - playerNames.indexOf(player)], language)),
+        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)) 
+        : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)),
       result: winner === player ? 'W' : 'L',
     };
   });
