@@ -53,7 +53,7 @@ export default async function Index() {
             players: [{
               name: 'jgrimesey',
               deck: 'chien-pao',
-              oppDeck: 'charizard',
+              oppDeck: 'charizard,pidgeot',
               result: 'W'
             }, {
               name: 'flexdaddy',
