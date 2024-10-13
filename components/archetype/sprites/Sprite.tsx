@@ -14,9 +14,13 @@ interface SpriteProps {
 }
 
 export const Sprite = (props: SpriteProps) => {
-  const nameSplit = props.name ? props.name.replace(/[/,]/g, ',').trim().split('/').map((word) => word.toLowerCase().replace(" ", "-")) : null;
+  const nameSplit = useMemo(() => {
+    // this code 're-normalizes' the deck name to lowercase and with appropriate dashes for hyphenated Pokemon.
+    // It's necessary for legacy implementation. 10/12/2024
+    return props.name ? uncapitalizeName(props.name).split(',').map((name) => name.trim()) : ['null'];
+  }, [props.name]);
 
-  return nameSplit ? (
+  return (
     <div className={cn(
       "flex items-center",
       props.shouldSmush ? 'flex-col xl:flex-row xl:gap-1' : 'gap-1'
@@ -25,5 +29,5 @@ export const Sprite = (props: SpriteProps) => {
         <SpriteFromUrl key={index + name} url={pkmnToImgSrc(name)} />
       ))}
     </div>
-  ) : <SpriteFromUrl url={undefined} />;
-}
+  );
+};
