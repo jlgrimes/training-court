@@ -59,7 +59,7 @@ describe('battle log utils', () => {
       expect(parsedLog.players).toHaveLength(2);
       expect(parsedLog.players[0].name).toBe('Bassoonboy135');
       expect(parsedLog.players[1].name).toBe('player2');
-      expect(parsedLog.sections).toHaveLength(3); // Setup, player 1 drew 7 for opening hand, player 2 drew 7 for opening hand
+      expect(parsedLog.sections).toHaveLength(2); // Setup, Bassoonboy135's turn, donk before player 2's turn.
     })
   })
 
@@ -72,7 +72,7 @@ describe('battle log utils', () => {
       expect(parsedLog.players).toHaveLength(2);
       expect(parsedLog.players[0].name).toBe('player1');
       expect(parsedLog.players[1].name).toBe('player2');
-      expect(parsedLog.sections).toHaveLength(3); // Setup, player 1 drew 7 for opening hand, player 2 drew 7 for opening hand
+      expect(parsedLog.sections).toHaveLength(11); // Full game
     })
   })
 
@@ -85,7 +85,7 @@ describe('battle log utils', () => {
       expect(parsedLog.players).toHaveLength(2);
       expect(parsedLog.players[0].name).toBe('jugador1');
       expect(parsedLog.players[1].name).toBe('jugador2');
-      expect(parsedLog.sections).toHaveLength(3); // Setup, player 1 drew 7 for opening hand, player 2 drew 7 for opening hand
+      expect(parsedLog.sections).toHaveLength(9); // Full game
     })
   })
 });

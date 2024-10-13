@@ -1,4 +1,4 @@
-import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromTurnLine, getPrizesTakenFromLine, Language } from "@/lib/i18n/battle-log";
+import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromSetup, getPlayerNameFromTurnLine, getPrizesTakenFromLine, Language } from "@/lib/i18n/battle-log";
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 
@@ -11,7 +11,7 @@ export function trimBattleLog(log: string): string[] {
 
 export function getPlayerNames(log: string[], language: Language): string[] {
   const playerNames = log.reduce((acc: string[], curr: string) => {
-    const playerName = getPlayerNameFromTurnLine(curr, language);
+    const playerName = getPlayerNameFromSetup(curr, language);
     
     if (playerName && !acc.includes(playerName)) {
       return [...acc, playerName];

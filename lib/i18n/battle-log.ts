@@ -68,7 +68,7 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
   }
 };
 
-export const getPlayerNameFromTurnLine = (line: string, language: Language): string | null => {
+export const getPlayerNameFromSetup = (line: string, language: Language): string | null => {
   // First, check for turn lines based on the language
   if (language === 'en') {   
     const drawMatch = /(.*) drew 7 cards for the opening hand/g.exec(line);
@@ -93,6 +93,26 @@ export const getPlayerNameFromTurnLine = (line: string, language: Language): str
 
   return null;
 };
+
+export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
+  if (language === 'en') {
+    return /- (.*)'s Turn/g.exec(line)?.[1]
+  }
+
+  if (language === 'es') {
+    return / - Turno de (.*)/g.exec(line)?.[1];
+  }
+
+  if (language === 'de') {
+    return / - Zug von (.*)/g.exec(line)?.[1];
+  }
+
+  if (language === 'it') {
+    return / - Turno di (.*)/g.exec(line)?.[1];
+  }
+
+  return null;
+}
 
 export const determineWinnerFromLine = (line: string, language: Language) => {
   switch (language) {
