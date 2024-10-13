@@ -22,6 +22,8 @@ interface BattleLogsByDeckProps {
   isEditing: boolean;
 }
 
+// @TODO: This is broken but should follow similar pattern to Day / Deck / All
+// Remember, opp_archetype is a field now :) 
 export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
   const battleLogsByDeck = useMemo(() => groupBattleLogIntoDecksAndMatchups(props.battleLogs), [props.battleLogs]);
 

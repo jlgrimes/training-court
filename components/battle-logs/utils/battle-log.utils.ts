@@ -179,23 +179,6 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
       : (determineArchetype(cleanedLog, playerNames[1], language) || ""),
   };
 
-  // const players: BattleLogPlayer[] = playerNames.map((player) => ({
-  //   name: player,
-  //   deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player, language),
-  //   oppDeck: "",
-  //   result: (winner === player) ? 'W' : 'L'
-  // }));
-
-  // const players: BattleLogPlayer[] = playerNames.map((player, index) => {
-  //   const opponent = playerNames[1 - index];
-  //   return {
-  //     name: player,
-  //     deck: playerDecks[player],
-  //     oppDeck: playerDecks[opponent],
-  //     result: winner === player ? 'W' : 'L',
-  //   };
-  // });
-
   const players: BattleLogPlayer[] = playerNames.map((player) => {
     const isCurrentUser = currentUserScreenName && player.toLowerCase() === currentUserScreenName.toLowerCase();
 
@@ -224,5 +207,5 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
 }
 
 export const capitalizeName = (name: string) => {
-  return name.split(' ').map((word) => `${word[0].toUpperCase()}${word.slice(1)}`).join(' ');
-}
+  return name.split(',').map((word) => word.split('-').map((part) => `${part[0].toUpperCase()}${part.slice(1)}`).join(' ')).join(' / ');
+};
