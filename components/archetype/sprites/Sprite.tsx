@@ -4,6 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../ui/hover-ca
 import { SpriteFromUrl } from "./SpriteFromUrl";
 import { pkmnToImgSrc } from "./sprites.utils";
 import { useMemo } from "react";
+import { uncapitalizeName } from "@/components/battle-logs/utils/battle-log.utils";
 
 interface SpriteProps {
   name: string | null | undefined;
@@ -13,15 +14,7 @@ interface SpriteProps {
 }
 
 export const Sprite = (props: SpriteProps) => {
-  const nameSplit = useMemo(() => props.name?.split(','), [props.name]);
-
-  // if (props.name == 'NULL' || props.name == 'null') {
-  //   return (
-  //     <div className={cn("flex items-center justify-center", props.small ? "w-6 h-6" : "w-10 h-10")}>
-  //       <HelpCircle className="text-gray-500" />
-  //     </div>
-  //   );
-  // }
+  const nameSplit = props.name ? props.name.replace(/[/,]/g, ',').trim().split('/').map((word) => word.toLowerCase().replace(" ", "-")) : null;
 
   return nameSplit ? (
     <div className={cn(
