@@ -59,7 +59,9 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-5 ml-4">
-            <CardTitle>{`${formatDeckName(props.battleLog.players[0].deck)} vs ${formatDeckName(props.battleLog.players[0].oppDeck)}`}</CardTitle>
+            <CardTitle>
+              {`${formatDeckName(props.battleLog.players[0].deck)} vs ${props.battleLog.players[0].oppDeck ? formatDeckName(props.battleLog.players[0].oppDeck) : formatDeckName(props.battleLog.players[1].deck)}`}
+            </CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
           </div>
           <div />
@@ -81,14 +83,14 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-4 ml-4">
-            <CardTitle>{`${gameResultAsText} vs ${formatDeckName(props.battleLog.players[0].oppDeck)}`}</CardTitle>
+            <CardTitle>{`${gameResultAsText} vs ${props.battleLog.players[0].oppDeck ? formatDeckName(props.battleLog.players[0].oppDeck) : formatDeckName(props.battleLog.players[1].deck)}`}</CardTitle>
             <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
           </div>
           <div className="text-right">
             <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
           </div>
           <div />
-          <Sprite name={props.battleLog.players[0].oppDeck} shouldSmush={true} />
+          <Sprite name={`${props.battleLog.players[0].oppDeck ? formatDeckName(props.battleLog.players[0].oppDeck) : formatDeckName(props.battleLog.players[1].deck)}`} shouldSmush={true} />
         </SmallCardHeader>
       </Card>
     </Link>
