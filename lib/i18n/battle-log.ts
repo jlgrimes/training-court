@@ -68,25 +68,31 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
   }
 };
 
-export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
-  if (language === 'en') {
-    return /- (.*)'s Turn/g.exec(line)?.[1]
+export const getPlayerNameFromTurnLine = (line: string, language: Language): string | null => {
+  // First, check for turn lines based on the language
+  if (language === 'en') {   
+    const drawMatch = /(.*) drew 7 cards for the opening hand/g.exec(line);
+    if (drawMatch) return drawMatch[1];
   }
 
   if (language === 'es') {
-    return / - Turno de (.*)/g.exec(line)?.[1];
+    const drawMatch = /(.*) robó 7 cartas de la mano inicial/g.exec(line);
+    if (drawMatch) return drawMatch[1];
   }
 
   if (language === 'de') {
-    return / - Zug von (.*)/g.exec(line)?.[1];
+    const drawMatch = /(.*) hat für die Starthand 7 Karten gezogen/g.exec(line);
+    if (drawMatch) return drawMatch[1];
   }
 
   if (language === 'it') {
-    return / - Turno di (.*)/g.exec(line)?.[1];
+    //@TODO: We don't have an italian log in supabase.
+    const drawMatch = /(.*) ha pescato 7 carte per la mano iniziale/g.exec(line);
+    if (drawMatch) return drawMatch[1];
   }
 
   return null;
-}
+};
 
 export const determineWinnerFromLine = (line: string, language: Language) => {
   switch (language) {
@@ -109,7 +115,7 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
       if (line.includes('took a Prize card')) return 1;
       return parseInt(line.match(/took ([0-9])/g)?.[0].split(' ')[1] ?? '0');
     case 'es':
-      // if (line.includes('took a Prize card')) return 1;
+      if (line.includes('tomó una carta de Premio')) return 1;
       return parseInt(line.match(/tomó ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     case 'de':
       if (line.includes('hat eine Preiskarten aufgenommen')) return 1;

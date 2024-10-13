@@ -1,20 +1,25 @@
-import { determineWinner, getPlayerNames, parseBattleLog } from "./battle-log.utils";
+import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "./battle-log.utils";
+import { battleLogGerman } from "./testing-files/battleLogGerman";
+import { battleLogNoPlayer2Turn } from "./testing-files/battleLogNoPlayer2Turn";
+import { battleLogSpanish } from "./testing-files/battleLogSpanish";
 
 describe('battle log utils', () => {
   it('should correctly extract player names', () => {
     const mockLog = [
-      `Turn # 1 - comp0cker's Turn`,
-      `Turn # 1 - millenniumfabi's Turn'`
+      `Bassoonboy135 drew 7 cards for the opening hand. - 7 drawn cards.`,
+      `player2 drew 7 cards for the opening hand. - 7 drawn cards.`
     ];
-    expect(getPlayerNames(mockLog, 'en')).toEqual(['comp0cker', 'millenniumfabi'])
+    expect(getPlayerNames(mockLog, 'en')).toEqual(['Bassoonboy135', 'player2'])
   });
 
-  it('should correctly extract player names in German', () => {
-    const mockLog = [
-      `Turn # 3 - Zug von comp0cker`,
-      `Turn # 3 - Zug von player`
-    ];
-    expect(getPlayerNames(mockLog, 'de')).toEqual(['comp0cker', 'player'])
+  it('should correctly extract player names in Spanish from complete log', () => {
+    const mockLog = trimBattleLog(battleLogSpanish);
+    expect(getPlayerNames(mockLog, 'es')).toEqual(['jugador1', 'jugador2'])
+  });
+
+  it('should correctly extract player names in German from complete log', () => {
+    const mockLog = trimBattleLog(battleLogGerman);
+    expect(getPlayerNames(mockLog, 'de')).toEqual(['player1', 'player2'])
   });
 
   describe('determineWinner', () => {
@@ -43,51 +48,44 @@ describe('battle log utils', () => {
       ];
       expect(determineWinner(mockLog, 'en')).toBe('Aezart5');
     })
-
-
-    
   });
 
-  // describe('parseBattleLog', () => {
-  //   it('should correctly parse a detailed battle log', () => {
-  //     const battleLog = `Setup
-  //     Bassoonboy135 chose tails for the opening coin flip.
-  //     Sadfjan_Stevens won the coin toss.
-  //     Sadfjan_Stevens decided to go first.
-  //     Bassoonboy135 drew 7 cards for the opening hand. - 7 drawn cards.
-  //     • Luxray V, Rare Candy, Mimikyu, Night Stretcher, Eri, Penny, Xerosic's Machinations
-  //     Sadfjan_Stevens drew 7 cards for the opening hand. - 7 drawn cards.
-  //     Bassoonboy135 played Mimikyu to the Active Spot.
-  //     Sadfjan_Stevens played Brute Bonnet to the Active Spot.
-  //     Turn # 1 - Sadfjan_Stevens's Turn
-  //     Sadfjan_Stevens drew a card.
-  //     Sadfjan_Stevens played Artazon to the Stadium spot.
-  //     Sadfjan_Stevens played Artazon.
-  //     - Sadfjan_Stevens drew Pecharunt and played it to the Bench.
-  //     - Sadfjan_Stevens shuffled their deck.
-  //     Sadfjan_Stevens attached Ancient Booster Energy Capsule to Brute Bonnet in the Active Spot.
-  //     Sadfjan_Stevens's Brute Bonnet used Toxic Powder.
-  //     - Bassoonboy135's Mimikyu is now Poisoned.
-  //     Sadfjan_Stevens played Nest Ball.
-  //     - Sadfjan_Stevens drew Radiant Hisuian Sneasler and played it to the Bench.
-  //     - Sadfjan_Stevens shuffled their deck.
-  //     Sadfjan_Stevens attached Jet Energy to Pecharunt on the Bench. Jet Energy was activated.
-  //     - Sadfjan_Stevens's Pecharunt was switched with Sadfjan_Stevens's Brute Bonnet to become the Active Pokémon.
-  //     Sadfjan_Stevens's Pecharunt is now in the Active Spot.
-  //     Sadfjan_Stevens ended their turn.
-  //     Pokémon Checkup
-  //     8 damage counters were placed on Bassoonboy135's Mimikyu for the Special Condition Poisoned.
-  //     Bassoonboy135's Mimikyu was Knocked Out!
-  //     Sadfjan_Stevens took a Prize card. A card was added to Sadfjan_Stevens's hand.
-  //     Knocked Out with no Benched Pokémon. Sadfjan_Stevens wins.`;
+  describe('parseBattleLog', () => {
+    it('should correctly parse a detailed battle log', () => {
+      const battleLog = battleLogNoPlayer2Turn;
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null);
 
-  //     const parsedLog = parseBattleLog(battleLog, 'logId', '2024-10-10', null, null);
-      
-  //     expect(parsedLog.winner).toBe('Sadfjan_Stevens');
-  //     expect(parsedLog.players).toHaveLength(2);
-  //     expect(parsedLog.players[0].name).toBe('Bassoonboy135');
-  //     expect(parsedLog.players[1].name).toBe('Sadfjan_Stevens');
-  //     expect(parsedLog.sections).toHaveLength(3); // Setup, Turn #1, Pokémon Checkup
-  //   })
-  // })
+      expect(parsedLog.winner).toBe('player2');
+      expect(parsedLog.players).toHaveLength(2);
+      expect(parsedLog.players[0].name).toBe('Bassoonboy135');
+      expect(parsedLog.players[1].name).toBe('player2');
+      expect(parsedLog.sections).toHaveLength(3); // Setup, player 1 drew 7 for opening hand, player 2 drew 7 for opening hand
+    })
+  })
+
+  describe('parseBattleLog', () => {
+    it('should correctly parse a detailed battle log in German', () => {
+      const battleLog = battleLogGerman;
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null);
+
+      expect(parsedLog.winner).toBe('player2');
+      expect(parsedLog.players).toHaveLength(2);
+      expect(parsedLog.players[0].name).toBe('player1');
+      expect(parsedLog.players[1].name).toBe('player2');
+      expect(parsedLog.sections).toHaveLength(3); // Setup, player 1 drew 7 for opening hand, player 2 drew 7 for opening hand
+    })
+  })
+
+  describe('parseBattleLog', () => {
+    it('should correctly parse a detailed battle log in Spanish', () => {
+      const battleLog = battleLogSpanish;
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null);
+
+      expect(parsedLog.winner).toBe('jugador1');
+      expect(parsedLog.players).toHaveLength(2);
+      expect(parsedLog.players[0].name).toBe('jugador1');
+      expect(parsedLog.players[1].name).toBe('jugador2');
+      expect(parsedLog.sections).toHaveLength(3); // Setup, player 1 drew 7 for opening hand, player 2 drew 7 for opening hand
+    })
+  })
 });

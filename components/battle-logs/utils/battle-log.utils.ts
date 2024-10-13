@@ -2,7 +2,7 @@ import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromL
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 
-function trimBattleLog(log: string): string[] {
+export function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
     if (curr.length === 0 || curr === '\n' || curr.includes('shuffled their deck.')) return acc;
     return [...acc, curr];
@@ -11,39 +11,19 @@ function trimBattleLog(log: string): string[] {
 
 export function getPlayerNames(log: string[], language: Language): string[] {
   const playerNames = log.reduce((acc: string[], curr: string) => {
-    if (!curr.toLowerCase().includes(BattleLogDetectedStrings[language].turn_indicator.toLowerCase())) return acc;
-    if (acc.some((player) => curr.includes(player))) return acc;
-
-    const name = getPlayerNameFromTurnLine(curr, language);
-
-    if (!name) throw Error('Name not found in correct log line');
-
-    return [...acc, name]
+    const playerName = getPlayerNameFromTurnLine(curr, language);
+    
+    if (playerName && !acc.includes(playerName)) {
+      return [...acc, playerName];
+    }
+    
+    return acc;
   }, []);
 
-  if (playerNames.length !== 2) throw Error('Not two players found in battle log.');
+  if (playerNames.length !== 2) throw Error(`Two players were not found in the battle log. Found: ${playerNames}`);
 
   return playerNames;
 }
-
-// export function getPlayerNames(log: string[], language: Language): string[] {
-//   const playerNames = log.reduce((acc: string[], curr: string) => {
-//     // Look for the line "<Player_Name> drew 7 cards for the opening hand."
-//     const match = curr.match(/(.*) drew 7 cards for the opening hand/);
-//     if (match) {
-//       const playerName = match[1].trim();
-//       if (!acc.includes(playerName)) {
-//         return [...acc, playerName]; // Add unique player names
-//       }
-//     }
-//     return acc;
-//   }, []);
-
-//   // Ensure we have exactly two players
-//   if (playerNames.length !== 2) throw Error(`Two players were not found in battle log. Found: ${playerNames}`);
-
-//   return playerNames;
-// }
 
 export function determineWinner(log: string[], language: Language): string {
   for (const line of log) {
@@ -77,7 +57,12 @@ function getTurnActions (turnLines: string[]) {
 
   for (const line of turnLines) {
     if (line.trim()[0] === '-' || line.trim()[0] === '•' || textThatIndicatesSubaction.some((text) => line.includes(text))) {
-      actions[actions.length - 1].details.push(line);
+      if (actions.length > 0) {
+        actions[actions.length - 1].details.push(line);
+      } else {
+        // Will throw warn on mulligans..
+        console.warn('Subaction found but no main action to attach it to:', line);
+      }
     } else {
       actions.push({
         title: line,
