@@ -53,12 +53,12 @@ export default async function Index() {
             players: [{
               name: 'jgrimesey',
               deck: 'chien-pao',
-              oppDeck: '',
+              oppDeck: 'charizard',
               result: 'W'
             }, {
               name: 'flexdaddy',
               deck: 'charizard',
-              oppDeck: '',
+              oppDeck: 'chien-pao',
               result: 'L'
             }],
             date: '2024-09-06 21:12:35.529016+00',
@@ -71,12 +71,12 @@ export default async function Index() {
             players: [{
               name: 'jgrimesey',
               deck: 'chien-pao',
-              oppDeck: '',
+              oppDeck: 'regidrago',
               result: 'L'
             }, {
               name: 'flexdaddy',
               deck: 'regidrago',
-              oppDeck: '',
+              oppDeck: 'chien-pao',
               result: 'W'
             }],
             date: '2024-09-06 21:12:35.529016+00',
