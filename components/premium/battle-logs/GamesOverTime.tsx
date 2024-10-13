@@ -46,7 +46,7 @@ interface GamesOverTimeProps {
 }
 
 export function GamesOverTime(props: GamesOverTimeProps) {
-  const parsedBattleLogs = props.logs.map((log) => parseBattleLog(log.log, log.id, log.created_at, log.archetype, props.currentUserScreenName));
+  const parsedBattleLogs = props.logs.map((log) => parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, props.currentUserScreenName));
   const battleLogsByDayList = getBattleLogsByDayList(groupBattleLogIntoDays(parsedBattleLogs));
   const logsByDay = battleLogsByDayList.reverse().filter(([_, logs]) => isWithinInterval(logs[0].date, { start: subWeeks(new Date(), 1), end: new Date() }));
   const data = logsByDay.map(([date, battleLogs]) => {

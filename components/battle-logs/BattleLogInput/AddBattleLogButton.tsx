@@ -29,7 +29,7 @@ export const AddBattleLogButton = (props: AddBattleLogInputProps) => {
     }
 
     try {
-      parseBattleLog(log, '', '', '', null);
+      parseBattleLog(log, '', '', '', '', null);
     } catch {
       return toast({
         variant: "destructive",

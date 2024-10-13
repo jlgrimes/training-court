@@ -155,7 +155,7 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
   return false;
 };
 
-export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, currentUserScreenName: string | null) {
+export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, opp_archetype: string | null, currentUserScreenName: string | null) {
   const language = detectBattleLogLanguage(log);
 
   if (!language) throw 'Language not supported. Please DM @training_court on X with your battle log so we can add your language!';
@@ -168,12 +168,48 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
   }
 
   const winner = determineWinner(cleanedLog, language);
-  const players: BattleLogPlayer[] = playerNames.map((player) => ({
-    name: player,
-    deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player, language),
-    oppDeck: "",
-    result: (winner === player) ? 'W' : 'L'
-  }));
+
+  const playerDecks: { [key: string]: string } = {
+    [playerNames[0]]: (currentUserScreenName && playerNames[0].toLowerCase() === currentUserScreenName.toLowerCase()) 
+      ? (user_entered_archetype || determineArchetype(cleanedLog, playerNames[0], language) || "")
+      : (determineArchetype(cleanedLog, playerNames[0], language) || ""),
+      
+    [playerNames[1]]: (currentUserScreenName && playerNames[1].toLowerCase() === currentUserScreenName.toLowerCase()) 
+      ? (opp_archetype || determineArchetype(cleanedLog, playerNames[1], language) || "")
+      : (determineArchetype(cleanedLog, playerNames[1], language) || ""),
+  };
+
+  // const players: BattleLogPlayer[] = playerNames.map((player) => ({
+  //   name: player,
+  //   deck: (currentUserScreenName && (player.toLowerCase() === currentUserScreenName?.toLowerCase()) && user_entered_archetype) ? user_entered_archetype : determineArchetype(cleanedLog, player, language),
+  //   oppDeck: "",
+  //   result: (winner === player) ? 'W' : 'L'
+  // }));
+
+  // const players: BattleLogPlayer[] = playerNames.map((player, index) => {
+  //   const opponent = playerNames[1 - index];
+  //   return {
+  //     name: player,
+  //     deck: playerDecks[player],
+  //     oppDeck: playerDecks[opponent],
+  //     result: winner === player ? 'W' : 'L',
+  //   };
+  // });
+
+  const players: BattleLogPlayer[] = playerNames.map((player) => {
+    const isCurrentUser = currentUserScreenName && player.toLowerCase() === currentUserScreenName.toLowerCase();
+
+    return {
+      name: player,
+      deck: isCurrentUser && user_entered_archetype 
+        ? user_entered_archetype 
+        : determineArchetype(cleanedLog, player, language),
+      oppDeck: isCurrentUser 
+        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[1 - playerNames.indexOf(player)], language)) 
+        : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[1 - playerNames.indexOf(player)], language)),
+      result: winner === player ? 'W' : 'L',
+    };
+  });
 
   const battleLog: BattleLog = {
     id,

@@ -53,7 +53,7 @@ describe('battle log utils', () => {
   describe('parseBattleLog', () => {
     it('should correctly parse a detailed battle log', () => {
       const battleLog = battleLogNoPlayer2Turn;
-      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null);
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null, null);
 
       expect(parsedLog.winner).toBe('player2');
       expect(parsedLog.players).toHaveLength(2);
@@ -66,7 +66,7 @@ describe('battle log utils', () => {
   describe('parseBattleLog', () => {
     it('should correctly parse a detailed battle log in German', () => {
       const battleLog = battleLogGerman;
-      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null);
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null, null);
 
       expect(parsedLog.winner).toBe('player2');
       expect(parsedLog.players).toHaveLength(2);
@@ -79,7 +79,7 @@ describe('battle log utils', () => {
   describe('parseBattleLog', () => {
     it('should correctly parse a detailed battle log in Spanish', () => {
       const battleLog = battleLogSpanish;
-      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null);
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null, null);
 
       expect(parsedLog.winner).toBe('jugador1');
       expect(parsedLog.players).toHaveLength(2);
