@@ -148,6 +148,7 @@ export type Database = {
         }
         Insert: {
           archetype?: string | null
+          opp_archetype?: string | null
           created_at?: string
           id?: string
           log: string
@@ -156,6 +157,7 @@ export type Database = {
         }
         Update: {
           archetype?: string | null
+          opp_archetype?: string | null
           created_at?: string
           id?: string
           log?: string
