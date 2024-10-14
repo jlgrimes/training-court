@@ -33,10 +33,18 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const supabase = createClient();
 
+    //TODO: Check logic if user doesn't input a live username..
+    const currentPlayer = parsedLog.players.find(
+      (player) => player.name.toLowerCase() === props.userData?.live_screen_name?.toLowerCase()
+    );
+    const opponentPlayer = parsedLog.players.find(
+      (player) => player.name.toLowerCase() !== props.userData?.live_screen_name?.toLowerCase()
+    );
+
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
-      archetype: parsedLog.players[0]?.deck ?? 'unknown',
-      opp_archetype: parsedLog.players[0]?.oppDeck ?? 'unknown',
+      archetype: currentPlayer?.deck ?? 'unknown',
+      opp_archetype: opponentPlayer?.deck ?? 'unknown',
       log: log
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
