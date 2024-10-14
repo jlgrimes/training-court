@@ -57,7 +57,7 @@ export const groupBattleLogIntoDecks = (battleLogs: BattleLog[]): Record<string,
 export const groupBattleLogIntoDecksAndMatchups = (battleLogs: BattleLog[]): Record<string, Record<string, BattleLog[]>> => {
   return battleLogs.reduce((acc: Record<string, Record<string, BattleLog[]>>, curr: BattleLog) => {
     const myDeck = curr.players[0].deck;
-    const oppDeck = curr.players[1].deck ?? '_unknown';
+    const oppDeck = curr.players[1].deck ?? 'unknown';
 
     if (!myDeck) return acc;
 
