@@ -34,7 +34,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
 
   const ifChangesWereMade: boolean = useMemo(() => {
     return (props.existingRound?.deck !== deck) || (props.existingRound?.result.join() !== result.join()) || (props.existingRound.match_end_reason !== immediateMatchEnd) ||((props.existingRound?.turn_orders?.join() ?? '') !== turnOrders.join());
-  }, [props.existingRound, deck, result, immediateMatchEnd]);
+  }, [props.existingRound, deck, result, immediateMatchEnd, turnOrders]);
 
   useEffect(() => {
     if (immediateMatchEnd === MATCH_END_REASONS.ID) {
