@@ -11,6 +11,7 @@ import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/constants";
+import { Label } from "@/components/ui/label";
 
 export interface TournamentRoundEditProps {
   editing: boolean;
@@ -102,27 +103,36 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       <CardHeader>
         <CardTitle className="my-2 flex justify-between items-center">
           <span>Round {props.editedRoundNumber}</span>
-          <ToggleGroup type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
-              if (value === '') return setImmediateMatchEnd(null);
-              setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
-            }}>
-            <ToggleGroupItem value={MATCH_END_REASONS.ID}>
-              <HandshakeIcon className="mr-1 h-4 w-4" />
-              {MATCH_END_REASONS.ID}
-            </ToggleGroupItem>
-            <ToggleGroupItem value={MATCH_END_REASONS.NO_SHOW}>
-              <GhostIcon className="mr-1 h-4 w-4" />
-              {MATCH_END_REASONS.NO_SHOW}
-            </ToggleGroupItem>
-            <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
-              <HandIcon className="mr-1 h-4 w-4" />
-              {MATCH_END_REASONS.BYE}
-            </ToggleGroupItem>
-          </ToggleGroup>
         </CardTitle>
-        <div className="flex flex-col w-full gap-2">
-          <AddArchetype archetype={deck} setArchetype={setDeck} isDisabled={immediateMatchEnd !== null} />
-          <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
+        <div className="flex flex-col w-full gap-4">
+          <div className="flex flex-col w-full gap-2">
+            <Label>Opponent's deck</Label>
+            <AddArchetype archetype={deck} setArchetype={setDeck} isDisabled={immediateMatchEnd !== null} />
+          </div>
+          <div className="flex flex-col w-full gap-2">
+            <Label>Game results</Label>
+            <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
+          </div>
+          <div className="flex flex-col w-full gap-2">
+            <Label>Other outcome</Label>
+            <ToggleGroup className="justify-start" type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
+                if (value === '') return setImmediateMatchEnd(null);
+                setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
+              }}>
+              <ToggleGroupItem value={MATCH_END_REASONS.ID}>
+                <HandshakeIcon className="mr-1 h-4 w-4" />
+                {MATCH_END_REASONS.ID}
+              </ToggleGroupItem>
+              <ToggleGroupItem value={MATCH_END_REASONS.NO_SHOW}>
+                <GhostIcon className="mr-1 h-4 w-4" />
+                {MATCH_END_REASONS.NO_SHOW}
+              </ToggleGroupItem>
+              <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
+                <HandIcon className="mr-1 h-4 w-4" />
+                {MATCH_END_REASONS.BYE}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={(!ifChangesWereMade || ((immediateMatchEnd === null) && (!deck || (result.length === 0))))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
             <Button variant='secondary' onClick={() => props.setEditing(false)}>Cancel</Button>
