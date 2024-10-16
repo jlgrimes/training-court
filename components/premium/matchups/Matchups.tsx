@@ -19,6 +19,7 @@ import { WinRatePercentDeltaIcon } from "./WinRatePercentDeltaIcon";
 import { MatchupProps } from "./Matchups.types";
 import { generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalWinRate } from "./Matchups.utils";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 
 export const Matchups = (props: MatchupProps) => {
@@ -38,7 +39,10 @@ export const Matchups = (props: MatchupProps) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
+      <div className="flex justify-between items-center">
+        <Label>Should drilldown decks</Label>
+        <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
+      </div>
       <Accordion type="single" collapsible className="flex flex-col" defaultValue={Object.keys(renderedMatchups)[0]}>
         {Object.entries(renderedMatchups).map(([deck, deckMatchup]) => {
           const winRateOfDeck = getTotalWinRate(deckMatchup);
