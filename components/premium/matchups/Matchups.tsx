@@ -5,32 +5,24 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AvailableTurnOrders, BattleLog } from "../../utils/battle-log.types"
-import { filterGamesWithTurnOrder, getWinRate, groupBattleLogIntoDecks, groupBattleLogIntoDecksAndMatchups } from "../battle-log-groups.utils";
+import { AvailableTurnOrders, BattleLog } from "../../battle-logs/utils/battle-log.types"
+import { filterGamesWithTurnOrder, getWinRate, groupBattleLogIntoDecks, groupBattleLogIntoDecksAndMatchups } from "../../battle-logs/BattleLogGroups/battle-log-groups.utils";
 import { Database } from "@/database.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { getRecord, getRecordFromLogs } from "@/components/tournaments/utils/tournaments.utils";
-import { capitalizeName } from "../../utils/battle-log.utils";
+import { capitalizeName } from "../../battle-logs/utils/battle-log.utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { EditableBattleLogPreview } from "../../BattleLogDisplay/EditableBattleLogPreview";
-import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+
 import { WinRatePercentDeltaIcon } from "./WinRatePercentDeltaIcon";
+import { MatchupProps } from "./Matchups.types";
+import { getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalWinRate } from "./Matchups.utils";
 
-interface BattleLogsByDeckProps {
-  battleLogs: BattleLog[];
-  userData: Database['public']['Tables']['user data']['Row'];
-  isEditing: boolean;
-}
 
-// @TODO: This is broken but should follow similar pattern to Day / Deck / All
-// Remember, opp_archetype is a field now :) 
-export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
-  const battleLogsByDeck = useMemo(() => groupBattleLogIntoDecksAndMatchups(props.battleLogs), [props.battleLogs]);
-
+export const Matchups = (props: MatchupProps) => {
   return (
-    <Accordion type="single" collapsible className="flex flex-col" defaultValue={Object.keys(battleLogsByDeck)[0]}>
-      {Object.entries(battleLogsByDeck).map(([deck, logsByMatchup]) => {
-        const winRateOfDeck = getWinRate(Object.values(logsByMatchup).reduce((acc, curr) => [...acc, ...curr], []));
+    <Accordion type="single" collapsible className="flex flex-col" defaultValue={Object.keys(props.matchups)[0]}>
+      {Object.entries(props.matchups).map(([deck, deckMatchup]) => {
+        const winRateOfDeck = getTotalWinRate(deckMatchup);
 
         return (
           <AccordionItem value={deck}>
@@ -49,8 +41,8 @@ export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
                 <Card>
                 <CardHeader>
                 {
-                  Object.entries(logsByMatchup).sort((a, b) => b[1].length - a[1].length).map(([matchupDeck, logs]) => {
-                    const winRateAgainstDeck = getWinRate(logs);
+                  Object.entries(deckMatchup).sort((a, b) => getResultsLength(b[1].total) - getResultsLength(a[1].total)).map(([matchupDeck, result]) => {
+                    const winRateAgainstDeck = getMatchupWinRate(result.total);
 
                     return (
                       <div className="grid grid-cols-6 w-full items-center">
@@ -63,11 +55,11 @@ export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
                           </CardTitle>
                           <div />
                           <CardDescription>
-                            {getRecordFromLogs(logs)}
+                            {getMatchupRecord(result.total)}
                           </CardDescription>
                         {AvailableTurnOrders.map((turnOrder) => {
-                          const filteredLogs = filterGamesWithTurnOrder(logs, turnOrder);
-                          const winRateAgainstDeckWithTurnOrder = getWinRate(filteredLogs);
+                          const results = turnOrder === 'first' ? result.goingFirst : result.goingSecond;
+                          const winRateAgainstDeckWithTurnOrder = getMatchupWinRate(results);
                           return (
                             <>
                               <div />
@@ -79,7 +71,7 @@ export const BattleLogsByMatchupPremium = (props: BattleLogsByDeckProps) => {
                                 </CardDescription>
                                 <WinRatePercentDeltaIcon initialWinRate={winRateAgainstDeck} modifiedWinRate={winRateAgainstDeckWithTurnOrder} />
                               <CardDescription>
-                                {getRecordFromLogs(filteredLogs)}
+                                {getMatchupRecord(results)}
                               </CardDescription>
                             </>
                           )
