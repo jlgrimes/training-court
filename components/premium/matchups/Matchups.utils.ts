@@ -97,7 +97,7 @@ const getTotalDeckMatchupResult = (deckMatchup: DeckMatchup): MatchupResult => {
 export const getResultsLength = (result: [number, number, number]) => (result[0] + result[1] + result[2]);
 
 export const getMatchupWinRate = (result: [number, number, number]) => {
-  return (result[0] * 3 + result[1]) / getResultsLength(result);
+  return (result[0] + result[1] / 3) / getResultsLength(result);
 }
 
 
