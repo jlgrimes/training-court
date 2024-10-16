@@ -1,6 +1,7 @@
 import { getIfWentFirst, groupBattleLogIntoDecksAndMatchups } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils";
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
 import { DeckMatchup, MatchupResult, Matchups } from "./Matchups.types";
+import { Database } from "@/database.types";
 
 const EMPTY_MATCHUP_RESULT: MatchupResult = {
   total: [0, 0, 0],
@@ -9,7 +10,7 @@ const EMPTY_MATCHUP_RESULT: MatchupResult = {
 }
 
 export const appendLogToMatchupResult = (log: BattleLog, existingResult: MatchupResult): MatchupResult => {
-  let newTotal = [...existingResult.total];
+  let newTotal: [number, number, number] = [...existingResult.total];
   // The target idx (0 for win, 1 for loss, 2 for tie) that we want to modify the result arrays with
   let targetIdx;
 
@@ -21,13 +22,52 @@ export const appendLogToMatchupResult = (log: BattleLog, existingResult: Matchup
 
   newTotal[targetIdx]++;
 
-  let newGoingFirst = [...existingResult.goingFirst];
-  let newGoingSecond = [...existingResult.goingSecond];
+  let newGoingFirst: [number, number, number] = [...existingResult.goingFirst];
+  let newGoingSecond: [number, number, number] = [...existingResult.goingSecond];
 
   if (getIfWentFirst(log, log.players[0].name)) {
     newGoingFirst[targetIdx]++;
   } else {
     newGoingSecond[targetIdx]++;
+  }
+
+  return {
+    total: newTotal,
+    goingFirst: newGoingFirst,
+    goingSecond: newGoingSecond
+  }
+}
+
+export const appendTournamentRoundToMatchupResult = (
+  round: Database['public']['Tables']['tournament rounds']['Row'],
+  existingResult: MatchupResult
+): MatchupResult => {
+  let newTotal: [number, number, number] = [...existingResult.total];
+  let newGoingFirst: [number, number, number] = [...existingResult.goingFirst];
+  let newGoingSecond: [number, number, number] = [...existingResult.goingSecond];
+
+  let idx = 0;
+  for (const result of round.result) {
+    // The target idx (0 for win, 1 for loss, 2 for tie) that we want to modify the result arrays with
+    let targetIdx;
+
+    if (result === 'W') {
+      targetIdx = 0;
+    } else {
+      targetIdx = 1;
+    }
+
+    newTotal[targetIdx]++;
+
+    if (round.turn_orders && (idx < round.turn_orders.length)) {
+      if ((round.turn_orders[idx] === '1')) {
+        newGoingFirst[targetIdx]++;
+      } else {
+        newGoingSecond[targetIdx]++;
+      }
+    }
+
+    idx++;
   }
 
   return {
@@ -69,6 +109,26 @@ export const convertBattleLogsToMatchups = (logs: BattleLog[]) => {
       [myDeck]: {
         ...acc[myDeck],
         [oppDeck]: appendLogToMatchupResult(curr, acc[myDeck][oppDeck])
+      }
+    }
+  }, {});
+}
+
+export const convertTournamentsToMatchups = (
+  tournaments: Database['public']['Tables']['tournaments']['Row'][],
+  rounds: Database['public']['Tables']['tournament rounds']['Row'][]
+) => {
+  return rounds.reduce((acc: Matchups, curr: Database['public']['Tables']['tournament rounds']['Row']) => {
+    const myDeck = tournaments.find((tournament) => tournament.id === curr.tournament)?.deck;
+    const oppDeck = curr.deck;
+
+    if (!myDeck || !oppDeck) return acc;
+
+    return {
+      ...acc,
+      [myDeck]: {
+        ...(acc[myDeck] ?? {}),
+        [oppDeck]: appendTournamentRoundToMatchupResult(curr, acc[myDeck]?.[oppDeck] ?? EMPTY_MATCHUP_RESULT)
       }
     }
   }, {});
