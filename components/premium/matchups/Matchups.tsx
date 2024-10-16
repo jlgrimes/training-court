@@ -57,10 +57,12 @@ export const Matchups = (props: MatchupProps) => {
       </div>
       <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
-        <div className="flex items-center gap-2">
-          <Label>Drill down</Label>
-          <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
-        </div>
+        {!props.shouldDisableDrillDown && (
+          <div className="flex items-center gap-2">
+            <Label>Drill down</Label>
+            <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
+          </div>
+        )}
       </div>
       <Accordion type="single" collapsible className="flex flex-col">
         {Object.entries(renderedMatchups).sort(sortDeckMatchups(sort.by, sort.type)).map(([deck, deckMatchup]) => {
