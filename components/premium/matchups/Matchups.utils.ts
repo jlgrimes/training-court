@@ -137,7 +137,12 @@ export const convertTournamentsToMatchups = (
 }
 
 const getTotalDeckMatchupResult = (deckMatchup: DeckMatchup): MatchupResult => {
-  return Object.values(deckMatchup).reduce((acc, curr) => ({
+  return combineResults(Object.values(deckMatchup));
+}
+
+const combineResults = (results: MatchupResult[]) => {
+  console.log('combining', results)
+  return results.reduce((acc, curr) => ({
     total: [
       acc.total[0] + curr.total[0],
       acc.total[1] + curr.total[1],
@@ -174,4 +179,26 @@ export const getMatchupRecord = (result: [number, number, number]) => {
   }
 
   return result.join('-');
+}
+
+export const generalizeAllMatchupDecks = (matchups: Matchups) => {
+  let newMatchups: Matchups = {};
+
+  for (const firstDeck of Object.keys(matchups)) {
+    const shortFirstDeck = firstDeck.split(',')[0];
+
+    for (const secondDeck of Object.keys(matchups[firstDeck])) {
+      const shortSecondDeck = secondDeck.split(',')[0];
+
+      newMatchups[shortFirstDeck] = {
+        ...(newMatchups[shortFirstDeck] ?? {}),
+        [shortSecondDeck]: combineResults([
+          matchups[firstDeck][secondDeck],
+          (newMatchups[shortFirstDeck]?.[shortSecondDeck] ?? EMPTY_MATCHUP_RESULT)
+        ])
+      }
+    }
+  }
+
+  return newMatchups;
 }
