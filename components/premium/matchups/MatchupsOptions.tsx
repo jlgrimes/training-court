@@ -33,13 +33,13 @@ export const MatchupsOptions = (props: MatchupsOptionsProps) => {
         >
           Drill down archetypes
         </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
+        {/* <DropdownMenuCheckboxItem
           checked={props.shouldGroupByRound}
           onCheckedChange={props.setShouldGroupByRound}
           disabled={props.shouldDisableRoundGroup}
         >
           Group by round
-        </DropdownMenuCheckboxItem>
+        </DropdownMenuCheckboxItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   )
