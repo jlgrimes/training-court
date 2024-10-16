@@ -25,7 +25,7 @@ export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
       </div>
        
       <div className="flex flex-col">
-        {isPremiumUser(props.user.id) && tournamentData && rounds && <Matchups matchups={convertTournamentsToMatchups(tournamentData, rounds)} />}
+        {isPremiumUser(props.user.id) && tournamentData && rounds && <Matchups matchups={convertTournamentsToMatchups(tournamentData, rounds)} userId={props.user.id}/>}
       </div>
     </div>
   );

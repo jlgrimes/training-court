@@ -74,7 +74,7 @@ export function BattleLogsContainerClient (props: BattleLogsContainerClientProps
       </div>
         {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
       </div>
-      <Matchups matchups={convertBattleLogsToMatchups(battleLogs)} />
+      {isPremiumUser(props.userData?.id) && <Matchups matchups={convertBattleLogsToMatchups(battleLogs)} userId={props.userData?.id} />}
     </div>
   )
 }

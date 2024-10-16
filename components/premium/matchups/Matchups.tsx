@@ -22,6 +22,8 @@ import { MatchupProps } from "./Matchups.types";
 import { MatchupsSortState } from "./sort/sort.types";
 import { sortDeckMatchups, sortMatchupResults } from "./sort/sort.utils";
 import { cn } from "@/lib/utils";
+import { isPremiumUser } from "../premium.utils";
+import { PremiumHeader } from "../PremiumHeader";
 
 export const Matchups = (props: MatchupProps) => {
   const [numSprites, setNumSprites] = useState(2);
@@ -45,9 +47,14 @@ export const Matchups = (props: MatchupProps) => {
     setRenderedMatchups(generalizeAllMatchupDecks(props.matchups))
   }, [props.matchups]);
 
+  if (!isPremiumUser(props.userId)) return null;
+
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl tracking-wide font-semibold text-slate-800">Matchups</h1>
+      <div className="flex justify-between">
+        <h1 className="text-xl tracking-wide font-semibold text-slate-800">Matchups</h1>
+        <PremiumHeader />
+      </div>
       <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
         <div className="flex items-center gap-2">
