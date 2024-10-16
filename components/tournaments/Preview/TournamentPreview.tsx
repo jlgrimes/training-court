@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge"
 import { Card, CardDescription, CardHeader, CardTitle, SmallCardHeader } from "../../ui/card";
@@ -35,7 +34,7 @@ interface TournamentPreviewProps {
   )}
 </div> */}
 
-export default async function TournamentPreview(props: TournamentPreviewProps) {
+export default function TournamentPreview(props: TournamentPreviewProps) {
   return (
     <Link href={`/tournaments/${props.tournament.id}`}>
       <Card clickable>

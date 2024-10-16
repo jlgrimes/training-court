@@ -1,4 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+'use client';
+
 import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
@@ -9,6 +10,8 @@ import { Database } from "@/database.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -16,7 +19,9 @@ interface MyTournamentPreviewsProps {
   rounds: Database['public']['Tables']['tournament rounds']['Row'][] | null;
 }
 
-export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
+export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
+  const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
+
   if (props.tournaments && props.tournaments?.length === 0) {
     return (
       <Card className="border-none">
@@ -31,21 +36,31 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const availableTournamentCategories: TournamentCategoryTab[] = allTournamentCategoryTabs.filter((cat) => (cat === 'all') || props.tournaments?.some((tournament) => tournament.category === cat));
 
   return (
-    <Tabs defaultValue='all'>
-    <TabsList>
-      {availableTournamentCategories.map((cat) => (
-        <TabsTrigger key={cat} value={cat}>{cat === 'all' ? 'All' : <TournamentCategoryIcon category={cat} />}{cat !== 'all' && props.tournaments?.filter((tournament) => tournament.category === cat).length}</TabsTrigger>
+    <div className="flex flex-col gap-2">
+      <Select defaultValue='all' onValueChange={(val) => setSelectedCat(val as unknown as TournamentCategoryTab)}>
+  <SelectTrigger>
+    <SelectValue />
+  </SelectTrigger>
+  <SelectContent>
+    {availableTournamentCategories.map((cat) => (
+        <SelectItem key={cat} value={cat}>
+          <div className="flex justify-between w-full items-center">
+          {cat !== 'all' && <TournamentCategoryIcon category={cat} />}
+            <p>{displayTournamentCategoryTab(cat)} ({props.tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})</p>
+            </div>
+        </SelectItem>
       ))}
-    </TabsList>
-    <TabsContent value='all'>
+  </SelectContent>
+</Select>
+    {selectedCat === 'all' && (
       <div className="flex flex-col gap-2">
         {props.tournaments?.map((tournament) => props.rounds && (
             <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(props.rounds, tournament)}/>
         ))}
       </div>
-    </TabsContent>
-    {availableTournamentCategories.filter((cat) => cat !== 'all').map((cat) => (
-      <TabsContent value={cat}>
+    )}
+    {selectedCat !== 'all' && (
+      availableTournamentCategories.filter((cat) => cat === selectedCat).map((cat) => (
         <ScrollArea className="h-[36rem] pr-4">
           <div className="flex flex-col gap-2">
             {props.tournaments?.filter((tournament) => tournament.category === cat).map((tournament) => props.rounds && (
@@ -53,8 +68,8 @@ export async function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
             ))}
           </div>
         </ScrollArea>
-      </TabsContent>
-    ))}
-  </Tabs>
+      ))
+    )}
+    </div>
   )
 }
