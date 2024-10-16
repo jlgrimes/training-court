@@ -16,4 +16,6 @@ export interface MatchupProps {
   userId: string | undefined;
   // if the drilldown switch shouldn't be there
   shouldDisableDrillDown?: boolean;
+  // if the ability to filter by rounds shouldn't be there
+  shouldDisableRoundGroup?: boolean;
 }

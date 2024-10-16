@@ -33,6 +33,7 @@ export const Matchups = (props: MatchupProps) => {
     by: 'last-played',
     type: 'desc'
   });
+  const [shouldGroupByRound, setShouldGroupByRound] = useState(false);
 
   useEffect(() => {
     setRenderedMatchups(props.matchups);
@@ -58,7 +59,13 @@ export const Matchups = (props: MatchupProps) => {
       </div>
       <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
-        <MatchupsOptions handleDrillDownChecked={handleDeckSpecificityToggle} shouldDisableDrillDown={!!props.shouldDisableDrillDown}/>
+        <MatchupsOptions
+          handleDrillDownChecked={handleDeckSpecificityToggle}
+          shouldGroupByRound={shouldGroupByRound}
+          setShouldGroupByRound={setShouldGroupByRound}
+          shouldDisableDrillDown={!!props.shouldDisableDrillDown}
+          shouldDisableRoundGroup={!!props.shouldDisableRoundGroup}
+          />
       </div>
       <Accordion type="single" collapsible className="flex flex-col">
         {Object.entries(renderedMatchups).sort(sortDeckMatchups(sort.by, sort.type)).map(([deck, deckMatchup]) => {

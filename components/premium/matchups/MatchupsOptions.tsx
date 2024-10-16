@@ -5,7 +5,10 @@ import { useState } from "react";
 
 interface MatchupsOptionsProps {
   handleDrillDownChecked: (val: boolean) => void;
+  shouldGroupByRound: boolean;
+  setShouldGroupByRound: (val: boolean) => void;
   shouldDisableDrillDown: boolean;
+  shouldDisableRoundGroup: boolean;
 }
 
 export const MatchupsOptions = (props: MatchupsOptionsProps) => {
@@ -29,6 +32,13 @@ export const MatchupsOptions = (props: MatchupsOptionsProps) => {
           disabled={props.shouldDisableDrillDown}
         >
           Drill down archetypes
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={props.shouldGroupByRound}
+          onCheckedChange={props.setShouldGroupByRound}
+          disabled={props.shouldDisableRoundGroup}
+        >
+          Group by round
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
