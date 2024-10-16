@@ -23,7 +23,7 @@ export const Sprite = (props: SpriteProps) => {
   return (
     <div className={cn(
       "flex items-center",
-      props.shouldSmush ? 'flex-col xl:flex-row xl:gap-1' : 'gap-1'
+      props.shouldSmush ? 'flex-col xl:flex-row xl:gap-1' : 'gap-1',
     )}>
       {props.name === 'unknown' || props.name === null ? (
         <CircleHelpIcon/>

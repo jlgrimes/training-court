@@ -21,8 +21,10 @@ import { MatchupsSortToggle } from "./sort/MatchupsSortToggle";
 import { MatchupProps } from "./Matchups.types";
 import { MatchupsSortState } from "./sort/sort.types";
 import { sortDeckMatchups, sortMatchupResults } from "./sort/sort.utils";
+import { cn } from "@/lib/utils";
 
 export const Matchups = (props: MatchupProps) => {
+  const [numSprites, setNumSprites] = useState(2);
   const [renderedMatchups, setRenderedMatchups] = useState(props.matchups);
   const [sort, setSort] = useState<MatchupsSortState>({
     by: 'last-played',
@@ -35,14 +37,17 @@ export const Matchups = (props: MatchupProps) => {
   
   const handleDeckSpecificityToggle = useCallback((checked: boolean) =>  {
     if (checked) {
+      setNumSprites(2);
       return setRenderedMatchups(props.matchups);
     }
 
+    setNumSprites(1);
     setRenderedMatchups(generalizeAllMatchupDecks(props.matchups))
   }, [props.matchups]);
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="text-xl tracking-wide font-semibold text-slate-800">Matchups</h1>
       <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
         <div className="flex items-center gap-2">
@@ -58,10 +63,14 @@ export const Matchups = (props: MatchupProps) => {
           return (
             <AccordionItem value={deck}>
               <AccordionTrigger>
-                <div className="grid grid-cols-5 w-full items-center">
+                <div className={cn(
+                  "grid w-full items-center",
+                  numSprites === 1 && 'grid-cols-sprite-row',
+                  numSprites === 2 && 'grid-cols-two-sprite-row',
+                )}>
                   <Sprite name={deck} />
                   <div className="col-span-2 text-left">
-                    <div >
+                    <div>
                       {capitalizeName(deck)}
                     </div>
                     <CardDescription>{formatDistanceToNowStrict(matchupResult.lastPlayed, { addSuffix: true })}</CardDescription>

@@ -79,7 +79,11 @@ const config = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-  		}
+  		},
+			gridTemplateColumns: {
+				'sprite-row': '60px repeat(4, 1fr)',
+				'two-sprite-row': '96px repeat(4, 1fr)',
+			}
   	}
   },
   plugins: [require("tailwindcss-animate")],
