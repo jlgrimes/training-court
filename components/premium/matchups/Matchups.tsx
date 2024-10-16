@@ -43,11 +43,13 @@ export const Matchups = (props: MatchupProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
-        <Label>Drill down archetypes</Label>
-      </div>
+      <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
+        <div className="flex items-center gap-2">
+          <Label>Drill down</Label>
+          <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
+        </div>
+      </div>
       <Accordion type="single" collapsible className="flex flex-col">
         {Object.entries(renderedMatchups).sort(sortDeckMatchups(sort.by, sort.type)).map(([deck, deckMatchup]) => {
           const winRateOfDeck = getTotalWinRate(deckMatchup);
