@@ -16,15 +16,20 @@ import { capitalizeName } from "../../battle-logs/utils/battle-log.utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { WinRatePercentDeltaIcon } from "./WinRatePercentDeltaIcon";
-import { MatchupProps, MatchupsSortBy } from "./Matchups.types";
+import { MatchupProps, MatchupsSortBy, MatchupsSortState } from "./Matchups.types";
 import { combineResults, generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate, sortDeckMatchups, sortMatchupResults } from "./Matchups.utils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { formatDistanceToNowStrict } from "date-fns";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ArrowDown10, ArrowDownWideNarrow, ClockArrowDown } from "lucide-react";
 
 export const Matchups = (props: MatchupProps) => {
   const [renderedMatchups, setRenderedMatchups] = useState(props.matchups);
-  const [sortBy, setSortBy] = useState<MatchupsSortBy>('last-played');
+  const [sortBy, setSortBy] = useState<MatchupsSortState>({
+    by: 'last-played',
+    type: 'desc'
+  });
 
   useEffect(() => {
     setRenderedMatchups(props.matchups);
@@ -41,11 +46,27 @@ export const Matchups = (props: MatchupProps) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
-        <Label>Drill down decks</Label>
+        <Label>Drill down</Label>
         <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
       </div>
+      <div className="flex justify-between items-center">
+        <ToggleGroup
+          type='single'
+          value={sortBy.by}
+          onValueChange={(val) => {
+            setSortBy({
+              by: val as unknown as MatchupsSortBy,
+              type: 'desc'
+            });
+          }}
+        >
+          <ToggleGroupItem value='last-played'><ClockArrowDown className="h-4 w-4" /></ToggleGroupItem>
+          <ToggleGroupItem value='amount-played'><ArrowDownWideNarrow className="h-4 w-4" /></ToggleGroupItem>
+          <ToggleGroupItem value='win-rate'><ArrowDown10 className="h-4 w-4" /></ToggleGroupItem>
+        </ToggleGroup>
+      </div>
       <Accordion type="single" collapsible className="flex flex-col">
-        {Object.entries(renderedMatchups).sort(sortDeckMatchups('last-played', 'asc')).map(([deck, deckMatchup]) => {
+        {Object.entries(renderedMatchups).sort(sortDeckMatchups(sortBy.by, sortBy.type)).map(([deck, deckMatchup]) => {
           const winRateOfDeck = getTotalWinRate(deckMatchup);
           const matchupResult = getTotalDeckMatchupResult(deckMatchup);
 
@@ -63,7 +84,7 @@ export const Matchups = (props: MatchupProps) => {
                   <CardTitle>
                     {(winRateOfDeck * 100).toPrecision(4)}%
                   </CardTitle>
-                  <CardDescription className="text-left">
+                  <CardDescription className="text-right pr-2">
                     {getMatchupRecord(matchupResult.total)}
                   </CardDescription>
                 </div>
