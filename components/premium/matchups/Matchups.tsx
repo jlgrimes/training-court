@@ -66,15 +66,15 @@ export const Matchups = (props: MatchupProps) => {
                     </div>
                     <CardDescription>{formatDistanceToNowStrict(matchupResult.lastPlayed, { addSuffix: true })}</CardDescription>
                   </div>
-                  <CardTitle>
-                    {(winRateOfDeck * 100).toPrecision(4)}%
-                  </CardTitle>
                   <CardDescription className="text-right pr-2">
                     <div>
                     {getMatchupRecord(matchupResult.total)}
                     </div>
                     {getResultsLength(matchupResult.total)} total
                   </CardDescription>
+                  <CardTitle>
+                    {(winRateOfDeck * 100).toPrecision(4)}%
+                  </CardTitle>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="flex flex-col gap-2">
@@ -90,12 +90,12 @@ export const Matchups = (props: MatchupProps) => {
                           <div className="col-span-2 text-left">
                             {capitalizeName(matchupDeck)}
                           </div>
+                          <CardDescription>
+                              {getMatchupRecord(result.total)}
+                            </CardDescription>
                             <CardTitle>
                               {(winRateAgainstDeck * 100).toPrecision(3)}%
                             </CardTitle>
-                            <CardDescription>
-                              {getMatchupRecord(result.total)}
-                            </CardDescription>
                           {AvailableTurnOrders.map((turnOrder) => {
                             const results = (turnOrder === 'first') ? result.goingFirst : result.goingSecond;
                             const winRateAgainstDeckWithTurnOrder = getMatchupWinRate(results);
@@ -108,13 +108,13 @@ export const Matchups = (props: MatchupProps) => {
                                 <CardDescription className="col-span-2">
                                   {capitalizeName(turnOrder)}
                                 </CardDescription>
+                                <CardDescription>
+                                  {getMatchupRecord(results)}
+                                </CardDescription>
                                   <CardDescription>
                                     {(winRateAgainstDeckWithTurnOrder * 100).toPrecision(3)}%
                                   </CardDescription>
                                   {/* <WinRatePercentDeltaIcon initialWinRate={winRateAgainstDeck} modifiedWinRate={winRateAgainstDeckWithTurnOrder} /> */}
-                                <CardDescription>
-                                  {getMatchupRecord(results)}
-                                </CardDescription>
                               </>
                             )
                           })}
