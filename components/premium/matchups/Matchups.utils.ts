@@ -136,12 +136,11 @@ export const convertTournamentsToMatchups = (
   }, {});
 }
 
-const getTotalDeckMatchupResult = (deckMatchup: DeckMatchup): MatchupResult => {
+export const getTotalDeckMatchupResult = (deckMatchup: DeckMatchup): MatchupResult => {
   return combineResults(Object.values(deckMatchup));
 }
 
-const combineResults = (results: MatchupResult[]) => {
-  console.log('combining', results)
+export const combineResults = (results: MatchupResult[]) => {
   return results.reduce((acc, curr) => ({
     total: [
       acc.total[0] + curr.total[0],

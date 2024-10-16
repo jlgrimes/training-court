@@ -17,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 import { WinRatePercentDeltaIcon } from "./WinRatePercentDeltaIcon";
 import { MatchupProps } from "./Matchups.types";
-import { generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalWinRate } from "./Matchups.utils";
+import { combineResults, generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate } from "./Matchups.utils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -40,17 +40,17 @@ export const Matchups = (props: MatchupProps) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
-        <Label>Should drilldown decks</Label>
+        <Label>Drill down decks</Label>
         <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
       </div>
-      <Accordion type="single" collapsible className="flex flex-col" defaultValue={Object.keys(renderedMatchups)[0]}>
+      <Accordion type="single" collapsible className="flex flex-col">
         {Object.entries(renderedMatchups).map(([deck, deckMatchup]) => {
           const winRateOfDeck = getTotalWinRate(deckMatchup);
 
           return (
             <AccordionItem value={deck}>
               <AccordionTrigger>
-                <div className="grid grid-cols-4 w-full items-center">
+                <div className="grid grid-cols-5 w-full items-center">
                   <Sprite name={deck} />
                   <div className="col-span-2 text-left">
                     {capitalizeName(deck)}
@@ -58,6 +58,9 @@ export const Matchups = (props: MatchupProps) => {
                   <CardTitle>
                     {(winRateOfDeck * 100).toPrecision(4)}%
                   </CardTitle>
+                  <CardDescription className="text-left">
+                    {getMatchupRecord(getTotalDeckMatchupResult(deckMatchup).total)}
+                  </CardDescription>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="flex flex-col gap-2">
