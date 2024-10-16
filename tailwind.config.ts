@@ -83,6 +83,7 @@ const config = {
 			gridTemplateColumns: {
 				'sprite-row': '60px repeat(4, 1fr)',
 				'two-sprite-row': '96px repeat(4, 1fr)',
+				'two-sprite+3': '96px repeat(3, 1fr)',
 			}
   	}
   },
