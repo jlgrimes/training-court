@@ -68,7 +68,10 @@ export const Matchups = (props: MatchupProps) => {
                     {(winRateOfDeck * 100).toPrecision(4)}%
                   </CardTitle>
                   <CardDescription className="text-right pr-2">
+                    <div>
                     {getMatchupRecord(matchupResult.total)}
+                    </div>
+                    {getResultsLength(matchupResult.total)} total
                   </CardDescription>
                 </div>
               </AccordionTrigger>
