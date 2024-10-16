@@ -45,7 +45,7 @@ export const Matchups = (props: MatchupProps) => {
                     const winRateAgainstDeck = getMatchupWinRate(result.total);
 
                     return (
-                      <div className="grid grid-cols-6 w-full items-center">
+                      <div className="grid grid-cols-5 w-full items-center">
                         <Sprite name={matchupDeck} />
                         <div className="col-span-2 text-left">
                           {capitalizeName(matchupDeck)}
@@ -53,13 +53,15 @@ export const Matchups = (props: MatchupProps) => {
                           <CardTitle>
                             {(winRateAgainstDeck * 100).toPrecision(3)}%
                           </CardTitle>
-                          <div />
                           <CardDescription>
                             {getMatchupRecord(result.total)}
                           </CardDescription>
                         {AvailableTurnOrders.map((turnOrder) => {
-                          const results = turnOrder === 'first' ? result.goingFirst : result.goingSecond;
+                          const results = (turnOrder === 'first') ? result.goingFirst : result.goingSecond;
                           const winRateAgainstDeckWithTurnOrder = getMatchupWinRate(results);
+
+                          if (getResultsLength(results) === 0) return null;
+
                           return (
                             <>
                               <div />
@@ -69,7 +71,7 @@ export const Matchups = (props: MatchupProps) => {
                                 <CardDescription>
                                   {(winRateAgainstDeckWithTurnOrder * 100).toPrecision(3)}%
                                 </CardDescription>
-                                <WinRatePercentDeltaIcon initialWinRate={winRateAgainstDeck} modifiedWinRate={winRateAgainstDeckWithTurnOrder} />
+                                {/* <WinRatePercentDeltaIcon initialWinRate={winRateAgainstDeck} modifiedWinRate={winRateAgainstDeckWithTurnOrder} /> */}
                               <CardDescription>
                                 {getMatchupRecord(results)}
                               </CardDescription>

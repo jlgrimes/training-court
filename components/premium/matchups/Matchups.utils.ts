@@ -53,8 +53,10 @@ export const appendTournamentRoundToMatchupResult = (
 
     if (result === 'W') {
       targetIdx = 0;
-    } else {
+    } else if (result === 'L') {
       targetIdx = 1;
+    } else {
+      targetIdx = 2;
     }
 
     newTotal[targetIdx]++;
@@ -157,7 +159,7 @@ const getTotalDeckMatchupResult = (deckMatchup: DeckMatchup): MatchupResult => {
 export const getResultsLength = (result: [number, number, number]) => (result[0] + result[1] + result[2]);
 
 export const getMatchupWinRate = (result: [number, number, number]) => {
-  return (result[0] + result[1] / 3) / getResultsLength(result);
+  return (result[0] + (result[2] / 3)) / getResultsLength(result);
 }
 
 
