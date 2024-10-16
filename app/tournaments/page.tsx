@@ -6,6 +6,11 @@ import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable"
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TournamentsHomePage } from "@/components/tournaments/TournamentsHome/TournamentsHomePage";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Tournaments',
+};
 
 export default async function Tournaments() {
   const user = await fetchCurrentUser();
