@@ -24,6 +24,7 @@ import { sortDeckMatchups, sortMatchupResults } from "./sort/sort.utils";
 import { cn } from "@/lib/utils";
 import { isPremiumUser } from "../premium.utils";
 import { PremiumHeader } from "../PremiumHeader";
+import { MatchupsOptions } from "./MatchupsOptions";
 
 export const Matchups = (props: MatchupProps) => {
   const [numSprites, setNumSprites] = useState(2);
@@ -57,12 +58,7 @@ export const Matchups = (props: MatchupProps) => {
       </div>
       <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
-        {!props.shouldDisableDrillDown && (
-          <div className="flex items-center gap-2">
-            <Label>Drill down</Label>
-            <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
-          </div>
-        )}
+        <MatchupsOptions handleDrillDownChecked={handleDeckSpecificityToggle} shouldDisableDrillDown={!!props.shouldDisableDrillDown}/>
       </div>
       <Accordion type="single" collapsible className="flex flex-col">
         {Object.entries(renderedMatchups).sort(sortDeckMatchups(sort.by, sort.type)).map(([deck, deckMatchup]) => {
