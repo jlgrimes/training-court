@@ -17,7 +17,7 @@ interface MyTournamentPreviewsProps {
 
 export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
   const supabase = createClient();
-  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).limit(3).returns<Database['public']['Tables']['tournaments']['Row'][]>();
+  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).limit(5).returns<Database['public']['Tables']['tournaments']['Row'][]>();
   const rounds = await fetchRoundsForUser(props.user?.id);
 
   if (!props.user) {
