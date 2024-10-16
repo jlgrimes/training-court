@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 import Header from "@/components/app-bar/Header";
 import HeaderBreadcrumbs from "@/components/app-bar/HeaderBreadcrumbs";
+import RecoilContextProvider from "./recoil/RecoilContextProvider";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -23,15 +24,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground">
-        <Header />
-        <main className="min-h-screen pt-16">
-          <HeaderBreadcrumbs />
-          <div className="flex flex-col items-center">
-            {children}
-          </div>
-          <Toaster />
-          <Analytics />
-        </main>
+        <RecoilContextProvider>
+          <Header />
+          <main className="min-h-screen pt-16">
+            <HeaderBreadcrumbs />
+            <div className="flex flex-col items-center">
+              {children}
+            </div>
+            <Toaster />
+            <Analytics />
+          </main>
+        </RecoilContextProvider>
       </body>
     </html>
   );

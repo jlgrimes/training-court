@@ -13,8 +13,8 @@ import { BattleLogsByMatchupPremium } from "../BattleLogGroups/BattleLogsByMatch
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
-  battleLogs: Database['public']['Tables']['logs']['Row'][]
-  sortBy: BattleLogSortBy
+  battleLogs: Database['public']['Tables']['logs']['Row'][];
+  sortBy: BattleLogSortBy;
   isEditing: boolean;
 }
 
