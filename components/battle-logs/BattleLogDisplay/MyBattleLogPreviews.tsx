@@ -14,32 +14,24 @@ import { convertBattleLogsToMatchups } from "@/components/premium/matchups/Match
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
-  battleLogs: Database['public']['Tables']['logs']['Row'][]
+  battleLogs: BattleLog[];
   sortBy: BattleLogSortBy
   isEditing: boolean;
 }
 
 export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
-  const battleLogs: BattleLog[] = useMemo(
-    () => props.battleLogs.map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, props.userData.live_screen_name)), [props.battleLogs, props.userData.live_screen_name]);
-
   if (props.sortBy === 'Day') {
-    return <BattleLogsByDay battleLogs={battleLogs} userData={props.userData} isEditing={props.isEditing} />;
+    return <BattleLogsByDay battleLogs={props.battleLogs} userData={props.userData} isEditing={props.isEditing} />;
   }
 
   if (props.sortBy === 'Deck') {
-    return <BattleLogsByDeck battleLogs={battleLogs} userData={props.userData} isEditing={props.isEditing} />
-  }
-
-  if (props.sortBy === 'Matchups') {
-    const matchups = convertBattleLogsToMatchups(battleLogs);
-    return <Matchups matchups={matchups} />
+    return <BattleLogsByDeck battleLogs={props.battleLogs} userData={props.userData} isEditing={props.isEditing} />
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="my-2">{battleLogs.length} total battle logs</Label>
-      {battleLogs.map((battleLog) => (
+      <Label className="my-2">{props.battleLogs.length} total battle logs</Label>
+      {props.battleLogs.map((battleLog) => (
         <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
       ))}
     </div>
