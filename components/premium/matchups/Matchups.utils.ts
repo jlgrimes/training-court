@@ -9,7 +9,7 @@ const EMPTY_MATCHUP_RESULT: MatchupResult = {
 }
 
 export const appendLogToMatchupResult = (log: BattleLog, existingResult: MatchupResult): MatchupResult => {
-  let newTotal = existingResult.total;
+  let newTotal = [...existingResult.total];
   // The target idx (0 for win, 1 for loss, 2 for tie) that we want to modify the result arrays with
   let targetIdx;
 
@@ -21,8 +21,8 @@ export const appendLogToMatchupResult = (log: BattleLog, existingResult: Matchup
 
   newTotal[targetIdx]++;
 
-  let newGoingFirst = existingResult.goingFirst;
-  let newGoingSecond = existingResult.goingSecond;
+  let newGoingFirst = [...existingResult.goingFirst];
+  let newGoingSecond = [...existingResult.goingSecond];
 
   if (getIfWentFirst(log, log.players[0].name)) {
     newGoingFirst[targetIdx]++;

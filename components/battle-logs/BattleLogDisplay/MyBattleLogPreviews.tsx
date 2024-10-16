@@ -32,7 +32,9 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
   }
 
   if (props.sortBy === 'Matchups') {
-    return <Matchups matchups={convertBattleLogsToMatchups(battleLogs)} />
+    const matchups = convertBattleLogsToMatchups(battleLogs);
+    console.log(matchups)
+    return <Matchups matchups={matchups} />
   }
 
   return (
