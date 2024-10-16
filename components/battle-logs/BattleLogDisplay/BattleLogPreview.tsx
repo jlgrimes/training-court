@@ -22,7 +22,7 @@ export interface BattleLogPreviewProps {
 }
 
 
-//@TODO
+//@TODO 
 export function BattleLogPreview (props: BattleLogPreviewProps) {
   const userData = useRecoilValue(userState);
   const currentUserScreenName = userData?.live_screen_name;
