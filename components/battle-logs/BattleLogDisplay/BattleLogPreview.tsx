@@ -79,7 +79,8 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   return (
     <Link className="flex-grow" href={`/logs/${props.battleLog.id}`}>
       <Card result={gameResult} clickable>
-        <SmallCardHeader className="grid grid-cols-8 items-center">
+        <SmallCardHeader>
+          <div className="grid grid-cols-8 items-center">
           <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-4 ml-4">
@@ -91,6 +92,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           </div>
           <div />
           <Sprite name={`${props.battleLog.players[0].oppDeck ? formatDeckName(props.battleLog.players[0].oppDeck) : formatDeckName(props.battleLog.players[1].deck)}`} shouldSmush={true} />
+          </div>
         </SmallCardHeader>
       </Card>
     </Link>

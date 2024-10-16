@@ -39,12 +39,12 @@ export default async function TournamentPreview(props: TournamentPreviewProps) {
   return (
     <Link href={`/tournaments/${props.tournament.id}`}>
       <Card clickable>
-        <SmallCardHeader className="flex ml-2">
+        <SmallCardHeader>
             <div className="grid grid-cols-4 items-center">
               <Sprite name={props.tournament.deck} />
               <div className="text-left col-span-2">
-                <CardTitle className="flex gap-2 items-center">{props.tournament.name}</CardTitle>
-                <CardDescription className="grid gap-4">
+                <CardTitle>{props.tournament.name}</CardTitle>
+                <CardDescription>
                   {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
                 </CardDescription>
               </div>

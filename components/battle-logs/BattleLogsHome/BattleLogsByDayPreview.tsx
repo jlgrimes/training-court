@@ -39,7 +39,7 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-          <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
+          <Accordion type="single" collapsible className="flex flex-col">
       {battleLogsByDayList.map(([day, logs]) => (
         <AccordionItem key={day} value={day}>
           <AccordionTrigger>
