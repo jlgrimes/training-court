@@ -16,14 +16,15 @@ import { capitalizeName } from "../../battle-logs/utils/battle-log.utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { WinRatePercentDeltaIcon } from "./WinRatePercentDeltaIcon";
-import { MatchupProps } from "./Matchups.types";
-import { combineResults, generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate } from "./Matchups.utils";
+import { MatchupProps, MatchupsSortBy } from "./Matchups.types";
+import { combineResults, generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate, sortDeckMatchups, sortMatchupResults } from "./Matchups.utils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-
+import { formatDistanceToNowStrict } from "date-fns";
 
 export const Matchups = (props: MatchupProps) => {
   const [renderedMatchups, setRenderedMatchups] = useState(props.matchups);
+  const [sortBy, setSortBy] = useState<MatchupsSortBy>('last-played');
 
   useEffect(() => {
     setRenderedMatchups(props.matchups);
@@ -44,8 +45,9 @@ export const Matchups = (props: MatchupProps) => {
         <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
       </div>
       <Accordion type="single" collapsible className="flex flex-col">
-        {Object.entries(renderedMatchups).map(([deck, deckMatchup]) => {
+        {Object.entries(renderedMatchups).sort(sortDeckMatchups('last-played', 'asc')).map(([deck, deckMatchup]) => {
           const winRateOfDeck = getTotalWinRate(deckMatchup);
+          const matchupResult = getTotalDeckMatchupResult(deckMatchup);
 
           return (
             <AccordionItem value={deck}>
@@ -53,13 +55,16 @@ export const Matchups = (props: MatchupProps) => {
                 <div className="grid grid-cols-5 w-full items-center">
                   <Sprite name={deck} />
                   <div className="col-span-2 text-left">
-                    {capitalizeName(deck)}
+                    <div >
+                      {capitalizeName(deck)}
+                    </div>
+                    <CardDescription>{formatDistanceToNowStrict(matchupResult.lastPlayed, { addSuffix: true })}</CardDescription>
                   </div>
                   <CardTitle>
                     {(winRateOfDeck * 100).toPrecision(4)}%
                   </CardTitle>
                   <CardDescription className="text-left">
-                    {getMatchupRecord(getTotalDeckMatchupResult(deckMatchup).total)}
+                    {getMatchupRecord(matchupResult.total)}
                   </CardDescription>
                 </div>
               </AccordionTrigger>
@@ -67,7 +72,7 @@ export const Matchups = (props: MatchupProps) => {
                   <Card>
                   <CardHeader>
                   {
-                    Object.entries(deckMatchup).sort((a, b) => getResultsLength(b[1].total) - getResultsLength(a[1].total)).map(([matchupDeck, result]) => {
+                    Object.entries(deckMatchup).sort(sortMatchupResults('amount-played', 'desc')).map(([matchupDeck, result]) => {
                       const winRateAgainstDeck = getMatchupWinRate(result.total);
 
                       return (

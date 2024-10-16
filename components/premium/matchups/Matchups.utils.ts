@@ -1,12 +1,14 @@
 import { getIfWentFirst, groupBattleLogIntoDecksAndMatchups } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils";
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
-import { DeckMatchup, MatchupResult, Matchups } from "./Matchups.types";
+import { DeckMatchup, MatchupResult, Matchups, MatchupsSortBy, MatchupsSortType } from "./Matchups.types";
 import { Database } from "@/database.types";
+import { isAfter, isBefore, Match, parseISO } from "date-fns";
 
 const EMPTY_MATCHUP_RESULT: MatchupResult = {
   total: [0, 0, 0],
   goingFirst: [0, 0, 0],
-  goingSecond: [0, 0, 0]
+  goingSecond: [0, 0, 0],
+  lastPlayed: new Date(100)
 }
 
 export const appendLogToMatchupResult = (log: BattleLog, existingResult: MatchupResult): MatchupResult => {
@@ -34,13 +36,15 @@ export const appendLogToMatchupResult = (log: BattleLog, existingResult: Matchup
   return {
     total: newTotal,
     goingFirst: newGoingFirst,
-    goingSecond: newGoingSecond
+    goingSecond: newGoingSecond,
+    lastPlayed: isAfter(parseISO(log.date), existingResult.lastPlayed) ? parseISO(log.date) : existingResult.lastPlayed
   }
 }
 
 export const appendTournamentRoundToMatchupResult = (
   round: Database['public']['Tables']['tournament rounds']['Row'],
-  existingResult: MatchupResult
+  existingResult: MatchupResult,
+  tournamentDate: Date
 ): MatchupResult => {
   let newTotal: [number, number, number] = [...existingResult.total];
   let newGoingFirst: [number, number, number] = [...existingResult.goingFirst];
@@ -75,7 +79,8 @@ export const appendTournamentRoundToMatchupResult = (
   return {
     total: newTotal,
     goingFirst: newGoingFirst,
-    goingSecond: newGoingSecond
+    goingSecond: newGoingSecond,
+    lastPlayed: isAfter(tournamentDate, existingResult.lastPlayed) ? tournamentDate : existingResult.lastPlayed
   }
 }
 
@@ -121,7 +126,8 @@ export const convertTournamentsToMatchups = (
   rounds: Database['public']['Tables']['tournament rounds']['Row'][]
 ) => {
   return rounds.reduce((acc: Matchups, curr: Database['public']['Tables']['tournament rounds']['Row']) => {
-    const myDeck = tournaments.find((tournament) => tournament.id === curr.tournament)?.deck;
+    const currentTournament = tournaments.find((tournament) => tournament.id === curr.tournament);
+    const myDeck = currentTournament?.deck;
     const oppDeck = curr.deck;
 
     if (!myDeck || !oppDeck) return acc;
@@ -130,7 +136,7 @@ export const convertTournamentsToMatchups = (
       ...acc,
       [myDeck]: {
         ...(acc[myDeck] ?? {}),
-        [oppDeck]: appendTournamentRoundToMatchupResult(curr, acc[myDeck]?.[oppDeck] ?? EMPTY_MATCHUP_RESULT)
+        [oppDeck]: appendTournamentRoundToMatchupResult(curr, acc[myDeck]?.[oppDeck] ?? EMPTY_MATCHUP_RESULT, parseISO(currentTournament.date_from))
       }
     }
   }, {});
@@ -156,7 +162,8 @@ export const combineResults = (results: MatchupResult[]) => {
       acc.goingSecond[0] + curr.goingSecond[0],
       acc.goingSecond[1] + curr.goingSecond[1],
       acc.goingSecond[2] + curr.goingSecond[2],
-    ]
+    ],
+    lastPlayed: isAfter(curr.lastPlayed, acc.lastPlayed) ? curr.lastPlayed : acc.lastPlayed
   }))
 }
 
@@ -200,4 +207,25 @@ export const generalizeAllMatchupDecks = (matchups: Matchups) => {
   }
 
   return newMatchups;
+}
+
+export const sortMatchupResults = (sortBy: MatchupsSortBy, sortType: MatchupsSortType) => (a: [string, MatchupResult], b: [string, MatchupResult]) => {
+  switch (sortBy) {
+    case 'win-rate':
+      if (sortType === 'asc') return getMatchupWinRate(a[1].total) - getMatchupWinRate(b[1].total);
+      return getMatchupWinRate(b[1].total) - getMatchupWinRate(a[1].total);
+    case 'last-played':
+      if (sortType === 'asc') return isBefore(a[1].lastPlayed, b[1].lastPlayed) ? 1 : -1;
+      return isAfter(a[1].lastPlayed, b[1].lastPlayed) ? 1 : -1;
+    case 'amount-played':
+      if (sortType === 'asc') return getResultsLength(a[1].total) - getResultsLength(b[1].total)
+      return getResultsLength(b[1].total) - getResultsLength(a[1].total)
+  }
+}
+
+export const sortDeckMatchups = (sortBy: MatchupsSortBy, sortType: MatchupsSortType) => (a: [string, DeckMatchup], b: [string, DeckMatchup]) => {
+  const totalResultA = getTotalDeckMatchupResult(a[1]);
+  const totalResultB = getTotalDeckMatchupResult(a[1]);
+
+  return sortMatchupResults(sortBy, sortType)([a[0], totalResultA], [b[0], totalResultB]);
 }
