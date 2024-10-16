@@ -12,10 +12,3 @@ export type Matchups = Record<string, DeckMatchup>;
 export interface MatchupProps {
   matchups: Matchups
 }
-
-export type MatchupsSortBy = 'last-played' | 'win-rate' | 'amount-played'
-export type MatchupsSortType = 'asc' | 'desc';
-export type MatchupsSortState = {
-  by: MatchupsSortBy;
-  type: MatchupsSortType;
-}

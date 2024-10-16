@@ -1,6 +1,6 @@
 import { getIfWentFirst, groupBattleLogIntoDecksAndMatchups } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils";
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
-import { DeckMatchup, MatchupResult, Matchups, MatchupsSortBy, MatchupsSortType } from "./Matchups.types";
+import { DeckMatchup, MatchupResult, Matchups } from "./Matchups.types";
 import { Database } from "@/database.types";
 import { isAfter, isBefore, Match, parseISO } from "date-fns";
 
@@ -207,25 +207,4 @@ export const generalizeAllMatchupDecks = (matchups: Matchups) => {
   }
 
   return newMatchups;
-}
-
-export const sortMatchupResults = (sortBy: MatchupsSortBy, sortType: MatchupsSortType) => (a: [string, MatchupResult], b: [string, MatchupResult]) => {
-  switch (sortBy) {
-    case 'win-rate':
-      if (sortType === 'asc') return getMatchupWinRate(a[1].total) - getMatchupWinRate(b[1].total);
-      return getMatchupWinRate(b[1].total) - getMatchupWinRate(a[1].total);
-    case 'last-played':
-      if (sortType === 'asc') return isBefore(a[1].lastPlayed, b[1].lastPlayed) ? -1 : 1;
-      return isAfter(a[1].lastPlayed, b[1].lastPlayed) ? -1 : 1;
-    case 'amount-played':
-      if (sortType === 'asc') return getResultsLength(a[1].total) - getResultsLength(b[1].total)
-      return getResultsLength(b[1].total) - getResultsLength(a[1].total)
-  }
-}
-
-export const sortDeckMatchups = (sortBy: MatchupsSortBy, sortType: MatchupsSortType) => (a: [string, DeckMatchup], b: [string, DeckMatchup]) => {
-  const totalResultA = getTotalDeckMatchupResult(a[1]);
-  const totalResultB = getTotalDeckMatchupResult(b[1]);
-
-  return sortMatchupResults(sortBy, sortType)([a[0], totalResultA], [b[0], totalResultB]);
 }

@@ -8,25 +8,23 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AvailableTurnOrders, BattleLog } from "../../battle-logs/utils/battle-log.types"
-import { filterGamesWithTurnOrder, getWinRate, groupBattleLogIntoDecks, groupBattleLogIntoDecksAndMatchups } from "../../battle-logs/BattleLogGroups/battle-log-groups.utils";
 import { Database } from "@/database.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
-import { getRecord, getRecordFromLogs } from "@/components/tournaments/utils/tournaments.utils";
 import { capitalizeName } from "../../battle-logs/utils/battle-log.utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { WinRatePercentDeltaIcon } from "./WinRatePercentDeltaIcon";
-import { MatchupProps, MatchupsSortBy, MatchupsSortState } from "./Matchups.types";
-import { combineResults, generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate, sortDeckMatchups, sortMatchupResults } from "./Matchups.utils";
+import { combineResults, generalizeAllMatchupDecks, getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate } from "./Matchups.utils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { formatDistanceToNowStrict } from "date-fns";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { ArrowDown10, ArrowDownWideNarrow, ClockArrowDown } from "lucide-react";
+import { MatchupsSortToggle } from "./sort/MatchupsSortToggle";
+import { MatchupProps } from "./Matchups.types";
+import { MatchupsSortState } from "./sort/sort.types";
+import { sortDeckMatchups, sortMatchupResults } from "./sort/sort.utils";
 
 export const Matchups = (props: MatchupProps) => {
   const [renderedMatchups, setRenderedMatchups] = useState(props.matchups);
-  const [sortBy, setSortBy] = useState<MatchupsSortState>({
+  const [sort, setSort] = useState<MatchupsSortState>({
     by: 'last-played',
     type: 'desc'
   });
@@ -44,29 +42,14 @@ export const Matchups = (props: MatchupProps) => {
   }, [props.matchups]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
-        <Label>Drill down</Label>
         <Switch defaultChecked={true} onCheckedChange={handleDeckSpecificityToggle} />
+        <Label>Drill down archetypes</Label>
       </div>
-      <div className="flex justify-between items-center">
-        <ToggleGroup
-          type='single'
-          value={sortBy.by}
-          onValueChange={(val) => {
-            setSortBy({
-              by: val as unknown as MatchupsSortBy,
-              type: 'desc'
-            });
-          }}
-        >
-          <ToggleGroupItem value='last-played'><ClockArrowDown className="h-4 w-4" /></ToggleGroupItem>
-          <ToggleGroupItem value='amount-played'><ArrowDownWideNarrow className="h-4 w-4" /></ToggleGroupItem>
-          <ToggleGroupItem value='win-rate'><ArrowDown10 className="h-4 w-4" /></ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+      <MatchupsSortToggle sort={sort} setSort={setSort} />
       <Accordion type="single" collapsible className="flex flex-col">
-        {Object.entries(renderedMatchups).sort(sortDeckMatchups(sortBy.by, sortBy.type)).map(([deck, deckMatchup]) => {
+        {Object.entries(renderedMatchups).sort(sortDeckMatchups(sort.by, sort.type)).map(([deck, deckMatchup]) => {
           const winRateOfDeck = getTotalWinRate(deckMatchup);
           const matchupResult = getTotalDeckMatchupResult(deckMatchup);
 
