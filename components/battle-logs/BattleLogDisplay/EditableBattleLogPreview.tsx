@@ -2,19 +2,25 @@ import { Button } from "@/components/ui/button";
 import { BattleLogPreview, BattleLogPreviewProps } from "./BattleLogPreview";
 import { TrashIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { BattleLogDeleteButton } from "./BattleLogEdit/BattleLogDeleteButton";
 import { BattleLogEditButton } from "./BattleLogEdit/BattleLogEditButton";
+import { useRecoilValue } from "recoil";
+import { userState } from "@/app/state/atoms";
 
 interface EditableBattleLogPreviewProps extends BattleLogPreviewProps {
   isEditing: boolean;
 }
 
 export const EditableBattleLogPreview = (props: EditableBattleLogPreviewProps) => {
-  const userIsNotInTheBattleLog = useMemo(() => {
-    return (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[0].name.toLowerCase()) && (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[1].name.toLowerCase());
-  }, [props.battleLog.players[0].name, props.battleLog.players[1].name, props.currentUserScreenName])
+  const userData = useRecoilValue(userState);
 
+  const userIsNotInTheBattleLog = useMemo(() => {
+    return (
+      userData?.live_screen_name?.toLowerCase() !== props.battleLog.players[0].name.toLowerCase() &&
+      userData?.live_screen_name?.toLowerCase() !== props.battleLog.players[1].name.toLowerCase()
+    );
+  }, [props.battleLog.players[0].name, props.battleLog.players[1].name, userData?.live_screen_name]);
 
   return (
     <div className="relative flex items-center gap-2">
