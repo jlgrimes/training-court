@@ -41,7 +41,6 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
         <EditableBattleLogPreview
           key={battleLog.id}
           battleLog={battleLog}
-          currentUserScreenName={userData.live_screen_name}
           isEditing={props.isEditing}
         />
       ))}

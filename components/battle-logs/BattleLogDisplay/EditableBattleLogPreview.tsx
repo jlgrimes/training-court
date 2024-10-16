@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
 import { BattleLogPreview, BattleLogPreviewProps } from "./BattleLogPreview";
-import { TrashIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { BattleLogDeleteButton } from "./BattleLogEdit/BattleLogDeleteButton";
@@ -28,7 +26,7 @@ export const EditableBattleLogPreview = (props: EditableBattleLogPreviewProps) =
         props.isEditing ? 'w-5/6' : 'w-full',
         'transition-all ease-out'
       )}>
-        <BattleLogPreview battleLog={props.battleLog} currentUserScreenName={props.currentUserScreenName} />
+        <BattleLogPreview battleLog={props.battleLog} />
       </div>
       <BattleLogEditButton isEditing={props.isEditing} log={props.battleLog} currentPlayer={(props.battleLog.players[0].name.toLowerCase() === props.currentUserScreenName?.toLowerCase()) ? props.battleLog.players[0] : props.battleLog.players[1]}
         shouldDisable={userIsNotInTheBattleLog} />

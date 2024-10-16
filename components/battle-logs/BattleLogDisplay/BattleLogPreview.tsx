@@ -13,26 +13,30 @@ import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { capitalizeName, getTurnOrderOfPlayer } from "../utils/battle-log.utils";
+import { useRecoilValue } from "recoil";
+import { userState } from "@/app/state/atoms";
 
 export interface BattleLogPreviewProps {
   // unparsed battle log
   battleLog: BattleLog;
-  currentUserScreenName: string | null | undefined;
 }
 
 
 //@TODO
 export function BattleLogPreview (props: BattleLogPreviewProps) {
-  const gameResult = useMemo(() => {
-    if (!props.currentUserScreenName) return undefined;
+  const userData = useRecoilValue(userState);
+  const currentUserScreenName = userData?.live_screen_name;
 
-    if (props.battleLog.winner.toLowerCase() === props.currentUserScreenName.toLowerCase()) return 'W';
+  const gameResult = useMemo(() => {
+    if (!currentUserScreenName) return undefined;
+
+    if (props.battleLog.winner.toLowerCase() === currentUserScreenName.toLowerCase()) return 'W';
     return 'L';
-  }, [props.currentUserScreenName, props.battleLog.winner]);
+  }, [currentUserScreenName, props.battleLog.winner]);
 
   const userIsNotInTheBattleLog = useMemo(() => {
-    return (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[0].name.toLowerCase()) && (props.currentUserScreenName?.toLowerCase() !== props.battleLog.players[1].name.toLowerCase());
-  }, [props.battleLog.players[0].name, props.battleLog.players[1].name, props.currentUserScreenName])
+    return (currentUserScreenName?.toLowerCase() !== props.battleLog.players[0].name.toLowerCase()) && (currentUserScreenName?.toLowerCase() !== props.battleLog.players[1].name.toLowerCase());
+  }, [props.battleLog.players[0].name, props.battleLog.players[1].name, currentUserScreenName])
 
   const gameResultAsText = useMemo(() => {
     switch (gameResult) {
@@ -69,7 +73,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
         </SmallCardHeader>
         <SmallCardHeader>
           <CardDescription>{`It doesn't look like you are in this battle log. If this is a mistake, edit your screen name at the top of the page to match your PTCG live screen name.`}</CardDescription>
-          <CardDescription>Your screen name: <b>{props.currentUserScreenName}</b></CardDescription>
+          <CardDescription>Your screen name: <b>{currentUserScreenName}</b></CardDescription>
           <CardDescription>Players in this battle: <b>{props.battleLog.players[0].name}, {props.battleLog.players[1].name}</b></CardDescription>
         </SmallCardHeader>
       </Card>
