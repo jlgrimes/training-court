@@ -12,7 +12,7 @@ export const detectBattleLogLanguage = (log: string): Language | null => {
   if (log.includes('Setup')) return 'en';
   if (log.includes('Vorbereitung')) return 'de';
   if (log.includes('Preparación')) return 'es';
-  if (log.includes('Mise en place')) return 'fr';
+  if (log.includes('Préparation')) return 'fr';
   if (log.includes('Allestimento')) return 'it';
   return null;
 }
@@ -48,13 +48,13 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
     turn_indicator: `turno de `
   },
   fr: {
-    a_single: 'un',
-    benched: 'et l\'a placé sur le banc',
-    prize_card: 'Carte Récompense',
+    a_single: 'une carte',
+    benched: 'sur le Banc',
+    prize_card: 'Récompense',
     setup: 'Mise en place',
     shuffled: 'a mélangé son deck.',
-    took: 'a pris',
-    turn_indicator: `c\'est le tour de `
+    took: 'a récupéré',
+    turn_indicator: `Tour de `
   },
   it: {
     a_single: 'una',
@@ -85,6 +85,11 @@ export const getPlayerNameFromSetup = (line: string, language: Language): string
     if (drawMatch) return drawMatch[1];
   }
 
+  if (language === 'fr') {
+    const drawMatch = /(.*) a pioché 7 cartes pour sa main de départ/g.exec(line);
+    if (drawMatch) return drawMatch[1];
+  }
+
   if (language === 'it') {
     //@TODO: We don't have an italian log in supabase.
     const drawMatch = /(.*) ha pescato 7 carte per la mano iniziale/g.exec(line);
@@ -107,6 +112,10 @@ export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
     return / - Zug von (.*)/g.exec(line)?.[1];
   }
 
+  if (language === 'fr') {
+    return / - Tour de (.*)/g.exec(line)?.[1];
+  }
+
   if (language === 'it') {
     return / - Turno di (.*)/g.exec(line)?.[1];
   }
@@ -122,6 +131,8 @@ export const determineWinnerFromLine = (line: string, language: Language) => {
       return /\. (.*) ganó\./.exec(line)?.[1];
     case 'de':
       return /\. (.*) hat gewonnen\./.exec(line)?.[1];
+    case 'fr':
+      return /\. (.*) gagne\./.exec(line)?.[1];
     case 'it':
       return /\. (.*) ha vinto\./.exec(line)?.[1];
     default:
@@ -137,6 +148,9 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
     case 'es':
       if (line.includes('tomó una carta de Premio')) return 1;
       return parseInt(line.match(/tomó ([0-9])/g)?.[0].split(' ')[1] ?? '0')
+    case 'fr':
+      if (line.includes(`${BattleLogDetectedStrings.fr.took} ${BattleLogDetectedStrings.fr.a_single} ${BattleLogDetectedStrings.fr.prize_card}`)) return 1;
+      return parseInt(line.match(/récupéré ([0-9])/g)?.[0].split(' ')[1] ?? '0')
     case 'de':
       if (line.includes('hat eine Preiskarten aufgenommen')) return 1;
       return parseInt(line.match(/hat ([0-9])/g)?.[0].split(' ')[1] ?? '0')
@@ -156,6 +170,8 @@ export const getIfLineCouldContainArchetype = (line: string, playerName: string,
       return line.includes(`${playerName} puso en juego a`) && line.includes(BattleLogDetectedStrings.es.benched);
     case 'de':
       return (line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')) || (line.includes(`${playerName} hat`) && line.includes(BattleLogDetectedStrings.de.benched));
+    case 'fr':
+      return line.includes(`${playerName} a joué`) && line.includes(BattleLogDetectedStrings.fr.benched);
     case 'it':
       // drew and played, to the bench
       return line.includes(`${playerName} ha pescato e giocato`) && line.includes(BattleLogDetectedStrings.it.benched);
