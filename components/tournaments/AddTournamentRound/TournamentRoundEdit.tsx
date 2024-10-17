@@ -11,6 +11,7 @@ import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/constants";
+import { Label } from "@/components/ui/label";
 
 export interface TournamentRoundEditProps {
   editing: boolean;
@@ -28,11 +29,12 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
 
   const [deck, setDeck] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<string[]>([]);
+  const [turnOrders, setTurnOrders] = useState<string[]>([]);
   const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | null>(null);
 
   const ifChangesWereMade: boolean = useMemo(() => {
-    return (props.existingRound?.deck !== deck) || (props.existingRound?.result.join() !== result.join()) || (props.existingRound.match_end_reason !== immediateMatchEnd);
-  }, [props.existingRound, deck, result, immediateMatchEnd]);
+    return (props.existingRound?.deck !== deck) || (props.existingRound?.result.join() !== result.join()) || (props.existingRound.match_end_reason !== immediateMatchEnd) ||((props.existingRound?.turn_orders?.join() ?? '') !== turnOrders.join());
+  }, [props.existingRound, deck, result, immediateMatchEnd, turnOrders]);
 
   useEffect(() => {
     if (immediateMatchEnd === MATCH_END_REASONS.ID) {
@@ -49,14 +51,20 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   }, [props.existingRound?.deck]);
 
   useEffect(() => {
-    setResult(props.existingRound?.result ?? [])
-  }, [props.existingRound?.result]);
-
-  useEffect(() => {
     if (props.existingRound?.match_end_reason) {
       setImmediateMatchEnd(props.existingRound.match_end_reason as ImmediateMatchEndScenarios)
     }
-  }, [props.existingRound?.match_end_reason])
+  }, [props.existingRound?.match_end_reason]);
+
+  useEffect(() => {
+    setResult(props.existingRound?.result ?? []);
+
+    if (!props.existingRound?.turn_orders && props.existingRound?.result) {
+      setTurnOrders(props.existingRound?.result.map((res) => ''))
+    } else if (props.existingRound?.turn_orders) {
+      setTurnOrders(props.existingRound.turn_orders)
+    }
+  }, [props.existingRound?.turn_orders, props.existingRound?.result]);
 
   const handleRoundEdit = useCallback(async () => {
     const supabase = createClient();
@@ -68,7 +76,8 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       result: result,
       deck: deck,
       user: props.userId,
-      match_end_reason: immediateMatchEnd ?? null
+      match_end_reason: immediateMatchEnd ?? null,
+      turn_orders: turnOrders
     };
 
     if (props.existingRound) {
@@ -95,34 +104,42 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       setImmediateMatchEnd(null);
       props.updateClientRounds(data[0]);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing]);
+  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders]);
 
   if (props.editing) return (
     <Card>
       <CardHeader>
         <CardTitle className="my-2 flex justify-between items-center">
           <span>Round {props.editedRoundNumber}</span>
-          <ToggleGroup type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
-              if (value === '') return setImmediateMatchEnd(null);
-              setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
-            }}>
-            <ToggleGroupItem value={MATCH_END_REASONS.ID}>
-              <HandshakeIcon className="mr-1 h-4 w-4" />
-              {MATCH_END_REASONS.ID}
-            </ToggleGroupItem>
-            <ToggleGroupItem value={MATCH_END_REASONS.NO_SHOW}>
-              <GhostIcon className="mr-1 h-4 w-4" />
-              {MATCH_END_REASONS.NO_SHOW}
-            </ToggleGroupItem>
-            <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
-              <HandIcon className="mr-1 h-4 w-4" />
-              {MATCH_END_REASONS.BYE}
-            </ToggleGroupItem>
-          </ToggleGroup>
         </CardTitle>
-        <div className="flex flex-col w-full gap-2">
-          <AddArchetype archetype={deck} setArchetype={setDeck} isDisabled={immediateMatchEnd !== null} />
-          <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} />
+        <div className="flex flex-col w-full gap-4">
+          <div className="flex flex-col w-full gap-2">
+            <Label>Opponent's deck</Label>
+            <AddArchetype archetype={deck} setArchetype={setDeck} isDisabled={immediateMatchEnd !== null} />
+          </div>
+          <div className="flex flex-col w-full gap-2">
+            <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} turnOrder={turnOrders} setTurnOrder={setTurnOrders} />
+          </div>
+          <div className="flex flex-col w-full gap-2">
+            <Label>Other outcome</Label>
+            <ToggleGroup className="justify-start" type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
+                if (value === '') return setImmediateMatchEnd(null);
+                setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
+              }}>
+              <ToggleGroupItem value={MATCH_END_REASONS.ID}>
+                <HandshakeIcon className="mr-1 h-4 w-4" />
+                {MATCH_END_REASONS.ID}
+              </ToggleGroupItem>
+              <ToggleGroupItem value={MATCH_END_REASONS.NO_SHOW}>
+                <GhostIcon className="mr-1 h-4 w-4" />
+                {MATCH_END_REASONS.NO_SHOW}
+              </ToggleGroupItem>
+              <ToggleGroupItem value={MATCH_END_REASONS.BYE}>
+                <HandIcon className="mr-1 h-4 w-4" />
+                {MATCH_END_REASONS.BYE}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={(!ifChangesWereMade || ((immediateMatchEnd === null) && (!deck || (result.length === 0))))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
             <Button variant='secondary' onClick={() => props.setEditing(false)}>Cancel</Button>

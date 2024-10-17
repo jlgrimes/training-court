@@ -5,17 +5,19 @@ import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { Database } from "@/database.types";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
 import { parseBattleLog } from "../utils/battle-log.utils";
-import { AddBattleLogButton } from "../BattleLogInput/AddBattleLogButton";
+import { BattleLog, BattleLogParsedWithResults } from "../utils/battle-log.types";
 
 interface BattleLogsHomePreviewClientProps {
   userData: Database['public']['Tables']['user data']['Row'];
-  battleLogs: Database['public']['Tables']['logs']['Row'][]
+  battleLogs: BattleLogParsedWithResults[]
 }
 
 export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientProps) {
-  const [logs, setLogs] = useState<Database['public']['Tables']['logs']['Row'][]>(props.battleLogs);
+  const [logs, setLogs] = useState<BattleLogParsedWithResults[]>(props.battleLogs);
 
-  const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
+
+  // Something is going on here. I need to look at past data. The difference in BattleLog vs log is throwing me hard.
+  const handleAddLog = useCallback((newLog: BattleLog) => {
     // Puts most recent (now) in the front
     setLogs([newLog, ...logs])
   }, [setLogs, logs]);

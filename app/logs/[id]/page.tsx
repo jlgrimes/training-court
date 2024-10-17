@@ -2,12 +2,29 @@ import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogCarousel } from "@/components/battle-logs/BattleLogDisplay/BattleLogCarousel";
 import { Notes } from "@/components/battle-logs/Notes/Notes";
-import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { getPlayerNames, parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Database } from "@/database.types";
+import { detectBattleLogLanguage } from "@/lib/i18n/battle-log";
 import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const supabase = createClient();
+  const { data: logData } = await supabase.from('logs').select().eq('id', params.id).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
+
+  if (!logData) return {
+    title: 'Battle'
+  }
+
+  const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, logData.opp_archetype, null);
+
+  return {
+    title: `${battleLog.players[0].name} vs ${battleLog.players[1].name}`
+  };
+}
 
 export default async function LiveLog({ params }: { params: { id: string } }) {
   const supabase = createClient();

@@ -39,4 +39,13 @@ export interface BattleLog {
   sections: BattleLogTurn[];
 }
 
-export type BattleLogSortBy = 'All' | 'Day' | 'Deck' | 'Matchups';
+export interface BattleLogParsedWithResults {
+  id: string;
+  created_at: string;
+  archetype: string | null;
+  opp_archetype: string | null;
+  log: string; 
+  notes: string | null;
+}
+
+export type BattleLogSortBy = 'All' | 'Day' | 'Deck';
