@@ -19,12 +19,13 @@ import { userState } from "@/app/state/atoms";
 export interface BattleLogPreviewProps {
   // unparsed battle log
   battleLog: BattleLog;
+  userData?: { live_screen_name: string };
 }
 
 
 //@TODO 
 export function BattleLogPreview (props: BattleLogPreviewProps) {
-  const userData = useRecoilValue(userState);
+  const userData = props.userData ?? useRecoilValue(userState);
   const currentUserScreenName = userData?.live_screen_name;
 
   const gameResult = useMemo(() => {
