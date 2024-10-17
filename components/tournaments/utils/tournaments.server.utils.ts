@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 export const fetchTournament = async (tournamentId: string) => {
   const supabase = createClient();
 
-  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('id', tournamentId).maybeSingle();
+  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('id', tournamentId).returns<Database['public']['Tables']['tournaments']['Row'][]>().maybeSingle();
   return tournamentData;
 };
 

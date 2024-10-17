@@ -40,15 +40,7 @@ export type Database = {
           is_fixed?: boolean | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "feedback_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       "friend requests": {
         Row: {
@@ -70,13 +62,6 @@ export type Database = {
           uses_remaining?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "friend requests_user_sending_fkey"
-            columns: ["user_sending"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "friend requests_user_sending_fkey1"
             columns: ["user_sending"]
@@ -107,24 +92,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "friends_friend_fkey"
-            columns: ["friend"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "friends_friend_fkey1"
             columns: ["friend"]
             isOneToOne: false
             referencedRelation: "user data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "friends_user_fkey"
-            columns: ["user"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -139,40 +110,32 @@ export type Database = {
       logs: {
         Row: {
           archetype: string | null
-          opp_archetype: string | null
           created_at: string
           id: string
           log: string
           notes: string | null
+          opp_archetype: string | null
           user: string
         }
         Insert: {
           archetype?: string | null
-          opp_archetype?: string | null
           created_at?: string
           id?: string
           log: string
           notes?: string | null
+          opp_archetype?: string | null
           user: string
         }
         Update: {
           archetype?: string | null
-          opp_archetype?: string | null
           created_at?: string
           id?: string
           log?: string
           notes?: string | null
+          opp_archetype?: string | null
           user?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "logs_user_fkey"
-            columns: ["user"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       "tournament rounds": {
         Row: {
@@ -183,8 +146,8 @@ export type Database = {
           result: string[]
           round_num: number
           tournament: string
+          turn_orders: string[] | null
           user: string
-          went_first: boolean | null
         }
         Insert: {
           created_at?: string
@@ -194,8 +157,8 @@ export type Database = {
           result: string[]
           round_num: number
           tournament: string
+          turn_orders?: string[] | null
           user: string
-          went_first?: boolean | null
         }
         Update: {
           created_at?: string
@@ -205,8 +168,8 @@ export type Database = {
           result?: string[]
           round_num?: number
           tournament?: string
+          turn_orders?: string[] | null
           user?: string
-          went_first?: boolean | null
         }
         Relationships: [
           {
@@ -252,15 +215,7 @@ export type Database = {
           placement?: string | null
           user?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "tournaments_user_fkey"
-            columns: ["user"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       "user data": {
         Row: {
@@ -281,15 +236,7 @@ export type Database = {
           id?: string
           live_screen_name?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user data_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -413,4 +360,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

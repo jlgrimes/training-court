@@ -2,7 +2,12 @@ import { fetchCurrentUser } from "@/components/auth.utils"
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: 'Logs',
+};
 
 export default async function LogsPage() {
   const currentUser = await fetchCurrentUser();

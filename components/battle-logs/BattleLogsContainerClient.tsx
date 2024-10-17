@@ -13,6 +13,9 @@ import { isPremiumUser } from "../premium/premium.utils";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';  // Import Recoil hooks
 import { logState, userState } from "@/app/state/atoms";
 import { PremiumIcon } from "../premium/PremiumIcon";
+import { Matchups } from "../premium/matchups/Matchups";
+import { parseBattleLog } from "./utils/battle-log.utils";
+import { convertBattleLogsToMatchups } from "../premium/matchups/Matchups.utils";
 
 interface BattleLogsContainerClientProps {
   logs: BattleLog[];
@@ -38,19 +41,13 @@ export function BattleLogsContainerClient(props: BattleLogsContainerClientProps)
     setIsEditing(false);
   }, [sortBy]);
 
-  const availableSortBys = useMemo((): BattleLogSortBy[] => 
-    isPremiumUser(user?.id) ? ['Day', 'Deck', 'Matchups', 'All'] : ['Day', 'Deck', 'All'], 
-    [user?.id]
-  );
+  const availableSortBys = ['Day', 'Deck', 'All'];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
-        <AddBattleLogInput userData={user} handleAddLog={handleAddLog} />
-        {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
-      </div>
-
-      <div>
+        <AddBattleLogInput userData={props.userData} handleAddLog={handleAddLog} />
+        <div>
         <div className="flex justify-between">
           <Tabs defaultValue='Day' onValueChange={(value) => {
             track('Battle log sort by changed', { value });
@@ -77,6 +74,9 @@ export function BattleLogsContainerClient(props: BattleLogsContainerClientProps)
           </div>
         )}
       </div>
+        {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
+      </div>
+      {isPremiumUser(props.userData?.id) && <Matchups matchups={convertBattleLogsToMatchups(logs)} userId={props.userData?.id} shouldDisableDrillDown shouldDisableRoundGroup />}
     </div>
   );
 }

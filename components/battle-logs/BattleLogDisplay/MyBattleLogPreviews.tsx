@@ -7,7 +7,8 @@ import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
 import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
-import { BattleLogsByMatchupPremium } from "../BattleLogGroups/BattleLogsByMatchup/BattleLogsByMatchupPremium";
+import { Matchups } from "@/components/premium/matchups/Matchups";
+import { convertBattleLogsToMatchups } from "@/components/premium/matchups/Matchups.utils";
 
 interface MyBattleLogPreviewsProps {
   sortBy: BattleLogSortBy;
@@ -30,9 +31,7 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
     return <BattleLogsByDeck battleLogs={battleLogs} userData={userData} isEditing={props.isEditing} />
   }
 
-  if (props.sortBy === 'Matchups') {
-    return <BattleLogsByMatchupPremium battleLogs={battleLogs} userData={userData} isEditing={props.isEditing} />
-  }
+
 
   return (
     <div className="flex flex-col gap-2">
