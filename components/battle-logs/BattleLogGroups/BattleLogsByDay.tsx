@@ -10,7 +10,6 @@ import { convertBattleLogDateIntoDay, getBattleLogsByDayList, groupBattleLogInto
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/sprites/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
-import { isAfter, parseISO } from "date-fns";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
 
@@ -60,7 +59,7 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
               </Card>
             )}
             {logs.map((battleLog) => (
-              <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
+              <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} isEditing={props.isEditing} />
             ))}
           </AccordionContent>
         </AccordionItem>

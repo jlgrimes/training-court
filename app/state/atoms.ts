@@ -8,7 +8,7 @@ export const userState = atom<Database['public']['Tables']['user data']['Row'] |
     //default: {id: '', created_at: '', avatar: '', live_screen_name: ''}
 })
 
-export const logState = atom<BattleLogParsedWithResults[]>({
+export const logState = atom<BattleLog[]>({
     key: 'logState',
     default: []
 })

@@ -7,8 +7,6 @@ import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
 import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
-import { Matchups } from "@/components/premium/matchups/Matchups";
-import { convertBattleLogsToMatchups } from "@/components/premium/matchups/Matchups.utils";
 
 interface MyBattleLogPreviewsProps {
   sortBy: BattleLogSortBy;
