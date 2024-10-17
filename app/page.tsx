@@ -1,7 +1,6 @@
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
-import TournamentPreview from "@/components/tournaments/Preview/TournamentPreview";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
 import { Button } from "@/components/ui/button";
@@ -65,7 +64,7 @@ export default async function Index() {
             winner: 'jgrimesey',
             sections: [],
             language: 'en'
-          }} currentUserScreenName='jgrimesey' />
+          }} />
           <BattleLogPreview battleLog={{
             id: '',
             players: [{
@@ -83,7 +82,7 @@ export default async function Index() {
             winner: 'flexdaddy',
             sections: [],
             language: 'en'
-          }} currentUserScreenName='jgrimesey' />
+          }} />
         </div>
       </div>
       <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
