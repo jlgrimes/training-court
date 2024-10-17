@@ -43,7 +43,7 @@ export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
           </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
             {logs.map((battleLog) => (
-              <EditableBattleLogPreview battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
+              <EditableBattleLogPreview battleLog={battleLog} isEditing={props.isEditing} />
             ))}
           </AccordionContent>
         </AccordionItem>

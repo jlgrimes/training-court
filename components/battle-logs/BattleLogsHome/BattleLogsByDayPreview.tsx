@@ -66,7 +66,7 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
               </Card>
             )}
             {logs.map((battleLog) => (
-              <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+              <BattleLogPreview key={battleLog.id} battleLog={battleLog}  />
             ))}
           </AccordionContent>
         </AccordionItem>
