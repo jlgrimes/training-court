@@ -43,8 +43,8 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
-      archetype: currentPlayer?.deck ?? 'unknown',
-      opp_archetype: opponentPlayer?.deck ?? 'unknown',
+      archetype: currentPlayer?.deck ?? null,
+      opp_archetype: opponentPlayer?.deck ?? null,
       log: log
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 

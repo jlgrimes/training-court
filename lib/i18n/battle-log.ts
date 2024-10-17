@@ -171,10 +171,11 @@ export const getIfLineCouldContainArchetype = (line: string, playerName: string,
     case 'de':
       return (line.includes(playerName) && line.includes(' auf der Bank zu ') && line.includes('entwickelt')) || (line.includes(`${playerName} hat`) && line.includes(BattleLogDetectedStrings.de.benched));
     case 'fr':
-      return line.includes(`${playerName} a joué`) && line.includes(BattleLogDetectedStrings.fr.benched);
+      return (line.includes(`${playerName} a joué`) && line.includes(BattleLogDetectedStrings.fr.benched))
+      || (line.includes(` de ${playerName} a utilisé `));
     case 'it':
       // drew and played, to the bench
-      return line.includes(`${playerName} ha pescato e giocato`) && line.includes(BattleLogDetectedStrings.it.benched);
+      return line.includes(`${playerName} ha pescato e giocato`) && line.includes(BattleLogDetectedStrings.it.benched)
     default:
       return false;
   }
