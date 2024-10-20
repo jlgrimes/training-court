@@ -4,8 +4,20 @@ import { Database } from "@/database.types";
 import { redirect } from "next/navigation";
 import { TournamentContainerClient } from "./TournamentContainerClient";
 
+export interface Tournament {
+  category: string | null;
+  created_at: string;
+  date_from: string;
+  date_to: string;
+  deck: string | null;
+  id: string;
+  name: string;
+  placement: string | null;
+  user: string;
+}
+
 interface TournamentContainer {
-  tournament: Database['public']['Tables']['tournaments']['Row'];
+  tournament: Tournament;
 }
 
 export default async function TournamentContainer(props: TournamentContainer) {

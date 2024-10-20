@@ -123,7 +123,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
             </SelectTrigger>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
-                <SelectItem value={cat}>
+                <SelectItem key={cat} value={cat}>
                   <div className="flex items-center pl-1">
                     <TournamentCategoryIcon category={cat} />
                     <p>{displayTournamentCategory(cat)}</p>

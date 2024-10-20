@@ -1,6 +1,5 @@
 'use client';
 
-
 import { createClient } from "@/utils/supabase/client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
@@ -10,7 +9,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -20,15 +18,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
-import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
-import { Edit } from "lucide-react";
+import { useRecoilState } from "recoil";
+import { tournamentState } from "@/app/state/atom";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
-export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
+export const EditableTournamentArchetype = ({ editDisabled }: { editDisabled?: boolean }) => {
   const [deck, setDeck] = useState('');
+  const [tournament, setTournament] = useRecoilState(tournamentState); 
   const [serverDeck, setServerDeck] = useState(tournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 

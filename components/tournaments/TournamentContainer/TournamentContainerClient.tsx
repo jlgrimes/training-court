@@ -18,9 +18,12 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
+import { useSetRecoilState } from "recoil";
+import { tournamentRoundsState, tournamentState } from "@/app/state/atom";
+import { Tournament } from "./TournamentContainer";
 
 interface TournamentContainerClientProps {
-  tournament: Database['public']['Tables']['tournaments']['Row'];
+  tournament: Tournament;
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
   user: User | undefined | null;
 }
@@ -32,9 +35,17 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
 
+  const setTournamentDataState = useSetRecoilState(tournamentState);
+  // const setTournamentRoundsState = useSetRecoilState(tournamentRoundsState);
+
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
-  }, []);
+
+    setTournamentDataState(props.tournament);
+    // setTournamentRoundsState(props.rounds);
+
+  }, [props.tournament, props.rounds, setTournamentDataState]);
+
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
@@ -68,7 +79,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
-            tournament={props.tournament}
+            // tournament={props.tournament}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>
