@@ -28,7 +28,6 @@ const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-dec
 export const EditableTournamentArchetype = ({ editDisabled }: { editDisabled?: boolean }) => {
   const [deck, setDeck] = useState('');
   const [tournament, setTournament] = useRecoilState(tournamentState); 
-  const [serverDeck, setServerDeck] = useState(tournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 
   const shouldLocalizeDeckInput = useMemo(() => {
@@ -45,11 +44,11 @@ export const EditableTournamentArchetype = ({ editDisabled }: { editDisabled?: b
       removeCookie(getLocalDeckCookieKey(tournament.id))
       setArchetype(clientDeck);
     }
-  }, [clientDeck]);
+  }, [clientDeck, shouldLocalizeDeckInput, tournament.id]);
 
   useEffect(() => {
-    serverDeck && setDeck(serverDeck);
-  }, [serverDeck]);
+    console.log("Tournament from Recoil state: ", tournament);
+  }, [tournament]);
   
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
@@ -62,8 +61,8 @@ export const EditableTournamentArchetype = ({ editDisabled }: { editDisabled?: b
     const { error } = await supabase.from('tournaments').update({ deck }).eq('id', tournament.id);
 
     if (error) throw error;
-
-    setServerDeck(deck);
+    
+    setTournament((prev) => prev ? { ...prev, deck } : prev);
   }, [createClient, deck, tournament.id]);
 
   if (clientDeck) {
@@ -78,16 +77,15 @@ export const EditableTournamentArchetype = ({ editDisabled }: { editDisabled?: b
   }
 
   if (editDisabled) {
-    if (serverDeck) {
-      return <Sprite name={serverDeck} />
+    if (tournament.deck) {
+      return <Sprite name={tournament.deck} />
     }
-
     return null;
   }
 
   return (
     <Dialog>
-      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} /> : 'Add deck'}</DialogTrigger>
+      <DialogTrigger className="text-sm">{tournament.deck ? <Sprite name={tournament.deck} /> : 'Add deck'}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
