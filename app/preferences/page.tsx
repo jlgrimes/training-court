@@ -18,8 +18,8 @@ export default async function PreferencesPage() {
     <div className="flex flex-col py-6 lg:py-8 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
       <h1 className="text-xl tracking-wide font-semibold text-slate-800">Preferences</h1>
       <Separator />
-      <Tabs defaultValue="account" orientation="vertical" className="flex gap-8 h-full">
-        <TabsList className="flex-col w-[200px] h-full gap-2 p-4">
+      <Tabs defaultValue="account" orientation="vertical" className="flex flex-col md:flex-row gap-4 md:gap-8 h-full">
+        <TabsList className="md:flex-col w-full md:w-[200px] h-full gap-2 md:p-2">
           <TabsTrigger value="account" className="w-full">Account</TabsTrigger>
           <TabsTrigger value="appearance" className="w-full" disabled>Appearance</TabsTrigger>
         </TabsList>
