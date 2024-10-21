@@ -7,15 +7,13 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { MyProfileAvatar } from "./MyProfileAvatar";
-import HeaderBreadcrumbs from "./HeaderBreadcrumbs";
-import { AvatarSelector } from "../avatar/AvatarSelector";
 import { LogInOut } from "./LogInOut";
 import { ReportBugDialog } from "./ReportBugDialog";
 import { fetchCurrentUser } from "../auth.utils";
 import Image from "next/image";
 import { isUserAnAdmin } from "../admin/admin.utils";
 import { NavigationMenuContent, NavigationMenuTrigger } from "@radix-ui/react-navigation-menu";
+import { AuthIcon } from "./AuthIcon";
 
 export default async function Header() {
   const user = await fetchCurrentUser();
@@ -33,15 +31,6 @@ export default async function Header() {
                 <ReportBugDialog user={user} />
               </NavigationMenuItem>
             )}
-            {user && isUserAnAdmin(user.id) && (
-              <NavigationMenuItem>
-                <Link href="/admin" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Admin panel
-                  </NavigationMenuLink>     
-                </Link>
-              </NavigationMenuItem>
-            )}
             <NavigationMenuItem>
               <Link href="/about" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -50,11 +39,8 @@ export default async function Header() {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <LogInOut />
+              <AuthIcon user={user} />
             </NavigationMenuItem>
-            {/* <NavigationMenuItem>
-              <AvatarSelector />
-            </NavigationMenuItem> */}
           </NavigationMenuList>
         </NavigationMenu>
       </div>

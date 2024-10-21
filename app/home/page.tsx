@@ -1,17 +1,12 @@
 import { redirect } from "next/navigation";
 
-import TournamentCreate from "@/components/tournaments/TournamentCreate";
-import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournamentPreviews";
 import { fetchCurrentUser } from "@/components/auth.utils";
-import { AvatarSelector } from "@/components/avatar/AvatarSelector";
-import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
-import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
 import { BattleLogsHomePreview } from "@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview";
 import { TournamentsHomePreview } from "@/components/tournaments/TournamentsHome/TournamentsHomePreview";
+import { AvatarSelector } from "@/components/avatar/AvatarSelector";
+import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -28,13 +23,11 @@ export default async function Profile() {
           <CardHeader>
             <CardTitle>Welcome to Training Court</CardTitle>
             <CardDescription>Enter your PTCG Live screen name and pick an avatar to get started!</CardDescription>
+            <AvatarSelector userId={user.id} />
+            <ScreenNameEditable userId={user.id} />
           </CardHeader>
         </Card>
       )}
-      <div className="flex items-center justify-center gap-4">
-        <AvatarSelector userId={user.id} />
-        <ScreenNameEditable userId={user.id} />
-      </div>
 
       {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
 

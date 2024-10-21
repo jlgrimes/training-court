@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { fetchCurrentUser } from "@/components/auth.utils";
-import { AvatarSelector } from "@/components/avatar/AvatarSelector";
-import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TournamentsHomePage } from "@/components/tournaments/TournamentsHome/TournamentsHomePage";
@@ -30,11 +28,6 @@ export default async function Tournaments() {
           </CardHeader>
         </Card>
       )}
-      <div className="flex items-center gap-4">
-        <AvatarSelector userId={user.id} />
-        <ScreenNameEditable userId={user.id} />
-      </div>
-
       <TournamentsHomePage user={user} />
     </div>
   );
