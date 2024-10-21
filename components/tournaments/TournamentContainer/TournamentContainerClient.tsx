@@ -79,7 +79,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
-            // tournament={props.tournament}
+            tournament={props.tournament}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>

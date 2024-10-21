@@ -18,53 +18,59 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
-import { useRecoilState } from "recoil";
 import { tournamentState } from "@/app/state/atom";
-import { Tournament } from "@/components/tournaments/TournamentContainer/TournamentContainer";
+import { useRecoilValue } from "recoil";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
+interface EditableTournamentArchetypeProps {
+  tournament?: Database['public']['Tables']['tournaments']['Row'];
+  editDisabled?: boolean;
+}
 
-export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament?: Tournament, editDisabled?: boolean }) => {
+export const EditableTournamentArchetype = ({ tournament, editDisabled }: EditableTournamentArchetypeProps) => {
   const [deck, setDeck] = useState('');
-  const [currTournament, setCurrTournament] = useState(tournament)
+  const recoilTournament = useRecoilValue(tournamentState);
+  const activeTournament = tournament|| recoilTournament;
+  const [serverDeck, setServerDeck] = useState(tournament?.deck || recoilTournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 
   const shouldLocalizeDeckInput = useMemo(() => {
-    if (isAfter(Date.now(), currTournament.date_to)) return false;
+    if (isAfter(Date.now(), activeTournament.date_to)) return false;
     return true;
-  }, [tournament.date_to]);
+  }, [activeTournament.date_to]);
 
   useEffect(() => {
-    setClientDeck(getCookie(getLocalDeckCookieKey(tournament.id)));
+    setClientDeck(getCookie(getLocalDeckCookieKey(activeTournament.id)));
   }, []);
 
   useEffect(() => {
     if (clientDeck && !shouldLocalizeDeckInput) {
-      removeCookie(getLocalDeckCookieKey(tournament.id))
+      removeCookie(getLocalDeckCookieKey(activeTournament.id))
       setArchetype(clientDeck);
     }
-  }, [clientDeck, shouldLocalizeDeckInput, tournament.id]);
+  }, [clientDeck]);
 
   useEffect(() => {
-    console.log("Tournament from Recoil state: ", tournament);
-  }, [tournament]);
+    serverDeck && setDeck(serverDeck);
+  }, [serverDeck]);
   
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
-      setCookie(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });
+      setCookie(getLocalDeckCookieKey(activeTournament.id), deck, { expires: 70 });
       return setClientDeck(deck);
     }
 
     const supabase = createClient();
     
-    const { error } = await supabase.from('tournaments').update({ deck }).eq('id', tournament.id);
+    const { error } = await supabase.from('tournaments').update({ deck }).eq('id', tournament?.id);
 
     if (error) throw error;
-    
-    setTournament((prev) => prev ? { ...prev, deck } : prev);
-  }, [createClient, deck, tournament.id]);
+
+    setServerDeck(deck);
+  }, [createClient, deck, activeTournament.id]);
 
   if (clientDeck) {
     return (
@@ -78,18 +84,18 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
   }
 
   if (editDisabled) {
-    if (tournament.deck) {
-      return <Sprite name={tournament.deck} />
+    if (serverDeck) {
+      return <Sprite name={serverDeck} />
     }
     return null;
   }
 
   return (
     <Dialog>
-      <DialogTrigger className="text-sm">{tournament.deck ? <Sprite name={tournament.deck} /> : 'Add deck'}</DialogTrigger>
+      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} /> : 'Add deck'}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
+          <DialogTitle>Add your deck for {activeTournament.name}</DialogTitle>
         </DialogHeader>
           <AddArchetype archetype={deck} setArchetype={setDeck} />
           {shouldLocalizeDeckInput && (
