@@ -22,16 +22,17 @@ import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 import { useRecoilState } from "recoil";
 import { tournamentState } from "@/app/state/atom";
+import { Tournament } from "@/components/tournaments/TournamentContainer/TournamentContainer";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
-export const EditableTournamentArchetype = ({ editDisabled }: { editDisabled?: boolean }) => {
+export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament?: Tournament, editDisabled?: boolean }) => {
   const [deck, setDeck] = useState('');
-  const [tournament, setTournament] = useRecoilState(tournamentState); 
+  const [currTournament, setCurrTournament] = useState(tournament)
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 
   const shouldLocalizeDeckInput = useMemo(() => {
-    if (isAfter(Date.now(), tournament.date_to)) return false;
+    if (isAfter(Date.now(), currTournament.date_to)) return false;
     return true;
   }, [tournament.date_to]);
 
