@@ -29,7 +29,7 @@ export const Sprite = (props: SpriteProps) => {
         <CircleHelpIcon/>
       ) : (
         nameSplit.map((name, index) => (
-          <SpriteFromUrl key={index} url={pkmnToImgSrc(name)} />
+          <SpriteFromUrl key={index} url={pkmnToImgSrc(name)} small={props.small} />
         ))
       )}
     </div>

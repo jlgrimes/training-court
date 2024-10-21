@@ -2,6 +2,7 @@ import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 import { buttonVariants } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { redirect } from "next/navigation";
@@ -22,10 +23,16 @@ export default async function PreferencesPage() {
           <TabsTrigger value="account" className="w-full">Account</TabsTrigger>
           <TabsTrigger value="appearance" className="w-full" disabled>Appearance</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">
-          <div>
-            <AvatarSelector userId={user.id} />
-            <ScreenNameEditable userId={user.id} />
+        <TabsContent value="account" className="w-full">
+          <div className="flex-col">
+            <div className="flex justify-between items-center">
+              <Label>Avatar</Label>
+              <AvatarSelector userId={user.id} />
+            </div>
+            <div className="flex justify-between items-center">
+              <Label>PTCG Live screen name</Label>
+              <ScreenNameEditable userId={user.id} />
+            </div>
           </div>
         </TabsContent>
       </Tabs>
