@@ -69,34 +69,51 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const handleRoundEdit = useCallback(async () => {
     const supabase = createClient();
     let data, error;
+    let roundNumber = props.editedRoundNumber;
+    const maxRetries = 5;
+    let retryCount = 0;
   
-    const { data: existingRounds, error: fetchError } = await supabase
-      .from('tournament rounds')
-      .select('round_num')
-      .eq('tournament', props.tournamentId)
-      .eq('round_num', props.editedRoundNumber);
+    const checkForDuplicateRound = async (roundNum: number) => {
+      const { data: existingRounds, error: fetchError } = await supabase
+        .from('tournament rounds')
+        .select('round_num')
+        .eq('tournament', props.tournamentId)
+        .eq('round_num', roundNum);
   
-    if (fetchError) {
+      if (fetchError) {
+        toast({
+          variant: "destructive",
+          title: "Error fetching rounds",
+          description: fetchError.message,
+        });
+        return { exists: false, error: fetchError };
+      }
+  
+      return { exists: existingRounds && existingRounds.length > 0, error: null };
+    };
+  
+    let duplicateCheck = await checkForDuplicateRound(roundNumber);
+  
+    while (duplicateCheck.exists && retryCount < maxRetries) {
+      roundNumber += 1;
+      retryCount += 1;
+      duplicateCheck = await checkForDuplicateRound(roundNumber);
+    }
+  
+    if (retryCount >= maxRetries) {
       toast({
         variant: "destructive",
-        title: "Error fetching rounds",
-        description: fetchError.message,
+        title: "Failed to add round",
+        description: `Unable to find an available round number after ${maxRetries} attempts.`,
       });
       return;
     }
   
-    if (existingRounds && existingRounds.length > 0) {
-      toast({
-        variant: "destructive",
-        title: "Duplicate round",
-        description: `Round ${props.editedRoundNumber} already exists.`,
-      });
-      return;
-    }
+    if (duplicateCheck.error) return;
   
     const payload = {
       tournament: props.tournamentId,
-      round_num: props.editedRoundNumber,
+      round_num: roundNumber,
       result: result,
       deck: deck,
       user: props.userId,
@@ -109,7 +126,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
         .from('tournament rounds')
         .update(payload)
         .eq('tournament', props.tournamentId)
-        .eq('round_num', props.editedRoundNumber)
+        .eq('round_num', roundNumber)
         .select();
   
       data = updatedData;
@@ -136,8 +153,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       setImmediateMatchEnd(null);
       props.updateClientRounds(data[0]);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd, props.editedRoundNumber, turnOrders, props.updateClientRounds, props.setEditing]);
-  
+  }, [props.tournamentId, deck, result, immediateMatchEnd, turnOrders, props.editedRoundNumber, props.updateClientRounds, props.setEditing]);
   
   if (props.editing) return (
     <Card>
