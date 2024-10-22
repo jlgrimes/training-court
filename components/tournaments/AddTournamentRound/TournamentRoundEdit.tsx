@@ -169,7 +169,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
             <ToggleGroup className="justify-start" type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
                 if (value === '') return setImmediateMatchEnd(null);
                 setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
-              }}>
+              }}> 
               <ToggleGroupItem value={MATCH_END_REASONS.ID}>
                 <HandshakeIcon className="mr-1 h-4 w-4" />
                 {MATCH_END_REASONS.ID}
