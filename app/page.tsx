@@ -65,7 +65,7 @@ export default async function Index() {
             winner: 'jgrimesey',
             sections: [],
             language: 'en'
-          }} />
+          }} currentUserScreenName="jgrimsey" />
           <BattleLogPreview battleLog={{
             id: '',
             players: [{
@@ -83,7 +83,7 @@ export default async function Index() {
             winner: 'flexdaddy',
             sections: [],
             language: 'en'
-          }} />
+          }} currentUserScreenName="jgrimsey" />
         </div>
       </div>
       <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">

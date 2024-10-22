@@ -1,15 +1,10 @@
 import { redirect } from "next/navigation";
 
-import TournamentCreate from "@/components/tournaments/TournamentCreate";
-import { MyTournamentPreviews } from "@/components/tournaments/Preview/MyTournamentPreviews";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
-import { BattleLogsContainer } from "@/components/battle-logs/BattleLogsContainer";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
 import { BattleLogsHomePreview } from "@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview";
 import { TournamentsHomePreview } from "@/components/tournaments/TournamentsHome/TournamentsHomePreview";
 
