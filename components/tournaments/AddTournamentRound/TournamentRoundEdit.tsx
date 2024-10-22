@@ -69,7 +69,31 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const handleRoundEdit = useCallback(async () => {
     const supabase = createClient();
     let data, error;
-
+  
+    const { data: existingRounds, error: fetchError } = await supabase
+      .from('tournament rounds')
+      .select('round_num')
+      .eq('tournament', props.tournamentId)
+      .eq('round_num', props.editedRoundNumber);
+  
+    if (fetchError) {
+      toast({
+        variant: "destructive",
+        title: "Error fetching rounds",
+        description: fetchError.message,
+      });
+      return;
+    }
+  
+    if (existingRounds && existingRounds.length > 0) {
+      toast({
+        variant: "destructive",
+        title: "Duplicate round",
+        description: `Round ${props.editedRoundNumber} already exists.`,
+      });
+      return;
+    }
+  
     const payload = {
       tournament: props.tournamentId,
       round_num: props.editedRoundNumber,
@@ -77,35 +101,44 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       deck: deck,
       user: props.userId,
       match_end_reason: immediateMatchEnd ?? null,
-      turn_orders: turnOrders
+      turn_orders: turnOrders,
     };
-
+  
     if (props.existingRound) {
-      const res = await supabase.from('tournament rounds').update(payload).eq('tournament', props.tournamentId).eq('round_num', props.editedRoundNumber).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
-
-      data = res.data;
-      error = res.error
+      const { data: updatedData, error: updateError } = await supabase
+        .from('tournament rounds')
+        .update(payload)
+        .eq('tournament', props.tournamentId)
+        .eq('round_num', props.editedRoundNumber)
+        .select();
+  
+      data = updatedData;
+      error = updateError;
     } else {
-      const res = await supabase.from('tournament rounds').insert(payload).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
-
-      data = res.data;
-      error = res.error
+      const { data: insertedData, error: insertError } = await supabase
+        .from('tournament rounds')
+        .insert(payload)
+        .select();
+  
+      data = insertedData;
+      error = insertError;
     }
-
+  
     if (error) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error.message,
-      })
+      });
     } else if (data) {
       setResult([]);
       props.setEditing(false);
       setImmediateMatchEnd(null);
       props.updateClientRounds(data[0]);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders]);
-
+  }, [props.tournamentId, deck, result, immediateMatchEnd, props.editedRoundNumber, turnOrders, props.updateClientRounds, props.setEditing]);
+  
+  
   if (props.editing) return (
     <Card>
       <CardHeader>
