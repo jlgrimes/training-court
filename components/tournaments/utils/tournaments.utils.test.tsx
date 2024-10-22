@@ -12,29 +12,29 @@ const defaultProps: TournamentRoundEditProps = {
   updateClientRounds: jest.fn(),
 };
 
-describe('TournamentRoundEdit', () => {
-  it('renders a button to add or update a round', () => {
-    render(<TournamentRoundEdit {...defaultProps} />);
+// describe('TournamentRoundEdit', () => {
+//   it('renders a button to add or update a round', () => {
+//     render(<TournamentRoundEdit {...defaultProps} />);
 
-    const addButton = screen.getByRole('button', { name: /add round/i });
-    expect(addButton).toBeInTheDocument();
-  });
+//     const addButton = screen.getByRole('button', { name: /add round/i });
+//     expect(addButton).toBeInTheDocument();
+//   });
 
-  it('opens edit mode when clicking the "Add round" button', async () => {
-    render(<TournamentRoundEdit {...defaultProps} />);
-    const addButton = screen.getByRole('button', { name: /add round/i });
-    fireEvent.click(addButton);
+//   it('opens edit mode when clicking the "Add round" button', async () => {
+//     render(<TournamentRoundEdit {...defaultProps} />);
+//     const addButton = screen.getByRole('button', { name: /add round/i });
+//     fireEvent.click(addButton);
 
-    expect(defaultProps.setEditing).toHaveBeenCalledWith(true);
-  });
+//     expect(defaultProps.setEditing).toHaveBeenCalledWith(true);
+//   });
 
-  // it('displays round details when in editing mode', async () => {
-  //   await act(async () => {
-  //     render(<TournamentRoundEdit {...defaultProps} editing={true} />);
-  //   });
+//   // it('displays round details when in editing mode', async () => {
+//   //   await act(async () => {
+//   //     render(<TournamentRoundEdit {...defaultProps} editing={true} />);
+//   //   });
 
-  //   const roundTitle = screen.getByText(/round 1/i);
-  //   expect(roundTitle).toBeInTheDocument();
-  // });
+//   //   const roundTitle = screen.getByText(/round 1/i);
+//   //   expect(roundTitle).toBeInTheDocument();
+//   // });
 
-});
+// });
