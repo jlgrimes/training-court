@@ -33,7 +33,7 @@ interface EditableTournamentArchetypeProps {
 export const EditableTournamentArchetype = ({ tournament, editDisabled }: EditableTournamentArchetypeProps) => {
   const [deck, setDeck] = useState('');
   const recoilTournament = useRecoilValue(tournamentState);
-  const activeTournament = tournament|| recoilTournament;
+  const activeTournament = tournament || recoilTournament;
   const [serverDeck, setServerDeck] = useState(tournament?.deck || recoilTournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 
@@ -75,7 +75,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: Editab
   if (clientDeck) {
     return (
       <HoverCard>
-        <HoverCardTrigger className="cursor-pointer"><Sprite name={clientDeck} faded /> </HoverCardTrigger>
+        <HoverCardTrigger className="cursor-pointer"> <Sprite name={clientDeck} faded /> </HoverCardTrigger>
         <HoverCardContent>
           Archetype will be stored on this device until the tournament is over, then it will be automatically uploaded to the cloud.
         </HoverCardContent>
