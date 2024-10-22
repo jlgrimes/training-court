@@ -158,7 +158,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
         </CardTitle>
         <div className="flex flex-col w-full gap-4">
           <div className="flex flex-col w-full gap-2">
-            <Label>Opponent's deck</Label>
+            <Label htmlFor="opponent-deck">Opponent's deck</Label>
             <AddArchetype archetype={deck} setArchetype={setDeck} isDisabled={immediateMatchEnd !== null} />
           </div>
           <div className="flex flex-col w-full gap-2">

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import TournamentRoundEdit, { TournamentRoundEditProps } from '../AddTournamentRound/TournamentRoundEdit';
 import '@testing-library/jest-dom';
 
@@ -20,30 +20,21 @@ describe('TournamentRoundEdit', () => {
     expect(addButton).toBeInTheDocument();
   });
 
-  it('opens edit mode when clicking the "Add round" button', () => {
+  it('opens edit mode when clicking the "Add round" button', async () => {
     render(<TournamentRoundEdit {...defaultProps} />);
-
     const addButton = screen.getByRole('button', { name: /add round/i });
     fireEvent.click(addButton);
 
     expect(defaultProps.setEditing).toHaveBeenCalledWith(true);
   });
 
-  it('displays round details when in editing mode', () => {
-    render(<TournamentRoundEdit {...defaultProps} editing={true} />);
+  it('displays round details when in editing mode', async () => {
+    await act(async () => {
+      render(<TournamentRoundEdit {...defaultProps} editing={true} />);
+    });
 
     const roundTitle = screen.getByText(/round 1/i);
     expect(roundTitle).toBeInTheDocument();
   });
 
-  it('calls handleRoundEdit on form submission', async () => {
-    render(<TournamentRoundEdit {...defaultProps} editing={true} />);
-
-    const submitButton = screen.getByRole('button', { name: /add round/i });
-    fireEvent.click(submitButton);
-
-    // You would want to mock `handleRoundEdit` and check if it's called
-    // Example:
-    // expect(mockHandleRoundEdit).toHaveBeenCalled();
-  });
 });
