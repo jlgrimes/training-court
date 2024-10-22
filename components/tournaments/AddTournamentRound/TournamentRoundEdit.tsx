@@ -69,42 +69,86 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const handleRoundEdit = useCallback(async () => {
     const supabase = createClient();
     let data, error;
-
+    let roundNumberToTry = props.editedRoundNumber;
+    let maxRetries = 3;
+    let retryCount = 0;
+  
+    const checkForExistingRound = async (round_num: number) => {
+      const existingRoundCheck = await supabase
+        .from('tournament rounds')
+        .select('*')
+        .eq('tournament', props.tournamentId)
+        .eq('round_num', round_num)
+        .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+  
+      return existingRoundCheck;
+    };
+  
+    while (retryCount < maxRetries) {
+      const existingRoundCheck = await checkForExistingRound(roundNumberToTry);
+  
+      if (!existingRoundCheck.data || existingRoundCheck.data.length === 0) {
+        break;
+      } else {
+        roundNumberToTry += 1;
+        retryCount += 1;
+      }
+    }
+  
+    if (retryCount === maxRetries) {
+      toast({
+        variant: "destructive",
+        title: "Failed to add round",
+        description: "Unable to find an available round number after multiple attempts.",
+      });
+      return;
+    }
+  
     const payload = {
       tournament: props.tournamentId,
-      round_num: props.editedRoundNumber,
+      round_num: roundNumberToTry,
       result: result,
       deck: deck,
       user: props.userId,
       match_end_reason: immediateMatchEnd ?? null,
-      turn_orders: turnOrders
+      turn_orders: turnOrders,
     };
-
+  
     if (props.existingRound) {
-      const res = await supabase.from('tournament rounds').update(payload).eq('tournament', props.tournamentId).eq('round_num', props.editedRoundNumber).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
-
+      const res = await supabase
+        .from('tournament rounds')
+        .update(payload)
+        .eq('tournament', props.tournamentId)
+        .eq('round_num', props.editedRoundNumber)
+        .select()
+        .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+  
       data = res.data;
-      error = res.error
+      error = res.error;
     } else {
-      const res = await supabase.from('tournament rounds').insert(payload).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
-
+      const res = await supabase
+        .from('tournament rounds')
+        .insert(payload)
+        .select()
+        .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+  
       data = res.data;
-      error = res.error
+      error = res.error;
     }
-
+  
     if (error) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error.message,
-      })
+      });
     } else if (data) {
       setResult([]);
       props.setEditing(false);
       setImmediateMatchEnd(null);
       props.updateClientRounds(data[0]);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders]);
+  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders]);  
 
   if (props.editing) return (
     <Card>
