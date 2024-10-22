@@ -22,11 +22,13 @@ import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 import { tournamentState } from "@/app/state/atom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
-const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
+const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`;
+
 interface EditableTournamentArchetypeProps {
-  tournament?: Database['public']['Tables']['tournaments']['Row'];
+  tournament: Database['public']['Tables']['tournaments']['Row'];
   editDisabled?: boolean;
 }
 
@@ -34,7 +36,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: Editab
   const [deck, setDeck] = useState('');
   const recoilTournament = useRecoilValue(tournamentState);
   const activeTournament = tournament || recoilTournament;
-  const [serverDeck, setServerDeck] = useState(tournament?.deck || recoilTournament.deck);
+  const [serverDeck, setServerDeck] = useRecoilState(tournamentDeckState(tournament.id));
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 
   const shouldLocalizeDeckInput = useMemo(() => {

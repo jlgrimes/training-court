@@ -18,9 +18,10 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
-import { useSetRecoilState } from "recoil";
-import { tournamentRoundsState, tournamentState } from "@/app/state/atom";
+import { tournamentState } from "@/app/state/atom";
 import { Tournament } from "./TournamentContainer";
+import { useSetRecoilState } from "recoil";
+import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentContainerClientProps {
   tournament: Tournament;
@@ -36,6 +37,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
 
   const setTournamentDataState = useSetRecoilState(tournamentState);
+  const setDeckState = useSetRecoilState(tournamentDeckState(props.tournament.id));
   // const setTournamentRoundsState = useSetRecoilState(tournamentRoundsState);
 
   useEffect(() => {
@@ -46,6 +48,9 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
 
   }, [props.tournament, props.rounds, setTournamentDataState]);
 
+  useEffect(() => {
+    setDeckState(props.tournament.deck || '');
+  }, [props.tournament.deck, setDeckState]);
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
@@ -79,7 +84,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
-            // tournament={props.tournament}
+            tournament={props.tournament}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>

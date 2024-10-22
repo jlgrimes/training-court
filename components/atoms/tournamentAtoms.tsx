@@ -4,6 +4,7 @@ import { User } from "@supabase/supabase-js";
 import { DateRange } from "react-day-picker";
 import { TournamentCategory } from '../tournaments/Category/tournament-category.types';
 import { TournamentPlacement } from '../tournaments/Placement/tournament-placement.types';
+import { atomFamily } from 'recoil';
 
 export const tournamentState = atom<Database['public']['Tables']['tournaments']['Row']>({
   key: 'tournamentState',
@@ -20,22 +21,7 @@ export const tournamentState = atom<Database['public']['Tables']['tournaments'][
   },
 });
 
-export const roundsState = atom<Database['public']['Tables']['tournament rounds']['Row'][]>({
-  key: 'roundsState',
-  default: [],
-});
-
-export const userState = atom<User | null>({
-  key: 'userState',
-  default: null,
-});
-
-export const tournamentEditState = atom({
-  key: 'tournamentEditState',
-  default: {
-    name: '',
-    date: {} as DateRange,
-    category: null as TournamentCategory | null,
-    placement: null as TournamentPlacement | null,
-  },
+export const tournamentDeckState = atomFamily<string | undefined, string>({
+  key: 'tournamentDeckState',
+  default: undefined,
 });
