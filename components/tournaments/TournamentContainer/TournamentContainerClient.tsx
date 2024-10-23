@@ -20,7 +20,7 @@ import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprite
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { tournamentState } from "@/app/state/atom";
 import { Tournament } from "./TournamentContainer";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentContainerClientProps {
@@ -30,23 +30,25 @@ interface TournamentContainerClientProps {
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
+  const [recoilTournamentState, setRecoilTournamentState] = useRecoilState(tournamentState);
+  const setDeckState = useSetRecoilState(tournamentDeckState(recoilTournamentState.id));
+  
+  
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
 
-  const setTournamentDataState = useSetRecoilState(tournamentState);
-  const setDeckState = useSetRecoilState(tournamentDeckState(props.tournament.id));
   // const setTournamentRoundsState = useSetRecoilState(tournamentRoundsState);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
 
-    setTournamentDataState(props.tournament);
+    setRecoilTournamentState(props.tournament);
     // setTournamentRoundsState(props.rounds);
 
-  }, [props.tournament, props.rounds, setTournamentDataState]);
+  }, [props.tournament, props.rounds, setRecoilTournamentState]);
 
   useEffect(() => {
     setDeckState(props.tournament.deck || '');
@@ -84,7 +86,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
-            tournament={props.tournament}
+            // tournament={props.tournament}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>

@@ -67,7 +67,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: Editab
 
     const supabase = createClient();
     
-    const { error } = await supabase.from('tournaments').update({ deck }).eq('id', tournament?.id);
+    const { error } = await supabase.from('tournaments').update({ deck }).eq('id', activeTournament?.id);
 
     if (error) throw error;
 
@@ -99,7 +99,9 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: Editab
         <DialogHeader>
           <DialogTitle>Add your deck for {activeTournament.name}</DialogTitle>
         </DialogHeader>
-          <AddArchetype archetype={deck} setArchetype={setDeck} />
+          <AddArchetype 
+            archetype={deck} 
+            setArchetype={setDeck} />
           {shouldLocalizeDeckInput && (
             <p className="my-0 text-sm">
               Adding your deck before the tournament is over will be saved locally and not uploaded to the cloud until after the tournament is over.
