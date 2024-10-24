@@ -37,7 +37,6 @@ export const Matchups = (props: MatchupProps) => {
     })
     return matchups;
 }, [props.matchups]);
-console.log(deckMatchupsMappedToResults)
 
   return (
     <div className="flex flex-col gap-4">
