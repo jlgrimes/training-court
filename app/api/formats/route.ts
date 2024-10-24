@@ -1,4 +1,4 @@
-import { parseISO, nextFriday, add } from "date-fns";
+import { parseISO, nextFriday, add, isBefore, isAfter } from "date-fns";
 import { PokemonTCGApiPokemonSet } from "./_types";
 
 export async function GET() {
@@ -16,6 +16,10 @@ export async function GET() {
         releaseDate,
         legalityDate
       })
+    }).sort((a, b) => {
+      if (isBefore(a.releaseDate, b.releaseDate)) return 1;
+      if (isAfter(a.releaseDate, b.releaseDate)) return -1;
+      return 0;
     })
 
     return Response.json({ data: alteredData, code: 200 })
