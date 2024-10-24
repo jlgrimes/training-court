@@ -16,9 +16,9 @@ export const SortColHeader = (props: SortColHeaderProps) => {
       onClick={props.onClick}
     >
       {props.children}
-      {props.direction === null && <ChevronsUpDown className="h-4 w-4 ml-2" />}
-      {props.direction === 'asc' && <ArrowUp className="h-4 w-4 ml-2" />}
-      {props.direction === 'desc' && <ArrowDown className="h-4 w-4 ml-2" />}
+      {props.direction === null && <ChevronsUpDown className="h-4 w-4 ml-1" />}
+      {props.direction === 'asc' && <ArrowUp className="h-4 w-4 ml-1" />}
+      {props.direction === 'desc' && <ArrowDown className="h-4 w-4 ml-1" />}
     </Button>
   )
 }
