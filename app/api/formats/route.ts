@@ -1,9 +1,10 @@
 import { parseISO, nextFriday, add } from "date-fns";
+import { PokemonTCGApiPokemonSet } from "./_types";
 
 export async function GET() {
   try {
     const response = await fetch('https://api.pokemontcg.io/v2/sets');
-    const data: Record<string, Record<string, any>[]> = await response.json();
+    const data: Record<string, PokemonTCGApiPokemonSet[]> = await response.json();
     const alteredData = data['data'].map((obj) => {
       const releaseDate = parseISO(obj['releaseDate'].replaceAll('/', ''));
       const legalityDate = add(nextFriday(releaseDate), {
