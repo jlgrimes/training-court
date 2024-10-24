@@ -50,7 +50,10 @@ export const DeckMatchupsDetail = (props: DeckMatchupDetailProps) => {
 
           return (
             <TableRow key={`matchup-${props.deckName}-vs-${resultName}`}>
-              <TableCell className="flex items-center gap-4"><Sprite name={resultName} />{capitalizeName(resultName)}</TableCell>
+              <TableCell className="flex items-center gap-4">
+                <Sprite name={resultName} />
+                <span className="hidden md:block">{capitalizeName(resultName)}</span>  
+              </TableCell>
               <TableCell className="text-right">{getResultsLength(result.total)}</TableCell>
               <TableCell className="text-right">{getMatchupRecord(result.total)}</TableCell>
               <TableCell className="text-right">{(winRateAgainstDeck * 100).toPrecision(4)}%</TableCell>

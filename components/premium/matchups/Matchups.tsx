@@ -99,7 +99,10 @@ export const Matchups = (props: MatchupProps) => {
 
           return (
             <TableRow key={`matchup-root-${deck}`} className="cursor-pointer" onClick={() => setMatchupDetailView(deck)}>
-              <TableCell className="flex items-center gap-4"><Sprite name={deck} />{capitalizeName(deck)}</TableCell>
+              <TableCell className="flex items-center gap-4">
+                <Sprite name={deck} />
+                <span className="hidden md:block">{capitalizeName(deck)}</span>  
+              </TableCell>
               <TableCell>{formatDistanceToNowStrict(matchupResult.lastPlayed, { addSuffix: true })}</TableCell>
               <TableCell className="text-right">{getResultsLength(matchupResult.total)}</TableCell>
               <TableCell className="text-right">{getMatchupRecord(matchupResult.total)}</TableCell>
