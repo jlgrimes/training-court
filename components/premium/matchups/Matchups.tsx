@@ -71,7 +71,7 @@ export const Matchups = (props: MatchupProps) => {
         />
       )}
       {!matchupDetailView && (
-        <>
+        <div>
         <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
         <MatchupsOptions
@@ -112,7 +112,7 @@ export const Matchups = (props: MatchupProps) => {
         })}
         </TableBody>
       </Table>
-        </>
+        </div>
       )}
     </div>
   )

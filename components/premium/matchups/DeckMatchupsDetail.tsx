@@ -29,14 +29,14 @@ export const DeckMatchupsDetail = (props: DeckMatchupDetailProps) => {
     <div>
       <Card>
         <div className="pl-4 pt-2">
-          <Button size='sm' variant='ghost' className="text-muted-foreground" onClick={props.handleExitDetailView}>
+          <Button variant='ghost' className="text-muted-foreground" onClick={props.handleExitDetailView}>
             <ChevronLeft className="h-4 w-4 mr-2" /> All matchups
           </Button>
         </div>
         <CardHeader className="items-start">
           <CardTitle className="flex items-center gap-4"><Sprite name={props.deckName} />{capitalizeName(props.deckName)}</CardTitle>
         </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      <CardContent>
       <MatchupsSortToggle sort={sort} setSort={setSort} />
       <Table>
         <TableRow>

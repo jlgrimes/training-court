@@ -44,7 +44,7 @@ export const MatchupsSortToggle = (props: MatchupsSortToggleProps) => {
           {props.sort.by === 'win-rate' && props.sort.type === 'asc' && <ArrowUp01 className="h-4 w-4" />}
         </ToggleGroupItem>
       </ToggleGroup>
-      <CardDescription>
+      <CardDescription className="hidden md:flex">
         {stringifySort(props.sort)}
       </CardDescription>
     </div>
