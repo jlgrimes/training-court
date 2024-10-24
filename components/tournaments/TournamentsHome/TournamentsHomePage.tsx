@@ -18,15 +18,15 @@ export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
   const rounds = await fetchRoundsForUser(props.user?.id);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
         <TournamentCreate userId={props.user.id} />
         <MyTournamentPreviews user={props.user} tournaments={tournamentData} rounds={rounds} />
       </div>
        
-      <div className="flex flex-col">
+      {/* <div className="flex flex-col">
         {isPremiumUser(props.user.id) && tournamentData && rounds && <Matchups matchups={convertTournamentsToMatchups(tournamentData, rounds)} userId={props.user.id}/>}
-      </div>
+      </div> */}
     </div>
   );
 }
