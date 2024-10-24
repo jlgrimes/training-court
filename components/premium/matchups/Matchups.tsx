@@ -104,9 +104,9 @@ export const Matchups = (props: MatchupProps) => {
                 <span className="hidden md:block">{capitalizeName(deck)}</span>  
               </TableCell>
               <TableCell>{formatDistanceToNowStrict(matchupResult.lastPlayed, { addSuffix: true })}</TableCell>
-              <TableCell className="text-right">{getResultsLength(matchupResult.total)}</TableCell>
-              <TableCell className="text-right">{getMatchupRecord(matchupResult.total)}</TableCell>
-              <TableCell className="text-right">{(winRateOfDeck * 100).toPrecision(4)}%</TableCell>
+              <TableCell className="text-right font-mono">{getResultsLength(matchupResult.total)}</TableCell>
+              <TableCell className="text-right font-mono">{getMatchupRecord(matchupResult.total)}</TableCell>
+              <TableCell className="text-right font-mono">{(winRateOfDeck * 100).toFixed(2)}%</TableCell>
             </TableRow>
           )
         })}

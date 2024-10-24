@@ -54,9 +54,9 @@ export const DeckMatchupsDetail = (props: DeckMatchupDetailProps) => {
                 <Sprite name={resultName} />
                 <span className="hidden md:block">{capitalizeName(resultName)}</span>  
               </TableCell>
-              <TableCell className="text-right">{getResultsLength(result.total)}</TableCell>
-              <TableCell className="text-right">{getMatchupRecord(result.total)}</TableCell>
-              <TableCell className="text-right">{(winRateAgainstDeck * 100).toPrecision(4)}%</TableCell>
+              <TableCell className="text-right font-mono">{getResultsLength(result.total)}</TableCell>
+              <TableCell className="text-right font-mono">{getMatchupRecord(result.total)}</TableCell>
+              <TableCell className="text-right font-mono">{(winRateAgainstDeck * 100).toFixed(2)}%</TableCell>
             </TableRow>
           );
         })}
