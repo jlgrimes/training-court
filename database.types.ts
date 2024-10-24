@@ -144,6 +144,8 @@ export type Database = {
           log: string
           notes: string | null
           opp_archetype: string | null
+          result: string | null
+          turn_order: string | null
           user: string
         }
         Insert: {
@@ -153,6 +155,8 @@ export type Database = {
           log: string
           notes?: string | null
           opp_archetype?: string | null
+          result?: string | null
+          turn_order?: string | null
           user: string
         }
         Update: {
@@ -162,6 +166,8 @@ export type Database = {
           log?: string
           notes?: string | null
           opp_archetype?: string | null
+          result?: string | null
+          turn_order?: string | null
           user?: string
         }
         Relationships: [

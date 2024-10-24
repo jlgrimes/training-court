@@ -41,11 +41,16 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       (player) => player.name.toLowerCase() !== props.userData?.live_screen_name?.toLowerCase()
     );
 
+    const turnOrder = props.userData?.live_screen_name ? (parsedLog.sections[1].player === props.userData.live_screen_name ? '1' : '2') : null;
+    const result = props.userData?.live_screen_name ? (parsedLog.winner === props.userData.live_screen_name ? 'W' : 'L'): null;
+
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
       archetype: currentPlayer?.deck ?? null,
       opp_archetype: opponentPlayer?.deck ?? null,
-      log: log
+      log: log,
+      turn_order: turnOrder,
+      result: result
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
