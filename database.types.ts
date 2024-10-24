@@ -40,7 +40,15 @@ export type Database = {
           is_fixed?: boolean | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       "friend requests": {
         Row: {
@@ -62,6 +70,13 @@ export type Database = {
           uses_remaining?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "friend requests_user_sending_fkey"
+            columns: ["user_sending"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "friend requests_user_sending_fkey1"
             columns: ["user_sending"]
@@ -92,10 +107,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "friends_friend_fkey"
+            columns: ["friend"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "friends_friend_fkey1"
             columns: ["friend"]
             isOneToOne: false
             referencedRelation: "user data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friends_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
             referencedColumns: ["id"]
           },
           {
@@ -135,7 +164,15 @@ export type Database = {
           opp_archetype?: string | null
           user?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "logs_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       "tournament rounds": {
         Row: {
@@ -215,7 +252,15 @@ export type Database = {
           placement?: string | null
           user?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tournaments_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       "user data": {
         Row: {
@@ -236,13 +281,28 @@ export type Database = {
           id?: string
           live_screen_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user data_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       pilot_users: {
         Row: {
           user: string | null
+        }
+        Relationships: []
+      }
+      top_5_users_battle_logs: {
+        Row: {
+          battle_count: number | null
+          id: string | null
         }
         Relationships: []
       }
@@ -253,6 +313,18 @@ export type Database = {
         Returns: {
           avatar: string
           avatar_count: number
+        }[]
+      }
+      get_user_tournament_and_battle_logs: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          source: string
+          deck: string
+          result: string[]
+          match_end_reason: string
+          turn_orders: string[]
         }[]
       }
       getusertournamentresults: {
