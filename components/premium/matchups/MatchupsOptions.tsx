@@ -22,24 +22,25 @@ export const MatchupsOptions = (props: MatchupsOptionsProps) => {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Options</DropdownMenuLabel>
         {/* <DropdownMenuSeparator /> */}
+        {!props.shouldDisableDrillDown && (
+          <DropdownMenuCheckboxItem
+            defaultChecked={true}
+            checked={drillDownChecked}
+            onCheckedChange={(val) => {
+              setDrillDownChecked(val);
+              props.handleDrillDownChecked(val);
+            }}
+          >
+            Drill down archetypes
+          </DropdownMenuCheckboxItem>
+        )}
         <DropdownMenuCheckboxItem
-          defaultChecked={true}
-          checked={drillDownChecked}
-          onCheckedChange={(val) => {
-            setDrillDownChecked(val);
-            props.handleDrillDownChecked(val);
-          }}
-          disabled={props.shouldDisableDrillDown}
-        >
-          Drill down archetypes
-        </DropdownMenuCheckboxItem>
-        {/* <DropdownMenuCheckboxItem
           checked={props.shouldGroupByRound}
           onCheckedChange={props.setShouldGroupByRound}
-          disabled={props.shouldDisableRoundGroup}
+          disabled={true}
         >
           Group by round
-        </DropdownMenuCheckboxItem> */}
+        </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

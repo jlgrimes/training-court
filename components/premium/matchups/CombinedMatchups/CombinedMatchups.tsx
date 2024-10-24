@@ -22,6 +22,7 @@ export async function CombinedMatchups(props: CombinedMatchupsProps) {
     <Matchups
       matchups={matchups}
       userId={props.userId}
+      shouldDisableDrillDown
     />
   )
 }
