@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
 import { parseBattleLog } from "../utils/battle-log.utils";
+import { getBattleLogMetadataFromLog } from './BattleLogInput.utils';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -33,24 +34,15 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const supabase = createClient();
 
-    //TODO: Check logic if user doesn't input a live username..
-    const currentPlayer = parsedLog.players.find(
-      (player) => player.name.toLowerCase() === props.userData?.live_screen_name?.toLowerCase()
-    );
-    const opponentPlayer = parsedLog.players.find(
-      (player) => player.name.toLowerCase() !== props.userData?.live_screen_name?.toLowerCase()
-    );
-
-    const turnOrder = props.userData?.live_screen_name ? (parsedLog.sections[1].player === props.userData.live_screen_name ? '1' : '2') : null;
-    const result = props.userData?.live_screen_name ? (parsedLog.winner === props.userData.live_screen_name ? 'W' : 'L'): null;
+    const { archetype, opp_archetype, turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
 
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
-      archetype: currentPlayer?.deck ?? null,
-      opp_archetype: opponentPlayer?.deck ?? null,
-      log: log,
-      turn_order: turnOrder,
-      result: result
+      archetype,
+      opp_archetype,
+      log,
+      turn_order,
+      result
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
