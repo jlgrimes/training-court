@@ -28,15 +28,15 @@ export const MatchupsSortToggle = (props: MatchupsSortToggleProps) => {
         value={props.sort.by}
         onValueChange={handleSortChange}
       >
-        <ToggleGroupItem value='last-played'>
-          {props.sort.by !== 'last-played' && <Clock className="h-4 w-4" />}
-          {props.sort.by === 'last-played' && props.sort.type === 'desc' && <ClockArrowDown className="h-4 w-4" />}
-          {props.sort.by === 'last-played' && props.sort.type === 'asc' && <ClockArrowUp className="h-4 w-4" />}
-        </ToggleGroupItem>
         <ToggleGroupItem value='amount-played'>
           {props.sort.by !== 'amount-played' && <ListFilter className="h-4 w-4" />}
           {props.sort.by === 'amount-played' && props.sort.type === 'desc' && <ArrowDownWideNarrow className="h-4 w-4" />}
           {props.sort.by === 'amount-played' && props.sort.type === 'asc' && <ArrowUpNarrowWide className="h-4 w-4" />}
+        </ToggleGroupItem>
+        <ToggleGroupItem value='last-played'>
+          {props.sort.by !== 'last-played' && <Clock className="h-4 w-4" />}
+          {props.sort.by === 'last-played' && props.sort.type === 'desc' && <ClockArrowDown className="h-4 w-4" />}
+          {props.sort.by === 'last-played' && props.sort.type === 'asc' && <ClockArrowUp className="h-4 w-4" />}
         </ToggleGroupItem>
         <ToggleGroupItem value='win-rate'>
           {props.sort.by !== 'win-rate' && <Binary className="h-4 w-4" />}

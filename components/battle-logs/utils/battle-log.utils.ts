@@ -208,7 +208,11 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
 }
 
 export const capitalizeName = (name: string) => {
-  return name.split(',').map((word) => word.split('-').map((part) => `${part[0].toUpperCase()}${part.slice(1)}`).join(' ')).join(' / ');
+  try {
+    return name.split(',').map((word) => word.split('-').map((part) => `${part[0].toUpperCase()}${part.slice(1)}`).join(' ')).join(' / ');
+  } catch {
+    return name;
+  }
 };
 
 export const uncapitalizeName = (name: string) => {

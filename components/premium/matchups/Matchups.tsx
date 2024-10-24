@@ -34,7 +34,7 @@ export const Matchups = (props: MatchupProps) => {
   const [numSprites, setNumSprites] = useState(2);
   const [renderedMatchups, setRenderedMatchups] = useState(props.matchups);
   const [sort, setSort] = useState<MatchupsSortState>({
-    by: 'last-played',
+    by: 'amount-played',
     type: 'desc'
   });
   const [shouldGroupByRound, setShouldGroupByRound] = useState(false);
@@ -70,7 +70,9 @@ export const Matchups = (props: MatchupProps) => {
           handleExitDetailView={() => setMatchupDetailView(undefined)}
         />
       )}
-      <div className="flex justify-between">
+      {!matchupDetailView && (
+        <>
+        <div className="flex justify-between">
       <MatchupsSortToggle sort={sort} setSort={setSort} />
         <MatchupsOptions
           handleDrillDownChecked={handleDeckSpecificityToggle}
@@ -107,6 +109,8 @@ export const Matchups = (props: MatchupProps) => {
         })}
         </TableBody>
       </Table>
+        </>
+      )}
     </div>
   )
 }
