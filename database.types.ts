@@ -328,9 +328,11 @@ export type Database = {
         Returns: {
           source: string
           deck: string
-          result: string[]
+          opp_deck: string
+          result: string
           match_end_reason: string
-          turn_orders: string[]
+          turn_order: string
+          date: string
         }[]
       }
       getusertournamentresults: {

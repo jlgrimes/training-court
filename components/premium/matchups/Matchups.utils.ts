@@ -4,7 +4,7 @@ import { DeckMatchup, MatchupResult, Matchups } from "./Matchups.types";
 import { Database } from "@/database.types";
 import { isAfter, isBefore, Match, parseISO } from "date-fns";
 
-const EMPTY_MATCHUP_RESULT: MatchupResult = {
+export const EMPTY_MATCHUP_RESULT: MatchupResult = {
   total: [0, 0, 0],
   goingFirst: [0, 0, 0],
   goingSecond: [0, 0, 0],

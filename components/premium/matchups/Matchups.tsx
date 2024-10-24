@@ -83,7 +83,7 @@ export const Matchups = (props: MatchupProps) => {
                   <Sprite name={deck} />
                   <div className="col-span-2 text-left">
                     <div>
-                      {capitalizeName(deck)}
+                      {deck}
                     </div>
                     <CardDescription>{formatDistanceToNowStrict(matchupResult.lastPlayed, { addSuffix: true })}</CardDescription>
                   </div>
@@ -109,7 +109,7 @@ export const Matchups = (props: MatchupProps) => {
                         <div className="grid grid-cols-5 w-full items-center">
                           <Sprite name={matchupDeck} />
                           <div className="col-span-2 text-left">
-                            {capitalizeName(matchupDeck)}
+                            {matchupDeck}
                           </div>
                           <CardDescription>
                               {getMatchupRecord(result.total)}

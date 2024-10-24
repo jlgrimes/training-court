@@ -7,6 +7,8 @@ import { BattleLogsHomePreview } from "@/components/battle-logs/BattleLogsHome/B
 import { TournamentsHomePreview } from "@/components/tournaments/TournamentsHome/TournamentsHomePreview";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
+import { CombinedMatchups } from "@/components/premium/matchups/CombinedMatchups/CombinedMatchups";
+import { isPremiumUser } from "@/components/premium/premium.utils";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -35,6 +37,7 @@ export default async function Profile() {
         <BattleLogsHomePreview userData={userData} />
         <TournamentsHomePreview user={user} />
       </div>
+      {isPremiumUser(user.id) && <CombinedMatchups userId={user.id} userData={userData} />}
     </div>
   );
 }
