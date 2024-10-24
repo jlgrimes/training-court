@@ -22,13 +22,14 @@ import { Label } from "@/components/ui/label";
 import { formatDistanceToNowStrict } from "date-fns";
 import { MatchupsSortToggle } from "./sort/MatchupsSortToggle";
 import { MatchupProps } from "./Matchups.types";
-import { MatchupsSortState } from "./sort/sort.types";
+import { MatchupsSortBy, MatchupsSortState, MatchupsSortType } from "./sort/sort.types";
 import { sortDeckMatchups, sortMatchupResults } from "./sort/sort.utils";
 import { cn } from "@/lib/utils";
 import { isPremiumUser } from "../premium.utils";
 import { PremiumHeader } from "../PremiumHeader";
 import { MatchupsOptions } from "./MatchupsOptions";
 import { DeckMatchupsDetail } from "./DeckMatchupsDetail";
+import { SortColHeader } from "./sort/SortColHeader";
 
 export const Matchups = (props: MatchupProps) => {
   const [numSprites, setNumSprites] = useState(2);
@@ -54,6 +55,24 @@ export const Matchups = (props: MatchupProps) => {
     setRenderedMatchups(generalizeAllMatchupDecks(props.matchups))
   }, [props.matchups]);
 
+  const getSortDirection = useCallback((sortBy: MatchupsSortBy) => {
+    return sort.by === sortBy ? sort.type : null;
+  }, [sort.by, sort.type]);
+
+  const handleHeaderClick = useCallback((sortBy: MatchupsSortBy) => {
+    if (sort.by === sortBy) {
+      setSort({
+        by: sortBy,
+        type: sort.type === 'asc' ? 'desc' : 'asc'
+      });
+    } else {
+      setSort({
+        by: sortBy,
+        type: 'desc'
+      });
+    }
+  }, [sort.by, sort.type]);
+
   if (!isPremiumUser(props.userId)) return null;
 
   return (
@@ -72,24 +91,35 @@ export const Matchups = (props: MatchupProps) => {
       )}
       {!matchupDetailView && (
         <div>
-        <div className="flex justify-between">
-      <MatchupsSortToggle sort={sort} setSort={setSort} />
-        <MatchupsOptions
-          handleDrillDownChecked={handleDeckSpecificityToggle}
-          shouldGroupByRound={shouldGroupByRound}
-          setShouldGroupByRound={setShouldGroupByRound}
-          shouldDisableDrillDown={!!props.shouldDisableDrillDown}
-          shouldDisableRoundGroup={!!props.shouldDisableRoundGroup}
-          />
-      </div>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Deck</TableHead>
-            <TableHead>Last played</TableHead>
-            <TableHead className="text-right">Total games</TableHead>
+            <TableHead className="px-0">
+              <SortColHeader
+                direction={getSortDirection('last-played')}
+                onClick={() => handleHeaderClick('last-played')}
+              >
+                Last played
+              </SortColHeader>
+            </TableHead>
+            <TableHead className="px-0 text-end">
+              <SortColHeader
+                direction={getSortDirection('amount-played')}
+                onClick={() => handleHeaderClick('amount-played')}
+              >
+                Total games
+              </SortColHeader>
+            </TableHead>
             <TableHead className="text-right">Record</TableHead>
-            <TableHead className="text-right">Win rate</TableHead>
+            <TableHead className="px-0 text-end">
+              <SortColHeader
+                direction={getSortDirection('win-rate')}
+                onClick={() => handleHeaderClick('win-rate')}
+              >
+                Win rate
+              </SortColHeader>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
