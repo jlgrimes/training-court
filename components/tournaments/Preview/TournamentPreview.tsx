@@ -1,23 +1,12 @@
 'use client';
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge"
 import { Card, CardDescription, CardHeader, CardTitle, SmallCardHeader } from "../../ui/card";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
-import { fetchRounds } from "../utils/tournaments.server.utils";
-import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { Database } from "@/database.types";
-import { formatDistanceToNowStrict, isAfter, isBefore } from "date-fns";
-import { RadioTower, Watch } from "lucide-react";
-import { TournamentCategoryBadge } from "../Category/TournamentCategoryBadge";
-import { TournamentCategory } from "../Category/tournament-category.types";
-import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge";
 import { renderTournamentPlacement, TournamentPlacement } from "../Placement/tournament-placement.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { Label } from "@/components/ui/label";
-import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
-import { useRecoilState } from "recoil";
-import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];

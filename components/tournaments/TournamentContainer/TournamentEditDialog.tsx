@@ -30,58 +30,36 @@ import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
 import { useRecoilValue } from "recoil";
-import { tournamentState } from "@/components/atoms/tournamentAtoms";
-
-// const Bugs = {
-//   BattleLogs: {
-//     MissingDeck: 'missing-deck',
-//     WrongDeck: 'wrong-deck',
-//     ImportingDeck: 'importing-deck',
-//     FeatureRequest: 'feature-request',
-//     Other: 'other'
-//   },
-//   Tournaments: {
-//     VisualGlitch: 'visual-glitch',
-//     FeatureRequest: 'feature-request',
-//     Other: 'other'
-//   }
-// }
+import { tournamentsState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentEditDialogProps {
-  //tournamentId: string;
-  tournamentName: string;
-  tournamentCategory: TournamentCategory | null;
-  tournamentPlacement: TournamentPlacement | null;
-  tournamentDateRange: DateRange;
+  tournamentId: string;
   user: User | null;
   updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null) => void;
 }
 
-export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
+export const TournamentEditDialog = ({ tournamentId, user, updateClientTournament }: TournamentEditDialogProps) => {
   const { toast } = useToast();
 
-  const recoilTournament = useRecoilValue(tournamentState);
-  
-  const [tournamentName, setTournamentName] = useState('');
-  const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
-  const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
-  const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
+  const tournaments = useRecoilValue(tournamentsState);
+  const tournament = tournaments.find(t => t.id === tournamentId);
+
+  const [tournamentName, setTournamentName] = useState(tournament?.name || '');
+  const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>({
+    from: tournament ? new Date(tournament.date_from) : undefined,
+    to: tournament ? new Date(tournament.date_to) : undefined,
+  });
+  const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(tournament?.category as TournamentCategory | null);
+  const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(tournament?.placement as TournamentPlacement | null);
 
   useEffect(() => {
-    setTournamentName(props.tournamentName);
-  }, [props.tournamentName]);
-
-  useEffect(() => {
-    setTournamentDate(props.tournamentDateRange);
-  }, [props.tournamentDateRange]);
-
-  useEffect(() => {
-    setTournamentCategory(props.tournamentCategory);
-  }, [props.tournamentCategory])
-
-  useEffect(() => {
-    setTournamentPlacement(props.tournamentPlacement);
-  }, [props.tournamentPlacement])
+    if (tournament) {
+      setTournamentName(tournament.name);
+      setTournamentDate({ from: new Date(tournament.date_from), to: new Date(tournament.date_to) });
+      setTournamentCategory(tournament.category as TournamentCategory | null);
+      setTournamentPlacement(tournament.placement as TournamentPlacement | null);
+    }
+  }, [tournament]);
 
   const handleUpdateTournament = useCallback(async () => {
     const supabase = createClient();
@@ -90,23 +68,23 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to,
       category: tournamentCategory,
-      placement: tournamentPlacement
-    }).eq('id', recoilTournament.id);
+      placement: tournamentPlacement,
+    }).eq('id', tournamentId);
 
     if (error) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error.message,
-      })
+      });
     } else {
-      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement);
-
+      updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement);
       toast({
         title: "Tournament changes saved.",
       });
     }
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, tournamentId, updateClientTournament, toast]);
+
 
   return (
     <Dialog>

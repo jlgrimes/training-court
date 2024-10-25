@@ -18,9 +18,9 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
-import { tournamentState } from "@/components/atoms/tournamentAtoms";
+import { tournamentsState } from "@/components/atoms/tournamentAtoms";
 import { Tournament } from "./TournamentContainer";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentContainerClientProps {
@@ -30,38 +30,35 @@ interface TournamentContainerClientProps {
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
-  const [recoilTournamentState, setRecoilTournamentState] = useRecoilState(tournamentState);
-  const setDeckState = useSetRecoilState(tournamentDeckState(recoilTournamentState.id));
-  
+  const tournaments = useRecoilValue(tournamentsState);
+  const currentTournament = tournaments.find(t => t.id === props.tournament.id);
+
+  if (!currentTournament) {
+    return <div>Tournament not found</div>;
+  }
+
+  const setDeckState = useSetRecoilState(tournamentDeckState(currentTournament.id));
   
   const [rounds, setRounds] = useState(props.rounds);
-  const [tournamentName, setTournamentName] = useState(props.tournament.name);
-  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
-  const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
-  const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
+  const [tournamentName, setTournamentName] = useState(currentTournament.name);
+  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO(currentTournament.date_from), to: parseISO(currentTournament.date_to) });
+  const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(currentTournament.category as TournamentCategory | null);
+  const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(currentTournament.placement as TournamentPlacement | null);
 
   // const setTournamentRoundsState = useSetRecoilState(tournamentRoundsState);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
-
-    setRecoilTournamentState(props.tournament);
-    // setTournamentRoundsState(props.rounds);
-
-  }, [props.tournament, props.rounds, setRecoilTournamentState]);
-
-  useEffect(() => {
-    setDeckState(recoilTournamentState.deck || '');
-  }, [recoilTournamentState.deck, setDeckState]);
+    setDeckState(currentTournament.deck || '');
+  }, [currentTournament.deck, setDeckState]);
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
   }, [setRounds, rounds]);
 
   const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
-    let newRounds = [...rounds];
+    const newRounds = [...rounds];
     newRounds[pos] = newRound;
-    
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
@@ -69,8 +66,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
-    setTournamentPlacement(newPlacement)
-  }, [setTournamentDate, setTournamentName, setTournamentCategory, setTournamentPlacement]);
+    setTournamentPlacement(newPlacement);
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
@@ -86,7 +83,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
-            // tournament={props.tournament}
+            tournamentId={props.tournament.id}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>
@@ -95,11 +92,11 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
         {props.user && (props.user.id === props.tournament.user) && (
           <div className="flex gap-1">
             <TournamentEditDialog
-              //tournamentId={props.tournament.id}
-              tournamentName={tournamentName}
-              tournamentDateRange={tournamentDate}
-              tournamentCategory={tournamentCategory}
-              tournamentPlacement={tournamentPlacement}
+              tournamentId={props.tournament.id}
+              //tournamentName={tournamentName}
+              //tournamentDateRange={tournamentDate}
+              //tournamentCategory={tournamentCategory}
+              //tournamentPlacement={tournamentPlacement}
               user={props.user}
               updateClientTournament={updateClientTournamentDataOnEdit}
             />

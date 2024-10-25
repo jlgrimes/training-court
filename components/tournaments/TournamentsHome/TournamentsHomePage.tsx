@@ -7,8 +7,6 @@ import { Database } from "@/database.types";
 import { isPremiumUser } from "@/components/premium/premium.utils";
 import { Matchups } from "@/components/premium/matchups/Matchups";
 import { convertTournamentsToMatchups } from "@/components/premium/matchups/Matchups.utils";
-import { useRecoilValue } from "recoil";
-import { tournamentState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentsHomePageProps {
   user: User;
@@ -17,15 +15,13 @@ interface TournamentsHomePageProps {
 export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
   const supabase = createClient();
   const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).returns<Database['public']['Tables']['tournaments']['Row'][]>();
-  //const tournamentData = useRecoilValue(tournamentState);
-  
   const rounds = await fetchRoundsForUser(props.user?.id);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
         <TournamentCreate userId={props.user.id} />
-        <MyTournamentPreviews user={props.user} tournaments={tournamentData} rounds={rounds} />
+        <MyTournamentPreviews user={props.user} rounds={rounds} />
       </div>
        
       <div className="flex flex-col">

@@ -21,25 +21,27 @@ import {
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
-import { tournamentState } from "@/components/atoms/tournamentAtoms";
+import { tournamentsState } from "@/components/atoms/tournamentAtoms";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`;
 
 interface EditableTournamentArchetypeProps {
-  tournament?: Database['public']['Tables']['tournaments']['Row'];
+  tournamentId: string;
   editDisabled?: boolean;
 }
 
-export const EditableTournamentArchetype = ({ tournament, editDisabled }: EditableTournamentArchetypeProps) => {
-  const recoilTournament = useRecoilValue(tournamentState);
-  const activeTournament = tournament || recoilTournament;
-  
+export const EditableTournamentArchetype = ({ tournamentId, editDisabled }: EditableTournamentArchetypeProps) => {
+  const tournaments = useRecoilValue(tournamentsState);
+  const activeTournament = tournaments.find(t => t.id === tournamentId);
+
+  if (!activeTournament) {
+    return <div>Tournament not found</div>;
+  }
+
   const [serverDeck, setServerDeck] = useRecoilState(tournamentDeckState(activeTournament.id));
-
   const [clientDeck, setClientDeck] = useState<string | undefined>();
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const shouldLocalizeDeckInput = useMemo(() => {
