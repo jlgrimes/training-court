@@ -7,7 +7,7 @@ import { useLimitlessSprites } from '../sprites/sprites.hooks';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface AddArchetypeProps {
-  archetype: string | undefined;
+  archetype: string | null;
   setArchetype: (deck: string) => void;
   isDisabled?: boolean;
 }
@@ -32,10 +32,10 @@ export const AddArchetype = (props: AddArchetypeProps) => {
   }, [pokemonName]);
 
   const getArchetypeByIdx = useCallback((idx: number) => {
-    if (!props.archetype) return undefined;
+    if (!props.archetype) return null;
     const splitArchetype = props.archetype.split(',');
 
-    if (idx === 1 && splitArchetype.length === 1) return undefined;
+    if (idx === 1 && splitArchetype.length === 1) return null;
     return splitArchetype[idx];
   }, [props.archetype]);
 

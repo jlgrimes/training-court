@@ -21,6 +21,21 @@ export const tournamentState = atom<Database['public']['Tables']['tournaments'][
   },
 });
 
+// export const tournamentState = atom<Database['public']['Tables']['tournaments']['Row'][]>({
+//   key: 'tournamentState',
+//   default: [{
+//     category: null,
+//     created_at: '',
+//     date_from: '',
+//     date_to: '',
+//     deck: null,
+//     id: '',
+//     name: '',
+//     placement: null,
+//     user: '',
+//   }],
+// });
+
 export const tournamentDeckState = atomFamily<string | undefined, string>({
   key: 'tournamentDeckState',
   default: undefined,

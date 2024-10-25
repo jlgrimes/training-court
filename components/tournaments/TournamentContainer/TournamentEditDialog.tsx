@@ -29,24 +29,26 @@ import { TournamentCategory, allTournamentCategories, displayTournamentCategory 
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
+import { useRecoilValue } from "recoil";
+import { tournamentState } from "@/components/atoms/tournamentAtoms";
 
-const Bugs = {
-  BattleLogs: {
-    MissingDeck: 'missing-deck',
-    WrongDeck: 'wrong-deck',
-    ImportingDeck: 'importing-deck',
-    FeatureRequest: 'feature-request',
-    Other: 'other'
-  },
-  Tournaments: {
-    VisualGlitch: 'visual-glitch',
-    FeatureRequest: 'feature-request',
-    Other: 'other'
-  }
-}
+// const Bugs = {
+//   BattleLogs: {
+//     MissingDeck: 'missing-deck',
+//     WrongDeck: 'wrong-deck',
+//     ImportingDeck: 'importing-deck',
+//     FeatureRequest: 'feature-request',
+//     Other: 'other'
+//   },
+//   Tournaments: {
+//     VisualGlitch: 'visual-glitch',
+//     FeatureRequest: 'feature-request',
+//     Other: 'other'
+//   }
+// }
 
 interface TournamentEditDialogProps {
-  tournamentId: string;
+  //tournamentId: string;
   tournamentName: string;
   tournamentCategory: TournamentCategory | null;
   tournamentPlacement: TournamentPlacement | null;
@@ -57,6 +59,8 @@ interface TournamentEditDialogProps {
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const { toast } = useToast();
+
+  const recoilTournament = useRecoilValue(tournamentState);
   
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
@@ -87,7 +91,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
       date_to: tournamentDate?.to,
       category: tournamentCategory,
       placement: tournamentPlacement
-    }).eq('id', props.tournamentId);
+    }).eq('id', recoilTournament.id);
 
     if (error) {
       toast({

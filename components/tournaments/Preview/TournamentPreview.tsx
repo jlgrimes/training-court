@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge"
 import { Card, CardDescription, CardHeader, CardTitle, SmallCardHeader } from "../../ui/card";
@@ -14,6 +16,8 @@ import { renderTournamentPlacement, TournamentPlacement } from "../Placement/tou
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { Label } from "@/components/ui/label";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
+import { useRecoilState } from "recoil";
+import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -35,6 +39,7 @@ interface TournamentPreviewProps {
 </div> */}
 
 export default function TournamentPreview(props: TournamentPreviewProps) {
+  // const deck = useRecoilState(tournamentDeckState(props.tournament.id)).toString
   return (
     <Link href={`/tournaments/${props.tournament.id}`}>
       <Card clickable>

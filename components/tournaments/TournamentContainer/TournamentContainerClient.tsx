@@ -18,7 +18,7 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
-import { tournamentState } from "@/app/state/atom";
+import { tournamentState } from "@/components/atoms/tournamentAtoms";
 import { Tournament } from "./TournamentContainer";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { tournamentDeckState } from "@/components/atoms/tournamentAtoms";
@@ -51,8 +51,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   }, [props.tournament, props.rounds, setRecoilTournamentState]);
 
   useEffect(() => {
-    setDeckState(props.tournament.deck || '');
-  }, [props.tournament.deck, setDeckState]);
+    setDeckState(recoilTournamentState.deck || '');
+  }, [recoilTournamentState.deck, setDeckState]);
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
@@ -95,7 +95,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
         {props.user && (props.user.id === props.tournament.user) && (
           <div className="flex gap-1">
             <TournamentEditDialog
-              tournamentId={props.tournament.id}
+              //tournamentId={props.tournament.id}
               tournamentName={tournamentName}
               tournamentDateRange={tournamentDate}
               tournamentCategory={tournamentCategory}

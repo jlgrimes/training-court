@@ -51,7 +51,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         </SelectItem>
       ))}
   </SelectContent>
-</Select>
+  </Select>
     {selectedCat === 'all' && (
       <div className="flex flex-col gap-2">
         {props.tournaments?.map((tournament) => props.rounds && (

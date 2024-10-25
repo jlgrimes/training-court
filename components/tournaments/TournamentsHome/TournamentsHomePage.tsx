@@ -7,6 +7,8 @@ import { Database } from "@/database.types";
 import { isPremiumUser } from "@/components/premium/premium.utils";
 import { Matchups } from "@/components/premium/matchups/Matchups";
 import { convertTournamentsToMatchups } from "@/components/premium/matchups/Matchups.utils";
+import { useRecoilValue } from "recoil";
+import { tournamentState } from "@/components/atoms/tournamentAtoms";
 
 interface TournamentsHomePageProps {
   user: User;
@@ -15,6 +17,8 @@ interface TournamentsHomePageProps {
 export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
   const supabase = createClient();
   const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).returns<Database['public']['Tables']['tournaments']['Row'][]>();
+  //const tournamentData = useRecoilValue(tournamentState);
+  
   const rounds = await fetchRoundsForUser(props.user?.id);
 
   return (

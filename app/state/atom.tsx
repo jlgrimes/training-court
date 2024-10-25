@@ -6,20 +6,27 @@ import { atom } from 'recoil';
 //   default: null,
 // });
 
-export const tournamentState = atom<Tournament>({
-  key: 'tournamentState',
-  default: {
-    category: '',
-    created_at: '',
-    date_from: '',
-    date_to: '',
-    deck: '',
-    id: '',
-    name: '',
-    placement: null,
-    user: ''
-  }
-})
+// export const tournamentState = atom<Tournament>({
+//   key: 'tournamentState',
+//   default: {
+//     category: '',
+//     created_at: '',
+//     date_from: '',
+//     date_to: '',
+//     deck: '',
+//     id: '',
+//     name: '',
+//     placement: null,
+//     user: ''
+//   },
+//   effects: [
+//     ({ onSet }) => {
+//       onSet((newDeck, oldDeck) => {
+//         console.log(`Tournament changed from ${oldDeck} to ${newDeck}`);
+//       });
+//     },
+//   ],
+// })
 
 export const tournamentRoundsState = atom<any[] | null>({
   key: 'tournamentRoundsState',
