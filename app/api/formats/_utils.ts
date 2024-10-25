@@ -21,7 +21,8 @@ export const getRotationBlocks = (sets: PokemonSet[]) => {
     
     return {
       format: `${rotationStartingSets[startingSetIdx].ptcgoCode}-${set.ptcgoCode}`,
-      startDate: set.legalityDate,
+      releaseDate: set.releaseDate,
+      legalityDate: set.legalityDate,
     }
   }).filter((set) => set);
 }

@@ -14,8 +14,8 @@ export async function GET() {
 
       return ({
         ...obj,
-        releaseDate: releaseDate.toString(),
-        legalityDate: legalityDate.toString()
+        releaseDate: releaseDate.toISOString(),
+        legalityDate: legalityDate.toISOString()
       })
     })
     
