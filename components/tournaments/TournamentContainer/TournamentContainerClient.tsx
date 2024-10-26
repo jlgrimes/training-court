@@ -26,6 +26,7 @@ interface TournamentContainerClientProps {
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
+  const [deck, setDeck] = useState(props.tournament.deck || '');
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
@@ -51,7 +52,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
-    setTournamentPlacement(newPlacement)
+    setTournamentPlacement(newPlacement);
+    // setDeck()
   }, [setTournamentDate, setTournamentName, setTournamentCategory, setTournamentPlacement]);
 
   return (
@@ -69,6 +71,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
             tournament={props.tournament}
+            deck={deck}
+            setDeck={setDeck}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>
