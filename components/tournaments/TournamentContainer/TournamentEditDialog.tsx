@@ -29,6 +29,7 @@ import { TournamentCategory, allTournamentCategories, displayTournamentCategory 
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
+import { Format } from "../Format/tournament-category.types";
 
 const Bugs = {
   BattleLogs: {
@@ -51,17 +52,19 @@ interface TournamentEditDialogProps {
   tournamentCategory: TournamentCategory | null;
   tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
+  tournamentFormat: Format | null;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null) => void;
+  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: Format | null) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const { toast } = useToast();
-  
+
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
+  const [tournamentFormat, setTournamentFormat] = useState<Format | null>(null);
 
   useEffect(() => {
     setTournamentName(props.tournamentName);
@@ -79,6 +82,10 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     setTournamentPlacement(props.tournamentPlacement);
   }, [props.tournamentPlacement])
 
+  useEffect(() => {
+    setTournamentFormat(props.tournamentFormat);
+  }, [props.tournamentPlacement])
+
   const handleUpdateTournament = useCallback(async () => {
     const supabase = createClient();
     const { error } = await supabase.from('tournaments').update({
@@ -86,7 +93,8 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to,
       category: tournamentCategory,
-      placement: tournamentPlacement
+      placement: tournamentPlacement,
+      format: tournamentFormat
     }).eq('id', props.tournamentId);
 
     if (error) {
@@ -96,7 +104,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         description: error.message,
       })
     } else {
-      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement);
+      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement, tournamentFormat);
 
       toast({
         title: "Tournament changes saved.",
@@ -121,6 +129,16 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
             <SelectTrigger>
               <SelectValue placeholder="Select tournament category" />
             </SelectTrigger>
+
+            <Select value={tournamentFormat} onValueChange={setTournamentFormat}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="BRS-STC">BRS-STC</SelectItem>
+                <SelectItem value="Expanded">Expanded</SelectItem>
+              </SelectContent>
+            </Select>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
                 <SelectItem value={cat}>

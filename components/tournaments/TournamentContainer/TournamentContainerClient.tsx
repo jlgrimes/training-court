@@ -18,6 +18,7 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
+import { Format } from "../Format/tournament-category.types";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -32,6 +33,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
+  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as Format || null);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
@@ -48,13 +50,13 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: Format | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
     setTournamentPlacement(newPlacement);
-    // setDeck()
-  }, [setTournamentDate, setTournamentName, setTournamentCategory, setTournamentPlacement]);
+    setTournamentFormat(newFormat);
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
@@ -86,6 +88,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
               tournamentDateRange={tournamentDate}
               tournamentCategory={tournamentCategory}
               tournamentPlacement={tournamentPlacement}
+              tournamentFormat={tournamentFormat}
               user={props.user}
               updateClientTournament={updateClientTournamentDataOnEdit}
             />

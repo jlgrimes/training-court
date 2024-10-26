@@ -147,6 +147,7 @@ export type Database = {
           result: string | null
           turn_order: string | null
           user: string
+          format: string
         }
         Insert: {
           archetype?: string | null
@@ -158,6 +159,7 @@ export type Database = {
           result?: string | null
           turn_order?: string | null
           user: string
+          format: string
         }
         Update: {
           archetype?: string | null
@@ -169,6 +171,7 @@ export type Database = {
           result?: string | null
           turn_order?: string | null
           user?: string
+          format: string
         }
         Relationships: [
           {
@@ -235,6 +238,7 @@ export type Database = {
           name: string
           placement: string | null
           user: string
+          format: string
         }
         Insert: {
           category?: string | null
@@ -246,6 +250,7 @@ export type Database = {
           name: string
           placement?: string | null
           user: string
+          format: string
         }
         Update: {
           category?: string | null
@@ -257,6 +262,7 @@ export type Database = {
           name?: string
           placement?: string | null
           user?: string
+          format: string
         }
         Relationships: [
           {
