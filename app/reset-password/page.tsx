@@ -22,24 +22,20 @@ export default function Login({
       return redirect("/forgot-password?message=Reset token or email is missing.");
     }
 
-    // // Step 1: Verify the OTP (reset token)
-    // const { error: verifyError } = await supabase.auth.verifyOtp({
-    //   email,
-    //   token: code,
-    //   type: "recovery",
-    // });
+    const { data, error: sessionError  } = await supabase.auth.exchangeCodeForSession(code);
 
-    // if (verifyError) {
-    //   return redirect("/forgot-password?message=Invalid or expired reset token.");
-    // }
+    if (sessionError) {
+        console.error("Session error:", sessionError.message);
+        return redirect("/forgot-password?message=Invalid or expired reset token.");
+      }
 
-    // Step 2: Update the user's password after verification
     const { error: updateError } = await supabase.auth.updateUser({
-        email: email,
-        password: password,
+        // email: email,
+        password: password,   
     });
 
     if (updateError) {
+        console.log(password)
       return redirect("/forgot-password?message=Failed to update password. Please try again.");
     }
 
@@ -52,7 +48,7 @@ export default function Login({
         className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
         
       >
-        <Label className="text-md" htmlFor="email">
+        {/* <Label className="text-md" htmlFor="email">
           Email
         </Label>
         <Input
@@ -61,7 +57,7 @@ export default function Login({
           name="email"
           placeholder="you@example.com"
           required
-        />
+        /> */}
         <Label className="text-md" htmlFor="password">
           New Password
         </Label>
