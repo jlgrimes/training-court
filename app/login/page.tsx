@@ -12,6 +12,8 @@ export default function Login({
 }: {
   searchParams: { message: string };
 }) {
+  const defaultUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
   const signIn = async (formData: FormData) => {
     "use server";
 
@@ -55,6 +57,22 @@ export default function Login({
     return redirect("/home");
   };
 
+  const resetPassword = async (formData: FormData) => {
+    "use server";
+
+    const email = formData.get("reset_email") as string;
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${defaultUrl}/reset-password`,
+    });
+
+    if (error) {
+      return redirect("/login?message=Could not reset password");
+    }
+    return redirect("/login?message=Password reset email sent");
+  };
+
   return (
     <div className="flex-1 flex flex-col w-full px-8 py-16 sm:max-w-md justify-center gap-2">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
@@ -95,6 +113,21 @@ export default function Login({
             {searchParams.message}
           </p>
         )}
+      </form>
+
+      <form className="flex-1 flex flex-col w-full justify-center gap-2 mt-6" action={resetPassword}>
+        <Label className="text-md" htmlFor="reset_email">
+          Forgot Password?
+        </Label>
+        <Input
+          className="rounded-md px-4 py-2 bg-inherit border mb-6"
+          name="reset_email"
+          placeholder="Enter your email"
+          required
+        />
+        <SubmitButton formAction={resetPassword} pendingText="Sending Reset Email...">
+          Reset Password
+        </SubmitButton>
       </form>
     </div>
   );
