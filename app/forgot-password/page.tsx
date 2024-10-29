@@ -42,6 +42,11 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
         </SubmitButton>
       </form>
       {searchParams?.message && <p className="text-center">{searchParams.message}</p>}
+        <p className="mt-4 text-sm text-center">
+          <Link href="/login" className=" underline">
+            Return to login page
+          </Link>
+        </p>
     </div>
   );
 }
