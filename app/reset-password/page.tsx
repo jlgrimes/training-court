@@ -53,6 +53,8 @@ export default function Login({
           type="password"
           name="password"
           placeholder="••••••••"
+          minLength={6}
+          maxLength={100}
           required
         />
         {searchParams?.message && (
