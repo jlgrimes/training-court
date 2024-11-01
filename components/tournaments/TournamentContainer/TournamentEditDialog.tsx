@@ -54,7 +54,7 @@ interface TournamentEditDialogProps {
   tournamentDateRange: DateRange;
   tournamentFormat: FormatArray | null;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: Format | null) => void;
+  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: FormatArray | null) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
