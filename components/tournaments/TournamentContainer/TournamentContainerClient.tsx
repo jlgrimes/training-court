@@ -18,7 +18,7 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
-import { Format } from "../Format/tournament-category.types";
+import { FormatArray } from "../Format/tournament-category.types";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -27,13 +27,12 @@ interface TournamentContainerClientProps {
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
-  const [deck, setDeck] = useState(props.tournament.deck || '');
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
-  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as Format || null);
+  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as FormatArray | null);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
@@ -50,7 +49,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: Format | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: FormatArray | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
@@ -73,8 +72,6 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <EditableTournamentArchetype
             tournament={props.tournament}
-            deck={deck}
-            setDeck={setDeck}
             editDisabled={props.tournament.user !== props.user?.id}
           />
           <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>

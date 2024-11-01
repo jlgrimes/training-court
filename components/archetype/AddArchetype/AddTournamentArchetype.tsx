@@ -21,10 +21,13 @@ import {
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
+import { Edit } from "lucide-react";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
-export const EditableTournamentArchetype = ({ tournament, deck, setDeck, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], deck: string, setDeck: (deck: string) => void, editDisabled?: boolean }) => {
+export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
+  const [deck, setDeck] = useState('');
+  const [serverDeck, setServerDeck] = useState(tournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
 
   const shouldLocalizeDeckInput = useMemo(() => {
@@ -34,37 +37,33 @@ export const EditableTournamentArchetype = ({ tournament, deck, setDeck, editDis
 
   useEffect(() => {
     setClientDeck(getCookie(getLocalDeckCookieKey(tournament.id)));
-  }, [tournament.id]);
-
-  useEffect(() => {
-    setClientDeck(getCookie(getLocalDeckCookieKey(tournament.id)));
-  }, [tournament.id]);
+  }, []);
 
   useEffect(() => {
     if (clientDeck && !shouldLocalizeDeckInput) {
-      removeCookie(getLocalDeckCookieKey(tournament.id));
+      removeCookie(getLocalDeckCookieKey(tournament.id))
       setArchetype(clientDeck);
     }
-  }, [clientDeck, shouldLocalizeDeckInput]);
+  }, [clientDeck]);
 
-  const setArchetype = useCallback(async (newDeck: string) => {
+  useEffect(() => {
+    serverDeck && setDeck(serverDeck);
+  }, [serverDeck]);
+  
+  const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
-      setCookie(getLocalDeckCookieKey(tournament.id), newDeck, { expires: 70 });
-      setClientDeck(newDeck);
-      return;
+      setCookie(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });
+      return setClientDeck(deck);
     }
 
     const supabase = createClient();
-    const { error } = await supabase.from('tournaments').update({ deck: newDeck }).eq('id', tournament.id);
+    
+    const { error } = await supabase.from('tournaments').update({ deck }).eq('id', tournament.id);
 
     if (error) throw error;
 
-    setDeck(newDeck);
-  }, [shouldLocalizeDeckInput, setDeck, tournament.id]);
-
-  if (editDisabled) {
-    return deck ? <Sprite name={deck} /> : null;
-  }
+    setServerDeck(deck);
+  }, [createClient, deck, tournament.id]);
 
   if (clientDeck) {
     return (
@@ -77,9 +76,16 @@ export const EditableTournamentArchetype = ({ tournament, deck, setDeck, editDis
     )
   }
 
+  if (editDisabled) {
+    if (serverDeck) {
+      return <Sprite name={serverDeck} />
+    }
+    return null;
+  }
+
   return (
     <Dialog>
-      <DialogTrigger className="text-sm">{deck ? <Sprite name={deck} /> : 'Add deck'}</DialogTrigger>
+      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} /> : 'Add deck'}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
