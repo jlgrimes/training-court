@@ -19,6 +19,7 @@ import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { FormatArray } from "../Format/tournament-format.types";
+import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -64,9 +65,10 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <div className="flex flex-col gap-1 col-span-2 sm:col-span-5">
             <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
             <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
-            <div className="flex flex-col gap-1 mt-2">
+            <div className="flex gap-1 mt-2">
               {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
               {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
+              {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)}
             </div>
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">

@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { FormatArray } from "./tournament-format.types";
 
-interface TournamentCategoryBadgeProps {
+interface TournamentFormatBadgeProps {
   format: FormatArray;
 }
 
-export const TournamentFormatBadge = (props: TournamentCategoryBadgeProps) => {
+export const TournamentFormatBadge = (props: TournamentFormatBadgeProps) => {
   return (
     <div>
       <Badge variant='outline' className="py-1">

@@ -110,7 +110,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         title: "Tournament changes saved.",
       });
     }
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, tournamentFormat]);
 
   return (
     <Dialog>
