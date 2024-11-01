@@ -21,7 +21,6 @@ import {
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
-import { Edit } from "lucide-react";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
