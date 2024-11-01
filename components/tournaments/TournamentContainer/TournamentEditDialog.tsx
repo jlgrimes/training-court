@@ -29,7 +29,7 @@ import { TournamentCategory, allTournamentCategories, displayTournamentCategory 
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
-import { FormatArray, formatArray } from "../Format/tournament-category.types";
+import { FormatArray, formatArray } from "../Format/tournament-format.types";
 
 const Bugs = {
   BattleLogs: {

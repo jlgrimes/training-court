@@ -1,5 +1,5 @@
-export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'PTCG Pocket' | 'GLC' | 'all';
-// export type TournamentCategoryTab = TournamentCategory | 'all';
+export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'PTCG Pocket' | 'GLC' ;
+export type TournamentFormatTab = FormatArray | 'all';
 
 // export function displayTournamentCategory(cat: TournamentCategory) {
 //   switch (cat) {
@@ -27,7 +27,5 @@ export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'PTCG Pocket' | 'GLC' | 'all';
 //   if (cat === 'international') return 'ICs';
 //   return displayTournamentCategory(cat);
 // }
-
-// export const format: Format[] = ['online', 'local', 'challenge', 'cup', 'regional', 'international', 'world'];
 
 export const formatArray: FormatArray[] = ['BRS-SCR', 'BRS-SSP', 'PTCG Pocket', 'GLC']

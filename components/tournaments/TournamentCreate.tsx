@@ -21,7 +21,7 @@ import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
 import { Database } from "@/database.types";
-import { formatArray, FormatArray } from "./Format/tournament-category.types";
+import { formatArray, FormatArray } from "./Format/tournament-format.types";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);

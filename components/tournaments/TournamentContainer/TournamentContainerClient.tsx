@@ -18,7 +18,7 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
-import { FormatArray } from "../Format/tournament-category.types";
+import { FormatArray } from "../Format/tournament-format.types";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
