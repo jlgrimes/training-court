@@ -1,7 +1,6 @@
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
-import TournamentPreview from "@/components/tournaments/Preview/TournamentPreview";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,8 @@ const mockJWToronto = {
   deck : 'miraidon',
   user: '',
   category: null,
-  placement: null
+  placement: null,
+  format: "Standard"
 }
 
 export default async function Index() {
@@ -108,7 +108,8 @@ export default async function Index() {
                 deck : 'miraidon',
                 user: '',
                 category: null,
-                placement: null
+                placement: null,
+                format: '123'
               }} editDisabled />
             </div>
             <div className="col-span-4 grid-cols-5">
