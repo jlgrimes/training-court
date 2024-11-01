@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { Card, CardHeader } from "../ui/card";
 import { DatePicker } from "../ui/date-picker";
 import { DateRange } from "react-day-picker";
 import { createClient } from "@/utils/supabase/client";
@@ -21,6 +21,7 @@ import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
 import { Database } from "@/database.types";
+import { formatArray, FormatArray } from "./Format/tournament-category.types";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -31,6 +32,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
+  const [format, setFormat] = useState<FormatArray | null>(null);
 
   const handleAddTournament = useCallback(async () => {
     setIsCreatingTournament(true);
@@ -41,7 +43,8 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       date_to: tournamentDate?.to ?? tournamentDate?.from,
       user: userId,
       category: tournamentCategory,
-      placement: tournamentPlacement
+      placement: tournamentPlacement,
+      format: format
     }).select().returns<Database['public']['Tables']['tournaments']['Row'][]>();
 
     if (error) {
@@ -54,7 +57,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       window.location.href = `/tournaments/${data[0].id}`;
     }
     setIsCreatingTournament(true);
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format]);
 
   if (editing) return (
     <Card className="py-2">
@@ -73,6 +76,18 @@ export default function TournamentCreate({ userId }: { userId: string }) {
                     <TournamentCategoryIcon category={cat} />
                     <p>{displayTournamentCategory(cat)}</p>
                   </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select onValueChange={(value) => setFormat(value as FormatArray)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select format" />
+            </SelectTrigger>
+            <SelectContent>
+              {formatArray.map((format) => (
+                <SelectItem value={format} key={format}>
+                  {format}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -29,7 +29,7 @@ import { TournamentCategory, allTournamentCategories, displayTournamentCategory 
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
-import { Format } from "../Format/tournament-category.types";
+import { FormatArray, formatArray } from "../Format/tournament-category.types";
 
 const Bugs = {
   BattleLogs: {
@@ -52,7 +52,7 @@ interface TournamentEditDialogProps {
   tournamentCategory: TournamentCategory | null;
   tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
-  tournamentFormat: Format | null;
+  tournamentFormat: FormatArray | null;
   user: User | null;
   updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: Format | null) => void;
 }
@@ -64,7 +64,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [tournamentFormat, setTournamentFormat] = useState<Format | null>(null);
+  const [tournamentFormat, setTournamentFormat] = useState<FormatArray | null>(null);
 
   useEffect(() => {
     setTournamentName(props.tournamentName);
@@ -130,13 +130,16 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
               <SelectValue placeholder="Select tournament category" />
             </SelectTrigger>
 
-            <Select value={tournamentFormat} onValueChange={setTournamentFormat}>
+            <Select value={tournamentFormat ? (tournamentFormat as string) : undefined} onValueChange={(value) => setTournamentFormat(value as FormatArray)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="BRS-STC">BRS-STC</SelectItem>
-                <SelectItem value="Expanded">Expanded</SelectItem>
+                {formatArray.map((format) => (
+                  <SelectItem key={format} value={format}>
+                    {format}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <SelectContent>

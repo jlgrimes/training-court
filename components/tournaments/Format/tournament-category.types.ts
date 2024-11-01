@@ -1,4 +1,4 @@
-export type Format = 'BRS-SCR' | null;
+export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'all';
 // export type TournamentCategoryTab = TournamentCategory | 'all';
 
 // export function displayTournamentCategory(cat: TournamentCategory) {
@@ -29,3 +29,5 @@ export type Format = 'BRS-SCR' | null;
 // }
 
 // export const format: Format[] = ['online', 'local', 'challenge', 'cup', 'regional', 'international', 'world'];
+
+export const formatArray: FormatArray[] = ['BRS-SCR', 'BRS-SSP']
