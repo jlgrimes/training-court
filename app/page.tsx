@@ -19,7 +19,8 @@ const mockJWToronto = {
   deck : 'miraidon',
   user: '',
   category: null,
-  placement: null
+  placement: null,
+  format: null
 }
 
 export default async function Index() {
@@ -108,7 +109,8 @@ export default async function Index() {
                 deck : 'miraidon',
                 user: '',
                 category: null,
-                placement: null
+                placement: null,
+                format: null
               }} editDisabled />
             </div>
             <div className="col-span-4 grid-cols-5">
