@@ -9,6 +9,7 @@ import { TrainingCourtWelcome } from "@/components/TrainingCourtWelcome";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddPocketMatch } from "@/components/pocket/AddPocketMatch";
 import { PocketMatchesList } from "@/components/pocket/PocketMatchesList";
+import { Badge } from "@/components/ui/badge";
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -22,7 +23,7 @@ export default async function Profile() {
       <Tabs defaultValue="tcg">
         <TabsList className="mb-2">
           <TabsTrigger value='tcg'>TCG</TabsTrigger>
-          <TabsTrigger value='pocket'>Pocket</TabsTrigger>
+          <TabsTrigger value='pocket'>Pocket <Badge className="ml-1" variant='secondary'>Beta</Badge></TabsTrigger>
         </TabsList>
         <TabsContent value="tcg">
             <TrainingCourtWelcome userId={user.id} />
