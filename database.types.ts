@@ -231,6 +231,7 @@ export type Database = {
           date_from: string
           date_to: string
           deck: string | null
+          format: string | null
           id: string
           name: string
           placement: string | null
@@ -242,6 +243,7 @@ export type Database = {
           date_from: string
           date_to: string
           deck?: string | null
+          format?: string | null
           id?: string
           name: string
           placement?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           date_from?: string
           date_to?: string
           deck?: string | null
+          format?: string | null
           id?: string
           name?: string
           placement?: string | null
@@ -319,6 +322,26 @@ export type Database = {
         Returns: {
           avatar: string
           avatar_count: number
+        }[]
+      }
+      get_tournament_rounds_by_user: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          tournament_round_id: string
+          round_created_at: string
+          round_num: number
+          tournament_id: string
+          tournament_name: string
+          tournament_created_at: string
+          tournament_user: string
+          tournament_date_from: string
+          tournament_date_to: string
+          tournament_deck: string
+          tournament_category: string
+          tournament_placement: string
+          tournament_format: string
         }[]
       }
       get_user_tournament_and_battle_logs: {
