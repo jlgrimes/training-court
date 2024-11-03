@@ -13,18 +13,12 @@ interface TournamentsHomePageProps {
 }
 
 export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
-  const supabase = createClient();
-
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
         <TournamentCreate userId={props.user.id} />
         <MyTournamentPreviews user={props.user} />
       </div>
-       
-      {/* <div className="flex flex-col">
-        {isPremiumUser(props.user.id) && tournamentData && rounds && <Matchups matchups={convertTournamentsToMatchups(tournamentData, rounds)} userId={props.user.id}/>}
-      </div> */}
     </div>
   );
 }
