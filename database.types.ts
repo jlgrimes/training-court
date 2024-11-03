@@ -180,6 +180,41 @@ export type Database = {
           },
         ]
       }
+      pocket_games: {
+        Row: {
+          created_at: string
+          deck: string
+          id: number
+          opp_deck: string
+          result: string
+          user: string
+        }
+        Insert: {
+          created_at?: string
+          deck: string
+          id?: number
+          opp_deck: string
+          result: string
+          user: string
+        }
+        Update: {
+          created_at?: string
+          deck?: string
+          id?: number
+          opp_deck?: string
+          result?: string
+          user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pocket_games_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       "tournament rounds": {
         Row: {
           created_at: string

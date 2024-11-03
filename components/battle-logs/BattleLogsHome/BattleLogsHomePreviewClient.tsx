@@ -21,8 +21,8 @@ export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientP
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
-    logs && mutate('live-logs', [newLog, ...logs])
-  }, [logs]);
+    logs && mutate(['live-logs', props.userId], [newLog, ...logs])
+  }, [logs, props.userId]);
 
   if (userDataIsLoading || logsAreLoading) {
     return (

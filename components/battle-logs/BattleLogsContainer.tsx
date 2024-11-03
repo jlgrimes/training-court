@@ -30,8 +30,8 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
-    logs && mutate('live-logs', [newLog, ...logs])
-  }, [logs]);
+    logs && mutate(['live-logs', userId], [newLog, ...logs])
+  }, [logs, userId]);
 
   // Disable edit mode every time we change tabs because that makes sense
   useEffect(() => {
