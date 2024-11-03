@@ -14,9 +14,9 @@ import { useToast } from "../ui/use-toast";
 export const AddPocketMatch = ({ userId }: { userId: string}) => {
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
-  const [myDeck, setMyDeck] = useState<string>();
-  const [opponentDeck, setOpponentDeck] = useState<string>();
-  const [result, setResult] = useState<string>();
+  const [myDeck, setMyDeck] = useState<string | undefined>();
+  const [opponentDeck, setOpponentDeck] = useState<string | undefined>();
+  const [result, setResult] = useState<string | undefined>();
 
   const handlePocketGameAdd = useCallback(async () => {
     const supabase = createClient();
@@ -36,7 +36,11 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
     }
 
     if (data) {
-      mutate(['pocket-games', userId], data)
+      mutate(['pocket-games', userId], data);
+
+      setMyDeck(undefined);
+      setOpponentDeck(undefined);
+      setResult(undefined);
     }
   }, [userId, myDeck, opponentDeck, result]);
 

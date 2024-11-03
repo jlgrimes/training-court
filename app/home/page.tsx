@@ -40,7 +40,6 @@ export default async function Profile() {
         </TabsContent>
         <TabsContent value="pocket">
           <div className="flex flex-col gap-4 items-start">
-            <h1 className="text-xl tracking-wide font-semibold text-slate-800">Pocket</h1>
             <AddPocketMatch userId={user.id} />
             <PocketMatchesList userId={user.id} />
           </div>
