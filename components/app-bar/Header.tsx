@@ -11,8 +11,6 @@ import { LogInOut } from "./LogInOut";
 import { ReportBugDialog } from "./ReportBugDialog";
 import { fetchCurrentUser } from "../auth.utils";
 import Image from "next/image";
-import { isUserAnAdmin } from "../admin/admin.utils";
-import { NavigationMenuContent, NavigationMenuTrigger } from "@radix-ui/react-navigation-menu";
 import { AuthIcon } from "./AuthIcon";
 
 export default async function Header() {
