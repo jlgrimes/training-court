@@ -12,14 +12,12 @@ interface BattleLogsHomePreviewProps {
 export const BattleLogsHomePreview = async (props: BattleLogsHomePreviewProps) => {
   if (!props.userData) return null;
 
-  const logData = await fetchBattleLogs(props.userData.id);
-
-  return logData && (
+  return (
     <div className="flex flex-col gap-4">
       <Link href='/logs'>
         <h1 className="text-xl tracking-wide font-semibold text-slate-800">Logs</h1>
       </Link>
-      <BattleLogsHomePreviewClient userData={props.userData} battleLogs={logData} />
+      <BattleLogsHomePreviewClient userData={props.userData} />
     </div>
   )
 }
