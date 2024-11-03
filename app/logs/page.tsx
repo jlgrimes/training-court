@@ -15,7 +15,7 @@ export default async function LogsPage() {
   }
 
   return (
-    <div className="flex flex-col py-4 lg:py-8 pl-8 pr-6 lg:px-16 gap-4 w-full h-full">
+    <div className="flex flex-col py-4 pl-8 pr-6 gap-4 w-full h-full">
       <BattleLogsContainer userId={currentUser.id} />
     </div>
   )

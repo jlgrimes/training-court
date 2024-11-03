@@ -17,7 +17,7 @@ export default async function PreferencesPage() {
   }
 
   return (
-    <div className="flex flex-col py-6 lg:py-8 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
+    <div className="flex flex-col py-6 pl-8 pr-6 gap-6 w-full h-full">
       <h1 className="text-xl tracking-wide font-semibold text-slate-800">Preferences</h1>
       <Separator />
       <Tabs defaultValue="account" orientation="vertical" className="flex flex-col md:flex-row gap-4 md:gap-8 h-full">

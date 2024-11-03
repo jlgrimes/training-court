@@ -12,7 +12,7 @@ export default async function Pocket() {
   }
 
   return (
-    <div className="flex flex-col py-4 lg:py-6 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
+    <div className="flex flex-col py-4 pl-8 pr-6 gap-6 w-full h-full">
       <h1 className="text-xl tracking-wide font-semibold text-slate-800">Pocket Games</h1>
       <div className="flex flex-col gap-4 items-start">
         <AddPocketMatch userId={user.id} />

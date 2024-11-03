@@ -15,7 +15,7 @@ export default async function Profile() {
   }
 
   return (
-    <div className="flex flex-col py-4 lg:py-6 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
+    <div className="flex flex-col py-4 pl-8 pr-6 gap-6 w-full h-full">
       <TrainingCourtWelcome userId={user.id} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
