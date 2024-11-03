@@ -4,8 +4,9 @@ import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 import Header from "@/components/app-bar/Header";
 import HeaderBreadcrumbs from "@/components/app-bar/HeaderBreadcrumbs";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Separator } from "@/components/ui/separator";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -29,11 +30,16 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground">
         <SidebarProvider>
-          <Header />
           <AppSidebar />
-          <main className="min-h-screen pt-16 h-full w-full">
-            <HeaderBreadcrumbs />
-            <div className="flex flex-col items-center h-full">
+          <main className="min-h-screen h-full w-full">
+            <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
+              <div className="flex px-2 py-4 gap-2 items-center">
+                <SidebarTrigger />
+                <Separator orientation="vertical" />
+                <HeaderBreadcrumbs />
+              </div>
+            </header>
+            <div className="flex flex-col items-center h-full pt-[68px]">
               {children}
             </div>
             <Toaster />

@@ -54,10 +54,8 @@ export default function HeaderBreadcrumbs() {
     return breadcrumbs;
   }, [pathname]);
 
-  if (pathname.length <= 1 || pathname === '/home' || pathname === '/preferences' || pathname === '/login') return;
-
   return (
-    <Breadcrumb className="my-2 ml-4 px-4">
+    <Breadcrumb>
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
         <Fragment key={path} >

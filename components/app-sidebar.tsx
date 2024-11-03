@@ -9,46 +9,55 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { Calendar, Home, Inbox, Info, ScrollText, Search, Settings, Trophy, WalletMinimal } from "lucide-react"
+import Image from "next/image"
+import { fetchCurrentUser } from "./auth.utils";
+import { ReportBugDialog } from "./app-bar/ReportBugDialog";
+import Link from "next/link";
+import { Badge } from "./ui/badge";
  
 const items = [
   {
-    title: "Home",
-    url: "#",
-    icon: Home,
+    title: "About",
+    url: "/about",
+    icon: Info,
+  }
+]
+
+const tcgItems = [
+  {
+    title: "Logs",
+    url: "/logs",
+    icon: ScrollText,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    title: "Tournaments",
+    url: "/tournaments",
+    icon: Trophy,
   },
 ]
 
-export function AppSidebar() {
+const pocketItems = [
+  {
+    title: "Games",
+    url: "/pocket",
+    icon: WalletMinimal,
+  }
+]
+
+export async function AppSidebar() {
+  const user = await fetchCurrentUser();
+
   return (
-<Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
+  <Sidebar>
+    <SidebarHeader>
+      <Link href={user ? '/home' : '/'} className="pt-1 pl-1">
+        <Image src={'/logo.png'} alt='logo' width={150} height={20} />
+      </Link>
+      <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -59,10 +68,51 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            {user && (
+              <SidebarMenuItem>
+                <ReportBugDialog user={user} />
+              </SidebarMenuItem>
+            )}
             </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      </SidebarHeader>
+      {user && (
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>TCG</SidebarGroupLabel>
+            <SidebarGroupContent>
+            <SidebarMenu>
+            {tcgItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Pocket</SidebarGroupLabel>
+            <SidebarGroupContent>
+            <SidebarMenu>
+            {pocketItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      )}
     </Sidebar>
   )
 }
