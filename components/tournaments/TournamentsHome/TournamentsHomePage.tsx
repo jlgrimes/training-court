@@ -14,14 +14,12 @@ interface TournamentsHomePageProps {
 
 export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
   const supabase = createClient();
-  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).returns<Database['public']['Tables']['tournaments']['Row'][]>();
-  const rounds = await fetchRoundsForUser(props.user?.id);
 
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
         <TournamentCreate userId={props.user.id} />
-        <MyTournamentPreviews user={props.user} tournaments={tournamentData} rounds={rounds} />
+        <MyTournamentPreviews user={props.user} />
       </div>
        
       {/* <div className="flex flex-col">

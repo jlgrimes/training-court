@@ -1,24 +1,22 @@
-import { createClient } from "@/utils/supabase/server";
+'use client'
+
 import { User } from "@supabase/supabase-js";
 import TournamentPreview from "../Preview/TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
-import { Database } from "@/database.types";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronRightIcon, Plus } from "lucide-react";
 import TournamentCreate from "../TournamentCreate";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
-import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
+import { useTournaments } from "@/hooks/tournaments/useTournaments";
+import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
 }
 
-export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
-  const supabase = createClient();
-  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).limit(5).returns<Database['public']['Tables']['tournaments']['Row'][]>();
-  const rounds = await fetchRoundsForUser(props.user?.id);
+export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
+  const { data: tournamentData } = useTournaments(props.user?.id);
+  const { data: rounds } = useTournamentRounds(props.user?.id);
 
   if (!props.user) {
     return null;

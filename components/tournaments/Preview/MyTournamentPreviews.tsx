@@ -4,25 +4,26 @@ import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { Database } from "@/database.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
-import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { useTournaments } from "@/hooks/tournaments/useTournaments";
+import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
-  tournaments: Database['public']['Tables']['tournaments']['Row'][] | null;
-  rounds: Database['public']['Tables']['tournament rounds']['Row'][] | null;
 }
 
 export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
+  const { data: tournaments } = useTournaments(props.user?.id);
+  const { data: rounds } = useTournamentRounds(props.user?.id);
+
   const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
 
-  if (props.tournaments && props.tournaments?.length === 0) {
+  if (tournaments && tournaments?.length === 0) {
     return (
       <Card className="border-none">
         <CardHeader className="px-2">
@@ -33,7 +34,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     )
   }
 
-  const availableTournamentCategories: TournamentCategoryTab[] = allTournamentCategoryTabs.filter((cat) => (cat === 'all') || props.tournaments?.some((tournament) => tournament.category === cat));
+  const availableTournamentCategories: TournamentCategoryTab[] = allTournamentCategoryTabs.filter((cat) => (cat === 'all') || tournaments?.some((tournament) => tournament.category === cat));
 
   return (
     <div className="flex flex-col gap-2">
@@ -46,7 +47,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         <SelectItem key={cat} value={cat}>
           <div className="flex justify-between w-full items-center">
           {cat !== 'all' && <TournamentCategoryIcon category={cat} />}
-            <p>{displayTournamentCategoryTab(cat)} ({props.tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})</p>
+            <p>{displayTournamentCategoryTab(cat)} ({tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})</p>
             </div>
         </SelectItem>
       ))}
@@ -54,8 +55,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
 </Select>
     {selectedCat === 'all' && (
       <div className="flex flex-col gap-2">
-        {props.tournaments?.map((tournament) => props.rounds && (
-            <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(props.rounds, tournament)}/>
+        {tournaments?.map((tournament) => rounds && (
+            <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}/>
         ))}
       </div>
     )}
@@ -63,8 +64,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       availableTournamentCategories.filter((cat) => cat === selectedCat).map((cat) => (
         <ScrollArea className="h-[36rem] pr-4">
           <div className="flex flex-col gap-2">
-            {props.tournaments?.filter((tournament) => tournament.category === cat).map((tournament) => props.rounds && (
-              <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(props.rounds, tournament)} shouldHideCategoryBadge />
+            {tournaments?.filter((tournament) => tournament.category === cat).map((tournament) => rounds && (
+              <TournamentPreview tournament={tournament} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)} shouldHideCategoryBadge />
             ))}
           </div>
         </ScrollArea>
