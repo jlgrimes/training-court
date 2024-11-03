@@ -1,13 +1,13 @@
+'use client';
+
 import React from 'react'
 import { AvatarDropdownMenu } from './AvatarDropdownMenu'
-import { fetchUserData } from '../user-data.utils'
-import { fetchAvatarImages } from './avatar.server.utils';
+import { useUserData } from '@/hooks/user-data/useUserData';
 
-export const AvatarSelector = async ({ userId }: { userId: string }) => {
-  const images = fetchAvatarImages();
-  const userData = await fetchUserData(userId);
+export const AvatarSelector = ({ userId, avatarImages }: { userId: string, avatarImages: string[] }) => {
+  const { data: userData } = useUserData(userId);
 
   return (
-    <AvatarDropdownMenu images={images} userId={userId} initialAvatar={userData?.avatar} />
+    <AvatarDropdownMenu images={avatarImages} userId={userId} initialAvatar={userData?.avatar} />
   )
 }

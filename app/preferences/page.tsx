@@ -1,4 +1,5 @@
 import { fetchCurrentUser } from "@/components/auth.utils";
+import { fetchAvatarImages } from "@/components/avatar/avatar.server.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { redirect } from "next/navigation";
 
 export default async function PreferencesPage() {
   const user = await fetchCurrentUser();
+  const avatars = fetchAvatarImages();
 
   if (!user) {
     redirect('/');
@@ -27,7 +29,7 @@ export default async function PreferencesPage() {
           <div className="flex-col">
             <div className="flex justify-between items-center">
               <Label>Avatar</Label>
-              <AvatarSelector userId={user.id} />
+              <AvatarSelector userId={user.id} avatarImages={avatars} />
             </div>
             <div className="flex justify-between items-center">
               <Label>PTCG Live screen name</Label>
