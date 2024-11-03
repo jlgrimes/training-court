@@ -3,7 +3,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 import HeaderBreadcrumbs from "@/components/app-bar/HeaderBreadcrumbs";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarSeparator, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 
@@ -32,7 +32,7 @@ export default function RootLayout({
           <AppSidebar />
           <main className="min-h-screen h-full w-full">
             <header className="fixed bg-white w-full z-50 flex flex-col px-4 gap-2">
-              <div className="flex px-4 py-4 gap-2 items-center">
+              <div className="flex px-4 py-4 gap-4 items-center">
                 <SidebarTrigger />
                 <HeaderBreadcrumbs />
               </div>

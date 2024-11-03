@@ -30,6 +30,13 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
+    if (pathname.includes('/login')) {
+      breadcrumbs.push({
+        path: '/login',
+        label: 'Login'
+      });
+    }
+
     if (pathname.includes('/logs')) {
       breadcrumbs.push({
         path: '/logs',
@@ -60,6 +67,8 @@ export default function HeaderBreadcrumbs() {
 
     return breadcrumbs;
   }, [pathname]);
+
+  if (pathname === '/') return null;
 
   return (
     <Breadcrumb>
