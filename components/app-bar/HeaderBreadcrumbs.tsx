@@ -23,6 +23,13 @@ export default function HeaderBreadcrumbs() {
       label: 'Home'
     }];
 
+    if (pathname.includes('/pocket')) {
+      breadcrumbs.push({
+        path: '/pocket',
+        label: 'Pocket'
+      });
+    }
+
     if (pathname.includes('/logs')) {
       breadcrumbs.push({
         path: '/logs',

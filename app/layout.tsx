@@ -2,7 +2,6 @@ import { GeistSans } from "geist/font/sans";
 import { Analytics } from "@vercel/analytics/react"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
-import Header from "@/components/app-bar/Header";
 import HeaderBreadcrumbs from "@/components/app-bar/HeaderBreadcrumbs";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -32,14 +31,14 @@ export default function RootLayout({
         <SidebarProvider>
           <AppSidebar />
           <main className="min-h-screen h-full w-full">
-            <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
+            <header className="fixed bg-white w-full z-50 flex flex-col px-4 gap-2">
               <div className="flex px-2 py-4 gap-2 items-center">
                 <SidebarTrigger />
                 <Separator orientation="vertical" />
                 <HeaderBreadcrumbs />
               </div>
             </header>
-            <div className="flex flex-col items-center h-full pt-[68px]">
+            <div className="flex flex-col items-center h-full pt-[52px]">
               {children}
             </div>
             <Toaster />

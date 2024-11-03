@@ -29,7 +29,7 @@ const items = [
 
 const tcgItems = [
   {
-    title: "Logs",
+    title: "Battle Logs",
     url: "/logs",
     icon: ScrollText,
   },
@@ -57,6 +57,7 @@ export async function AppSidebar() {
       <Link href={user ? '/home' : '/'} className="pt-1 pl-1">
         <Image src={'/logo.png'} alt='logo' width={150} height={20} />
       </Link>
+      <SidebarSeparator />
       <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -78,7 +79,7 @@ export async function AppSidebar() {
       {user && (
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>TCG</SidebarGroupLabel>
+            <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
             <SidebarGroupContent>
             <SidebarMenu>
             {tcgItems.map((item) => (
