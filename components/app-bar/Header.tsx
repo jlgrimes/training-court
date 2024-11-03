@@ -12,6 +12,7 @@ import { ReportBugDialog } from "./ReportBugDialog";
 import { fetchCurrentUser } from "../auth.utils";
 import Image from "next/image";
 import { AuthIcon } from "./AuthIcon";
+import { SidebarTrigger } from "../ui/sidebar";
 
 export default async function Header() {
   const user = await fetchCurrentUser();
@@ -19,9 +20,10 @@ export default async function Header() {
   return (
     <header className="fixed bg-white w-full z-50 flex flex-col px-4 pt-4 gap-2">
       <div className="flex justify-between items-center">
-        <Link href={'/home'}>
+        {/* <Link href={'/home'}>
           <Image src={'/logo.png'} alt='logo' width={150} height={20} />
-        </Link>
+        </Link> */}
+        <SidebarTrigger />
         <NavigationMenu>
           <NavigationMenuList>
             {user && (
