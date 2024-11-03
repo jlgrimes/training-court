@@ -3,6 +3,7 @@ import { fetchAvatarImages } from "@/components/avatar/avatar.server.utils";
 import { AvatarSelector } from "@/components/avatar/AvatarSelector";
 import { ScreenNameEditable } from "@/components/screen-name/ScreenNameEditable";
 import { buttonVariants } from "@/components/ui/button";
+import { Header } from "@/components/ui/header";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,8 +19,9 @@ export default async function PreferencesPage() {
 
   return (
     <div className="flex flex-col py-6 pl-8 pr-6 gap-6 w-full h-full">
-      <h1 className="text-xl tracking-wide font-semibold text-slate-800">Preferences</h1>
-      <Separator />
+      <Header>
+        Preferences
+      </Header>
       <Tabs defaultValue="account" orientation="vertical" className="flex flex-col md:flex-row gap-4 md:gap-8 h-full">
         <TabsList className="md:flex-col w-full md:w-[200px] h-full gap-2 md:p-2">
           <TabsTrigger value="account" className="w-full">Account</TabsTrigger>

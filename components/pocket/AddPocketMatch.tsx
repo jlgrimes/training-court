@@ -49,7 +49,7 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
       <DialogTrigger className="text-sm"><Button size='sm'><PlusIcon className="size-4 mr-1" />Add match</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Pocket game</DialogTitle>
+          <DialogTitle>Add Pocket match</DialogTitle>
         </DialogHeader>
         <div>
           <Label>My deck</Label>

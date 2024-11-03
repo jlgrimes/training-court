@@ -1,24 +1,21 @@
 import { User } from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/server";
 import TournamentCreate from "../TournamentCreate"
 import { MyTournamentPreviews } from "../Preview/MyTournamentPreviews";
-import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
-import { Database } from "@/database.types";
-import { isPremiumUser } from "@/components/premium/premium.utils";
-import { Matchups } from "@/components/premium/matchups/Matchups";
-import { convertTournamentsToMatchups } from "@/components/premium/matchups/Matchups.utils";
-
+import { Header } from "@/components/ui/header";
 interface TournamentsHomePageProps {
   user: User;
 }
 
 export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
   return (
-    <div className="grid grid-cols-1 gap-8">
-      <div className="flex flex-col gap-4">
-        <TournamentCreate userId={props.user.id} />
-        <MyTournamentPreviews user={props.user} />
-      </div>
+    <div className="flex flex-col gap-4">
+      <Header
+        description="Record your TCG tournaments, rounds, and matchups"
+      >
+        Tournaments
+      </Header>
+      <TournamentCreate userId={props.user.id} />
+      <MyTournamentPreviews user={props.user} />
     </div>
   );
 }

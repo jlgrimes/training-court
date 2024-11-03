@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AddPocketMatch } from "@/components/pocket/AddPocketMatch";
 import { PocketMatchesList } from "@/components/pocket/PocketMatchesList";
+import { Separator } from "@/components/ui/separator";
+import { Header } from "@/components/ui/header";
 
 export default async function Pocket() {
   const user = await fetchCurrentUser();
@@ -13,13 +15,12 @@ export default async function Pocket() {
 
   return (
     <div className="flex flex-col py-4 pl-8 pr-6 gap-6 w-full h-full">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-xl tracking-wide font-semibold text-slate-800">Pocket Games</h1>
-          <p className="text-md text-muted-foreground mt-1">Record your games from PTCG Pocket.</p>
-        </div>
-        <AddPocketMatch userId={user.id} />
-      </div>
+      <Header
+        description="Record your games from PTCG Pocket"
+        actionButton={<AddPocketMatch userId={user.id} />}
+      >
+        Pocket Games
+      </Header>
       <PocketMatchesList userId={user.id} />
     </div>
   );
