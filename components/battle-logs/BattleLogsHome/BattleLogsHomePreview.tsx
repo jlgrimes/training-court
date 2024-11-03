@@ -1,6 +1,3 @@
-import { fetchCurrentUser } from "@/components/auth.utils";
-import { fetchBattleLogs } from "../utils/battle-log.server.utils";
-import { fetchUserData } from "@/components/user-data.utils";
 import { BattleLogsHomePreviewClient } from "./BattleLogsHomePreviewClient";
 import Link from "next/link";
 

@@ -18,8 +18,6 @@ export default async function Profile() {
     <div className="flex flex-col py-6 lg:py-8 pl-8 pr-6 lg:px-16 gap-6 w-full h-full">
       <TrainingCourtWelcome userId={user.id} />
 
-      {/* {isUserAnAdmin(user.id) && <FriendsDisplay userId={user.id} />} */}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <BattleLogsHomePreview userId={user.id} />
         <TournamentsHomePreview user={user} />
