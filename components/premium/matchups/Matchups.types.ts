@@ -12,7 +12,6 @@ export type DeckMatchup = Record<string, MatchupResult>;
 export type Matchups = Record<string, DeckMatchup>;
 
 export interface MatchupProps {
-  matchups: Matchups;
   userId: string | undefined;
   // if the drilldown switch shouldn't be there
   shouldDisableDrillDown?: boolean;

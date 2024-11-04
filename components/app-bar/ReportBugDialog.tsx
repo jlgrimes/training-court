@@ -25,6 +25,8 @@ import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useToast } from "../ui/use-toast";
 import { CardDescription } from "../ui/card";
+import { Bug } from "lucide-react";
+import { SidebarMenuButton } from "../ui/sidebar";
 
 const Bugs = {
   BattleLogs: {
@@ -79,8 +81,11 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
 
   return (
     <Dialog>
-      <DialogTrigger className={navigationMenuTriggerStyle()}>
-        Feedback
+      <DialogTrigger className="w-full">
+        <SidebarMenuButton asChild>
+          <span><Bug />
+          <span>Feedback</span></span>
+        </SidebarMenuButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -11,6 +11,7 @@ import { createClient } from '@/utils/supabase/client';
 import { getAvatarSrc, getMainSelectableAvatars } from './avatar.utils';
 import { track } from '@vercel/analytics';
 import { Button } from '../ui/button';
+import { useUserData } from '@/hooks/user-data/useUserData';
 
 interface AvatarDropdownMenuProps {
   images: string[];
@@ -21,6 +22,11 @@ interface AvatarDropdownMenuProps {
 
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
   const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? getAvatarSrc(props.initialAvatar) : undefined);
+  const { data: userData } = useUserData(props.userId);
+
+  useEffect(() => {
+    userData?.avatar && setSelectedImage(getAvatarSrc(userData.avatar))
+  }, [userData?.avatar]);
 
   const renderImage = useCallback((image: string) => (
     <DropdownMenuItem key={image} onClick={() => setSelectedImage(image)}>

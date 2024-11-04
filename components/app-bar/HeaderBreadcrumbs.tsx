@@ -23,6 +23,20 @@ export default function HeaderBreadcrumbs() {
       label: 'Home'
     }];
 
+    if (pathname.includes('/pocket')) {
+      breadcrumbs.push({
+        path: '/pocket',
+        label: 'Pocket'
+      });
+    }
+
+    if (pathname.includes('/login')) {
+      breadcrumbs.push({
+        path: '/login',
+        label: 'Login'
+      });
+    }
+
     if (pathname.includes('/logs')) {
       breadcrumbs.push({
         path: '/logs',
@@ -54,10 +68,10 @@ export default function HeaderBreadcrumbs() {
     return breadcrumbs;
   }, [pathname]);
 
-  if (pathname.length <= 1 || pathname === '/home' || pathname === '/preferences' || pathname === '/login') return;
+  if (pathname === '/') return null;
 
   return (
-    <Breadcrumb className="my-2 ml-4 px-4">
+    <Breadcrumb>
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
         <Fragment key={path} >

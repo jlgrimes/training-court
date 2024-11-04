@@ -6,6 +6,7 @@ import { displayTournamentDate } from "@/components/tournaments/utils/tournament
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -19,7 +20,7 @@ const mockJWToronto = {
   user: '',
   category: null,
   placement: null,
-  format: "Standard"
+  format: null
 }
 
 export default async function Index() {
@@ -31,8 +32,8 @@ export default async function Index() {
 
   return (
     <div className="flex-1 w-full flex flex-col gap-24 items-center p-8 sm:p-12 max-w-6xl">
-      <div className="flex flex-col items-center gap-8 max-w-md py-8">
-        <h1 className="font-semibold text-4xl tracking-tight">Training Court</h1>
+      <div className="flex flex-col items-center gap-6 max-w-md py-8">
+        <Image src={'/logo.png'} alt='logo' width={240} height={30} />
         <p className="text-center">Don't lose track of a game of Pokemon ever again. From PTCG Live testing phases to Regional Championships, Training Court has your back.</p>
         <Link href={'login'}><Button size='lg'>Get started <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
       </div>
@@ -109,7 +110,7 @@ export default async function Index() {
                 user: '',
                 category: null,
                 placement: null,
-                format: '123'
+                format: null
               }} editDisabled />
             </div>
             <div className="col-span-4 grid-cols-5">

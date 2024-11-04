@@ -1,27 +1,42 @@
-import { createClient } from "@/utils/supabase/server";
+'use client'
+
 import { User } from "@supabase/supabase-js";
 import TournamentPreview from "../Preview/TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
-import { Database } from "@/database.types";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronRightIcon, Plus } from "lucide-react";
 import TournamentCreate from "../TournamentCreate";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
-import { fetchRoundsForUser } from "../utils/tournaments.server.utils";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
+import { useTournaments } from "@/hooks/tournaments/useTournaments";
+import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
 }
 
-export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
-  const supabase = createClient();
-  const { data: tournamentData } = await supabase.from('tournaments').select('*').eq('user', props.user?.id).order('date_from', { ascending: false }).limit(5).returns<Database['public']['Tables']['tournaments']['Row'][]>();
-  const rounds = await fetchRoundsForUser(props.user?.id);
+export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
+  const { data: tournamentData, isLoading: tournamentsAreLoading } = useTournaments(props.user?.id);
+  const { data: rounds, isLoading: roundsAreLoading } = useTournamentRounds(props.user?.id);
 
   if (!props.user) {
     return null;
+  }
+
+  if (tournamentsAreLoading || roundsAreLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Link href='/tournaments'>
+          <h1 className="text-xl tracking-wide font-semibold text-slate-800">Tournaments</h1>
+        </Link>
+        <div className="flex flex-col gap-2">
+          <Skeleton className="w-full h-[68px] rounded-xl" />
+          <Skeleton className="w-full h-[68px] rounded-xl" />
+          <Skeleton className="w-full h-[68px] rounded-xl" />
+          <Skeleton className="w-full h-[68px] rounded-xl" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -42,7 +57,7 @@ export async function TournamentsHomePreview (props: MyTournamentPreviewsProps) 
             <div className="flex flex-col gap-2">
               {tournamentData?.map((tournament) => rounds && (
                 <TournamentPreview tournament={tournament} key={tournament.id} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)} />
-              ))}
+              )).slice(0, 5)}
             </div>
             <SeeMoreButton href="/tournaments" />
           </div>

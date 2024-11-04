@@ -1,3 +1,4 @@
+import { Header } from "@/components/ui/header";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,6 +9,9 @@ export default async function About() {
 
   return (
     <div className="flex-1 flex flex-col w-full h-full p-8 sm:max-w-2xl gap-4">
+      <Header>
+        About
+      </Header>
       <p>
         Training Court was made to consolidate all of your tournaments and practice rounds
         for the Pokemon Trading Card Game. It was made to be as easy-to-use and accessible
