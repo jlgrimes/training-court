@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { AddPocketMatch } from "@/components/pocket/AddPocketMatch";
 import { PocketMatchesList } from "@/components/pocket/PocketMatchesList";
-import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/ui/header";
 
 export default async function Pocket() {

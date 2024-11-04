@@ -1,4 +1,4 @@
-export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'GLC' ;
+export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'PTCG Pocket' | 'GLC' ;
 export type TournamentFormatTab = FormatArray | 'all';
 
 // export function displayTournamentCategory(cat: TournamentCategory) {
@@ -28,4 +28,4 @@ export type TournamentFormatTab = FormatArray | 'all';
 //   return displayTournamentCategory(cat);
 // }
 
-export const formatArray: FormatArray[] = ['BRS-SCR', 'BRS-SSP', 'GLC']
+export const formatArray: FormatArray[] = ['BRS-SCR', 'BRS-SSP', 'PTCG Pocket', 'GLC']

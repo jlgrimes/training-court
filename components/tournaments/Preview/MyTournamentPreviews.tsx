@@ -53,6 +53,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
 
   return (
     <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+
       <Select defaultValue="all" onValueChange={(val) => setSelectedCat(val as TournamentCategoryTab)}>
         <SelectTrigger>
           <SelectValue placeholder="Select category" />
@@ -89,6 +91,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           ))}
         </SelectContent>
       </Select>
+      </div>
 
       {filteredTournaments?.length === 0 && (
         <Card className="border-none">
