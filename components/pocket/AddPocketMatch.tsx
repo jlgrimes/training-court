@@ -47,9 +47,7 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
   return (
     <Dialog>
       <DialogTrigger className="text-sm"><Button size='sm'><PlusIcon className="size-4 mr-1" />Add match</Button></DialogTrigger>
-      <DialogContent onInteractOutside={(e) => {
-          e.preventDefault();
-        }}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Pocket match</DialogTitle>
         </DialogHeader>
