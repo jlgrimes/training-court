@@ -97,6 +97,7 @@ export function getPokemonToFind(language: Language) {
     'lunatone',
   
     // rogue
+    'mimikyu',
     'flamigo',
     'aegislash',
     'toedscruel',
