@@ -39,7 +39,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   }, [sortBy]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
         {userData?.live_screen_name && <AddBattleLogInput userData={userData} handleAddLog={handleAddLog} />}
         <div>
