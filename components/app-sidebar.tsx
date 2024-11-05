@@ -12,7 +12,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Calendar, ChevronUp, Home, Inbox, Info, LogIn, ScrollText, Search, Settings, ToggleLeft, ToggleRight, Trophy, WalletMinimal } from "lucide-react"
+import { Atom, BriefcaseBusiness, Calendar, ChevronUp, Home, Inbox, Info, LogIn, ScrollText, Search, Settings, ToggleLeft, ToggleRight, Trophy, WalletMinimal } from "lucide-react"
 import Image from "next/image"
 import { fetchCurrentUser } from "./auth.utils";
 import { ReportBugDialog } from "./app-bar/ReportBugDialog";
@@ -20,6 +20,7 @@ import Link from "next/link";
 import { MyProfileAvatar } from "./app-bar/MyProfileAvatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { LogOutButton } from "./app-bar/LogOutButton";
+import { isUserAnAdmin } from "./admin/admin.utils";
  
 const items = [
   {
@@ -126,6 +127,23 @@ export async function AppSidebar() {
             </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+          {isUserAnAdmin(user.id) && (
+            <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+            <SidebarMenu>
+            <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a href='/admin'>
+                      <Atom />
+                      <span>admin stuff</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          )}
         </SidebarContent>
       )}
         <SidebarFooter>
