@@ -36,13 +36,13 @@ export const PocketMatchesList = ({ userId }: { userId: string | undefined }) =>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Card result={game.result as 'W' | 'L'} className="px-4 py-2 flex justify-between items-center">
-              <Sprite name={game.deck}/>
+              <Sprite name={game.deck} shouldFill/>
               <div className={cn(
                 "text-md font-bold",
                 game.result === 'W' && 'text-emerald-600',
                 game.result === 'L' && 'text-red-600'
               )}>{game.result}</div>
-              <Sprite name={game.opp_deck}/>
+              <Sprite name={game.opp_deck} shouldFill/>
             </Card>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
