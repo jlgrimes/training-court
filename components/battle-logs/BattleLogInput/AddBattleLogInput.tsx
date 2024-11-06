@@ -26,6 +26,7 @@ interface AddBattleLogInputProps {
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
+  const [format, setShowFormat] = useState(props.userData?.live_screen_name)
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
@@ -50,6 +51,12 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
         description: `${error}`
       });
     }
+  };
+
+  const handleClear = () => {
+    setLog('');
+    setParsedLogDetails(null);
+    setShowDialog(false);
   };
 
   const handleAddButtonClick = async () => {
@@ -112,6 +119,10 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
         value={log}
         onPaste={handlePaste}
       />
+      <div className="flex gap-2">
+        {/* <Button size="sm" onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button> */}
+        <Button size="sm" variant="secondary" onClick={handleClear}>Clear</Button>
+      </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
@@ -126,6 +137,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                 <p><strong>Opponent Archetype:</strong> {parsedLogDetails.opp_archetype}</p>
                 <p><strong>Turn Order:</strong> {parsedLogDetails.turn_order}</p>
                 <p><strong>Result:</strong> {parsedLogDetails.result}</p>
+                <p><strong>Format:</strong> {format}</p>
               </div>
             )}
           <DialogFooter className="mt-4">
