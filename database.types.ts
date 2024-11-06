@@ -274,7 +274,6 @@ export type Database = {
           name: string
           placement: string | null
           user: string
-          format: string
         }
         Insert: {
           category?: string | null
@@ -287,7 +286,6 @@ export type Database = {
           name: string
           placement?: string | null
           user: string
-          format: string
         }
         Update: {
           category?: string | null
@@ -300,7 +298,6 @@ export type Database = {
           name?: string
           placement?: string | null
           user?: string
-          format: string
         }
         Relationships: [
           {
