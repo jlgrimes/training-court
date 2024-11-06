@@ -1,7 +1,7 @@
 'use client';
 
 import { track } from '@vercel/analytics';
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
@@ -17,6 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { AddArchetype } from '@/components/archetype/AddArchetype/AddArchetype';
+import { Label } from "@/components/ui/label";
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -26,14 +28,23 @@ interface AddBattleLogInputProps {
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [format, setShowFormat] = useState(props.userData?.live_screen_name)
+  const [format, setShowFormat] = useState('BRC-SCR')
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
     turn_order: string | null;
     result: string | null;
-  } | null>(null); // State to store parsed log details
+  } | null>(null);
+  const [archetype, setArchetype] = useState<string | undefined>();
+  const [oppArchetype, setOppArchetype] = useState<string | undefined>();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (parsedLogDetails) {
+      setArchetype(parsedLogDetails.archetype ?? '');
+      setOppArchetype(parsedLogDetails.opp_archetype ?? '');
+    }
+  }, [parsedLogDetails]);
 
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = event.clipboardData.getData('Text');
@@ -74,15 +85,16 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const supabase = createClient();
 
-    const { archetype, opp_archetype, turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
+    const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
 
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
       archetype,
-      opp_archetype,
+      opp_archetype: oppArchetype,
       log,
       turn_order,
       result,
+      format
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
@@ -99,6 +111,9 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       toast({
         title: "Battle log successfully imported!",
       })
+      setLog('');
+      setParsedLogDetails(null);
+      setShowDialog(false);
     }
   };
 
@@ -132,13 +147,15 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             </DialogDescription>
           </DialogHeader>
           {parsedLogDetails && (
-              <div>
-                <p><strong>Archetype:</strong> {parsedLogDetails.archetype}</p>
-                <p><strong>Opponent Archetype:</strong> {parsedLogDetails.opp_archetype}</p>
-                <p><strong>Turn Order:</strong> {parsedLogDetails.turn_order}</p>
+            <>
+                  <Label>My deck</Label>
+                  <AddArchetype archetype={archetype} setArchetype={setArchetype} />
+                
+                  <Label>Opponent's Deck</Label>
+                  <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
                 <p><strong>Result:</strong> {parsedLogDetails.result}</p>
                 <p><strong>Format:</strong> {format}</p>
-              </div>
+            </>
             )}
           <DialogFooter className="mt-4">
             <Button onClick={handleAddButtonClick}>Confirm and Add Log</Button>
