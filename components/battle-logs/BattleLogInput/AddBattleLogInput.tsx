@@ -9,6 +9,14 @@ import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
 import { parseBattleLog } from "../utils/battle-log.utils";
 import { getBattleLogMetadataFromLog } from './BattleLogInput.utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -17,7 +25,32 @@ interface AddBattleLogInputProps {
 
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
+  const [showDialog, setShowDialog] = useState(false);
+  const [parsedLogDetails, setParsedLogDetails] = useState<{
+    archetype: string | null;
+    opp_archetype: string | null;
+    turn_order: string | null;
+    result: string | null;
+  } | null>(null); // State to store parsed log details
   const { toast } = useToast();
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = event.clipboardData.getData('Text');
+    setLog(pastedText);
+
+    try {
+      const parsedLog = parseBattleLog(pastedText, '', '', '', '', null);
+      const details = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
+      setParsedLogDetails(details);
+      setShowDialog(true);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Your battle log was unable to be parsed.",
+        description: `${error}`
+      });
+    }
+  };
 
   const handleAddButtonClick = async () => {
     let parsedLog;
@@ -42,7 +75,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       opp_archetype,
       log,
       turn_order,
-      result
+      result,
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
@@ -66,14 +99,41 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     return log.length === 0;
   }, [log]);
 
+
+  //@TODO: What I want to do here is when someone pastes a battle log, it populates a modal with the relevant details. 
+  // From here, the user can adjust format and player decks before submitting the log. 
+  // Also should be able to set the default format in user preferences.
   return (
     <div className="flex flex-col gap-2">
       <Textarea
         className="resize-none"
-        disabled={!props.userData?.live_screen_name || log.length > 0}
+        disabled={!props.userData?.live_screen_name}
         placeholder="Paste battle log from PTCG Live here"
-        value={log} onChange={(e) => setLog(e.target.value)} />
-      <Button size='sm' onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button>
+        value={log}
+        onPaste={handlePaste}
+      />
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Review Battle Log</DialogTitle>
+            <DialogDescription>
+              Below is the parsed information from your battle log. Confirm to add or close to edit further.
+            </DialogDescription>
+          </DialogHeader>
+          {parsedLogDetails && (
+              <div>
+                <p><strong>Archetype:</strong> {parsedLogDetails.archetype}</p>
+                <p><strong>Opponent Archetype:</strong> {parsedLogDetails.opp_archetype}</p>
+                <p><strong>Turn Order:</strong> {parsedLogDetails.turn_order}</p>
+                <p><strong>Result:</strong> {parsedLogDetails.result}</p>
+              </div>
+            )}
+          <DialogFooter className="mt-4">
+            <Button onClick={handleAddButtonClick}>Confirm and Add Log</Button>
+            <Button variant="secondary" onClick={() => setShowDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-  )
+  );
 }
