@@ -65,6 +65,10 @@ export function getPokemonToFind(language: Language) {
     // niche unplayed decks that have priority over the others for some reason
     'gouging fire',
     'cinderace',
+
+    // surging sparks
+    'ceruledge',
+    'pikachu',
   
     // tier one as of 2024
     'regidrago',
@@ -114,6 +118,9 @@ export function getPokemonToFind(language: Language) {
     'hydrapple',
     'okidogi',
     'blissey',
+
+    // surging sparks rogue
+    'tatsugiri',
   
     // secondary
     'iron valiant',
