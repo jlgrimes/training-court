@@ -120,6 +120,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       setLog('');
       setParsedLogDetails(null);
       setShowDialog(false);
+      Cookies.set("format", format, { expires: 30 });
     }
   };
 
@@ -128,10 +129,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     setFormat(cookieFormat || format);
     setIsLoading(false);
   }, []);
-
-  useEffect(() => {
-    Cookies.set("format", format, { expires: 30 });
-  }, [format]);
 
   // const isAddButtonDisabled = useMemo(() => {
   //   return log.length === 0;
