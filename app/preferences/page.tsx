@@ -22,8 +22,8 @@ export default async function PreferencesPage() {
       <Header>
         Preferences
       </Header>
-      <Tabs defaultValue="account" orientation="vertical" className="flex flex-col md:flex-row gap-4 md:gap-8 h-full">
-        <TabsList className="md:flex-col w-full md:w-[200px] h-full gap-2 md:p-2">
+      <Tabs defaultValue="account" orientation="vertical" className="flex flex-col gap-4 h-full px-2 xl:px-40 2xl:px-80">
+        <TabsList className="w-full h-full gap-2 p-2">
           <TabsTrigger value="account" className="w-full">Account</TabsTrigger>
           <TabsTrigger value="appearance" className="w-full" disabled>Appearance</TabsTrigger>
         </TabsList>

@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { headers } from "next/headers";
+import Link from "next/link";
 
 export default function ForgotPassword({ searchParams }: { searchParams: { message?: string } }) {
     
