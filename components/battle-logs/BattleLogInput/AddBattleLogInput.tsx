@@ -21,6 +21,7 @@ import { AddArchetype } from '@/components/archetype/AddArchetype/AddArchetype';
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { formatArray, FormatArray } from '@/components/tournaments/Format/tournament-format.types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -39,7 +40,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   } | null>(null);
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
-  formatArray: formatArray;
+  const username = props.userData?.live_screen_name;
   const { toast } = useToast();
 
   useEffect(() => {
@@ -151,14 +152,11 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
           </DialogHeader>
           {parsedLogDetails && (
             <>
-                <Label>My deck</Label>
+                <Label>{username}'s deck</Label>
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
                 
                 <Label>Opponent's Deck</Label>
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
-
-                <Label>Result:</Label>
-                {parsedLogDetails.result}
 
                 <Label>Format</Label>
                 <Select value={format} onValueChange={(value) => setFormat(value as FormatArray)}>
@@ -173,6 +171,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              <Label>{username}'s Result: {parsedLogDetails.result}</Label>
             </>
             )}
           <DialogFooter className="mt-4">
