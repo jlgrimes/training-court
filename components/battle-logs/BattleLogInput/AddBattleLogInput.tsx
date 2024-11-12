@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { formatArray, FormatArray } from '@/components/tournaments/Format/tournament-format.types';
 import { Skeleton } from '@/components/ui/skeleton';
+import Cookies from 'js-cookie';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -31,7 +32,7 @@ interface AddBattleLogInputProps {
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [format, setFormat] = useState('BRS-SCR');
+  const [format, setFormat] = useState(Cookies.get("format") || '');
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
@@ -40,6 +41,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   } | null>(null);
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(true); 
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
 
@@ -121,14 +123,20 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     }
   };
 
-  const isAddButtonDisabled = useMemo(() => {
-    return log.length === 0;
-  }, [log]);
+  useEffect(() => {
+    const cookieFormat = Cookies.get("format");
+    setFormat(cookieFormat || format);
+    setIsLoading(false);
+  }, []);
 
+  useEffect(() => {
+    Cookies.set("format", format, { expires: 30 });
+  }, [format]);
 
-  //@TODO: What I want to do here is when someone pastes a battle log, it populates a modal with the relevant details. 
-  // From here, the user can adjust format and player decks before submitting the log. 
-  // Also should be able to set the default format in user preferences.
+  // const isAddButtonDisabled = useMemo(() => {
+  //   return log.length === 0;
+  // }, [log]);
+
   return (
     <div className="flex flex-col gap-2">
       <Textarea
@@ -150,7 +158,15 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
               Below is the parsed information from your battle log. Confirm to add or close to edit further.
             </DialogDescription>
           </DialogHeader>
-          {parsedLogDetails && (
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-6 w-40 mt-4" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+          parsedLogDetails && (
             <>
                 <Label>{username}'s deck</Label>
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
@@ -171,9 +187,11 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              {/* @TODO: Should we be able to toggle who won or lost? How much should a user be able to adjust against our parsing algo? */}
               <Label>{username}'s Result: {parsedLogDetails.result}</Label>
             </>
-            )}
+            )
+          )}
           <DialogFooter className="mt-4">
             <Button onClick={handleAddButtonClick}>Confirm and Add Log</Button>
             <Button variant="secondary" onClick={() => setShowDialog(false)}>Close</Button>

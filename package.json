@@ -38,6 +38,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.2.0",
     "geist": "^1.2.1",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.427.0",
     "next": "latest",
     "postcss": "8.4.33",
@@ -55,6 +56,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.4",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
