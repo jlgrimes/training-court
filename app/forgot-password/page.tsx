@@ -11,7 +11,9 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
     "use server";
         
     const supabase = createClient();
-    const defaultUrl = `https://${process.env.VERCEL_URL}` || "http://localhost:3000";
+    const defaultUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
     const email = formData.get("email") as string;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
