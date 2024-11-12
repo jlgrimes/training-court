@@ -121,7 +121,7 @@ export function getPokemonToFind(language: Language) {
 
     // surging sparks rogue
     'tatsugiri',
-    'archaludon'
+    'archaludon',
   
     // secondary
     'iron valiant',
