@@ -14,7 +14,7 @@ import { parseBattleLog } from "./utils/battle-log.utils";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useSWRConfig } from "swr";
 import { useUserData } from "@/hooks/user-data/useUserData";
-import { formatArrayLogs, LogsFormatTab } from "../tournaments/Format/tournament-format.types";
+import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import Cookies from "js-cookie";
 
@@ -24,7 +24,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   const { data: logs } = useLiveLogs(userId);
 
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
-  const [format, setFormat] = useState<LogsFormatTab>(Cookies.get("format") as LogsFormatTab);
+  const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const availableSortBys = ['Day', 'Deck', 'All'];
@@ -72,12 +72,12 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {[ "All", ...formatArrayLogs ].map((sortByLogs) => (
+              {[ "All", ...logFormats ].map((sortByLogs) => (
                 <DropdownMenuItem
                   key={sortByLogs}
                   onClick={() => {
                     track("Battle log sort by changed", { value: sortByLogs });
-                    setFormat(sortByLogs as LogsFormatTab);
+                    setFormat(sortByLogs as LogFormatsTab);
                     if(!sortByLogs.includes('All')) {
                       Cookies.set("format", sortByLogs);
                     }

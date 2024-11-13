@@ -20,8 +20,8 @@ import {
 import { AddArchetype } from '@/components/archetype/AddArchetype/AddArchetype';
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
-import { FormatArrayLogs, formatArrayLogs } from '@/components/tournaments/Format/tournament-format.types';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -161,12 +161,12 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
 
                 <Label>Format</Label>
-                <Select value={format} onValueChange={(value) => setFormat(value as FormatArrayLogs)}>
+                <Select value={format} onValueChange={(value) => setFormat(value as LogFormats)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select format" />
                 </SelectTrigger>
                 <SelectContent>
-                  {formatArrayLogs.map((option) => (
+                  {logFormats.map((option) => (
                     <SelectItem key={option} value={option}>
                       {option}
                     </SelectItem>

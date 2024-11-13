@@ -29,22 +29,7 @@ import { TournamentCategory, allTournamentCategories, displayTournamentCategory 
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
-import { formatArrayTournaments, FormatArrayTournaments } from "../Format/tournament-format.types";
-
-// const Bugs = {
-//   BattleLogs: {
-//     MissingDeck: 'missing-deck',
-//     WrongDeck: 'wrong-deck',
-//     ImportingDeck: 'importing-deck',
-//     FeatureRequest: 'feature-request',
-//     Other: 'other'
-//   },
-//   Tournaments: {
-//     VisualGlitch: 'visual-glitch',
-//     FeatureRequest: 'feature-request',
-//     Other: 'other'
-//   }
-// }
+import { tournamentFormats, TournamentFormats } from "../Format/tournament-format.types";
 
 interface TournamentEditDialogProps {
   tournamentId: string;
@@ -52,9 +37,9 @@ interface TournamentEditDialogProps {
   tournamentCategory: TournamentCategory | null;
   tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
-  tournamentFormat: FormatArrayTournaments | null;
+  tournamentFormat: TournamentFormats | null;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: FormatArrayTournaments | null) => void;
+  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
@@ -64,7 +49,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [tournamentFormat, setTournamentFormat] = useState<FormatArrayTournaments | null>(null);
+  const [tournamentFormat, setTournamentFormat] = useState<TournamentFormats | null>(null);
 
   useEffect(() => {
     setTournamentName(props.tournamentName);
@@ -130,12 +115,12 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
               <SelectValue placeholder="Select tournament category" />
             </SelectTrigger>
 
-            <Select value={tournamentFormat ? (tournamentFormat as string) : undefined} onValueChange={(value) => setTournamentFormat(value as FormatArrayTournaments)}>
+            <Select value={tournamentFormat ? (tournamentFormat as string) : undefined} onValueChange={(value) => setTournamentFormat(value as TournamentFormats)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent>
-                {formatArrayTournaments.map((format) => (
+                {tournamentFormats.map((format) => (
                   <SelectItem key={format} value={format}>
                     {format}
                   </SelectItem>

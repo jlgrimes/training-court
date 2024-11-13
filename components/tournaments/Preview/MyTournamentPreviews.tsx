@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
-import { TournamentFormatTab } from "../Format/tournament-format.types";
+import { TournamentFormatsTab } from "../Format/tournament-format.types";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -22,7 +22,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
   const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
-  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatTab>('All');
+  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -39,10 +39,10 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
   );
 
-  const availableFormats: TournamentFormatTab[] = ['All'];
+  const availableFormats: TournamentFormatsTab[] = ['All'];
   tournaments?.forEach((tournament) => {
-    if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatTab)) {
-      availableFormats.push(tournament.format as TournamentFormatTab);
+    if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatsTab)) {
+      availableFormats.push(tournament.format as TournamentFormatsTab);
     }
   });
 
@@ -74,7 +74,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         </SelectContent>
       </Select>
 
-      <Select defaultValue="all" onValueChange={(val) => setSelectedFormat(val as TournamentFormatTab)}>
+      <Select defaultValue="all" onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
         <SelectTrigger>
           <SelectValue placeholder="Select format" />
         </SelectTrigger>

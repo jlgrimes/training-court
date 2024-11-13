@@ -19,7 +19,7 @@ import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
-import { FormatArrayTournaments } from "../Format/tournament-format.types";
+import { TournamentFormats } from "../Format/tournament-format.types";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -33,7 +33,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
-  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as FormatArrayTournaments | null);
+  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
@@ -50,7 +50,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: FormatArrayTournaments | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
