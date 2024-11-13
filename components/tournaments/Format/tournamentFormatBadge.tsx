@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { FormatArray } from "./tournament-format.types";
+import { FormatArrayTournaments } from "./tournament-format.types";
 
 interface TournamentFormatBadgeProps {
-  format: FormatArray;
+  format: FormatArrayTournaments;
 }
 
 export const TournamentFormatBadge = (props: TournamentFormatBadgeProps) => {
