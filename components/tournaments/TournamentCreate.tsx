@@ -21,7 +21,7 @@ import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
 import { Database } from "@/database.types";
-import { formatArray, FormatArray } from "./Format/tournament-format.types";
+import { FormatArrayTournaments, formatArrayTournaments } from "./Format/tournament-format.types";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -32,7 +32,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [format, setFormat] = useState<FormatArray | null>(null);
+  const [format, setFormat] = useState<FormatArrayTournaments | null>(null);
 
   const handleAddTournament = useCallback(async () => {
     setIsCreatingTournament(true);
@@ -80,12 +80,12 @@ export default function TournamentCreate({ userId }: { userId: string }) {
               ))}
             </SelectContent>
           </Select>
-          <Select onValueChange={(value) => setFormat(value as FormatArray)}>
+          <Select onValueChange={(value) => setFormat(value as FormatArrayTournaments)}>
             <SelectTrigger>
               <SelectValue placeholder="Select format" />
             </SelectTrigger>
             <SelectContent>
-              {formatArray.map((format) => (
+              {formatArrayTournaments.map((format) => (
                 <SelectItem value={format} key={format}>
                   {format}
                 </SelectItem>

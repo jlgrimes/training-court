@@ -1,7 +1,7 @@
 'use client';
 
 import { track } from '@vercel/analytics';
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
@@ -20,9 +20,8 @@ import {
 import { AddArchetype } from '@/components/archetype/AddArchetype/AddArchetype';
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { formatArray, FormatArray } from '@/components/tournaments/Format/tournament-format.types';
-import { Skeleton } from '@/components/ui/skeleton';
 import Cookies from 'js-cookie';
+import { FormatArrayLogs, formatArrayLogs } from '@/components/tournaments/Format/tournament-format.types';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -41,7 +40,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   } | null>(null);
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(true); 
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
 
@@ -127,7 +125,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   useEffect(() => {
     const cookieFormat = Cookies.get("format");
     setFormat(cookieFormat || format);
-    setIsLoading(false);
   }, []);
 
   // const isAddButtonDisabled = useMemo(() => {
@@ -152,18 +149,10 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
           <DialogHeader>
             <DialogTitle>Review Battle Log</DialogTitle>
             <DialogDescription>
-              Below is the parsed information from your battle log. Confirm to add or close to edit further.
+              Below is the parsed information from your battle log. Confirm to add this result to your logs.
             </DialogDescription>
           </DialogHeader>
-          {isLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-6 w-40 mt-4" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : (
-          parsedLogDetails && (
+          {(parsedLogDetails && (
             <>
                 <Label>{username}'s deck</Label>
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
@@ -172,12 +161,12 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
 
                 <Label>Format</Label>
-                <Select value={format} onValueChange={(value) => setFormat(value as FormatArray)}>
+                <Select value={format} onValueChange={(value) => setFormat(value as FormatArrayLogs)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select format" />
                 </SelectTrigger>
                 <SelectContent>
-                  {formatArray.map((option) => (
+                  {formatArrayLogs.map((option) => (
                     <SelectItem key={option} value={option}>
                       {option}
                     </SelectItem>
@@ -190,7 +179,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             )
           )}
           <DialogFooter className="mt-4">
-            <Button onClick={handleAddButtonClick}>Confirm and Add Log</Button>
+            <Button onClick={handleAddButtonClick}>Confirm</Button>
             <Button variant="secondary" onClick={() => setShowDialog(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>

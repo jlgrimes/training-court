@@ -1,5 +1,10 @@
-export type FormatArray = 'BRS-SCR' | 'BRS-SSP' | 'PTCG Pocket' | 'GLC' ;
-export type TournamentFormatTab = FormatArray | 'all';
-export const formatArray: FormatArray[] = ['BRS-SCR', 'BRS-SSP', 'PTCG Pocket', 'GLC']
+// Playable formats differ between tournaments and logs. 
+// Since PTCGL doesn't support alternate formats like GLC, the array for log formats will always be smaller than for tournaments
 
-//@TODO: Needs format array for tournaments specifically. You can have a PTCG Pocket format tournament, but the logs are a different data structure.
+export type FormatArrayLogs = 'BRS-SSP' | 'BRS-SCR';
+export type LogsFormatTab = FormatArrayLogs | 'all';
+export const formatArrayLogs: FormatArrayLogs[] = ['BRS-SSP', 'BRS-SCR']
+
+export type FormatArrayTournaments = 'BRS-SSP' | 'BRS-SCR' | 'PTCG Pocket' | 'GLC' ;
+export type TournamentFormatTab = FormatArrayTournaments | 'all';
+export const formatArrayTournaments: FormatArrayTournaments[] = ['BRS-SSP', 'BRS-SCR', 'PTCG Pocket', 'GLC']
