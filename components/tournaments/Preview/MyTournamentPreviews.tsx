@@ -22,7 +22,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
   const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
-  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatTab>('all');
+  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatTab>('All');
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -39,7 +39,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
   );
 
-  const availableFormats: TournamentFormatTab[] = ['all'];
+  const availableFormats: TournamentFormatTab[] = ['All'];
   tournaments?.forEach((tournament) => {
     if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatTab)) {
       availableFormats.push(tournament.format as TournamentFormatTab);
@@ -48,7 +48,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
 
   const filteredTournaments = tournaments?.filter((tournament) =>
     (selectedCat === 'all' || tournament.category === selectedCat) &&
-    (selectedFormat === 'all' || tournament.format === selectedFormat)
+    (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
 
   return (
@@ -83,8 +83,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
             <SelectItem key={format} value={format}>
               <div className="flex justify-between w-full items-center">
                 <p>
-                  {format === 'all' ? 'All Formats' : format} (
-                  {tournaments?.filter((tournament) => format === 'all' ? true : tournament.format === format).length})
+                  {format === 'All' ? 'All Formats' : format} (
+                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length})
                 </p>
               </div>
             </SelectItem>
