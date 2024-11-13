@@ -14,6 +14,9 @@ import { parseBattleLog } from "./utils/battle-log.utils";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useSWRConfig } from "swr";
 import { useUserData } from "@/hooks/user-data/useUserData";
+import { formatArrayLogs, LogsFormatTab } from "../tournaments/Format/tournament-format.types";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import Cookies from "js-cookie";
 
 export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
   const { mutate } = useSWRConfig();
@@ -21,12 +24,19 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   const { data: logs } = useLiveLogs(userId);
 
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
+  const [format, setFormat] = useState<LogsFormatTab>(Cookies.get("format") as LogsFormatTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const availableSortBys = ['Day', 'Deck', 'All'];
 
+  const filteredLogs = useMemo(() => {
+    if (!logs) return [];
+    if (format === "All") return logs;
+    return logs.filter((log) => log.format === format);
+  }, [logs, format]);
+
   const battleLogs: BattleLog[] = useMemo(
-    () => (logs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [logs, userData?.live_screen_name]);
+    () => (filteredLogs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [filteredLogs, userData?.live_screen_name]);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -54,6 +64,32 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
               ))}
             </TabsList>
           </Tabs>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-md hover:bg-gray-300">
+                {format}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {[ "All", ...formatArrayLogs ].map((sortByLogs) => (
+                <DropdownMenuItem
+                  key={sortByLogs}
+                  onClick={() => {
+                    track("Battle log sort by changed", { value: sortByLogs });
+                    setFormat(sortByLogs as LogsFormatTab);
+                    if(!sortByLogs.includes('All')) {
+                      Cookies.set("format", sortByLogs);
+                    }
+                  }}
+                  disabled={!userData?.live_screen_name}
+                >
+                  {sortByLogs}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <ToggleGroup type='multiple' className="justify-start" size='sm'>
             <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
               <EditIcon className="h-4 w-4 mr-2" /> Edit logs
