@@ -11,6 +11,7 @@ interface SpriteProps {
   faded?: boolean;
   small?: boolean;
   shouldSmush?: boolean;
+  shouldFill?: boolean; // should fill with empty space. if < 2 sprites. good for alignment!
 }
 
 export const Sprite = (props: SpriteProps) => {
@@ -24,6 +25,7 @@ export const Sprite = (props: SpriteProps) => {
     <div className={cn(
       "flex items-center",
       props.shouldSmush ? 'flex-col xl:flex-row xl:gap-1' : 'gap-1',
+      props.shouldFill && 'w-[80px]'
     )}>
       {props.name === 'unknown' || props.name === null ? (
         <CircleHelpIcon/>
