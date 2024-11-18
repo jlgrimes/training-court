@@ -8,7 +8,7 @@ import { TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCate
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { TournamentFormatsTab } from "../Format/tournament-format.types";
@@ -35,8 +35,11 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     );
   }
 
-  const availableTournamentCategories: TournamentCategoryTab[] = allTournamentCategoryTabs.filter(
-    (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
+  const availableTournamentCategories = useMemo(() =>
+    allTournamentCategoryTabs.filter(
+      (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
+    ), 
+    [allTournamentCategoryTabs, tournaments]
   );
 
   const availableFormats: TournamentFormatsTab[] = ['All'];
