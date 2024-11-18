@@ -53,42 +53,44 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
       <div className="flex flex-col gap-4">
         {userData?.live_screen_name && <AddBattleLogInput userData={userData} handleAddLog={handleAddLog} />}
         <div>
-        <div className="flex justify-between">
-          <Tabs defaultValue='Day' onValueChange={(value) => {
-            track('Battle log sort by changed', { value })
-            setSortBy(value as BattleLogSortBy)
-          }}>
-            <TabsList>
-              {availableSortBys.map((sortBy) => (
-                <TabsTrigger key={sortBy} value={sortBy} disabled={!userData?.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Tabs defaultValue='Day' onValueChange={(value) => {
+              track('Battle log sort by changed', { value })
+              setSortBy(value as BattleLogSortBy)
+            }}>
+              <TabsList>
+                {availableSortBys.map((sortBy) => (
+                  <TabsTrigger key={sortBy} value={sortBy} disabled={!userData?.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-md hover:bg-gray-300">
-                {format}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {[ "All", ...logFormats ].map((sortByLogs) => (
-                <DropdownMenuItem
-                  key={sortByLogs}
-                  onClick={() => {
-                    track("Battle log sort by changed", { value: sortByLogs });
-                    setFormat(sortByLogs as LogFormatsTab);
-                    if(!sortByLogs.includes('All')) {
-                      Cookies.set("format", sortByLogs);
-                    }
-                  }}
-                  disabled={!userData?.live_screen_name}
-                >
-                  {sortByLogs}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-md hover:bg-gray-300">
+                  {format}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {[ "All", ...logFormats ].map((sortByLogs) => (
+                  <DropdownMenuItem
+                    key={sortByLogs}
+                    onClick={() => {
+                      track("Battle log sort by changed", { value: sortByLogs });
+                      setFormat(sortByLogs as LogFormatsTab);
+                      if(!sortByLogs.includes('All')) {
+                        Cookies.set("format", sortByLogs);
+                      }
+                    }}
+                    disabled={!userData?.live_screen_name}
+                  >
+                    {sortByLogs}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           <ToggleGroup type='multiple' className="justify-start" size='sm'>
             <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
