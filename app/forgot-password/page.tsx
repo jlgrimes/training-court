@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { headers } from "next/headers";
 import Link from "next/link";
 
 export default function ForgotPassword({ searchParams }: { searchParams: { message?: string } }) {
@@ -11,9 +12,9 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
     "use server";
         
     const supabase = createClient();
-    const defaultUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+    const host = headers().get("host");
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const defaultUrl = `${protocol}://${host}`;
     const email = formData.get("email") as string;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
