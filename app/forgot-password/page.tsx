@@ -17,7 +17,7 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
     const email = formData.get("email") as string;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${defaultUrl}/reset-password`,
+      redirectTo: `/reset-password`,
     });
 
     if (error) {
