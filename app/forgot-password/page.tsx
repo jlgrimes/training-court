@@ -12,12 +12,12 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
     "use server";
         
     const supabase = createClient();
-    const requestOrigin = headers().get("origin") || process.env.VERCEL_URL;
-    const defaultUrl = requestOrigin || "http://localhost:3000";
+    const requestOrigin = headers().get("origin") ||
+      (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "http://localhost:3000");
     const email = formData.get("email") as string;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${defaultUrl}/reset-password`,
+      redirectTo: `${requestOrigin}/reset-password`,
     });
 
     if (error) {
