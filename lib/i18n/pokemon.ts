@@ -68,7 +68,6 @@ export function getPokemonToFind(language: Language) {
 
     // surging sparks
     'ceruledge',
-    'pikachu',
   
     // tier one as of 2024
     'regidrago',
