@@ -16,6 +16,8 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
       (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "http://localhost:3000");
     const email = formData.get("email") as string;
 
+    console.log("Request origin: " + requestOrigin);
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${requestOrigin}/reset-password`,
     });
