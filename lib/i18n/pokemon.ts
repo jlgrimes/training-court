@@ -65,12 +65,12 @@ export function getPokemonToFind(language: Language) {
     // niche unplayed decks that have priority over the others for some reason
     'gouging fire',
     'cinderace',
+    'klawf',
 
     // surging sparks
     'ceruledge',
   
     // tier one as of 2024
-    'regidrago',
     'miraidon',
     PokemonStrings[language].snorlax,
     'roaring moon',
@@ -85,6 +85,8 @@ export function getPokemonToFind(language: Language) {
   
     // tier two and below
     'regigigas',
+    // gigas also runs drago so put that higher
+    'regidrago',
     'gholdengo',
     PokemonStrings[language].palkia_origin,
     'hisuian zoroark',
@@ -94,7 +96,6 @@ export function getPokemonToFind(language: Language) {
     'comfey',
     'entei',
     'great tusk',
-    'klawf',
     'iron hands',
     'galvantula',
     'lunatone',
