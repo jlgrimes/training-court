@@ -13,7 +13,7 @@ import { parseISO } from "date-fns";
 import { TournamentDeleteDialog } from "./TournamentDeleteDialog";
 import { TournamentCategoryBadge } from "../Category/TournamentCategoryBadge";
 import { TournamentCategory } from "../Category/tournament-category.types";
-import { TournamentPlacement } from "../Placement/tournament-placement.types";
+import { renderTournamentPlacement, TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge";
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
@@ -56,43 +56,40 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
+      <EditableTournamentArchetype
+        tournament={props.tournament}
+        editDisabled={props.tournament.user !== props.user?.id}
+      />
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-4 sm:grid-cols-7 items-center">
           <div className="flex flex-col gap-1 col-span-2 sm:col-span-5">
-            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
-            <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
-            <div className="flex flex-col gap-1 mt-2">
-              {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
-              {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
+            <div className="flex gap-1 items-end">
+              <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
+              {props.user && (props.user.id === props.tournament.user) && (
+                <div className="flex">
+                  <TournamentEditDialog
+                    tournamentId={props.tournament.id}
+                    tournamentName={tournamentName}
+                    tournamentDateRange={tournamentDate}
+                    tournamentCategory={tournamentCategory}
+                    tournamentPlacement={tournamentPlacement}
+                    user={props.user}
+                    updateClientTournament={updateClientTournamentDataOnEdit}
+                  />
+                  <TournamentDeleteDialog
+                    tournamentId={props.tournament.id}
+                    tournamentName={tournamentName}
+                  />
+                </div>
+              )}
             </div>
+            <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
-          <EditableTournamentArchetype
-            tournament={props.tournament}
-            editDisabled={props.tournament.user !== props.user?.id}
-          />
-          <h2 className="text-lg font-semibold tracking-wider">{getRecord(rounds)}</h2>
+          <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{getRecord(rounds)}</h1>
+          {tournamentPlacement && <h3 className="text-sm text-muted-foreground">{renderTournamentPlacement(tournamentPlacement)}</h3>}
         </div>
-      </div>
-        {props.user && (props.user.id === props.tournament.user) && (
-          <div className="flex gap-1">
-            <TournamentEditDialog
-              tournamentId={props.tournament.id}
-              tournamentName={tournamentName}
-              tournamentDateRange={tournamentDate}
-              tournamentCategory={tournamentCategory}
-              tournamentPlacement={tournamentPlacement}
-              user={props.user}
-              updateClientTournament={updateClientTournamentDataOnEdit}
-            />
-            <TournamentDeleteDialog
-              tournamentId={props.tournament.id}
-              tournamentName={tournamentName}
-            />
-          </div>
-        )
-      }
-        
+      </div>        
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
             <TournamentRoundList tournament={props.tournament} userId={props.user?.id} rounds={rounds} updateClientRoundsOnEdit={updateClientRoundsOnEdit} />

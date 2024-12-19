@@ -107,7 +107,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant='outline' size='sm'><Pencil className="h-4 w-4 mr-2" />Edit</Button>
+        <Button variant='ghost' size='icon' className="w-8 h-8"><Pencil className="h-4 w-4" color="gray" /></Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
