@@ -62,10 +62,10 @@ export const PocketMatchesList = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className='pl-4'>Date</TableHead>
+          <TableHead>Date</TableHead>
           <TableHead className='pl-4'>My deck</TableHead>
-          <TableHead className='pl-3'>Opponent's deck</TableHead>
-          <TableHead className='w-[40px] text-right'>Result</TableHead>
+          <TableHead className='w-[40px] text-center'>Result</TableHead>
+          <TableHead className='pl-3 text-right'>Opponent</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -75,19 +75,19 @@ export const PocketMatchesList = ({
               {format(game.created_at, 'LLL d, K:mm a')}
             </TableCell>
             <TableCell>
-              <Sprite name={game.deck} />
-            </TableCell>
-            <TableCell>
-              <Sprite name={game.opp_deck} />
+              <Sprite name={game.deck} shouldFill />
             </TableCell>
             <TableCell
               className={cn(
-                'w-[40px] font-bold text-right',
+                'w-[40px] font-bold text-center',
                 game.result === 'W' && 'text-emerald-600',
                 game.result === 'L' && 'text-red-600'
               )}
             >
               {game.result}
+            </TableCell>
+            <TableCell className='flex justify-end'>
+              <Sprite name={game.opp_deck} shouldFill />
             </TableCell>
           </TableRow>
         ))}
