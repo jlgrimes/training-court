@@ -25,7 +25,7 @@ import { useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useToast } from '../ui/use-toast';
 import { useSWRConfig } from 'swr';
-import { format } from 'date-fns';
+import { format, formatDistanceToNowStrict } from 'date-fns';
 
 export const PocketMatchesList = ({
   userId,
@@ -72,7 +72,9 @@ export const PocketMatchesList = ({
         {games?.map((game, idx) => (
           <TableRow key={`pocket-game-${idx}`} result={game.result}>
             <TableCell className='text-muted-foreground'>
-              {format(game.created_at, 'LLL d, K:mm a')}
+              {formatDistanceToNowStrict(game.created_at, {
+                addSuffix: true,
+              })}
             </TableCell>
             <TableCell>
               <Sprite name={game.deck} shouldFill />
