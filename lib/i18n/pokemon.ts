@@ -81,12 +81,13 @@ export function getPokemonToFind(language: Language) {
     'gardevoir',
     PokemonStrings[language].dragapult,
     'iron thorns',
-    PokemonStrings[language].charizard,
   
     // tier two and below
     'regigigas',
     // gigas also runs drago so put that higher
     'regidrago',
+    // drago runs rad zard, so drago needs to be identified first
+    PokemonStrings[language].charizard,
     'gholdengo',
     PokemonStrings[language].palkia_origin,
     'hisuian zoroark',
