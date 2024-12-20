@@ -25,6 +25,7 @@ import { useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useToast } from '../ui/use-toast';
 import { useSWRConfig } from 'swr';
+import { format } from 'date-fns';
 
 export const PocketMatchesList = ({
   userId,
@@ -61,6 +62,7 @@ export const PocketMatchesList = ({
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead className='pl-4'>Date</TableHead>
           <TableHead className='pl-4'>My deck</TableHead>
           <TableHead className='pl-3'>Opponent's deck</TableHead>
           <TableHead className='w-[40px] text-right'>Result</TableHead>
@@ -69,6 +71,9 @@ export const PocketMatchesList = ({
       <TableBody>
         {games?.map((game, idx) => (
           <TableRow key={`pocket-game-${idx}`} result={game.result}>
+            <TableCell className='text-muted-foreground'>
+              {format(game.created_at, 'LLL d, K:mm a')}
+            </TableCell>
             <TableCell>
               <Sprite name={game.deck} />
             </TableCell>
