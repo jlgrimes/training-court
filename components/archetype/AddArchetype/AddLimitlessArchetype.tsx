@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, XIcon } from "lucide-react";
 import { DetailedHTMLProps, HTMLAttributes, JSX, ReactNode, Ref, RefAttributes, useEffect, useState } from "react";
 import { AddArchetypeProps } from "./AddArchetype";
 import { imgSrcToPkmnName, pkmnToImgSrc } from "../sprites/sprites.utils";
@@ -73,7 +73,20 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
           <span className="inline-block overflow-hidden whitespace-nowrap">
             {selected ? <PokemonLabel url={selected} /> : "Select pokemon..."}
           </span>
-          <ChevronsUpDown className="ml-0 h-4 w-4 shrink-0 opacity-50" />
+
+          {selected ? (
+            <XIcon
+              className="ml-0 h-4 w-4 shrink-0 opacity-50 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelected(undefined);
+                props.setArchetype("");
+              }}
+            />
+          ) : (
+            <ChevronsUpDown className="ml-0 h-4 w-4 shrink-0 opacity-50" />
+          )}
+          
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[300px]">
