@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Input } from '../../ui/input';
 import { Sprite } from '../sprites/Sprite';
-import { fetchLimitlessSprites } from '../sprites/sprites.utils';
 import { AddLimitlessArchetype } from './AddLimitlessArchetype';
 import { useLimitlessSprites } from '../sprites/sprites.hooks';
 import { Skeleton } from '@/components/ui/skeleton';
