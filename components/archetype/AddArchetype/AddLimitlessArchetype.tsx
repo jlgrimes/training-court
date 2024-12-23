@@ -74,7 +74,14 @@ export const AddLimitlessArchetype = (props: AddArchetypeProps) => {
             {selected ? <PokemonLabel url={selected} /> : "Select pokemon..."}
           </span>
           {selected ? (
-            <XIcon className="ml-0 h-4 w-4 shrink-0 opacity-50" />
+            <XIcon
+              className="ml-2 h-4 w-4 cursor-pointer opacity-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelected(undefined);
+                props.setArchetype("");
+              }}
+            />
           ) : (
             <ChevronsUpDown className="ml-0 h-4 w-4 shrink-0 opacity-50" />
           )}
