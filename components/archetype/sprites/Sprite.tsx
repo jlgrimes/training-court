@@ -4,7 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../ui/hover-ca
 import { SpriteFromUrl } from "./SpriteFromUrl";
 import { pkmnToImgSrc } from "./sprites.utils";
 import { useMemo } from "react";
-import { uncapitalizeName } from "@/components/battle-logs/utils/battle-log.utils";
+import { sanitizeArchetypeString, uncapitalizeName } from "@/components/battle-logs/utils/battle-log.utils";
 
 interface SpriteProps {
   name: string | null | undefined;
@@ -18,7 +18,7 @@ export const Sprite = (props: SpriteProps) => {
   const nameSplit = useMemo(() => {
     // this code 're-normalizes' the deck name to lowercase and with appropriate dashes for hyphenated Pokemon.
     // It's necessary for legacy implementation. 10/12/2024
-    return props.name ? uncapitalizeName(props.name).split(',').map((name) => name.trim()) : [null];
+    return props.name ? sanitizeArchetypeString(uncapitalizeName(props.name)).split(',').map((name) => name.trim()) : [null];
   }, [props.name]);
 
   return (

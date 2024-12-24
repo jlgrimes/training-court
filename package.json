@@ -39,7 +39,7 @@
     "embla-carousel-react": "^8.2.0",
     "geist": "^1.2.1",
     "lucide-react": "^0.427.0",
-    "next": "latest",
+    "next": "^15.1.2",
     "postcss": "8.4.33",
     "react": "18.2.0",
     "react-day-picker": "^8.10.1",

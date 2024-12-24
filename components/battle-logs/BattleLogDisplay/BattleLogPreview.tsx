@@ -11,8 +11,7 @@ import { BattleLog } from "../utils/battle-log.types";
 import { Sprite } from "../../archetype/sprites/Sprite";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
-import { cn } from "@/lib/utils";
-import { capitalizeName, getTurnOrderOfPlayer } from "../utils/battle-log.utils";
+import { capitalizeName, getTurnOrderOfPlayer, sanitizeArchetypeString } from "../utils/battle-log.utils";
 
 export interface BattleLogPreviewProps {
   // unparsed battle log
@@ -45,7 +44,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
 
   const formatDeckName = useCallback((deck?: string) => {
     if (!deck) return 'unknown';
-    return capitalizeName(deck);
+    return capitalizeName(sanitizeArchetypeString(deck));
   }, []);
 
   const cardSubtitle = useMemo(() => {

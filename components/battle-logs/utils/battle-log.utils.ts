@@ -218,3 +218,10 @@ export const capitalizeName = (name: string) => {
 export const uncapitalizeName = (name: string) => {
   return name.split(' / ').map((word) => word.split(' ').map((part) => part.toLowerCase()).join('-')).join(',');
 };
+
+export const sanitizeArchetypeString = (archetype: string) => {
+  return archetype
+    .split(',')
+    .filter((part) => part.trim() !== '')
+    .join(',');
+};

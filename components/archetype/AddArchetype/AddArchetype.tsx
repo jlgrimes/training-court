@@ -1,9 +1,12 @@
+'use client';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Input } from '../../ui/input';
 import { Sprite } from '../sprites/Sprite';
 import { AddLimitlessArchetype } from './AddLimitlessArchetype';
 import { useLimitlessSprites } from '../sprites/sprites.hooks';
 import { Skeleton } from '@/components/ui/skeleton';
+import { sanitizeArchetypeString } from '@/components/battle-logs/utils/battle-log.utils';
 
 export interface AddArchetypeProps {
   archetype: string | undefined;
@@ -32,14 +35,14 @@ export const AddArchetype = (props: AddArchetypeProps) => {
 
   const getArchetypeByIdx = useCallback((idx: number) => {
     if (!props.archetype) return undefined;
-    const splitArchetype = props.archetype.split(',');
+    const splitArchetype = sanitizeArchetypeString(props.archetype).split(',');
 
     if (idx === 1 && splitArchetype.length === 1) return undefined;
     return splitArchetype[idx];
   }, [props.archetype]);
 
   const setArchetype = useCallback((idx: number, newArchetype: string) => {
-    const splitArchetype = (props.archetype ?? '').split(',');
+    const splitArchetype = sanitizeArchetypeString(props.archetype ?? '').split(',');
 
     if (idx === 0 && splitArchetype.length === 1) props.setArchetype(newArchetype);
     if (idx === 0 && splitArchetype.length === 2) props.setArchetype(`${newArchetype},${splitArchetype[1]}`);
