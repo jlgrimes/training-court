@@ -79,7 +79,7 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant='outline' size='sm'><Trash className="h-4 w-4 mr-2" />Delete</Button>
+        <Button variant='ghost' size='icon' className="w-8 h-8"><Trash className="h-4 w-4" color="gray" /></Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

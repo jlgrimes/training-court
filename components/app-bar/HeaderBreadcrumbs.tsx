@@ -71,7 +71,7 @@ export default function HeaderBreadcrumbs() {
   if (pathname === '/') return null;
 
   return (
-    <Breadcrumb>
+    <Breadcrumb className="hidden sm:block">
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
         <Fragment key={path} >
