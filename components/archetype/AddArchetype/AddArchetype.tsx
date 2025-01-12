@@ -14,37 +14,37 @@ export interface AddArchetypeProps {
 export const AddArchetype = (props: AddArchetypeProps) => {
   const { data: loadedPokemonUrls, isLoading: isLoadingLimitlessUrls } = useLimitlessSprites();
   const [archetype, setArchetypeState] = useState<string>('');
+  const [spriteList, setSpriteList] = useState<string[]>([]);
 
   useEffect(() => {
+    const archetypeArray = (props.archetype || '').split(',').filter((name) => name.trim() !== '');
     setArchetypeState(props.archetype || '');
+    setSpriteList(archetypeArray);
   }, [props.archetype]);
 
   const getArchetypeByIdx = useCallback(
-    (idx: number) => {
-      const splitArchetype = archetype.split(',').filter((name) => name.trim() !== '');
-      return splitArchetype[idx] || '';
-    },
-    [archetype]
+    (idx: number) => spriteList[idx] || '',
+    [spriteList]
   );
 
   const updateArchetypeByIdx = useCallback(
     (idx: number, newArchetype: string) => {
-      const splitArchetype = archetype.split(',').filter((name) => name.trim() !== '');
+      const updatedSpriteList = [...spriteList];
+  
       if (newArchetype.trim() === '') {
-        splitArchetype[idx] = '';
+        updatedSpriteList.splice(idx, 1);
       } else {
-        splitArchetype[idx] = newArchetype.trim();
+        updatedSpriteList[idx] = newArchetype.trim();
       }
-
-      const updatedArchetype = [splitArchetype[0] || '', splitArchetype[1] || '']
-        .filter((name) => name.trim() !== '')
-        .join(',');
-
-      setArchetypeState(updatedArchetype);
-      props.setArchetype(updatedArchetype);
+      const uniqueSprites = Array.from(new Set(updatedSpriteList)).slice(0, 2);
+  
+      setSpriteList([...uniqueSprites]);
+      setArchetypeState(uniqueSprites.join(','));
+      props.setArchetype(uniqueSprites.join(','));
     },
-    [archetype, props]
+    [spriteList, props]
   );
+  
 
   if (isLoadingLimitlessUrls) {
     return <Skeleton className="h-[42px] w-[300px] rounded-xl" />;
@@ -55,11 +55,13 @@ export const AddArchetype = (props: AddArchetypeProps) => {
       <div className="grid grid-cols-2 gap-2">
         <AddLimitlessArchetype
           {...props}
+          key={`archetype-0-${spriteList[0] || 'empty'}`}
           archetype={getArchetypeByIdx(0)}
           setArchetype={(deck: string) => updateArchetypeByIdx(0, deck)}
-        />
+        />        
         <AddLimitlessArchetype
           {...props}
+          key={`archetype-1-${spriteList[1] || 'empty'}`}
           archetype={getArchetypeByIdx(1)}
           setArchetype={(deck: string) => updateArchetypeByIdx(1, deck)}
         />
@@ -77,11 +79,16 @@ export const AddArchetype = (props: AddArchetypeProps) => {
         onChange={(e) => {
           const sanitized = e.target.value.split(',').slice(0, 2).join(',');
           setArchetypeState(sanitized);
+          setSpriteList(sanitized.split(',').filter((name) => name.trim() !== ''));
           props.setArchetype(sanitized);
         }}
         placeholder="Enter names of Pokémon in deck"
       />
-      {!props.isDisabled && <Sprite name={getArchetypeByIdx(0) || ''} />}
+      <div className="grid grid-cols-2 gap-2">
+        {spriteList.map((spriteName, idx) => (
+          <Sprite key={`${spriteName}-${idx}-${spriteList.join('-')}`} name={spriteName} />
+        ))}
+      </div>
     </div>
   );
 };
