@@ -23,8 +23,14 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
     setEditingRoundIdx(roundIdx)
   }, [editingRoundIdx, setEditingRoundIdx]);
 
+  const totalRounds = props.rounds.length;
+  const maxHeight = 80;
+  const roundHeight = totalRounds > 10 
+    ? `${Math.min(maxHeight / totalRounds, 4)}vh` 
+    : `4vh`;
+
   return (
-    <div className="grid grid-cols-8">
+    <div className="grid grid-cols-8 gap-0">
       <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">
         <span className="col-span-2">Round</span>
         <span className="col-span-5">Deck</span>
@@ -39,6 +45,7 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
           updateClientRoundsOnEdit={props.updateClientRoundsOnEdit}
           isEditing={editingRoundIdx === idx}
           handleEditingRoundToggle={() => handleEditingRoundToggle(idx)}
+          style={{ height: roundHeight }}
         />
       ))}
     </div>

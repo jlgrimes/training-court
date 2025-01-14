@@ -15,6 +15,7 @@ interface TournamentRoundProps {
   updateClientRoundsOnEdit: (newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => void;
   isEditing: boolean;
   handleEditingRoundToggle: () => void;
+  style?: React.CSSProperties;
 }
 
 export const TournamentRound = (props: TournamentRoundProps) => {
@@ -46,7 +47,9 @@ export const TournamentRound = (props: TournamentRoundProps) => {
       result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200',
       result === 'T' && 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200',
       result === 'L' && 'bg-red-100 text-red-600 hover:bg-red-200',
-    )}>
+    )}
+    style={props.style}
+    >
       <span className="col-span-2 font-bold text-sm">{props.round.round_num}</span>
       <span className="col-span-5">{props.round.match_end_reason === MATCH_END_REASONS.ID ? 
         <div className="flex items-center font-bold text-lg ml-2">
