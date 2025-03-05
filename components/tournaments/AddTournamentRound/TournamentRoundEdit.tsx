@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle } from "../../ui/card";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
-import { GhostIcon, HandIcon, HandshakeIcon, Plus, Upload } from "lucide-react";
+import { GhostIcon, HandIcon, HandshakeIcon, Loader2, Plus, Upload } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
 import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -31,6 +31,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const [result, setResult] = useState<string[]>([]);
   const [turnOrders, setTurnOrders] = useState<string[]>([]);
   const [immediateMatchEnd, setImmediateMatchEnd] = useState<ImmediateMatchEndScenarios | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const ifChangesWereMade: boolean = useMemo(() => {
     return (props.existingRound?.deck !== deck) || (props.existingRound?.result.join() !== result.join()) || (props.existingRound.match_end_reason !== immediateMatchEnd) ||((props.existingRound?.turn_orders?.join() ?? '') !== turnOrders.join());
@@ -67,44 +68,59 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   }, [props.existingRound?.turn_orders, props.existingRound?.result]);
 
   const handleRoundEdit = useCallback(async () => {
+    setLoading(true);
     const supabase = createClient();
-    let data, error;
-
+    
     const payload = {
       tournament: props.tournamentId,
       round_num: props.editedRoundNumber,
-      result: result,
-      deck: deck,
+      result,
+      deck,
       user: props.userId,
       match_end_reason: immediateMatchEnd ?? null,
-      turn_orders: turnOrders
+      turn_orders: turnOrders,
     };
-
-    if (props.existingRound) {
-      const res = await supabase.from('tournament rounds').update(payload).eq('tournament', props.tournamentId).eq('round_num', props.editedRoundNumber).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
-
-      data = res.data;
-      error = res.error
-    } else {
-      const res = await supabase.from('tournament rounds').insert(payload).select().returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
-
-      data = res.data;
-      error = res.error
-    }
-
-    if (error) {
+  
+    try {
+      let response;
+      
+      if (props.existingRound) {
+        response = await supabase
+          .from('tournament rounds')
+          .update(payload)
+          .eq('tournament', props.tournamentId)
+          .eq('round_num', props.editedRoundNumber)
+          .select()
+          .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+      } else {
+        response = await supabase
+          .from('tournament rounds')
+          .insert(payload)
+          .select()
+          .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+      }
+  
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+  
+      if (response.data?.length > 0) {
+        props.updateClientRounds(response.data[0]);
+        setResult([]);
+        setImmediateMatchEnd(null);
+        props.setEditing(false);
+      }
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: error.message,
-      })
-    } else if (data) {
-      setResult([]);
-      props.setEditing(false);
-      setImmediateMatchEnd(null);
-      props.updateClientRounds(data[0]);
+        description: error instanceof Error ? error.message : "An unexpected error occurred.",
+      });
+    } finally {
+      setLoading(false);
     }
   }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders]);
+  
 
   if (props.editing) return (
     <Card>
@@ -141,7 +157,8 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
             </ToggleGroup>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={(!ifChangesWereMade || ((immediateMatchEnd === null) && (!deck || (result.length === 0))))}>{props.existingRound ? 'Update round' : 'Add round'}</Button>
+            <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={loading || (!ifChangesWereMade || ((immediateMatchEnd === null) && (!deck || (result.length === 0))))}>
+              {loading ? (<><Loader2 className="animate-spin mr-2 h-4 w-4 text-white" /> Saving...</>) : props.existingRound ? 'Update round' : 'Add round'}</Button>
             <Button variant='secondary' onClick={() => props.setEditing(false)}>Cancel</Button>
           </div>
       </div>
