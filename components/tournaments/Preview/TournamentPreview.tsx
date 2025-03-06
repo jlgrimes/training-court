@@ -28,8 +28,8 @@ export default function TournamentPreview(props: TournamentPreviewProps) {
               </CardDescription>
             </div>
             <div className="flex flex-col items-end">
-              <CardTitle className="text-right whitespace-nowrap text-lg">{props.rounds && getRecord(props.rounds)}</CardTitle>
-              {props.tournament.placement && <Label className="text-muted-foreground text-right">{renderTournamentPlacement(props.tournament.placement as TournamentPlacement)}</Label>}
+              <CardTitle className="text-right whitespace-nowrap">{props.rounds && getRecord(props.rounds)}</CardTitle>
+              {props.tournament.placement && <CardDescription>{renderTournamentPlacement(props.tournament.placement as TournamentPlacement)}</CardDescription>}
             </div>
           </div>
         </SmallCardHeader>
