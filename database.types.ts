@@ -147,6 +147,7 @@ export type Database = {
           result: string | null
           turn_order: string | null
           user: string
+          format: string
         }
         Insert: {
           archetype?: string | null
@@ -158,6 +159,7 @@ export type Database = {
           result?: string | null
           turn_order?: string | null
           user: string
+          format: string
         }
         Update: {
           archetype?: string | null
@@ -169,6 +171,7 @@ export type Database = {
           result?: string | null
           turn_order?: string | null
           user?: string
+          format: string
         }
         Relationships: [
           {
