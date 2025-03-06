@@ -21,6 +21,7 @@ import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
 import { Database } from "@/database.types";
+import { convertToUTC } from "./utils/tournaments.utils";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -33,12 +34,17 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
 
   const handleAddTournament = useCallback(async () => {
+    if (!tournamentDate?.from) return;
     setIsCreatingTournament(true);
     const supabase = createClient();
+
+    const dateFromUTC = convertToUTC(tournamentDate.from);
+    const dateToUTC = convertToUTC(tournamentDate.to ?? tournamentDate.from);
+
     const { data, error } = await supabase.from('tournaments').insert({
       name: tournamentName,
-      date_from: tournamentDate?.from,
-      date_to: tournamentDate?.to ?? tournamentDate?.from,
+      date_from: dateFromUTC?.toISOString(),
+      date_to: dateToUTC?.toISOString(),
       user: userId,
       category: tournamentCategory,
       placement: tournamentPlacement
@@ -54,7 +60,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       window.location.href = `/tournaments/${data[0].id}`;
     }
     setIsCreatingTournament(true);
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, userId]);
 
   if (editing) return (
     <Card className="py-2">
