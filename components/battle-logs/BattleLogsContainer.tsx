@@ -79,9 +79,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
                     onClick={() => {
                       track("Battle log sort by changed", { value: sortByLogs });
                       setFormat(sortByLogs as LogFormatsTab);
-                      if(!sortByLogs.includes('All')) {
-                        Cookies.set("format", sortByLogs);
-                      }
+                      Cookies.set("format", sortByLogs);
                     }}
                     disabled={!userData?.live_screen_name}
                   >

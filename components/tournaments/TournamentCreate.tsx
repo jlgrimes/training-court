@@ -77,7 +77,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
             </SelectTrigger>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
-                <SelectItem value={cat}>
+                <SelectItem value={cat} key={cat}>
                   <div className="flex items-center pl-1">
                     <TournamentCategoryIcon category={cat} />
                     <p>{displayTournamentCategory(cat)}</p>

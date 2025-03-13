@@ -77,9 +77,9 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         </SelectContent>
       </Select>
 
-      <Select defaultValue="all" onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
+      <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
         <SelectTrigger>
-          <SelectValue placeholder="Select format" />
+          <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {availableFormats.map((format) => (

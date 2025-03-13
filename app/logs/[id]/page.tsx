@@ -5,7 +5,6 @@ import { Notes } from "@/components/battle-logs/Notes/Notes";
 import { getPlayerNames, parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Database } from "@/database.types";
-import { detectBattleLogLanguage } from "@/lib/i18n/battle-log";
 import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Metadata } from "next";
