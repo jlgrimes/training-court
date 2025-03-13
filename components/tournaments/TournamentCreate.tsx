@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { Card, CardHeader } from "../ui/card";
 import { DatePicker } from "../ui/date-picker";
 import { DateRange } from "react-day-picker";
 import { createClient } from "@/utils/supabase/client";
@@ -21,6 +21,7 @@ import { TournamentCategoryIcon } from "./Category/TournamentCategoryIcon";
 import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect";
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
 import { Database } from "@/database.types";
+import { TournamentFormats, tournamentFormats } from "./Format/tournament-format.types";
 import { convertToUTC } from "./utils/tournaments.utils";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
@@ -32,6 +33,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
+  const [format, setFormat] = useState<TournamentFormats | null>(null);
 
   const handleAddTournament = useCallback(async () => {
     if (!tournamentDate?.from) return;
@@ -47,7 +49,8 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       date_to: dateToUTC?.toISOString(),
       user: userId,
       category: tournamentCategory,
-      placement: tournamentPlacement
+      placement: tournamentPlacement,
+      format: format
     }).select().returns<Database['public']['Tables']['tournaments']['Row'][]>();
 
     if (error) {
@@ -74,11 +77,23 @@ export default function TournamentCreate({ userId }: { userId: string }) {
             </SelectTrigger>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
-                <SelectItem value={cat}>
+                <SelectItem value={cat} key={cat}>
                   <div className="flex items-center pl-1">
                     <TournamentCategoryIcon category={cat} />
                     <p>{displayTournamentCategory(cat)}</p>
                   </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select onValueChange={(value) => setFormat(value as TournamentFormats)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select format" />
+            </SelectTrigger>
+            <SelectContent>
+              {tournamentFormats.map((format) => (
+                <SelectItem value={format} key={format}>
+                  {format}
                 </SelectItem>
               ))}
             </SelectContent>

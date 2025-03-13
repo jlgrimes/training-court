@@ -79,7 +79,6 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
     if (serverDeck) {
       return <Sprite name={serverDeck} />
     }
-
     return null;
   }
 

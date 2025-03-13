@@ -29,21 +29,7 @@ import { TournamentCategory, allTournamentCategories, displayTournamentCategory 
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
-
-const Bugs = {
-  BattleLogs: {
-    MissingDeck: 'missing-deck',
-    WrongDeck: 'wrong-deck',
-    ImportingDeck: 'importing-deck',
-    FeatureRequest: 'feature-request',
-    Other: 'other'
-  },
-  Tournaments: {
-    VisualGlitch: 'visual-glitch',
-    FeatureRequest: 'feature-request',
-    Other: 'other'
-  }
-}
+import { tournamentFormats, TournamentFormats } from "../Format/tournament-format.types";
 
 interface TournamentEditDialogProps {
   tournamentId: string;
@@ -51,17 +37,19 @@ interface TournamentEditDialogProps {
   tournamentCategory: TournamentCategory | null;
   tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
+  tournamentFormat: TournamentFormats | null;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null) => void;
+  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const { toast } = useToast();
-  
+
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
+  const [tournamentFormat, setTournamentFormat] = useState<TournamentFormats | null>(null);
 
   useEffect(() => {
     setTournamentName(props.tournamentName);
@@ -79,6 +67,10 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     setTournamentPlacement(props.tournamentPlacement);
   }, [props.tournamentPlacement])
 
+  useEffect(() => {
+    setTournamentFormat(props.tournamentFormat);
+  }, [props.tournamentPlacement])
+
   const handleUpdateTournament = useCallback(async () => {
     const supabase = createClient();
     const { error } = await supabase.from('tournaments').update({
@@ -86,7 +78,8 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
       date_from: tournamentDate?.from,
       date_to: tournamentDate?.to,
       category: tournamentCategory,
-      placement: tournamentPlacement
+      placement: tournamentPlacement,
+      format: tournamentFormat
     }).eq('id', props.tournamentId);
 
     if (error) {
@@ -96,13 +89,13 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         description: error.message,
       })
     } else {
-      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement);
+      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement, tournamentFormat);
 
       toast({
         title: "Tournament changes saved.",
       });
     }
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, tournamentFormat]);
 
   return (
     <Dialog>
@@ -123,6 +116,19 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
             <SelectTrigger>
               <SelectValue placeholder="Select tournament category" />
             </SelectTrigger>
+
+            <Select value={tournamentFormat ? (tournamentFormat as string) : undefined} onValueChange={(value) => setTournamentFormat(value as TournamentFormats)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select format" />
+              </SelectTrigger>
+              <SelectContent>
+                {tournamentFormats.map((format) => (
+                  <SelectItem key={format} value={format}>
+                    {format}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
                 <SelectItem key={cat} value={cat}>

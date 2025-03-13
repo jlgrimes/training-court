@@ -18,6 +18,8 @@ import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge"
 import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
+import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
+import { TournamentFormats } from "../Format/tournament-format.types";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -31,6 +33,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: new Date( props.tournament.date_from + "T00:00:00Z"), to: new Date(props.tournament.date_to + "T00:00:00Z") });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
+  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
@@ -47,12 +50,13 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
-    setTournamentPlacement(newPlacement)
-  }, [setTournamentDate, setTournamentName, setTournamentCategory, setTournamentPlacement]);
+    setTournamentPlacement(newPlacement);
+    setTournamentFormat(newFormat);
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col w-full h-full px-8 py-4 sm:max-w-xl justify-between gap-2">
@@ -63,25 +67,12 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-4 sm:grid-cols-7 items-center">
           <div className="flex flex-col gap-1 col-span-2 sm:col-span-5">
-            <div className="flex gap-1 items-end">
-              <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
-              {props.user && (props.user.id === props.tournament.user) && (
-                <div className="flex">
-                  <TournamentEditDialog
-                    tournamentId={props.tournament.id}
-                    tournamentName={tournamentName}
-                    tournamentDateRange={tournamentDate}
-                    tournamentCategory={tournamentCategory}
-                    tournamentPlacement={tournamentPlacement}
-                    user={props.user}
-                    updateClientTournament={updateClientTournamentDataOnEdit}
-                  />
-                  <TournamentDeleteDialog
-                    tournamentId={props.tournament.id}
-                    tournamentName={tournamentName}
-                  />
-                </div>
-              )}
+            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{tournamentName}</h1>
+            <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
+            <div className="flex gap-1 mt-2">
+              {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
+              {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
+              {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)}
             </div>
             <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
           </div>
@@ -89,7 +80,27 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{getRecord(rounds)}</h1>
           {tournamentPlacement && <h3 className="text-sm text-muted-foreground">{renderTournamentPlacement(tournamentPlacement)}</h3>}
         </div>
-      </div>        
+      </div>
+        {props.user && (props.user.id === props.tournament.user) && (
+          <div className="flex gap-1">
+            <TournamentEditDialog
+              tournamentId={props.tournament.id}
+              tournamentName={tournamentName}
+              tournamentDateRange={tournamentDate}
+              tournamentCategory={tournamentCategory}
+              tournamentPlacement={tournamentPlacement}
+              tournamentFormat={tournamentFormat}
+              user={props.user}
+              updateClientTournament={updateClientTournamentDataOnEdit}
+            />
+            <TournamentDeleteDialog
+              tournamentId={props.tournament.id}
+              tournamentName={tournamentName}
+            />
+          </div>
+        )
+      }
+        
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
             <TournamentRoundList tournament={props.tournament} userId={props.user?.id} rounds={rounds} updateClientRoundsOnEdit={updateClientRoundsOnEdit} />

@@ -1,7 +1,6 @@
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
-import TournamentPreview from "@/components/tournaments/Preview/TournamentPreview";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
 import { Button } from "@/components/ui/button";

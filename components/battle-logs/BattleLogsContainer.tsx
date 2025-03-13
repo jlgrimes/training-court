@@ -14,6 +14,9 @@ import { parseBattleLog } from "./utils/battle-log.utils";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useSWRConfig } from "swr";
 import { useUserData } from "@/hooks/user-data/useUserData";
+import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import Cookies from "js-cookie";
 
 export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
   const { mutate } = useSWRConfig();
@@ -21,12 +24,19 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   const { data: logs } = useLiveLogs(userId);
 
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
+  const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const availableSortBys = ['Day', 'Deck', 'All'];
 
+  const filteredLogs = useMemo(() => {
+    if (!logs) return [];
+    if (format === "All") return logs;
+    return logs.filter((log) => log.format === format);
+  }, [logs, format]);
+
   const battleLogs: BattleLog[] = useMemo(
-    () => (logs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [logs, userData?.live_screen_name]);
+    () => (filteredLogs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [filteredLogs, userData?.live_screen_name]);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -43,17 +53,43 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
       <div className="flex flex-col gap-4">
         {userData?.live_screen_name && <AddBattleLogInput userData={userData} handleAddLog={handleAddLog} />}
         <div>
-        <div className="flex justify-between">
-          <Tabs defaultValue='Day' onValueChange={(value) => {
-            track('Battle log sort by changed', { value })
-            setSortBy(value as BattleLogSortBy)
-          }}>
-            <TabsList>
-              {availableSortBys.map((sortBy) => (
-                <TabsTrigger key={sortBy} value={sortBy} disabled={!userData?.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Tabs defaultValue='Day' onValueChange={(value) => {
+              track('Battle log sort by changed', { value })
+              setSortBy(value as BattleLogSortBy)
+            }}>
+              <TabsList>
+                {availableSortBys.map((sortBy) => (
+                  <TabsTrigger key={sortBy} value={sortBy} disabled={!userData?.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-md hover:bg-gray-300">
+                  {format}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {[ "All", ...logFormats ].map((sortByLogs) => (
+                  <DropdownMenuItem
+                    key={sortByLogs}
+                    onClick={() => {
+                      track("Battle log sort by changed", { value: sortByLogs });
+                      setFormat(sortByLogs as LogFormatsTab);
+                      Cookies.set("format", sortByLogs);
+                    }}
+                    disabled={!userData?.live_screen_name}
+                  >
+                    {sortByLogs}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           <ToggleGroup type='multiple' className="justify-start" size='sm'>
             <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
               <EditIcon className="h-4 w-4 mr-2" /> Edit logs
