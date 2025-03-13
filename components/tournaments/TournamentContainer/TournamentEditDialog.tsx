@@ -106,8 +106,10 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button variant='ghost' size='icon' className="w-8 h-8"><Pencil className="h-4 w-4" color="gray" /></Button>
+      <DialogTrigger asChild>
+        <Button variant='ghost' size='icon' className="w-8 h-8">
+          <Pencil className="h-4 w-4" color="gray" />
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -123,7 +125,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
             </SelectTrigger>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
-                <SelectItem value={cat}>
+                <SelectItem key={cat} value={cat}>
                   <div className="flex items-center pl-1">
                     <TournamentCategoryIcon category={cat} />
                     <p>{displayTournamentCategory(cat)}</p>
