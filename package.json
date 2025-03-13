@@ -52,7 +52,8 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",
     "typescript": "5.3.3",
-    "typescript-cookie": "^1.0.6"
+    "typescript-cookie": "^1.0.6",
+    "webpack": "^5.98.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.4",

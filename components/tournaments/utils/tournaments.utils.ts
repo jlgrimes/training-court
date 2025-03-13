@@ -68,3 +68,8 @@ export const displayTournamentDateRange = (range: DateRange) => {
 export const getTournamentRoundsFromUserRounds = (allRounds: Database['public']['Tables']['tournament rounds']['Row'][], tournament: Database['public']['Tables']['tournaments']['Row']) => {
   return allRounds.filter((round) => round.tournament === tournament.id);
 }
+
+export const convertToUTC = (date?: Date) => {
+  if (!date) return undefined;
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+};

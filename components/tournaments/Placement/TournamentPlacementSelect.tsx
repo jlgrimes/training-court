@@ -19,7 +19,7 @@ export function TournamentPlacementSelect(props: TournamentPlacementSelectProps)
       </SelectTrigger>
       <SelectContent>
         {placements.map((placement) => (
-          <SelectItem value={placement}>{renderTournamentPlacement(placement)}</SelectItem>
+          <SelectItem key={placement} value={placement}>{renderTournamentPlacement(placement)}</SelectItem>
         ))}
       </SelectContent>
     </Select>

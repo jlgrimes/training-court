@@ -4,29 +4,16 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Label } from "../../ui/label"
 import { useCallback, useEffect, useState } from "react"
-import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
 import { useToast } from "../../ui/use-toast";
-import { Pencil, Trash } from "lucide-react";
-import { DateRange } from "react-day-picker";
-import { DatePicker } from "@/components/ui/date-picker";
+import { Trash } from "lucide-react";
 
 const Bugs = {
   BattleLogs: {
@@ -78,7 +65,7 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant='ghost' size='icon' className="w-8 h-8"><Trash className="h-4 w-4" color="gray" /></Button>
       </DialogTrigger>
       <DialogContent>
