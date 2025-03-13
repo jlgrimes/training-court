@@ -1,6 +1,5 @@
 'use client';
 
-
 import { createClient } from "@/utils/supabase/client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AddArchetype } from "./AddArchetype";
@@ -10,7 +9,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -23,7 +21,6 @@ import {
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
-import { Edit } from "lucide-react";
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 

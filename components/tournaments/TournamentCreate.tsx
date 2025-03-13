@@ -59,7 +59,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
     } else {
       window.location.href = `/tournaments/${data[0].id}`;
     }
-    setIsCreatingTournament(true);
+    setIsCreatingTournament(false);
   }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, userId]);
 
   if (editing) return (

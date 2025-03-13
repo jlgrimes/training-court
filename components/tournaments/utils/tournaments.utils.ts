@@ -71,6 +71,5 @@ export const getTournamentRoundsFromUserRounds = (allRounds: Database['public'][
 
 export const convertToUTC = (date?: Date) => {
   if (!date) return undefined;
-  const parsedDate = new Date(date.toISOString().split("T")[0].replaceAll("-", "/"));
-  return new Date(Date.UTC(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate()));
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
 };

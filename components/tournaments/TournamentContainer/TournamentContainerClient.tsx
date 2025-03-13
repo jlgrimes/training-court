@@ -28,7 +28,7 @@ interface TournamentContainerClientProps {
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
-  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to) });
+  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: new Date( props.tournament.date_from + "T00:00:00Z"), to: new Date(props.tournament.date_to + "T00:00:00Z") });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
 
