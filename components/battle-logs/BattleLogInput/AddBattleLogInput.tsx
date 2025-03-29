@@ -142,7 +142,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       />
       <div className="flex gap-2">
         {/* <Button size="sm" onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button> */}
-        <Button size="sm" variant="secondary" onClick={handleClear}>Clear</Button>
+        <Button size="sm" variant="secondary" disabled={!log} onClick={handleClear}>Clear</Button>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
@@ -160,7 +160,8 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                 <Label>Opponent's Deck</Label>
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
 
-                <Label>Format</Label>
+                {/* @TODO: Implement format */}
+                {/* <Label>Format</Label>
                 <Select value={format} onValueChange={(value) => setFormat(value as LogFormats)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select format" />
@@ -172,7 +173,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+                </Select> */}
               {/* @TODO: Should we be able to toggle who won or lost? How much should a user be able to adjust against our parsing algo? */}
               <Label>{username}'s Result: {parsedLogDetails.result}</Label>
             </>

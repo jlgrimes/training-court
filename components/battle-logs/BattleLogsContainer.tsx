@@ -24,16 +24,22 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   const { data: logs } = useLiveLogs(userId);
 
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
-  const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
+  // @TODO: implement format
+  // const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const availableSortBys = ['Day', 'Deck', 'All'];
 
+  // const filteredLogs = useMemo(() => {
+  //   if (!logs) return [];
+  //   if (format === "All") return logs;
+  //   return logs.filter((log) => log.format === format);
+  // }, [logs, format]);
+
   const filteredLogs = useMemo(() => {
     if (!logs) return [];
-    if (format === "All") return logs;
-    return logs.filter((log) => log.format === format);
-  }, [logs, format]);
+    return logs
+  }, [logs]);
 
   const battleLogs: BattleLog[] = useMemo(
     () => (filteredLogs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [filteredLogs, userData?.live_screen_name]);
@@ -66,7 +72,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
               </TabsList>
             </Tabs>
 
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-md hover:bg-gray-300">
                   {format}
@@ -87,7 +93,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
 
           <ToggleGroup type='multiple' className="justify-start" size='sm'>

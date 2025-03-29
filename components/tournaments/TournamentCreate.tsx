@@ -33,7 +33,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [format, setFormat] = useState<TournamentFormats | null>(null);
+  // const [format, setFormat] = useState<TournamentFormats | null>(null);
 
   const handleAddTournament = useCallback(async () => {
     if (!tournamentDate?.from) return;
@@ -50,7 +50,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       user: userId,
       category: tournamentCategory,
       placement: tournamentPlacement,
-      format: format
+      format: ''
     }).select().returns<Database['public']['Tables']['tournaments']['Row'][]>();
 
     if (error) {
@@ -86,7 +86,8 @@ export default function TournamentCreate({ userId }: { userId: string }) {
               ))}
             </SelectContent>
           </Select>
-          <Select onValueChange={(value) => setFormat(value as TournamentFormats)}>
+          {/* @TODO: implement format */}
+          {/* <Select onValueChange={(value) => setFormat(value as TournamentFormats)}>
             <SelectTrigger>
               <SelectValue placeholder="Select format" />
             </SelectTrigger>
@@ -97,7 +98,7 @@ export default function TournamentCreate({ userId }: { userId: string }) {
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
           <TournamentPlacementSelect value={tournamentPlacement} onChange={(newPlacement: TournamentPlacement) => setTournamentPlacement(newPlacement)} />
           <Button onClick={handleAddTournament} type="submit" disabled={isCreatingTournament || (tournamentName.length === 0) || !tournamentDate?.from }>
             {isCreatingTournament ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add tournament"}
