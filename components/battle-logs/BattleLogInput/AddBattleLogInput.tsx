@@ -142,7 +142,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       />
       <div className="flex gap-2">
         {/* <Button size="sm" onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button> */}
-        <Button size="sm" variant="secondary" disabled={!log} onClick={handleClear}>Clear</Button>
+        <Button size="sm" variant={log ? "destructive" : "secondary"} disabled={!log} onClick={handleClear}>Clear</Button>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
