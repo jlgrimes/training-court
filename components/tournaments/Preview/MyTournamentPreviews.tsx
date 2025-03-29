@@ -22,7 +22,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
   const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
-  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
+  // const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -50,8 +50,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   });
 
   const filteredTournaments = tournaments?.filter((tournament) =>
-    (selectedCat === 'all' || tournament.category === selectedCat) &&
-    (selectedFormat === 'All' || tournament.format === selectedFormat)
+    (selectedCat === 'all' || tournament.category === selectedCat) 
+  // &&  (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
 
   return (
@@ -77,7 +77,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         </SelectContent>
       </Select>
 
-      <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
+          {/* @TODO: Implement Format */}
+      {/* <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
         <SelectTrigger>
           <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
         </SelectTrigger>
@@ -93,7 +94,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
       </div>
 
       {filteredTournaments?.length === 0 && (
