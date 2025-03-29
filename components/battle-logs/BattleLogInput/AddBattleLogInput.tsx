@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
+import { X } from 'lucide-react';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -132,7 +133,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   // }, [log]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="relative">
       <Textarea
         className="resize-none"
         disabled={!props.userData?.live_screen_name}
@@ -142,7 +143,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       />
       <div className="flex gap-2">
         {/* <Button size="sm" onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button> */}
-        <Button size="sm" variant={log ? "destructive" : "secondary"} disabled={!log} onClick={handleClear}>Clear</Button>
+        {log &&<Button size="sm" variant={log ? "outline" : "secondary"} disabled={!log} className="absolute top-2 right-2 z-10" onClick={handleClear}><X className="h-4 w-4"/></Button>}
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
