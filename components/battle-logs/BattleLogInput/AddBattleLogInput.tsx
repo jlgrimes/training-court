@@ -181,8 +181,8 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             )
           )}
           <DialogFooter className="mt-4">
-            <Button onClick={handleAddButtonClick}>Confirm</Button>
             <Button variant="secondary" onClick={() => setShowDialog(false)}>Close</Button>
+            <Button onClick={handleAddButtonClick}>Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

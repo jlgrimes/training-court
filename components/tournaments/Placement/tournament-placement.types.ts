@@ -7,7 +7,7 @@ export function renderTournamentPlacement(placement: TournamentPlacement) {
     case 'finalist':
       return 'Finalist';
     case 't4':
-      return 'T4';
+      return 'Top 4';
     case 't8':
       return 'Top 8';
     case 't16':
