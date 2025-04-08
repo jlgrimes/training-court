@@ -6,6 +6,6 @@ export const fetchLiveLogs = async (userId: string | undefined, offset = 0, limi
 
   const supabase = createClient();
   const { data: logData } = await supabase.from('logs').select('*').eq('user', userId).order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1).returns<Database['public']['Tables']['logs']['Row'][]>();
+    .returns<Database['public']['Tables']['logs']['Row'][]>();
   return logData;
 };

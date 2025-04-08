@@ -17,6 +17,8 @@ import { useUserData } from "@/hooks/user-data/useUserData";
 import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import Cookies from "js-cookie";
+import { usePaginatedBattleLogs } from "@/hooks/logs/usePaginatedBattleLogs";
+import { BattleLogsPagination } from "./BattleLogPagination/battleLogPagination";
 
 export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
   const { mutate } = useSWRConfig();
@@ -41,8 +43,8 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
     return logs
   }, [logs]);
 
-  const battleLogs: BattleLog[] = useMemo(
-    () => (filteredLogs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [filteredLogs, userData?.live_screen_name]);
+  const { paginatedLogs, page, totalPages, setPage, hasPrev, hasNext } =
+    usePaginatedBattleLogs(logs ?? [], userData?.live_screen_name ?? "");
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -105,7 +107,16 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
 
         {userData?.live_screen_name && (
           <div>
-            <MyBattleLogPreviews userData={userData} battleLogs={battleLogs} sortBy={sortBy} isEditing={isEditing} />
+            <MyBattleLogPreviews userData={userData} battleLogs={paginatedLogs} sortBy={sortBy} isEditing={isEditing} />
+            {totalPages > 1 && (
+            <BattleLogsPagination
+              page={page}
+              totalPages={totalPages}
+              hasPrev={hasPrev}
+              hasNext={hasNext}
+              onPageChange={setPage}
+            />
+          )}
           </div>
         )}
       </div>
