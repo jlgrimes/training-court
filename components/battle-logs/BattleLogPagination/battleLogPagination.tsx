@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronLeftCircle, ChevronRightCircle } from "lucide-react";
 import React from "react";
 
 interface BattleLogsPaginationProps {
@@ -24,17 +25,17 @@ export const BattleLogsPagination: React.FC<BattleLogsPaginationProps> = ({
         disabled={!hasPrev}
         className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        Previous
+        <ChevronLeftCircle className="w-4 h-4" />
       </button>
-      <span className="text-sm self-center">
-        Page {page + 1} of {totalPages}
+      <span className="text-sm self-center px-2 py-2">
+        {page + 1} / {totalPages}
       </span>
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={!hasNext}
         className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        Next
+        <ChevronRightCircle className="fa-regular w-4 h-4" />
       </button>
     </div>
   );

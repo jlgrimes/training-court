@@ -23,17 +23,17 @@ interface BattleLogsByDayProps {
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
   const battleLogsByDay = useMemo(() => {
     const logsByDay = groupBattleLogIntoDays(props.battleLogs);
-    const today = convertBattleLogDateIntoDay(new Date());
-    if (!logsByDay[today]) {
-      logsByDay[today] = [];
-    }
+    // const today = convertBattleLogDateIntoDay(new Date());
+    // if (!logsByDay[today]) {
+    //   logsByDay[today] = [];
+    // }
     return logsByDay;
   }, [props.battleLogs]);
 
   const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay), [battleLogsByDay])
 
   return (
-    <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
+    <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0]?.[0]}>
       {battleLogsByDayList.map(([day, logs]) => (
         <AccordionItem key={day} value={day}>
           <AccordionTrigger>

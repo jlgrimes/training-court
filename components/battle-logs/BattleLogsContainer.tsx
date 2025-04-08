@@ -46,10 +46,12 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   const { paginatedLogs, page, totalPages, setPage, hasPrev, hasNext } =
     usePaginatedBattleLogs(logs ?? [], userData?.live_screen_name ?? "");
 
-  const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
-    // Puts most recent (now) in the front
-    logs && mutate(['live-logs', userId], [newLog, ...logs])
-  }, [logs, userId]);
+    const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
+      if (!logs) return;
+      const newLogs = [newLog, ...logs];
+      mutate(['live-logs', userId], newLogs, false);
+      setPage(0);
+    }, [logs, userId, mutate, setPage]);
 
   // Disable edit mode every time we change tabs because that makes sense
   useEffect(() => {
