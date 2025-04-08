@@ -1,8 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { BattleLogPreview, BattleLogPreviewProps } from "./BattleLogPreview";
-import { TrashIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { BattleLogDeleteButton } from "./BattleLogEdit/BattleLogDeleteButton";
 import { BattleLogEditButton } from "./BattleLogEdit/BattleLogEditButton";
 
