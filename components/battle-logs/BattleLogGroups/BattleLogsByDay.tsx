@@ -23,10 +23,6 @@ interface BattleLogsByDayProps {
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
   const battleLogsByDay = useMemo(() => {
     const logsByDay = groupBattleLogIntoDays(props.battleLogs);
-    // const today = convertBattleLogDateIntoDay(new Date());
-    // if (!logsByDay[today]) {
-    //   logsByDay[today] = [];
-    // }
     return logsByDay;
   }, [props.battleLogs]);
 
