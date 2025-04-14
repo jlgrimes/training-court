@@ -77,7 +77,6 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{getRecord(rounds)}</h1>
-          {tournamentPlacement && <h3 className="text-sm text-muted-foreground">{renderTournamentPlacement(tournamentPlacement)}</h3>}
         </div>
       </div>
         {props.user && (props.user.id === props.tournament.user) && (
