@@ -72,7 +72,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
             <div className="flex gap-1 mt-2">
               {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
               {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
-              {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)}
+              {/* {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)} */}
             </div>
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
