@@ -89,11 +89,9 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
               <h3 className="text-sm text-muted-foreground">
                 {displayTournamentDateRange(tournamentDate)}
               </h3>
-              <div className="flex gap-1 mt-2 no-wrap">
+              <div className="flex gap-1 mt-1 no-wrap">
                 {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
-                {tournamentPlacement && (
-                  <TournamentPlacementBadge placement={tournamentPlacement} />
-                )}
+                {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
                 {/* {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)} */}
               </div>
             </div>
