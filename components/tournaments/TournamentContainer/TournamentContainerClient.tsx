@@ -74,7 +74,6 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
               {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
               {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)}
             </div>
-            <h3 className="text-sm text-muted-foreground">{displayTournamentDateRange(tournamentDate)}</h3>
           </div>
           <div className="flex flex-col items-end col-span-2 gap-1 px-1">
           <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">{getRecord(rounds)}</h1>

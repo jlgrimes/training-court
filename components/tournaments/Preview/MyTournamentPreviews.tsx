@@ -42,12 +42,12 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     [allTournamentCategoryTabs, tournaments]
   );
 
-  const availableFormats: TournamentFormatsTab[] = ['All'];
-  tournaments?.forEach((tournament) => {
-    if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatsTab)) {
-      availableFormats.push(tournament.format as TournamentFormatsTab);
-    }
-  });
+  // const availableFormats: TournamentFormatsTab[] = ['All'];
+  // tournaments?.forEach((tournament) => {
+  //   if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatsTab)) {
+  //     availableFormats.push(tournament.format as TournamentFormatsTab);
+  //   }
+  // });
 
   const filteredTournaments = tournaments?.filter((tournament) =>
     (selectedCat === 'all' || tournament.category === selectedCat) 
