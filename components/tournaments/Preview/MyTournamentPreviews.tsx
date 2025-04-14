@@ -21,6 +21,19 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: tournaments } = useTournaments(props.user?.id);
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
+  // Known issue on mobile aka a ghostClick. If clicking on a dropdown menu option, it will pass-through and click the tournament underneath.
+  // The code relating to dropdown is one StackOverflow suggestion to fix this behavior. Behavior is fine on desktop.
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isInteractionBlocked, setIsInteractionBlocked] = useState(false);
+
+  const handleDropdownOpenChange = (open: boolean) => {
+    setIsDropdownOpen(open);
+    if (!open) {
+      setIsInteractionBlocked(true);
+      setTimeout(() => setIsInteractionBlocked(false), 300);
+    }
+  };
+
   const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
   // const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
@@ -58,24 +71,24 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
 
-      <Select defaultValue="all" onValueChange={(val) => setSelectedCat(val as TournamentCategoryTab)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select category" />
-        </SelectTrigger>
-        <SelectContent>
-          {availableTournamentCategories.map((cat) => (
-            <SelectItem key={cat} value={cat}>
-              <div className="flex justify-between w-full items-center">
-                {cat !== 'all' && <TournamentCategoryIcon category={cat} />}
-                <p>
-                  {displayTournamentCategoryTab(cat)} (
-                  {tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})
-                </p>
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select defaultValue="all" onValueChange={(val) => setSelectedCat(val as TournamentCategoryTab)} open={isDropdownOpen} onOpenChange={handleDropdownOpenChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {availableTournamentCategories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                <div className="flex justify-between w-full items-center">
+                  {cat !== 'all' && <TournamentCategoryIcon category={cat} />}
+                  <p>
+                    {displayTournamentCategoryTab(cat)} (
+                    {tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})
+                  </p>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
           {/* @TODO: Implement Format */}
       {/* <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
@@ -97,42 +110,44 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       </Select> */}
       </div>
 
-      {filteredTournaments?.length === 0 && (
-        <Card className="border-none">
-          <CardHeader className="px-2">
-            <CardDescription>No tournaments found for the selected category and format.</CardDescription>
-          </CardHeader>
-        </Card>
-      )}
+      <div className={isInteractionBlocked ? 'pointer-events-none' : ''}>
+        {filteredTournaments?.length === 0 && (
+          <Card className="border-none">
+            <CardHeader className="px-2">
+              <CardDescription>No tournaments found for the selected category and format.</CardDescription>
+            </CardHeader>
+          </Card>
+        )}
 
-      {selectedCat === 'all' ? (
-        <div className="flex flex-col gap-2">
-          {filteredTournaments?.map((tournament) =>
-            rounds ? (
-              <TournamentPreview
-                key={tournament.id}
-                tournament={tournament}
-                rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
-              />
-            ) : null
-          )}
-        </div>
-      ) : (
-        <ScrollArea className="h-[36rem] pr-4">
+        {selectedCat === 'all' ? (
           <div className="flex flex-col gap-2">
             {filteredTournaments?.map((tournament) =>
               rounds ? (
                 <TournamentPreview
-                  key={tournament.id}
-                  tournament={tournament}
-                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
-                  shouldHideCategoryBadge
+                key={tournament.id}
+                tournament={tournament}
+                rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
                 />
               ) : null
             )}
           </div>
-        </ScrollArea>
-      )}
+        ) : (
+          <ScrollArea className="h-[36rem]">
+            <div className="flex flex-col gap-2">
+              {filteredTournaments?.map((tournament) =>
+                rounds ? (
+                  <TournamentPreview
+                  key={tournament.id}
+                  tournament={tournament}
+                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  shouldHideCategoryBadge
+                  />
+                ) : null
+              )}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 }
