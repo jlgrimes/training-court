@@ -25,6 +25,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   // The code relating to dropdown is one StackOverflow suggestion to fix this behavior. Behavior is fine on desktop.
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isInteractionBlocked, setIsInteractionBlocked] = useState(false);
+  const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
+  // const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
   const handleDropdownOpenChange = (open: boolean) => {
     setIsDropdownOpen(open);
@@ -34,20 +36,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     }
   };
 
-  const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
-  // const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
-  if (tournaments && tournaments?.length === 0) {
-    return (
-      <Card className="border-none">
-        <CardHeader className="px-2">
-          <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
-          <CardDescription>Click New Tournament to get started!</CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
+  
   const availableTournamentCategories = useMemo(() =>
     allTournamentCategoryTabs.filter(
       (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
@@ -66,6 +56,18 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     (selectedCat === 'all' || tournament.category === selectedCat) 
   // &&  (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
+
+  if (tournaments && tournaments?.length === 0) {
+    return (
+      <Card className="border-none">
+        <CardHeader className="px-2">
+          <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
+          <CardDescription>Click New Tournament to get started!</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
 
   return (
     <div className="flex flex-col gap-2">
