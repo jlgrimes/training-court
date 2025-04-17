@@ -140,6 +140,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
         placeholder="Paste battle log from PTCG Live here"
         value={log}
         onPaste={handlePaste}
+        onChange={(e) => setLog(e.target.value)}
       />
       <div className="flex gap-2">
         {/* <Button size="sm" onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button> */}
