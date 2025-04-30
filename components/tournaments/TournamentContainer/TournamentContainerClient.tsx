@@ -5,7 +5,7 @@ import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
 import { useCallback, useEffect, useState } from "react";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
-import { displayTournamentDateRange, getRecord } from "../utils/tournaments.utils";
+import { displayTournamentDate, displayTournamentDateRange, getRecord } from "../utils/tournaments.utils";
 import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
 import { TournamentEditDialog } from "./TournamentEditDialog";
 import { DateRange } from "react-day-picker";
@@ -30,7 +30,7 @@ interface TournamentContainerClientProps {
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
-  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: new Date( props.tournament.date_from + "T00:00:00Z"), to: new Date(props.tournament.date_to + "T00:00:00Z") });
+  const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to + "T00:00:00Z") });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
   const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
@@ -67,7 +67,10 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
               <TournamentEditDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
-                tournamentDateRange={tournamentDate}
+                tournamentDateRange={{
+                  from: parseISO(props.tournament.date_from),
+                  to: parseISO(props.tournament.date_to),
+                }}
                 tournamentCategory={tournamentCategory}
                 tournamentPlacement={tournamentPlacement}
                 tournamentFormat={tournamentFormat}
@@ -87,7 +90,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 {tournamentName}
               </h1>
               <h3 className="text-sm text-muted-foreground">
-                {displayTournamentDateRange(tournamentDate)}
+                {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
               </h3>
               <div className="flex gap-1 mt-1 no-wrap">
                 {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}

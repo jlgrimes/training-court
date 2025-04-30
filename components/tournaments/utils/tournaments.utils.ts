@@ -49,7 +49,7 @@ export const displayTournamentDate = (from: string, to: string) => {
 }
 
 export const displayTournamentDateRange = (range: DateRange) => {
-  const fromDate = range.from
+  const fromDate = range.from;
   const toDate = range.to;
 
   if (!fromDate || !toDate) return '';
