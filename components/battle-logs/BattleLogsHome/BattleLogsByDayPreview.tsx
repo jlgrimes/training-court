@@ -35,7 +35,7 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
     return logsByDay;
   }, [props.battleLogs]);
 
-  const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay).slice(0, 4), [battleLogsByDay])
+  const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay), [battleLogsByDay])
 
   return (
     <div className="flex flex-col gap-4">

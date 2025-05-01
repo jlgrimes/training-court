@@ -9,6 +9,7 @@ import { useSWRConfig } from "swr";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useUserData } from "@/hooks/user-data/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePaginatedLogsByDay } from "@/hooks/logs/useRecentLogsByDay";
 
 interface BattleLogsHomePreviewClientProps {
   userId: string | undefined;
@@ -17,7 +18,7 @@ interface BattleLogsHomePreviewClientProps {
 export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientProps) {
   const { mutate } = useSWRConfig();
   const { data: userData, isLoading: userDataIsLoading } = useUserData(props.userId)
-  const { data: logs, isLoading: logsAreLoading } = useLiveLogs(props.userId);
+  const { data: logs, isLoading: logsAreLoading } = usePaginatedLogsByDay(props.userId, 0, 4);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front

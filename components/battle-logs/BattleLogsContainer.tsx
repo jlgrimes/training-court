@@ -17,11 +17,17 @@ import { useUserData } from "@/hooks/user-data/useUserData";
 import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import Cookies from "js-cookie";
+import { usePaginatedLogsByDay } from "@/hooks/logs/useRecentLogsByDay";
 
 export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
   const { mutate } = useSWRConfig();
   const { data: userData } = useUserData(userId);
-  const { data: logs } = useLiveLogs(userId);
+  const [page, setPage] = useState(0);
+  const pageSize = 4;
+
+
+  // @TODO!!!! This needs to work for other sortbys...
+  const { data: logs, isLoading } = usePaginatedLogsByDay(userId, page, pageSize);
 
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
   // @TODO: implement format
@@ -107,6 +113,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
           <div>
             <MyBattleLogPreviews userData={userData} battleLogs={battleLogs} sortBy={sortBy} isEditing={isEditing} />
           </div>
+          //Pagination goes here somewhere..
         )}
       </div>
         {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
