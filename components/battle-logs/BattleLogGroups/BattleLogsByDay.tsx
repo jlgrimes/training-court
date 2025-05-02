@@ -13,11 +13,13 @@ import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { isAfter, parseISO } from "date-fns";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BattleLogsByDayProps {
   battleLogs: BattleLog[];
   userData: Database['public']['Tables']['user data']['Row'];
   isEditing: boolean;
+  isLoading?: boolean;
 }
 
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
@@ -32,6 +34,18 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
 
   const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay), [battleLogsByDay])
 
+
+  if (props.isLoading) {
+    return (
+      <div className="flex flex-col gap-2 mt-12">
+        <Skeleton className="w-full h-[68px] rounded-xl" />
+        <Skeleton className="w-full h-[68px] rounded-xl" />
+        <Skeleton className="w-full h-[68px] rounded-xl" />
+        <Skeleton className="w-full h-[68px] rounded-xl" />
+        <Skeleton className="w-full h-[68px] rounded-xl" />
+      </div>
+    )
+  } else
   return (
     <Accordion type="single" collapsible className="flex flex-col" defaultValue={battleLogsByDayList[0][0]}>
       {battleLogsByDayList.map(([day, logs]) => (

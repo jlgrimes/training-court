@@ -29,7 +29,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
 
   // @TODO!!!! This needs to work for other sortbys...
   
-  const { data: logs } = isSortByDay
+  const { data: logs, isLoading } = isSortByDay
     ? usePaginatedLogsByDay(userId, page, 5) // 5 days
     : usePaginatedLiveLogs(userId, page, pageSize);
     
@@ -118,7 +118,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
 
         {userData?.live_screen_name && (
           <div>
-            <MyBattleLogPreviews userData={userData} battleLogs={battleLogs} sortBy={sortBy} isEditing={isEditing} />
+            <MyBattleLogPreviews userData={userData} battleLogs={battleLogs} sortBy={sortBy} isEditing={isEditing} isLoading={isLoading}/>
 
             {(sortBy === 'Day') && (
               <BattleLogsPaginationByDay

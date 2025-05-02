@@ -12,11 +12,12 @@ interface MyBattleLogPreviewsProps {
   battleLogs: BattleLog[];
   sortBy: BattleLogSortBy
   isEditing: boolean;
+  isLoading?: boolean;
 }
 
 export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
   if (props.sortBy === 'Day') {
-    return <BattleLogsByDay battleLogs={props.battleLogs} userData={props.userData} isEditing={props.isEditing} />;
+    return <BattleLogsByDay battleLogs={props.battleLogs} userData={props.userData} isEditing={props.isEditing} isLoading={props.isLoading}/>;
   }
 
   if (props.sortBy === 'Deck') {
