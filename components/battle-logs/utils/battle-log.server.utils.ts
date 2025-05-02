@@ -32,26 +32,26 @@ export const fetchRecentLogDates = async (
   return dayList.slice(offset, offset + limit);
 };
 
-export const fetchLiveLogsByRecentDays = async (userId: string, page=0, pageSize=4): Promise<Database['public']['Tables']['logs']['Row'][] | undefined> => {
+export const fetchPaginatedLogs = async (
+  userId: string,
+  page: number,
+  pageSize: number
+): Promise<Database['public']['Tables']['logs']['Row'][] | undefined> => {
   const supabase = createClient();
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
 
-  const recentDays = await fetchRecentLogDates(userId, pageSize, page * pageSize);
-  if (recentDays.length === 0) return [];
+  const { data, error } = await supabase
+    .from('logs')
+    .select('*')
+    .eq('user', userId)
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
-  const dayConditions = recentDays.map(day => ({
-    gte: startOfDay(new Date(day)).toISOString(),
-    lt: endOfDay(new Date(day)).toISOString()
-  }));
-
-  let allLogs: Database['public']['Tables']['logs']['Row'][] = [];
-
-  for (const condition of dayConditions) {
-    const { data, error } = await supabase.from('logs').select('*').eq('user', userId).gte('created_at', condition.gte).lt('created_at', condition.lt).order('created_at', { ascending: false });
-
-    if (error) continue;
-
-    allLogs.push(...(data ?? []));
+  if (error) {
+    console.error('Supabase log fetch error:', error);
+    return [];
   }
 
-  return allLogs;
+  return data;
 };

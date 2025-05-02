@@ -15,21 +15,24 @@ import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useSWRConfig } from "swr";
 import { useUserData } from "@/hooks/user-data/useUserData";
 import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import Cookies from "js-cookie";
-import { usePaginatedLogsByDay } from "@/hooks/logs/useRecentLogsByDay";
+import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
+import { BattleLogsPaginationByDay } from "./BattleLogsPagination/BattleLogsPaginationByDay";
+import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 
 export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
   const { mutate } = useSWRConfig();
   const { data: userData } = useUserData(userId);
   const [page, setPage] = useState(0);
-  const pageSize = 4;
-
+  const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
+  const pageSize = 50;
+  const isSortByDay = sortBy === 'Day';
 
   // @TODO!!!! This needs to work for other sortbys...
-  const { data: logs, isLoading } = usePaginatedLogsByDay(userId, page, pageSize);
-
-  const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
+  
+  const { data: logs } = isSortByDay
+    ? usePaginatedLogsByDay(userId, page, 5) // 5 days
+    : usePaginatedLiveLogs(userId, page, pageSize);
+    
   // @TODO: implement format
   // const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -42,13 +45,13 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   //   return logs.filter((log) => log.format === format);
   // }, [logs, format]);
 
-  const filteredLogs = useMemo(() => {
-    if (!logs) return [];
-    return logs
-  }, [logs]);
+  // const filteredLogs = useMemo(() => {
+  //   if (!logs) return [];
+  //   return logs
+  // }, [logs]);
 
   const battleLogs: BattleLog[] = useMemo(
-    () => (filteredLogs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [filteredLogs, userData?.live_screen_name]);
+    () => (logs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [logs, userData?.live_screen_name]);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -59,6 +62,10 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   useEffect(() => {
     setIsEditing(false);
   }, [sortBy]);
+
+  useEffect(() => {
+    console.log('PAGE CHANGED:', page);
+  }, [page]);
 
   return (
     <div className="grid grid-cols-1 gap-8">
@@ -112,8 +119,28 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
         {userData?.live_screen_name && (
           <div>
             <MyBattleLogPreviews userData={userData} battleLogs={battleLogs} sortBy={sortBy} isEditing={isEditing} />
+
+            {(sortBy === 'Day') && (
+              <BattleLogsPaginationByDay
+                page={page}
+                onPageChange={(newPage) => {
+                  console.log('Updating page to', newPage);
+                  setPage(newPage);
+                }}
+                hasPrev={true}
+                hasNext={true}
+              />
+            )}
+
+            {(sortBy === 'Deck' || sortBy === 'All') && (
+              <BattleLogsPaginationByDay
+                page={page}
+                onPageChange={setPage}
+                hasPrev={page > 0}
+                hasNext={!!logs && logs.length === pageSize}
+              />
+            )}
           </div>
-          //Pagination goes here somewhere..
         )}
       </div>
         {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
