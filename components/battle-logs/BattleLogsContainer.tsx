@@ -11,13 +11,13 @@ import { track } from '@vercel/analytics';
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { PremiumIcon } from "../premium/PremiumIcon";
 import { parseBattleLog } from "./utils/battle-log.utils";
-import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useSWRConfig } from "swr";
 import { useUserData } from "@/hooks/user-data/useUserData";
 import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
 import { BattleLogsPaginationByDay } from "./BattleLogsPagination/BattleLogsPaginationByDay";
 import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
+import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 
 export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
   const { mutate } = useSWRConfig();
@@ -25,13 +25,19 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
   const pageSize = 50;
+  const daysPerPage = 5;
   const isSortByDay = sortBy === 'Day';
+  const isSortByDeck = sortBy === 'Deck';
+  const isSortByAll = sortBy === 'All';
 
-  // @TODO!!!! This needs to work for other sortbys...
-  
-  const { data: logs, isLoading } = isSortByDay
-    ? usePaginatedLogsByDay(userId, page, 5) // 5 days
-    : usePaginatedLiveLogs(userId, page, pageSize);
+  const {
+    data: logs,
+    isLoading
+  } = isSortByDay
+    ? usePaginatedLogsByDay(userId, page, daysPerPage)
+    : isSortByDeck
+      ? useLiveLogs(userId)
+      : usePaginatedLiveLogs(userId, page, pageSize);
     
   // @TODO: implement format
   // const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
@@ -123,12 +129,9 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
             {(sortBy === 'Day') && (
               <BattleLogsPaginationByDay
                 page={page}
-                onPageChange={(newPage) => {
-                  console.log('Updating page to', newPage);
-                  setPage(newPage);
-                }}
+                onPageChange={setPage}
                 hasPrev={true}
-                hasNext={true}
+                hasNext={!!logs && logs.length > daysPerPage}
               />
             )}
 
