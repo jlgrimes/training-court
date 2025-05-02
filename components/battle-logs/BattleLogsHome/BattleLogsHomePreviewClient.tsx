@@ -10,6 +10,7 @@ import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { useUserData } from "@/hooks/user-data/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
+import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 
 interface BattleLogsHomePreviewClientProps {
   userId: string | undefined;
@@ -18,7 +19,7 @@ interface BattleLogsHomePreviewClientProps {
 export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientProps) {
   const { mutate } = useSWRConfig();
   const { data: userData, isLoading: userDataIsLoading } = useUserData(props.userId)
-  const { data: logs, isLoading: logsAreLoading } = usePaginatedLiveLogs(props.userId, 0, 4);
+  const { data: logs, isLoading: logsAreLoading } = usePaginatedLogsByDay(props.userId, 0, 4);
 
   const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
     // Puts most recent (now) in the front
@@ -28,6 +29,7 @@ export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientP
   if (userDataIsLoading || logsAreLoading) {
     return (
       <div className="flex flex-col gap-2">
+        <Skeleton className="w-full h-[68px] rounded-xl" />
         <Skeleton className="w-full h-[68px] rounded-xl" />
         <Skeleton className="w-full h-[68px] rounded-xl" />
         <Skeleton className="w-full h-[68px] rounded-xl" />

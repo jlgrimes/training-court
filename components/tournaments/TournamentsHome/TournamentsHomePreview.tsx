@@ -34,6 +34,7 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
           <Skeleton className="w-full h-[68px] rounded-xl" />
           <Skeleton className="w-full h-[68px] rounded-xl" />
           <Skeleton className="w-full h-[68px] rounded-xl" />
+          <Skeleton className="w-full h-[68px] rounded-xl" />
         </div>
       </div>
     )
