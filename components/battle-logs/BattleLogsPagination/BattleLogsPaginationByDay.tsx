@@ -19,10 +19,9 @@ export const BattleLogsPaginationByDay: React.FC<BattleLogsPaginationByDayProps>
     <div className="flex justify-center mt-4 min-h-[48px] gap-4">
       <button
         onClick={() => {
-          console.log('Clicked Prev Page:', page - 1);
-          onPageChange(page - 1);
+            onPageChange(page - 1);
         }}
-        disabled={!hasPrev}
+        disabled={page < 1}
         className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
       >
         <ChevronLeftCircle className="w-5 h-5" />
