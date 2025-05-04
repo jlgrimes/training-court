@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { RecoilRoot } from 'recoil';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
+import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -36,8 +37,9 @@ export default function RootLayout({
     <html lang='en' className={GeistSans.className}>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
-          <DarkModeProvider />
-
+          <DarkModeHydrationGuard>
+            <DarkModeProvider />
+            
             <SidebarProvider>
               <AppSidebar />
               <main className='min-h-screen h-full w-full'>
@@ -57,6 +59,7 @@ export default function RootLayout({
               </main>
             </SidebarProvider>
 
+          </DarkModeHydrationGuard>
         </RecoilProvider>
       </body>
     </html>
