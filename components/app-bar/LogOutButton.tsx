@@ -9,6 +9,8 @@ export const LogOutButton = () => {
     track('Log out clicked');
 
     const supabase = createClient();
+    // @TODO: quick way to ensure darkMode doesn't persist between different users sharing same local settings.
+    localStorage.removeItem('darkMode');
     const { error } = await supabase.auth.signOut();
     if (!error) {
       window.location.href = '/'
