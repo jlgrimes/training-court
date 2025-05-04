@@ -125,8 +125,8 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   if (props.editing) return (
     <Card>
       <CardHeader>
-        <CardTitle className="my-2 flex justify-between items-center">
-          <span>Round {props.editedRoundNumber}</span>
+        <CardTitle className="my-2 flex justify-between items-center dark:text-gray-400">
+          <Label>Round {props.editedRoundNumber}</Label>
         </CardTitle>
         <div className="flex flex-col w-full gap-4">
           <div className="flex flex-col w-full gap-2">

@@ -43,9 +43,9 @@ export const TournamentRound = (props: TournamentRoundProps) => {
     <div onClick={() => userHasPermissionsToEdit && props.handleEditingRoundToggle()} className={cn(
       'col-span-8 grid grid-cols-8 items-center px-4 border-b h-12',
       userHasPermissionsToEdit && 'cursor-pointer',
-      result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200',
-      result === 'T' && 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200',
-      result === 'L' && 'bg-red-100 text-red-600 hover:bg-red-200',
+      result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300',
+      result === 'T' && 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300',
+      result === 'L' && 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300',
     )}>
       <span className="col-span-2 font-bold text-sm">{props.round.round_num}</span>
       <span className="col-span-5">{props.round.match_end_reason === MATCH_END_REASONS.ID ? 

@@ -62,6 +62,7 @@ export async function AppSidebar() {
       <Link href={user ? '/home' : '/'} className="pt-1 pl-1">
         <Image src={'/logo.png'} alt='logo' width={150} height={20} />
       </Link>
+      
       {isPremiumUser(user?.id) && <DarkModeToggle />}
 
       <SidebarSeparator />
