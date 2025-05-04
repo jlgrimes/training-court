@@ -28,7 +28,7 @@ export const Matchups = (props: MatchupProps) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
-        <h1 className="text-xl tracking-wide font-semibold text-slate-800">Matchups</h1>
+        <h1 className="text-xl tracking-wide font-semibold">Matchups</h1>
         <PremiumHeader />
       </div>
       {isLoading && (

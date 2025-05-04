@@ -30,7 +30,7 @@ export const ScreenNameEditable = ({ userId }: { userId: string }) => {
   }
 
   return <div className="flex items-center gap-1">
-    <h2 className="text-xl tracking-wide font-semibold text-slate-800">{userData.live_screen_name}</h2>
+    <h2 className="text-xl tracking-wide font-semibold">{userData.live_screen_name}</h2>
     <Button onClick={() => setIsEditing(true)} size='icon' variant='ghost'><EditIcon className="h-4 w-4 stroke-muted-foreground" /></Button>
   </div>
 }

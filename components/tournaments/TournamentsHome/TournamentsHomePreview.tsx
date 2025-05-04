@@ -27,7 +27,7 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
     return (
       <div className="flex flex-col gap-6">
         <Link href='/tournaments'>
-          <h1 className="text-xl tracking-wide font-semibold text-slate-800">Tournaments</h1>
+          <h1 className="text-xl tracking-wide font-semibold">Tournaments</h1>
         </Link>
         <div className="flex flex-col gap-2">
           <Skeleton className="w-full h-[68px] rounded-xl" />
@@ -51,7 +51,7 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
       ) : (
         <div className="flex flex-col gap-6">
           <Link href='/tournaments'>
-            <h1 className="text-xl tracking-wide font-semibold text-slate-800">Tournaments</h1>
+            <h1 className="text-xl tracking-wide font-semibold">Tournaments</h1>
           </Link>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">

@@ -22,13 +22,13 @@ export default function TournamentPreview(props: TournamentPreviewProps) {
           <div className="grid grid-cols-two-sprite+3 items-center">
             <Sprite name={props.tournament.deck} />
             <div className="text-left col-span-2">
-              <CardTitle>{props.tournament.name}</CardTitle>
+              <CardTitle className="dark:text-white">{props.tournament.name}</CardTitle>
               <CardDescription>
                 {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
               </CardDescription>
             </div>
             <div className="flex flex-col items-end">
-              <CardTitle className="text-right whitespace-nowrap">{props.rounds && getRecord(props.rounds)}</CardTitle>
+              <CardTitle className="text-right whitespace-nowrap dark:text-white">{props.rounds && getRecord(props.rounds)}</CardTitle>
               {props.tournament.placement && <CardDescription>{renderTournamentPlacement(props.tournament.placement as TournamentPlacement)}</CardDescription>}
             </div>
           </div>

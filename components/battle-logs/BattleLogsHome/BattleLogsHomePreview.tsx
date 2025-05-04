@@ -11,7 +11,7 @@ export const BattleLogsHomePreview = async (props: BattleLogsHomePreviewProps) =
   return (
     <div className="flex flex-col gap-4">
       <Link href='/logs'>
-        <h1 className="text-xl tracking-wide font-semibold text-slate-800">Logs</h1>
+        <h1 className="text-xl tracking-wide font-semibold">Logs</h1>
       </Link>
       <BattleLogsHomePreviewClient userId={props.userId} />
     </div>

@@ -2,7 +2,6 @@
 
 import { useRecoilState } from 'recoil';
 import { darkModeState } from '../../app/recoil/darkMode/darkModeState';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '../ui/button';
 import { Moon, Sun } from 'lucide-react';
 
