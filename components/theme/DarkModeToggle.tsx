@@ -3,14 +3,20 @@
 import { useRecoilState } from 'recoil';
 import { darkModeState } from '../../app/recoil/darkMode/darkModeState';
 import { Switch } from '@/components/ui/switch';
+import { Button } from '../ui/button';
+import { Moon, Sun } from 'lucide-react';
 
 export function DarkModeToggle() {
   const [isDarkMode, setIsDarkMode] = useRecoilState(darkModeState);
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm">Dark Mode</span>
-      <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
-    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setIsDarkMode(!isDarkMode)}
+      aria-label="Toggle Dark Mode"
+    >
+      {!isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </Button>
   );
 }

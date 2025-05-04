@@ -59,12 +59,19 @@ export async function AppSidebar() {
   return (
   <Sidebar>
     <SidebarHeader>
-      <Link href={user ? '/home' : '/'} className="pt-1 pl-1">
-        <Image src={'/logo.png'} alt='logo' width={150} height={20} />
-      </Link>
-      
-      {isPremiumUser(user?.id) && <DarkModeToggle />}
+      <div className="flex items-center justify-between w-full px-2 py-1">
+        <Link href={user ? '/home' : '/'}>
+          <Image
+            src={'/logo.png'}
+            alt='logo'
+            width={150}
+            height={20}
+            className="dark:invert"
+          />
+        </Link>
 
+        {isPremiumUser(user?.id) && <DarkModeToggle />}
+      </div>
       <SidebarSeparator />
       <SidebarMenu>
               {items.map((item) => (
