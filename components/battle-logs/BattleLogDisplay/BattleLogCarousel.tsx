@@ -25,11 +25,11 @@ export function BattleLogCarousel(props: BattleLogCarouselProps) {
     
     function getCardBackgroundColor(index: number, section: BattleLogTurn): string | undefined {
         if (index % 2 == 0 && !section.turnTitle.includes(BattleLogDetectedStrings[props.battleLog.language].setup)) {
-            return 'bg-blue-100';
+            return 'bg-blue-100 dark:bg-blue-900';
           } else if (index % 2 == 1 && !section.turnTitle.includes(BattleLogDetectedStrings[props.battleLog.language].setup)) {
-            return 'bg-red-100';
+            return 'bg-red-100 dark:bg-red-900';
           }
-          return 'bg-gray-100';
+          return 'bg-gray-100 dark:bg-gray-900';
     }
 
   return (
@@ -37,7 +37,7 @@ export function BattleLogCarousel(props: BattleLogCarouselProps) {
         {props.battleLog.sections.map((section, index) => (
           <Card className={` ${getCardBackgroundColor(index, section)}`}>
             <CardHeader>
-              <CardTitle>{section.turnTitle}</CardTitle>
+              <CardTitle className="dark:text-white">{section.turnTitle}</CardTitle>
               {index > 0 && (
                 <CardDescription>
                   {Object.entries(section.prizesAfterTurn).map(([playerName, prizesRemaining]) => {
