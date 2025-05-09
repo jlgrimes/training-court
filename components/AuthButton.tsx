@@ -13,6 +13,7 @@ export default async function AuthButton() {
     "use server";
 
     const supabase = createClient();
+    localStorage.removeItem('darkMode');
     await supabase.auth.signOut();
     return redirect("/login");
   };

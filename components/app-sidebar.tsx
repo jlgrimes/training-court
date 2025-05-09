@@ -21,6 +21,8 @@ import { MyProfileAvatar } from "./app-bar/MyProfileAvatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { LogOutButton } from "./app-bar/LogOutButton";
 import { isUserAnAdmin } from "./admin/admin.utils";
+import { DarkModeToggle } from "./theme/DarkModeToggle";
+import { isPremiumUser } from "./premium/premium.utils";
  
 const items = [
   {
@@ -57,9 +59,19 @@ export async function AppSidebar() {
   return (
   <Sidebar>
     <SidebarHeader>
-      <Link href={user ? '/home' : '/'} className="pt-1 pl-1">
-        <Image src={'/logo.png'} alt='logo' width={150} height={20} />
-      </Link>
+      <div className="flex items-center justify-between w-full px-2 py-1">
+        <Link href={user ? '/home' : '/'}>
+          <Image
+            src={'/logo.png'}
+            alt='logo'
+            width={150}
+            height={20}
+            className="dark:invert"
+          />
+        </Link>
+
+        {isPremiumUser(user?.id) && <DarkModeToggle />}
+      </div>
       <SidebarSeparator />
       <SidebarMenu>
               {items.map((item) => (

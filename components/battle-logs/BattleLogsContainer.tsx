@@ -135,7 +135,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
               />
             )}
 
-            {(sortBy === 'Deck' || sortBy === 'All') && (
+            {(sortBy === 'All') && (
               <BattleLogsPaginationByDay
                 page={page}
                 onPageChange={setPage}

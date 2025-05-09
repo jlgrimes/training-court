@@ -26,7 +26,8 @@ export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="my-2">{props.battleLogs.length} total battle logs</Label>
+      {/* <Label className="my-2">{props.battleLogs.length} total battle logs</Label> */}
+      <Label className="my-2"> </Label>
       {props.battleLogs.map((battleLog) => (
         <EditableBattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} isEditing={props.isEditing} />
       ))}
