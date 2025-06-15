@@ -26,7 +26,7 @@ export const DeckMatchupsDetail = (props: DeckMatchupDetailProps) => {
           </Button>
         </div>
         <CardHeader className="items-start">
-          <CardTitle className="flex items-center gap-4"><Sprite name={props.deckName} />{capitalizeName(props.deckName)}</CardTitle>
+          <CardTitle className="flex items-center gap-4 dark:text-gray-100"><Sprite name={props.deckName} />{capitalizeName(props.deckName)}</CardTitle>
         </CardHeader>
       <CardContent>
       <MatchupsTable
