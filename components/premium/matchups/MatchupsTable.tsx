@@ -6,7 +6,6 @@ import { useCallback, useState } from "react";
 import { MatchupsSortBy, MatchupsSortState } from "./sort/sort.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { capitalizeName } from "@/components/battle-logs/utils/battle-log.utils";
-import { format, formatDistanceToNowStrict } from "date-fns";
 import { getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate } from "./Matchups.utils";
 import { sortMatchupResults } from "./sort/sort.utils";
 import { MatchupResult } from "./Matchups.types";
@@ -73,7 +72,7 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-      {props.matchups.sort(sortMatchupResults(sort.by, sort.type)).map(([deck, result]) => {
+      {props.matchups.slice().sort(sortMatchupResults(sort.by, sort.type)).map(([deck, result]) => {
          const winRateAgainstDeck = getMatchupWinRate(result.total);
 
         return (

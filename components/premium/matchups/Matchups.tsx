@@ -1,29 +1,29 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { generalizeAllMatchupDecks, getTotalDeckMatchupResult } from "./Matchups.utils";
-import { DeckMatchup, MatchupProps, MatchupResult } from "./Matchups.types";
+import { useEffect, useState } from "react";
+import { MatchupProps } from "./Matchups.types";
 import { PremiumHeader } from "../PremiumHeader";
 import { DeckMatchupsDetail } from "./DeckMatchupsDetail";
 import { MatchupsTable } from "./MatchupsTable";
 import { useMatchups } from "@/hooks/matchups/useMatchups";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { deckMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
+import { deckMatchupsAtom } from "./recoil-matchups/deckMatchupAtom";
 
 export const Matchups = (props: MatchupProps) => {
   const { data: matchups, isLoading } = useMatchups(props.userId);
 
-  const [matchupDetailView, setMatchupDetailView] = useState<string | undefined>()
+ const setDeckMatchups = useSetRecoilState(deckMatchupsAtom);
 
-  const deckMatchupsMappedToResults = useMemo(() => {
-    const results: [string, MatchupResult][] = Object.entries(matchups ?? {}).map(([deck, deckMatchup]) => {
-      const matchup: [string, MatchupResult] = [
-        deck,
-        getTotalDeckMatchupResult(deckMatchup)
-      ];
-      return matchup;
-    })
-    return results;
-  }, [matchups]);
+  const [matchupDetailView, setMatchupDetailView] = useState<string | undefined>()
+  const deckMatchupsMappedToResults = useRecoilValue(deckMatchupsSelector);
+
+  useEffect(() => {
+    if (matchups) {
+      setDeckMatchups(matchups);
+    }
+  }, [matchups, setDeckMatchups]);
 
   return (
     <div className="flex flex-col gap-4">
