@@ -5,13 +5,10 @@ import './globals.css';
 import HeaderBreadcrumbs from '@/components/app-bar/HeaderBreadcrumbs';
 import {
   SidebarProvider,
-  SidebarSeparator,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Separator } from '@/components/ui/separator';
 import { RecoilProvider } from './recoil/recoil-provider';
-import { RecoilRoot } from 'recoil';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
 
