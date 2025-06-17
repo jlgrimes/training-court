@@ -4,7 +4,7 @@ import { fetchCurrentUser } from '@/components/auth.utils';
 import { BattleLogsHomePreview } from '@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview';
 import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome/TournamentsHomePreview';
 import { isPremiumUser } from '@/components/premium/premium.utils';
-import { Matchups } from '@/components/premium/matchups/Matchups';
+import { MatchupsOverview } from '@/components/premium/matchups/MatchupsOverview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
 
 export default async function Profile() {
@@ -23,7 +23,7 @@ export default async function Profile() {
         <TournamentsHomePreview user={user} />
       </div>
       {isPremiumUser(user.id) && (
-        <Matchups userId={user.id} shouldDisableDrillDown />
+        <MatchupsOverview userId={user.id} shouldDisableDrillDown />
       )}
     </>
   );

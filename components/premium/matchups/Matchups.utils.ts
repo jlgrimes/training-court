@@ -208,3 +208,34 @@ export const generalizeAllMatchupDecks = (matchups: Matchups) => {
 
   return newMatchups;
 }
+
+export const flattenMatchupsToDeckSummary = (nestedMatchups: Matchups): [string, MatchupResult][] => {
+  return Object.entries(nestedMatchups).map(([deck, oppDecks]) => {
+    const summary: MatchupResult = {
+      total: [0, 0, 0],
+      goingFirst: [0, 0, 0],
+      goingSecond: [0, 0, 0],
+      lastPlayed: new Date(0),
+    };
+
+    for (const result of Object.values(oppDecks)) {
+      summary.total[0] += result.total[0];
+      summary.total[1] += result.total[1];
+      summary.total[2] += result.total[2];
+
+      summary.goingFirst[0] += result.goingFirst[0];
+      summary.goingFirst[1] += result.goingFirst[1];
+      summary.goingFirst[2] += result.goingFirst[2];
+
+      summary.goingSecond[0] += result.goingSecond[0];
+      summary.goingSecond[1] += result.goingSecond[1];
+      summary.goingSecond[2] += result.goingSecond[2];
+
+      if (result.lastPlayed > summary.lastPlayed) {
+        summary.lastPlayed = result.lastPlayed;
+      }
+    }
+
+    return [deck, summary];
+  });
+};

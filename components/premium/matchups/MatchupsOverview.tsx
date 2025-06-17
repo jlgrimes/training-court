@@ -1,0 +1,83 @@
+'use client';
+
+import { useEffect, useMemo, useState } from "react";
+import { MatchupProps, MatchupResult, Matchups } from "./Matchups.types";
+import { PremiumHeader } from "../PremiumHeader";
+import { DeckMatchupsDetail } from "./DeckMatchupsDetail";
+import { MatchupsTable } from "./MatchupsTable";
+import { useMatchups } from "@/hooks/matchups/useMatchups";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { deckMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
+import { deckMatchupsAtom } from "./recoil-matchups/deckMatchupAtom";
+import { convertRpcRetToMatchups } from "./CombinedMatchups/CombinedMatchups.utils";
+import { flattenMatchupsToDeckSummary } from "./Matchups.utils";
+import { ToggleGroup } from "@/components/ui/toggle-group";
+import { ToggleGroupItem } from "@/components/ui/toggle-group";
+
+export const MatchupsOverview = (props: MatchupProps) => {
+  const { data: rawResults, isLoading } = useMatchups(props.userId);
+  const [sourceFilter, setSourceFilter] = useState<string[]>([
+    "Battle Logs",
+    "Tournament Rounds"
+  ]);
+  const [matchupDetailView, setMatchupDetailView] = useState<string | undefined>();
+
+  const filteredAndTransformedMatchups = useMemo(() => {
+    if (!rawResults) return null;
+
+    const filtered =
+      sourceFilter.length === 0
+        ? [] // show nothing if nothing selected
+        : rawResults.filter((r) => sourceFilter.includes(r.source));
+
+    return convertRpcRetToMatchups(filtered);
+  }, [rawResults, sourceFilter]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-between items-center flex-wrap gap-2">
+        <h1 className="text-xl tracking-wide font-semibold">Matchups</h1>
+
+        <ToggleGroup
+          type="multiple"
+          variant="outline"
+          value={sourceFilter}
+          onValueChange={(val) => setSourceFilter(val)}
+        >
+          {/* <ToggleGroupItem value="all" aria-label="All Sources">All</ToggleGroupItem> */}
+          <ToggleGroupItem value="Battle Logs" aria-label="Battle Logs">Battle Logs</ToggleGroupItem>
+          <ToggleGroupItem value="Tournament Rounds" aria-label="Tournament Rounds">Tournament Rounds</ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      {isLoading && (
+        <div className="flex flex-col gap-2">
+          <Skeleton className="w-full h-[47px] rounded-xl" />
+          <Skeleton className="w-full h-[47px] rounded-xl" />
+          <Skeleton className="w-full h-[47px] rounded-xl" />
+          <Skeleton className="w-full h-[47px] rounded-xl" />
+          <Skeleton className="w-full h-[47px] rounded-xl" />
+        </div>
+      )}
+
+      {filteredAndTransformedMatchups && (
+        <>
+          {matchupDetailView ? (
+            <DeckMatchupsDetail
+              deckName={matchupDetailView}
+              deckMatchup={filteredAndTransformedMatchups[matchupDetailView]}
+              handleExitDetailView={() => setMatchupDetailView(undefined)}
+            />
+          ) : (
+            <MatchupsTable
+              matchups={flattenMatchupsToDeckSummary(filteredAndTransformedMatchups)}
+              onRowClick={(deck) => setMatchupDetailView(deck)}
+            />
+
+          )}
+        </>
+      )}
+    </div>
+  );
+};

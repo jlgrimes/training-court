@@ -10,6 +10,9 @@ export async function fetchMatchups(userId: string | undefined) {
 
   if (!data) return null;
 
-  const matchups = convertRpcRetToMatchups(data);
-  return matchups;
+  console.log(data)
+
+  // const matchups = convertRpcRetToMatchups(data);
+  // return matchups;
+  return data;
 }
