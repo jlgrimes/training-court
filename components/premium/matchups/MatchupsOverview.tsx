@@ -36,7 +36,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center flex-wrap gap-2">
+      <div className="flex justify-between items-center">
         <h1 className="text-xl tracking-wide font-semibold">Matchups</h1>
 
         <ToggleGroup
