@@ -30,6 +30,7 @@ interface TournamentContainerClientProps {
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
+  // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to + "T00:00:00Z") });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
@@ -95,7 +96,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
               <div className="flex gap-1 mt-1 no-wrap">
                 {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
                 {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
-                {/* {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)} */}
+                {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)}
               </div>
             </div>
   

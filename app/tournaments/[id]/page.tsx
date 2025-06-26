@@ -12,6 +12,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function TournamentPage({ params }: { params: { id: string } }) {
+  //@TODO: FetchTournament happens here and also in the TournamentContainer. This should be pushed to recoil so the call is made only once.
   const tournamentData = await fetchTournament(params.id);
 
   if (!tournamentData) {

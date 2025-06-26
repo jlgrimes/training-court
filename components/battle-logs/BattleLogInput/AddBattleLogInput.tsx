@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
-import { ClipboardPaste, Plus, X } from 'lucide-react';
+import { ClipboardPaste, X } from 'lucide-react';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -145,7 +145,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       {!log &&
       <Button
       size="sm"
-      // variant="outline"
       className="absolute top-2 right-2 z-10"
       onClick={async () => {
           try {
@@ -204,20 +203,20 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                 <Label>Opponent's Deck</Label>
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
 
-                {/* @TODO: Implement format */}
-                {/* <Label>Format</Label>
-                <Select value={format} onValueChange={(value) => setFormat(value as LogFormats)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select format" />
-                </SelectTrigger>
-                <SelectContent>
-                  {logFormats.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-                </Select> */}
+                <Label>Format</Label>
+                  <Select value={format} onValueChange={(value) => setFormat(value as LogFormats)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {logFormats.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
               {/* @TODO: Should we be able to toggle who won or lost? How much should a user be able to adjust against our parsing algo? */}
               <Label>{username}'s Result: {parsedLogDetails.result}</Label>
             </>
