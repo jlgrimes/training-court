@@ -33,6 +33,45 @@ const associatedPokemon = [{
 }, {
   association: 'venonat',
   deck: 'venomoth'
+},{
+  association: 'impidimp',
+  deck: 'grimmsnarl,froslass'
+},{
+  association: 'raging-bolt',
+  deck: 'raging-bolt,ogerpon'
+},{
+  association: 'joltik',
+  deck: 'joltik,pikachu'
+},{
+  association: 'tarountula',
+  deck: 'spidops,mewtwo'
+},{
+  association: 'cyndaquil',
+  deck: 'typhlosion'
+},{
+  association: 'flareon',
+  deck: 'flareon'
+},{
+  association: 'gimmeghoul',
+  deck: 'gholdengo'
+},{
+  association: 'toedscool',
+  deck: 'toedscruel'
+},{
+  association: 'zorua',
+  deck: 'zoroark'
+},{
+  association: 'ceruledge',
+  deck: 'ceruledge'
+},{
+  association: 'chansey',
+  deck: 'blissey'
+},{
+  association: 'girafarig',
+  deck: 'milotic,girafarig'
+},{
+  association: 'feebas',
+  deck: 'milotic,girafarig'
 }]
 
 // TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...

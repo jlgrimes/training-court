@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
-import { X } from 'lucide-react';
+import { ClipboardPaste, Plus, X } from 'lucide-react';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -137,15 +137,57 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       <Textarea
         className="resize-none"
         disabled={!props.userData?.live_screen_name}
-        placeholder="Paste battle log from PTCG Live here"
+        placeholder="Paste PTCGL log here"
         value={log}
         onPaste={handlePaste}
         onChange={(e) => setLog(e.target.value)}
       />
-      <div className="flex gap-2">
-        {/* <Button size="sm" onClick={handleAddButtonClick} disabled={isAddButtonDisabled}>Add new game</Button> */}
-        {log &&<Button size="sm" variant={log ? "outline" : "secondary"} disabled={!log} className="absolute top-2 right-2 z-10" onClick={handleClear}><X className="h-4 w-4"/></Button>}
-      </div>
+      {!log &&
+      <Button
+      size="sm"
+      // variant="outline"
+      className="absolute top-2 right-2 z-10"
+      onClick={async () => {
+          try {
+            const text = await navigator.clipboard.readText();
+            if (!text) {
+              return toast({
+                variant: "destructive",
+                title: "Clipboard is empty",
+                description: "Please copy a battle log first."
+              });
+            }
+
+            setLog(text);
+            const parsed = parseBattleLog(text, '', '', '', '', null);
+            const details = getBattleLogMetadataFromLog(parsed, props.userData?.live_screen_name);
+            setParsedLogDetails(details);
+            setShowDialog(true);
+          } catch (error) {
+            toast({
+              variant: "destructive",
+              title: "Failed to parse clipboard contents",
+              description: `${error}`,
+            });
+          }
+        }}
+        >
+      <ClipboardPaste className="mr-2 h-4 w-4" />
+        Add Log
+      </Button>
+      }
+
+      {log && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="absolute top-2 right-2 z-10"
+          onClick={handleClear}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
+      
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
