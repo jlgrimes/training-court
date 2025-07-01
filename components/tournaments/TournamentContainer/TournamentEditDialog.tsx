@@ -118,9 +118,9 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
             </SelectTrigger>
 
             <Select value={tournamentFormat ? (tournamentFormat as string) : undefined} onValueChange={(value) => setTournamentFormat(value as TournamentFormats)}>
-              {/* <SelectTrigger>
+              <SelectTrigger>
                 <SelectValue placeholder="Select format" />
-              </SelectTrigger> */}
+              </SelectTrigger>
               <SelectContent>
                 {tournamentFormats.map((format) => (
                   <SelectItem key={format} value={format}>
