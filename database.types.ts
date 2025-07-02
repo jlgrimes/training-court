@@ -395,6 +395,21 @@ export type Database = {
           turn_order: string
           date: string
         }[]
+      },
+      get_user_tournament_and_battle_logs_v2: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          source: string
+          deck: string
+          opp_deck: string
+          result: string
+          match_end_reason: string
+          turn_order: string
+          date: string,
+          format: string
+        }[]
       }
       getusertournamentresults: {
         Args: {

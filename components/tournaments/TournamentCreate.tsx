@@ -61,7 +61,6 @@ export default function TournamentCreate({ userId }: { userId: string }) {
       })
       setIsCreatingTournament(false);
     } else {
-      //@TODO: This should show a loader on the button until the page is done loading.
       window.location.href = `/tournaments/${data[0].id}`;
     }
   }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId]);

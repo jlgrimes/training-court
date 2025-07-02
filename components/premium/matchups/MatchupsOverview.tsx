@@ -14,6 +14,8 @@ import { convertRpcRetToMatchups } from "./CombinedMatchups/CombinedMatchups.uti
 import { flattenMatchupsToDeckSummary } from "./Matchups.utils";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { tournamentFormats } from "@/components/tournaments/Format/tournament-format.types";
 
 export const MatchupsOverview = (props: MatchupProps) => {
   const { data: rawResults, isLoading } = useMatchups(props.userId);
@@ -22,17 +24,21 @@ export const MatchupsOverview = (props: MatchupProps) => {
     "Tournament Rounds"
   ]);
   const [matchupDetailView, setMatchupDetailView] = useState<string | undefined>();
+  const [formatFilter, setFormatFilter] = useState<string | null>(null);
 
   const filteredAndTransformedMatchups = useMemo(() => {
     if (!rawResults) return null;
 
-    const filtered =
-      sourceFilter.length === 0
-        ? [] // show nothing if nothing selected
-        : rawResults.filter((r) => sourceFilter.includes(r.source));
+      const filtered =
+        sourceFilter.length === 0
+          ? []
+          : rawResults.filter((r) =>
+              sourceFilter.includes(r.source) &&
+              (!formatFilter || r.format === formatFilter)
+            );
 
-    return convertRpcRetToMatchups(filtered);
-  }, [rawResults, sourceFilter]);
+      return convertRpcRetToMatchups(filtered);
+    }, [rawResults, sourceFilter, formatFilter]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -48,7 +54,22 @@ export const MatchupsOverview = (props: MatchupProps) => {
           {/* <ToggleGroupItem value="all" aria-label="All Sources">All</ToggleGroupItem> */}
           <ToggleGroupItem value="Battle Logs" aria-label="Battle Logs">Battle Logs</ToggleGroupItem>
           <ToggleGroupItem value="Tournament Rounds" aria-label="Tournament Rounds">Tournament Rounds</ToggleGroupItem>
+
+          <Select onValueChange={(val) => setFormatFilter(val)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All formats" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={"All"}>All formats</SelectItem>
+            {tournamentFormats.map((format) => (
+              <SelectItem key={format} value={format}>
+                {format}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         </ToggleGroup>
+        
       </div>
 
       {isLoading && (
