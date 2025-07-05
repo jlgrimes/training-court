@@ -22,9 +22,9 @@ export default async function Profile() {
         <BattleLogsHomePreview userId={user.id} />
         <TournamentsHomePreview user={user} />
       </div>
-      {isPremiumUser(user.id) && (
+      {/* {isPremiumUser(user.id) && ( */}
         <MatchupsOverview userId={user.id} shouldDisableDrillDown />
-      )}
+      {/* )} */}
     </>
   );
 }
