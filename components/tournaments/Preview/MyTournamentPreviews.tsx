@@ -21,12 +21,12 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: tournaments } = useTournaments(props.user?.id);
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
-  // Known issue on mobile aka a ghostClick. If clicking on a dropdown menu option, it will pass-through and click the tournament underneath.
+  // @TODO: Known issue on mobile aka a ghostClick. If clicking on a dropdown menu option, it will pass-through and click the tournament underneath.
   // The code relating to dropdown is one StackOverflow suggestion to fix this behavior. Behavior is fine on desktop.
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isInteractionBlocked, setIsInteractionBlocked] = useState(false);
   const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
-  // const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
+  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
   const handleDropdownOpenChange = (open: boolean) => {
     setIsDropdownOpen(open);
@@ -45,16 +45,16 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     [allTournamentCategoryTabs, tournaments]
   );
 
-  // const availableFormats: TournamentFormatsTab[] = ['All'];
-  // tournaments?.forEach((tournament) => {
-  //   if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatsTab)) {
-  //     availableFormats.push(tournament.format as TournamentFormatsTab);
-  //   }
-  // });
+  const availableFormats: TournamentFormatsTab[] = ['All'];
+  tournaments?.forEach((tournament) => {
+    if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatsTab)) {
+      availableFormats.push(tournament.format as TournamentFormatsTab);
+    }
+  });
 
   const filteredTournaments = tournaments?.filter((tournament) =>
     (selectedCat === 'all' || tournament.category === selectedCat) 
-  // &&  (selectedFormat === 'All' || tournament.format === selectedFormat)
+  &&  (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
 
   if (tournaments && tournaments?.length === 0) {
@@ -93,7 +93,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         </Select>
 
           {/* @TODO: Implement Format */}
-      {/* <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
+      <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
         <SelectTrigger>
           <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
         </SelectTrigger>
@@ -109,7 +109,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
             </SelectItem>
           ))}
         </SelectContent>
-      </Select> */}
+      </Select>
       </div>
 
       <div className={isInteractionBlocked ? 'pointer-events-none' : ''}>
