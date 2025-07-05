@@ -24,7 +24,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
     "Tournament Rounds"
   ]);
   const [matchupDetailView, setMatchupDetailView] = useState<string | undefined>();
-  const [formatFilter, setFormatFilter] = useState<string | null>(null);
+  const [formatFilter, setFormatFilter] = useState<string | null>('All');
 
   const filteredAndTransformedMatchups = useMemo(() => {
     if (!rawResults) return null;
@@ -34,7 +34,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
           ? []
           : rawResults.filter((r) =>
               sourceFilter.includes(r.source) &&
-              (!formatFilter || r.format === formatFilter)
+              (formatFilter === null || formatFilter === 'All' || r.format === formatFilter)
             );
 
       return convertRpcRetToMatchups(filtered);
