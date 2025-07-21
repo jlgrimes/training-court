@@ -5,6 +5,6 @@ export type LogFormats = 'SVI-DRI' | 'SVI-JTG' | 'BRS-PRE' | 'BRS-SSP' | 'BRS-SC
 export type LogFormatsTab = LogFormats | 'All';
 export const logFormats: LogFormats[] = ['SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR']
 
-export type TournamentFormats = 'SVI-DRI' | 'SVI-JTG' | 'BRS-PRE' | 'BRS-SSP' | 'BRS-SCR' | 'PTCG Pocket' | 'GLC' ;
+export type TournamentFormats = 'SVI-WHT/BLK' | 'SVI-DRI' | 'SVI-JTG' | 'BRS-PRE' | 'BRS-SSP' | 'BRS-SCR' | 'PTCG Pocket' | 'GLC' ;
 export type TournamentFormatsTab = TournamentFormats | 'All';
-export const tournamentFormats: TournamentFormats[] = ['SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR', 'PTCG Pocket', 'GLC']
+export const tournamentFormats: TournamentFormats[] = ['SVI-WHT/BLK', 'SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR', 'PTCG Pocket', 'GLC']
