@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import { ClipboardPaste, X } from 'lucide-react';
+import Link from 'next/link';
 import { useBattleLogs } from '@/app/recoil/hooks/useBattleLogs';
 import { useUI } from '@/app/recoil/hooks/useUI';
 import { usePreferences } from '@/app/recoil/hooks/usePreferences';
@@ -46,14 +47,43 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
   } | null>(null);
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
+  const [activeDeck, setActiveDeck] = useState<{ name: string } | null>(null);
   const username = userData?.live_screen_name;
+
+  useEffect(() => {
+    // Fetch active deck
+    const fetchActiveDeck = async () => {
+      if (!userData?.id) return;
+      
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('decks')
+        .select('name')
+        .eq('user_id', userData.id)
+        .eq('is_active', true)
+        .single();
+      
+      if (data && !error) {
+        setActiveDeck(data);
+        // Only set archetype from active deck if there's no parsed log details
+        if (!parsedLogDetails) {
+          setArchetype(data.name);
+        }
+      }
+    };
+    
+    fetchActiveDeck();
+  }, [userData?.id]);
 
   useEffect(() => {
     if (parsedLogDetails) {
       setArchetype(parsedLogDetails.archetype ?? '');
       setOppArchetype(parsedLogDetails.opp_archetype ?? '');
+    } else if (activeDeck && !archetype) {
+      // Use active deck if no parsed details and no archetype set
+      setArchetype(activeDeck.name);
     }
-  }, [parsedLogDetails]);
+  }, [parsedLogDetails, activeDeck]);
 
   const handleFileInput = async () => {
     try {
@@ -252,10 +282,22 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
                 Your Deck
               </Label>
               <div className="col-span-3">
-                <AddArchetype
-                  archetype={archetype}
-                  setArchetype={setArchetype}
-                />
+                <div className="space-y-2">
+                  <AddArchetype
+                    archetype={archetype}
+                    setArchetype={setArchetype}
+                  />
+                  {activeDeck && archetype === activeDeck.name && (
+                    <p className="text-sm text-muted-foreground">
+                      Using your active deck: {activeDeck.name}
+                    </p>
+                  )}
+                  {!activeDeck && (
+                    <p className="text-sm text-muted-foreground">
+                      No active deck set. <Link href="/decks" className="text-primary hover:underline">Manage your decks</Link>
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
             

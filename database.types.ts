@@ -55,6 +55,56 @@ export type Database = {
           },
         ]
       }
+      decks: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          format: string
+          list: Json
+          pokemon_count: number
+          trainer_count: number
+          energy_count: number
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          format: string
+          list?: Json
+          pokemon_count?: number
+          trainer_count?: number
+          energy_count?: number
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          format?: string
+          list?: Json
+          pokemon_count?: number
+          trainer_count?: number
+          energy_count?: number
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       "friend requests": {
         Row: {
           created_at: string | null
