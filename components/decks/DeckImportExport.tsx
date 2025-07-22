@@ -174,7 +174,23 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
           cardNumber = nameSetMatch[3];
         }
         
-        console.log('Parsed card:', { count, cardName, cardSet, cardNumber });
+        // Special handling for basic energy which often don't have set codes
+        const energyMatch = cardName.match(/^(.*?)\s*Energy\s*$/i);
+        if (energyMatch && !cardSet) {
+          // It's a basic energy without set info
+          cardSet = 'energy';
+          cardNumber = '1';
+        }
+        
+        // Also handle energy cards with just type (e.g., "Fire", "Water")
+        const basicTypes = ['fire', 'water', 'grass', 'lightning', 'psychic', 'fighting', 'darkness', 'metal', 'fairy', 'dragon', 'colorless'];
+        if (!cardSet && basicTypes.includes(cardName.toLowerCase())) {
+          cardName = cardName + ' Energy';
+          cardSet = 'energy';
+          cardNumber = '1';
+        }
+        
+        console.log('Parsed card:', { count, cardName, cardSet, cardNumber, section: currentSection });
         
         // Auto-detect card type if no sections
         let supertype = 'Pokémon';
@@ -185,15 +201,33 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
         } else if (currentSection === 'auto') {
           // Auto-detect based on card name patterns
           const nameLower = cardName.toLowerCase();
-          if (nameLower.includes('energy')) {
+          if (nameLower.includes('energy') || nameLower.endsWith(' e')) {
             supertype = 'Energy';
           } else if (
+            // Trainer keywords
             nameLower.includes('professor') || nameLower.includes('boss') ||
             nameLower.includes('ball') || nameLower.includes('stadium') ||
             nameLower.includes('tool') || nameLower.includes('supporter') ||
             nameLower.includes('item') || nameLower.includes('switch') ||
             nameLower.includes('research') || nameLower.includes('marnie') ||
-            nameLower.includes('catcher') || nameLower.includes('belt')
+            nameLower.includes('catcher') || nameLower.includes('belt') ||
+            nameLower.includes('net') || nameLower.includes('radar') ||
+            nameLower.includes('court') || nameLower.includes('phone') ||
+            nameLower.includes('pad') || nameLower.includes('kit') ||
+            nameLower.includes('spray') || nameLower.includes('potion') ||
+            nameLower.includes('colress') || nameLower.includes('iono') ||
+            nameLower.includes('judge') || nameLower.includes('roxanne') ||
+            nameLower.includes('raihan') || nameLower.includes('melony') ||
+            nameLower.includes('cheren') || nameLower.includes('hop') ||
+            nameLower.includes('sonia') || nameLower.includes('bird keeper') ||
+            nameLower.includes('team') || nameLower.includes('poke') ||
+            nameLower.includes('training') || nameLower.includes('rescue') ||
+            nameLower.includes('scroll') || nameLower.includes('tablet') ||
+            nameLower.includes('rope') || nameLower.includes('whistle') ||
+            nameLower.includes('cart') || nameLower.includes('order') ||
+            nameLower.includes('path') || nameLower.includes('valley') ||
+            nameLower.includes('temple') || nameLower.includes('beach') ||
+            nameLower.includes('city') || nameLower.includes('tower')
           ) {
             supertype = 'Trainer';
           } else {
@@ -224,7 +258,18 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
       }
     }
 
-    console.log('Parsing complete:', { cards, pokemonCount, trainerCount, energyCount });
+    console.log('Parsing complete:', { 
+      totalCards: cards.length,
+      pokemonCount, 
+      trainerCount, 
+      energyCount,
+      totalCount: pokemonCount + trainerCount + energyCount,
+      cards: cards.map(c => ({
+        name: c.card.name,
+        count: c.count,
+        type: c.card.supertype
+      }))
+    });
     
     return {
       cards,
@@ -414,7 +459,10 @@ Trainer - 36
 
 Energy - 12
 4 Fire Energy
-8 Lightning Energy`}
+8 Lightning Energy
+or
+4 Fire Energy 2
+8 Basic Lightning Energy`}
               rows={15}
               readOnly={!!editingDeck}
               className={editingDeck ? 'font-mono text-sm' : ''}
