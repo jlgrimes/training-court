@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Trash2, Star, Download, Copy } from 'lucide-react';
+import { Upload, Trash2, Star, Download, Copy, Eye } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { DeckImportExport } from './DeckImportExport';
+import { DeckViewer } from './DeckViewer';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { createClient } from '@/utils/supabase/client';
@@ -32,6 +33,7 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
   const [loading, setLoading] = useState(true);
   const [deckBuilderOpen, setDeckBuilderOpen] = useState(false);
   const [editingDeck, setEditingDeck] = useState<Deck | null>(null);
+  const [viewingDeck, setViewingDeck] = useState<Deck | null>(null);
   const [tableExists, setTableExists] = useState(true);
   const { toast } = useToast();
   const supabase = createClient();
@@ -80,6 +82,10 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
     // Export deck logic will be in DeckBuilder
     setEditingDeck(deck);
     setDeckBuilderOpen(true);
+  };
+
+  const handleViewDeck = (deck: Deck) => {
+    setViewingDeck(deck);
   };
 
   const handleDeleteDeck = async (deckId: string) => {
@@ -312,6 +318,14 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
                     <Button
                       size="sm"
                       variant="outline"
+                      onClick={() => handleViewDeck(deck)}
+                      title="View deck"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => handleExportDeck(deck)}
                       title="Export deck list"
                     >
@@ -362,6 +376,12 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
         onSave={handleDeckSaved}
         editingDeck={editingDeck}
         userId={userId}
+      />
+
+      <DeckViewer
+        open={!!viewingDeck}
+        onClose={() => setViewingDeck(null)}
+        deck={viewingDeck}
       />
     </div>
   );
