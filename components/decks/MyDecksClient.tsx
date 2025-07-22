@@ -32,6 +32,7 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
   const [loading, setLoading] = useState(true);
   const [deckBuilderOpen, setDeckBuilderOpen] = useState(false);
   const [editingDeck, setEditingDeck] = useState<Deck | null>(null);
+  const [tableExists, setTableExists] = useState(true);
   const { toast } = useToast();
   const supabase = createClient();
 
@@ -47,7 +48,16 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '42P01') {
+          console.error('Decks table not found. Please run the migration.');
+          // Don't throw, just set empty decks
+          setDecks([]);
+          setTableExists(false);
+          return;
+        }
+        throw error;
+      }
       setDecks(data || []);
     } catch (error) {
       console.error('Failed to load decks:', error);
@@ -184,6 +194,41 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center">Loading your decks...</div>
+      </div>
+    );
+  }
+
+  if (!tableExists) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Database Setup Required</CardTitle>
+            <CardDescription>
+              The decks feature requires database setup. Please run the following SQL in your Supabase SQL Editor:
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
+              <code>{`CREATE TABLE IF NOT EXISTS public.decks (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  format TEXT NOT NULL CHECK (format IN ('Standard', 'Expanded')),
+  list JSONB NOT NULL DEFAULT '{}',
+  pokemon_count INTEGER NOT NULL DEFAULT 0,
+  trainer_count INTEGER NOT NULL DEFAULT 0,
+  energy_count INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);`}</code>
+            </pre>
+            <p className="text-sm text-muted-foreground mt-4">
+              See the full migration file at: <code>supabase/migrations/20240722_create_decks_table.sql</code>
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

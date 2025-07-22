@@ -216,11 +216,25 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
       
       onSave(data);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to import deck:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      let errorMessage = 'Failed to import deck.';
+      if (error.code === '42P01') {
+        errorMessage = 'Decks table not found. Please contact support to set up the database.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: 'Error',
-        description: 'Failed to import deck. Please check the format.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
