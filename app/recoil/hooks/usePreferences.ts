@@ -8,6 +8,7 @@ import {
   UserPreferences,
 } from '../atoms/preferences';
 import { userAtom } from '../atoms/user';
+import { createClient } from '@/utils/supabase/client';
 
 const PREFERENCES_STORAGE_KEY = 'training-court-preferences';
 
@@ -76,30 +77,50 @@ export function usePreferences() {
     localStorage.removeItem(PREFERENCES_STORAGE_KEY);
   }, [setPreferences]);
 
-  const savePreferences = useCallback(() => {
+  const savePreferences = useCallback(async () => {
+    // Save to localStorage
     localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
-  }, [preferences]);
+    
+    // Save game preferences to database if user is logged in
+    if (user?.id && preferences.games) {
+      const supabase = createClient();
+      const selectedGames = [];
+      if (preferences.games.tradingCardGame) selectedGames.push('tcg');
+      if (preferences.games.videoGame) selectedGames.push('video');
+      if (preferences.games.pocket) selectedGames.push('pocket');
+      
+      await supabase
+        .from('profiles')
+        .update({ selected_games: selectedGames })
+        .eq('id', user.id);
+    }
+  }, [preferences, user]);
 
-  const loadPreferences = useCallback(() => {
+  const loadPreferences = useCallback(async () => {
     setLoading(true);
     try {
       const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
+      let loadedPreferences = stored ? JSON.parse(stored) : {};
+      
+      // If user is logged in, load game preferences from database
+      if (user?.id) {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('profiles')
+          .select('selected_games')
+          .eq('id', user.id)
+          .single();
         
-        // If user has game preferences in metadata and no games stored locally, use metadata
-        if (user?.user_metadata?.games && !parsed.games) {
-          parsed.games = user.user_metadata.games;
+        if (data?.selected_games) {
+          loadedPreferences.games = {
+            tradingCardGame: data.selected_games.includes('tcg'),
+            videoGame: data.selected_games.includes('video'),
+            pocket: data.selected_games.includes('pocket'),
+          };
         }
-        
-        setPreferences(parsed);
-      } else if (user?.user_metadata?.games) {
-        // If no stored preferences but user has game metadata, use it
-        setPreferences(prev => ({
-          ...prev,
-          games: user.user_metadata.games,
-        }));
       }
+      
+      setPreferences(prev => ({ ...prev, ...loadedPreferences }));
     } catch (error) {
       console.error('Failed to load preferences:', error);
     } finally {
@@ -110,14 +131,14 @@ export function usePreferences() {
   // Load preferences on mount and when user changes
   useEffect(() => {
     loadPreferences();
-  }, [loadPreferences]);
+  }, [user?.id]); // Only re-load when user ID changes
 
   // Save preferences when they change
   useEffect(() => {
     if (!loading) {
       savePreferences();
     }
-  }, [preferences, loading, savePreferences]);
+  }, [preferences, loading]);
 
   return {
     preferences,

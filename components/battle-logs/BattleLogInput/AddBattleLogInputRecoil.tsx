@@ -294,7 +294,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
                   )}
                   {!activeDeck && (
                     <p className="text-sm text-muted-foreground">
-                      No active deck set. <Link href="/decks" className="text-primary hover:underline">Manage your decks</Link>
+                      No active deck set.
                     </p>
                   )}
                 </div>

@@ -2,26 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Trash2, Star, Download, Copy, Eye } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { DeckImportExport } from './DeckImportExport';
-import { DeckViewer } from './DeckViewer';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Plus, Upload, Trash2, Edit, Download, CheckCircle, Eye } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { DeckImportDialog } from './DeckImportDialog';
+import { DeckImportLoading } from './DeckImportLoading';
+import { DeckViewerDialog } from './DeckViewerDialog';
+import { useToast } from '@/components/ui/use-toast';
+import { parseDeckList, fetchCardData } from './deckParser';
 
 interface Deck {
   id: string;
   name: string;
-  format: 'Standard' | 'Expanded';
+  format: string;
   pokemon_count: number;
   trainer_count: number;
   energy_count: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  list?: any; // Card list data
+  list: any; // The deck list data
 }
 
 interface MyDecksClientProps {
@@ -31,16 +32,18 @@ interface MyDecksClientProps {
 export function MyDecksClient({ userId }: MyDecksClientProps) {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deckBuilderOpen, setDeckBuilderOpen] = useState(false);
-  const [editingDeck, setEditingDeck] = useState<Deck | null>(null);
-  const [viewingDeck, setViewingDeck] = useState<Deck | null>(null);
-  const [tableExists, setTableExists] = useState(true);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importLoadingOpen, setImportLoadingOpen] = useState(false);
+  const [importStatus, setImportStatus] = useState('');
+  const [importProgress, setImportProgress] = useState<number | undefined>(undefined);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
   const { toast } = useToast();
   const supabase = createClient();
 
   useEffect(() => {
     loadDecks();
-  }, [userId]);
+  }, []);
 
   const loadDecks = async () => {
     try {
@@ -50,22 +53,13 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        if (error.code === '42P01') {
-          console.error('Decks table not found. Please run the migration.');
-          // Don't throw, just set empty decks
-          setDecks([]);
-          setTableExists(false);
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
       setDecks(data || []);
     } catch (error) {
       console.error('Failed to load decks:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load your decks',
+        description: 'Failed to load decks',
         variant: 'destructive',
       });
     } finally {
@@ -73,36 +67,23 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
     }
   };
 
-  const handleImportDeck = () => {
-    setEditingDeck(null);
-    setDeckBuilderOpen(true);
-  };
+  const handleDelete = async (deckId: string) => {
+    if (!confirm('Are you sure you want to delete this deck?')) return;
 
-  const handleExportDeck = (deck: Deck) => {
-    // Export deck logic will be in DeckBuilder
-    setEditingDeck(deck);
-    setDeckBuilderOpen(true);
-  };
-
-  const handleViewDeck = (deck: Deck) => {
-    setViewingDeck(deck);
-  };
-
-  const handleDeleteDeck = async (deckId: string) => {
     try {
       const { error } = await supabase
         .from('decks')
         .delete()
-        .eq('id', deckId)
-        .eq('user_id', userId);
+        .eq('id', deckId);
 
       if (error) throw error;
 
-      setDecks(decks.filter(d => d.id !== deckId));
       toast({
         title: 'Success',
         description: 'Deck deleted successfully',
       });
+      
+      await loadDecks();
     } catch (error) {
       console.error('Failed to delete deck:', error);
       toast({
@@ -113,33 +94,140 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
     }
   };
 
-  const handleSetActiveDeck = async (deckId: string) => {
-    try {
-      // First, unset any currently active deck
-      await supabase
-        .from('decks')
-        .update({ is_active: false })
-        .eq('user_id', userId)
-        .eq('is_active', true);
+  const handleDeckImported = () => {
+    loadDecks();
+    setImportDialogOpen(false);
+  };
 
-      // Then set the new active deck
+  const handleImportDeck = async (deckName: string, format: 'Standard' | 'Expanded', deckList: string) => {
+    // Close import dialog and show loading dialog
+    setImportDialogOpen(false);
+    setImportLoadingOpen(true);
+    setImportStatus('Parsing deck list...');
+    setImportProgress(undefined);
+
+    try {
+      // Parse the deck list
+      const parsedCards = parseDeckList(deckList);
+      
+      if (parsedCards.length === 0) {
+        throw new Error('No cards found in deck list');
+      }
+
+      setImportStatus(`Found ${parsedCards.length} unique cards. Fetching card data...`);
+
+      // Fetch card data from Pokemon TCG API
+      const cardsWithData = await fetchCardData(parsedCards, (progress) => {
+        setImportProgress(progress);
+        setImportStatus(`Fetching card data... ${progress}%`);
+      });
+
+      // Count card types
+      let pokemonCount = 0;
+      let trainerCount = 0;
+      let energyCount = 0;
+      let totalCount = 0;
+
+      cardsWithData.forEach(({ card, count }) => {
+        totalCount += count;
+        if (card.supertype === 'Pokémon') {
+          pokemonCount += count;
+        } else if (card.supertype === 'Trainer') {
+          trainerCount += count;
+        } else if (card.supertype === 'Energy') {
+          energyCount += count;
+        }
+      });
+
+      if (totalCount !== 60) {
+        toast({
+          title: 'Warning',
+          description: `Deck contains ${totalCount} cards instead of 60`,
+          variant: 'destructive',
+        });
+      }
+
+      setImportStatus('Saving deck...');
+      setImportProgress(undefined);
+
+      // Save to database using the correct schema
+      const deckData = {
+        user_id: userId,
+        name: deckName,
+        format,
+        pokemon_count: pokemonCount,
+        trainer_count: trainerCount,
+        energy_count: energyCount,
+        list: cardsWithData,
+        is_active: false,
+      };
+
       const { error } = await supabase
         .from('decks')
-        .update({ is_active: true })
-        .eq('id', deckId)
-        .eq('user_id', userId);
+        .insert(deckData);
 
       if (error) throw error;
 
-      setDecks(decks.map(d => ({
-        ...d,
-        is_active: d.id === deckId
-      })));
+      toast({
+        title: 'Success',
+        description: 'Deck imported successfully',
+      });
+      
+      // Reload decks
+      await loadDecks();
+    } catch (error: any) {
+      console.error('Import error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to import deck',
+        variant: 'destructive',
+      });
+    } finally {
+      // Close loading dialog
+      setImportLoadingOpen(false);
+      setImportStatus('');
+      setImportProgress(undefined);
+    }
+  };
+
+  const handleViewDeck = (deck: Deck) => {
+    setSelectedDeck(deck);
+    setViewerOpen(true);
+  };
+
+  const handleSetActive = async (deckId: string) => {
+    try {
+      // First, set all decks as inactive
+      const { error: deactivateError } = await supabase
+        .from('decks')
+        .update({ is_active: false })
+        .eq('user_id', userId);
+
+      if (deactivateError) throw deactivateError;
+
+      // Then set the selected deck as active
+      const { error: activateError } = await supabase
+        .from('decks')
+        .update({ is_active: true })
+        .eq('id', deckId);
+
+      if (activateError) throw activateError;
 
       toast({
         title: 'Success',
-        description: 'Active deck updated',
+        description: 'Deck set as active',
       });
+
+      // Reload decks to update UI
+      await loadDecks();
+      
+      // Update the selected deck if it's still open
+      if (selectedDeck?.id === deckId) {
+        const updatedDeck = decks.find(d => d.id === deckId);
+        if (updatedDeck) {
+          setSelectedDeck({ ...updatedDeck, is_active: true });
+        }
+      }
     } catch (error) {
       console.error('Failed to set active deck:', error);
       toast({
@@ -150,239 +238,169 @@ export function MyDecksClient({ userId }: MyDecksClientProps) {
     }
   };
 
-  const handleDuplicateDeck = async (deck: Deck) => {
-    try {
-      const newDeck = {
-        user_id: userId,
-        name: `${deck.name} (Copy)`,
-        format: deck.format,
-        list: deck.list,
-        pokemon_count: deck.pokemon_count,
-        trainer_count: deck.trainer_count,
-        energy_count: deck.energy_count,
-        is_active: false,
-      };
+  const handleExportDeck = (deck: Deck) => {
+    const pokemonCards = deck.list.filter(({ card }: any) => card.supertype === 'Pokémon');
+    const trainerCards = deck.list.filter(({ card }: any) => card.supertype === 'Trainer');
+    const energyCards = deck.list.filter(({ card }: any) => card.supertype === 'Energy');
 
-      const { data, error } = await supabase
-        .from('decks')
-        .insert(newDeck)
-        .select()
-        .single();
+    const formatCardForExport = (card: any, count: number) => {
+      let setCode = card.set?.id || '';
+      let number = card.number || '';
+      return `${count} ${card.name} ${setCode.toUpperCase()} ${number}`;
+    };
 
-      if (error) throw error;
-
-      setDecks([data, ...decks]);
-      toast({
-        title: 'Success',
-        description: 'Deck duplicated successfully',
+    let exportText = '';
+    
+    if (pokemonCards.length > 0) {
+      exportText += `Pokémon: ${deck.pokemon_count}\n`;
+      pokemonCards.forEach(({ card, count }: any) => {
+        exportText += formatCardForExport(card, count) + '\n';
       });
-    } catch (error) {
-      console.error('Failed to duplicate deck:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to duplicate deck',
-        variant: 'destructive',
+      exportText += '\n';
+    }
+    
+    if (trainerCards.length > 0) {
+      exportText += `Trainer: ${deck.trainer_count}\n`;
+      trainerCards.forEach(({ card, count }: any) => {
+        exportText += formatCardForExport(card, count) + '\n';
+      });
+      exportText += '\n';
+    }
+    
+    if (energyCards.length > 0) {
+      exportText += `Energy: ${deck.energy_count}\n`;
+      energyCards.forEach(({ card, count }: any) => {
+        exportText += formatCardForExport(card, count) + '\n';
       });
     }
-  };
 
-  const handleDeckSaved = (deck: Deck) => {
-    if (editingDeck) {
-      setDecks(decks.map(d => d.id === deck.id ? deck : d));
-    } else {
-      setDecks([deck, ...decks]);
-    }
-    setDeckBuilderOpen(false);
-    setEditingDeck(null);
+    // Download the file
+    const blob = new Blob([exportText.trim()], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${deck.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: 'Exported!',
+      description: 'Deck list downloaded',
+    });
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="text-center">Loading your decks...</div>
-      </div>
-    );
-  }
-
-  if (!tableExists) {
-    return (
-      <div className="container mx-auto py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Database Setup Required</CardTitle>
-            <CardDescription>
-              The decks feature requires database setup. Please run the following SQL in your Supabase SQL Editor:
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
-              <code>{`CREATE TABLE IF NOT EXISTS public.decks (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  format TEXT NOT NULL CHECK (format IN ('Standard', 'Expanded')),
-  list JSONB NOT NULL DEFAULT '{}',
-  pokemon_count INTEGER NOT NULL DEFAULT 0,
-  trainer_count INTEGER NOT NULL DEFAULT 0,
-  energy_count INTEGER NOT NULL DEFAULT 0,
-  is_active BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);`}</code>
-            </pre>
-            <p className="text-sm text-muted-foreground mt-4">
-              See the full migration file at: <code>supabase/migrations/20240722_create_decks_table.sql</code>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <div>Loading decks...</div>;
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">My Decks</h1>
-          <p className="text-muted-foreground">Manage your Pokemon TCG decks</p>
-        </div>
-        <Button onClick={handleImportDeck} size="lg">
-          <Upload className="mr-2 h-5 w-5" />
+    <>
+      <div className="mb-6">
+        <Button onClick={() => setImportDialogOpen(true)}>
+          <Upload className="mr-2 h-4 w-4" />
           Import Deck
         </Button>
       </div>
 
       {decks.length === 0 ? (
         <Card>
-          <CardContent className="text-center py-12">
-            <p className="text-muted-foreground mb-4">You haven't imported any decks yet.</p>
-            <Button onClick={handleImportDeck}>
-              <Upload className="mr-2 h-4 w-4" />
-              Import Your First Deck
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <p className="text-muted-foreground mb-4">No decks yet</p>
+            <Button onClick={() => setImportDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Import your first deck
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {decks.map((deck) => (
-            <Card key={deck.id} className={deck.is_active ? 'ring-2 ring-primary' : ''}>
+            <Card key={deck.id} className={deck.is_active ? 'ring-2 ring-green-600' : ''}>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="flex items-center gap-2">
-                      {deck.name}
-                      {deck.is_active && (
-                        <Star className="h-4 w-4 fill-primary text-primary" />
-                      )}
-                    </CardTitle>
-                    <CardDescription>
-                      Created {new Date(deck.created_at).toLocaleDateString()}
-                    </CardDescription>
-                  </div>
-                  <Badge variant={deck.format === 'Standard' ? 'default' : 'secondary'}>
-                    {deck.format}
-                  </Badge>
+                <div className="flex items-center justify-between">
+                  <CardTitle>{deck.name}</CardTitle>
+                  {deck.is_active && (
+                    <Badge variant="default" className="bg-green-600">
+                      Active
+                    </Badge>
+                  )}
                 </div>
+                <CardDescription>
+                  {deck.format} • {deck.pokemon_count + deck.trainer_count + deck.energy_count} cards
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Pokemon:</span>
-                    <span>{deck.pokemon_count}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Trainers:</span>
-                    <span>{deck.trainer_count}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Energy:</span>
-                    <span>{deck.energy_count}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-semibold">
-                    <span>Total:</span>
-                    <span>{deck.pokemon_count + deck.trainer_count + deck.energy_count}/60</span>
-                  </div>
-
-                  <div className="flex gap-2 pt-4">
-                    {!deck.is_active && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSetActiveDeck(deck.id)}
-                        className="flex-1"
-                      >
-                        <Star className="mr-2 h-4 w-4" />
-                        Set Active
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleViewDeck(deck)}
-                      title="View deck"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleExportDeck(deck)}
-                      title="Export deck list"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDuplicateDeck(deck)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Deck</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete "{deck.name}"? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteDeck(deck.id)}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                <div className="space-y-1 text-sm">
+                  <div>Pokémon: {deck.pokemon_count}</div>
+                  <div>Trainers: {deck.trainer_count}</div>
+                  <div>Energy: {deck.energy_count}</div>
                 </div>
               </CardContent>
+              <CardFooter className="flex flex-col gap-2">
+                <div className="flex w-full gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleViewDeck(deck)}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    View
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleExportDeck(deck)}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </div>
+                <div className="flex w-full gap-2">
+                  <Button
+                    variant={deck.is_active ? "secondary" : "default"}
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleSetActive(deck.id)}
+                    disabled={deck.is_active}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    {deck.is_active ? 'Active' : 'Set Active'}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(deck.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardFooter>
             </Card>
           ))}
         </div>
       )}
 
-      <DeckImportExport
-        open={deckBuilderOpen}
-        onClose={() => {
-          setDeckBuilderOpen(false);
-          setEditingDeck(null);
-        }}
-        onSave={handleDeckSaved}
-        editingDeck={editingDeck}
-        userId={userId}
+      <DeckImportDialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImportDeck}
       />
 
-      <DeckViewer
-        open={!!viewingDeck}
-        onClose={() => setViewingDeck(null)}
-        deck={viewingDeck}
+      <DeckImportLoading
+        open={importLoadingOpen}
+        status={importStatus}
+        progress={importProgress}
       />
-    </div>
+
+      <DeckViewerDialog
+        open={viewerOpen}
+        onClose={() => setViewerOpen(false)}
+        deck={selectedDeck}
+      />
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient } from '@/utils/supabase/server';
+import { fetchCurrentUser } from '@/components/auth.utils';
 import { redirect } from 'next/navigation';
 import { MyDecksClient } from '@/components/decks/MyDecksClient';
 
@@ -9,12 +9,16 @@ export const metadata: Metadata = {
 };
 
 export default async function DecksPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+  const user = await fetchCurrentUser();
+  
   if (!user) {
     redirect('/login');
   }
 
-  return <MyDecksClient userId={user.id} />;
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">My Decks</h1>
+      <MyDecksClient userId={user.id} />
+    </div>
+  );
 }

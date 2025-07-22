@@ -23,6 +23,7 @@ import { LogOutButton } from "./app-bar/LogOutButton";
 import { isUserAnAdmin } from "./admin/admin.utils";
 import { DarkModeToggle } from "./theme/DarkModeToggle";
 import { isPremiumUser } from "./premium/premium.utils";
+import { createClient } from "@/utils/supabase/server";
  
 const items = [
   {
@@ -45,6 +46,14 @@ const tcgItems = [
   },
 ]
 
+const videoItems = [
+  {
+    title: "Video Game",
+    url: "/video-game",
+    icon: BriefcaseBusiness,
+  }
+]
+
 const pocketItems = [
   {
     title: "Games",
@@ -53,8 +62,21 @@ const pocketItems = [
   }
 ]
 
+async function getUserProfile(userId: string) {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('profiles')
+    .select('selected_games')
+    .eq('id', userId)
+    .single();
+  
+  return data;
+}
+
 export async function AppSidebar() {
   const user = await fetchCurrentUser();
+  const profile = user ? await getUserProfile(user.id) : null;
+  const selectedGames = profile?.selected_games || ['tcg', 'video', 'pocket'];
 
   return (
   <Sidebar>
@@ -105,40 +127,63 @@ export async function AppSidebar() {
       </SidebarHeader>
       {user && (
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
-            <SidebarGroupContent>
-            <SidebarMenu>
-            {tcgItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>Pocket</SidebarGroupLabel>
-            <SidebarGroupContent>
-            <SidebarMenu>
-            {pocketItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {selectedGames.includes('tcg') && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
+              <SidebarGroupContent>
+              <SidebarMenu>
+              {tcgItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+          {selectedGames.includes('video') && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Video Game</SidebarGroupLabel>
+              <SidebarGroupContent>
+              <SidebarMenu>
+              {videoItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+          {selectedGames.includes('pocket') && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Pocket</SidebarGroupLabel>
+              <SidebarGroupContent>
+              <SidebarMenu>
+              {pocketItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
           {isUserAnAdmin(user.id) && (
             <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>

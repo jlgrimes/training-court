@@ -6,6 +6,7 @@ import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome
 import { isPremiumUser } from '@/components/premium/premium.utils';
 import { MatchupsOverview } from '@/components/premium/matchups/MatchupsOverview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
+import { ActiveDeckIndicator } from '@/components/decks/ActiveDeckIndicator';
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -17,6 +18,10 @@ export default async function Profile() {
   return (
     <>
       <TrainingCourtWelcome userId={user.id} />
+      
+      <div className="mb-6">
+        <ActiveDeckIndicator userId={user.id} />
+      </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
         <BattleLogsHomePreview userId={user.id} />
