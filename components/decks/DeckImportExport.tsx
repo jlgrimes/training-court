@@ -102,6 +102,7 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
   };
 
   const parseDeckList = (text: string) => {
+    console.log('Parsing deck list:', text);
     const lines = text.trim().split('\n').filter(line => line.trim());
     
     let pokemonCount = 0;
@@ -109,47 +110,122 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
     let energyCount = 0;
     let currentSection = '';
     const cards: any[] = [];
+    
+    // If no section headers found, try to auto-detect based on common patterns
+    const hasHeaders = lines.some(line => 
+      line.toLowerCase().includes('pokémon') || 
+      line.toLowerCase().includes('pokemon') ||
+      line.toLowerCase().includes('trainer') ||
+      line.toLowerCase().includes('energy')
+    );
+    
+    if (!hasHeaders) {
+      console.log('No section headers found, will auto-detect card types');
+      currentSection = 'auto';
+    }
 
     for (const line of lines) {
-      // Section headers
-      if (line.startsWith('Pokémon -')) {
+      console.log('Processing line:', line, 'Current section:', currentSection);
+      
+      // Section headers - check for various formats
+      const lowerLine = line.toLowerCase();
+      if (lowerLine.includes('pokémon') || lowerLine.includes('pokemon') || 
+          (lowerLine.startsWith('##') && lowerLine.includes('pokemon'))) {
         currentSection = 'pokemon';
+        console.log('Found Pokemon section');
         continue;
-      } else if (line.startsWith('Trainer -')) {
+      } else if (lowerLine.includes('trainer') || 
+                 (lowerLine.startsWith('##') && lowerLine.includes('trainer'))) {
         currentSection = 'trainer';
+        console.log('Found Trainer section');
         continue;
-      } else if (line.startsWith('Energy -')) {
+      } else if (lowerLine.includes('energy') || 
+                 (lowerLine.startsWith('##') && lowerLine.includes('energy'))) {
         currentSection = 'energy';
+        console.log('Found Energy section');
         continue;
-      } else if (line.startsWith('Total Cards') || line === '') {
+      } else if (lowerLine.includes('total cards') || line.trim() === '' || line.startsWith('***')) {
         continue;
       }
 
-      // Card lines
-      const match = line.match(/^(\d+)\s+(.+?)(?:\s+([A-Z0-9-]+)\s+(\d+))?$/);
-      if (match) {
-        const [_, count, name, setId, number] = match;
-        const cardCount = parseInt(count);
+      // Card lines - try multiple patterns
+      let match = line.match(/^(\d+)\s+(.+?)(?:\s+([A-Z0-9-]+)\s+(\d+))?$/);
+      if (!match) {
+        // Try simpler pattern for lines like "4 Professor's Research"
+        match = line.match(/^(\d+)\s+(.+)$/);
+      }
+      
+      if (match && currentSection) {
+        const count = parseInt(match[1]);
+        const fullName = match[2];
+        const setId = match[3];
+        const number = match[4];
+        
+        // Parse card name and set info if embedded in name
+        let cardName = fullName;
+        let cardSet = setId;
+        let cardNumber = number;
+        
+        // Check if set info is in the name (e.g., "Pikachu BRS 52")
+        const nameSetMatch = fullName.match(/^(.+?)\s+([A-Z]{2,4})\s+(\d+)$/);
+        if (nameSetMatch) {
+          cardName = nameSetMatch[1];
+          cardSet = nameSetMatch[2];
+          cardNumber = nameSetMatch[3];
+        }
+        
+        console.log('Parsed card:', { count, cardName, cardSet, cardNumber });
+        
+        // Auto-detect card type if no sections
+        let supertype = 'Pokémon';
+        if (currentSection === 'trainer') {
+          supertype = 'Trainer';
+        } else if (currentSection === 'energy') {
+          supertype = 'Energy';
+        } else if (currentSection === 'auto') {
+          // Auto-detect based on card name patterns
+          const nameLower = cardName.toLowerCase();
+          if (nameLower.includes('energy')) {
+            supertype = 'Energy';
+          } else if (
+            nameLower.includes('professor') || nameLower.includes('boss') ||
+            nameLower.includes('ball') || nameLower.includes('stadium') ||
+            nameLower.includes('tool') || nameLower.includes('supporter') ||
+            nameLower.includes('item') || nameLower.includes('switch') ||
+            nameLower.includes('research') || nameLower.includes('marnie') ||
+            nameLower.includes('catcher') || nameLower.includes('belt')
+          ) {
+            supertype = 'Trainer';
+          } else {
+            supertype = 'Pokémon';
+          }
+        } else if (currentSection === 'pokemon') {
+          supertype = 'Pokémon';
+        }
         
         // Simple card object without API lookup
         const card = {
-          id: `${name}-${setId || 'unknown'}-${number || '0'}`,
-          name: name.trim(),
-          supertype: currentSection === 'pokemon' ? 'Pokémon' : 
-                      currentSection === 'trainer' ? 'Trainer' : 'Energy',
-          set: { id: setId || 'unknown' },
-          number: number || '0',
+          id: `${cardName}-${cardSet || 'unknown'}-${cardNumber || '0'}`,
+          name: cardName.trim(),
+          supertype,
+          set: { id: cardSet || 'unknown' },
+          number: cardNumber || '0',
           images: { small: '', large: '' }
         };
 
-        cards.push({ card, count: cardCount });
+        cards.push({ card, count });
 
-        if (currentSection === 'pokemon') pokemonCount += cardCount;
-        else if (currentSection === 'trainer') trainerCount += cardCount;
-        else if (currentSection === 'energy') energyCount += cardCount;
+        // Update counts based on actual card type
+        if (supertype === 'Pokémon') pokemonCount += count;
+        else if (supertype === 'Trainer') trainerCount += count;
+        else if (supertype === 'Energy') energyCount += count;
+      } else if (match) {
+        console.log('Found card line but no section set yet:', line);
       }
     }
 
+    console.log('Parsing complete:', { cards, pokemonCount, trainerCount, energyCount });
+    
     return {
       cards,
       pokemonCount,
@@ -182,6 +258,18 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
     try {
       const parsed = parseDeckList(importText);
       
+      console.log('Parsed deck data:', parsed);
+      
+      if (parsed.totalCount === 0) {
+        toast({
+          title: 'Error',
+          description: 'No cards found in the deck list. Please check the format.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+      
       if (parsed.totalCount !== 60) {
         toast({
           title: 'Warning',
@@ -200,6 +288,8 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
         energy_count: parsed.energyCount,
         is_active: false,
       };
+      
+      console.log('Saving deck data:', deckData);
 
       const { data, error } = await supabase
         .from('decks')
@@ -306,7 +396,25 @@ export function DeckImportExport({ open, onClose, onSave, editingDeck, userId }:
               id="deck-list"
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
-              placeholder={editingDeck ? '' : 'Paste your deck list here...\n\nExample:\nPokémon - 12\n4 Pikachu BRS 52\n2 Raichu BRS 53\n...\n\nTrainer - 36\n4 Professor\'s Research BRS 147\n...\n\nEnergy - 12\n12 Lightning Energy 4'}
+              placeholder={editingDeck ? '' : `Paste your deck list here...
+
+Example format:
+
+Pokémon - 12
+4 Pikachu BRS 52
+2 Raichu BRS 53
+3 Charmander MEW 4
+3 Charizard ex MEW 54
+
+Trainer - 36
+4 Professor's Research BRS 147
+4 Quick Ball FST 237
+3 Ultra Ball BRS 150
+2 Boss's Orders BRS 132
+
+Energy - 12
+4 Fire Energy
+8 Lightning Energy`}
               rows={15}
               readOnly={!!editingDeck}
               className={editingDeck ? 'font-mono text-sm' : ''}
