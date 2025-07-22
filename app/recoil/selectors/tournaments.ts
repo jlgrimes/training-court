@@ -26,7 +26,7 @@ export const filteredTournamentsSelector = selector({
       filtered = filtered.filter(tournament => {
         if (!tournament.startDate) return false;
         const tournamentDate = new Date(tournament.startDate);
-        return tournamentDate >= filter.dateRange.start! && tournamentDate <= filter.dateRange.end!;
+        return tournamentDate >= filter.dateRange!.start! && tournamentDate <= filter.dateRange!.end!;
       });
     }
     

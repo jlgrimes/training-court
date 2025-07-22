@@ -34,7 +34,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
           ? []
           : rawResults.filter((r) =>
               sourceFilter.includes(r.source) &&
-              (formatFilter === null || formatFilter === 'All' || r.format === formatFilter)
+              (formatFilter === null || formatFilter === 'All' || (r as any).format === formatFilter)
             );
 
       return convertRpcRetToMatchups(filtered);

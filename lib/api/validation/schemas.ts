@@ -66,7 +66,7 @@ export const adminActionSchema = z.object({
   action: z.enum(['ban_user', 'unban_user', 'delete_content', 'update_role']),
   target_user_id: userIdSchema,
   reason: z.string().min(1).max(500),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 // Error response schema

@@ -72,7 +72,7 @@ export const PocketMatchesList = ({
         {games?.map((game, idx) => (
           <TableRow key={`pocket-game-${idx}`} result={game.result}>
             <TableCell className='text-muted-foreground'>
-              {formatDistanceToNowStrict(game.created_at, {
+              {formatDistanceToNowStrict(game.created_at || new Date(), {
                 addSuffix: true,
               })}
             </TableCell>

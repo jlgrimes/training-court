@@ -197,7 +197,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     const presenceChannel = supabase.channel('online-users')
       .on('presence', { event: 'sync' }, () => {
         const state = presenceChannel.presenceState();
-        const onlineUserIds = Object.keys(state).map(key => state[key][0].user_id);
+        const onlineUserIds = Object.keys(state).map(key => (state[key][0] as any).user_id);
         updateOnlineStatus(onlineUserIds);
       })
       .subscribe(async (status) => {

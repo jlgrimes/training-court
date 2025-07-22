@@ -13,6 +13,7 @@ import { useUI } from '@/app/recoil/hooks/useUI';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GameSelector } from '@/components/ui/game-selector';
 
 interface PreferencesPageClientProps {
   avatarImages: any[];
@@ -21,7 +22,7 @@ interface PreferencesPageClientProps {
 export function PreferencesPageClient({ avatarImages }: PreferencesPageClientProps) {
   const { user, isAuthenticated } = useAuth();
   const { preferences, updatePreference, updateNestedPreference, resetPreferences } = usePreferences();
-  const { showSuccessToast } = useUI();
+  const { showSuccessToast, showErrorToast } = useUI();
 
   if (!isAuthenticated || !user) {
     return <div>Please log in to view preferences.</div>;
@@ -52,6 +53,20 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
     showSuccessToast('Display settings updated');
   };
 
+  const handleGameToggle = (game: 'tradingCardGame' | 'videoGame' | 'pocket', checked: boolean) => {
+    // Count how many games are currently enabled
+    const enabledGames = Object.values(preferences.games).filter(Boolean).length;
+    
+    // Prevent disabling the last game
+    if (!checked && enabledGames === 1) {
+      showErrorToast('You must have at least one game enabled');
+      return;
+    }
+    
+    updateNestedPreference('games', game, checked);
+    showSuccessToast(`${game === 'tradingCardGame' ? 'Trading Card Game' : game === 'videoGame' ? 'Video Game' : 'Pocket'} ${checked ? 'enabled' : 'disabled'}`);
+  };
+
   return (
     <>
       <Header>Preferences</Header>
@@ -75,6 +90,9 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
           </TabsTrigger>
           <TabsTrigger value='gameplay' className='w-full'>
             Gameplay
+          </TabsTrigger>
+          <TabsTrigger value='games' className='w-full'>
+            Games
           </TabsTrigger>
         </TabsList>
 
@@ -270,6 +288,54 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
                   checked={preferences.gameplay.confirmBeforeDelete}
                   onCheckedChange={(checked) => handleGameplayToggle('confirmBeforeDelete', checked)}
                 />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value='games' className='w-full'>
+          <Card>
+            <CardHeader>
+              <CardTitle>Game Settings</CardTitle>
+              <CardDescription>Choose which games to show in the sidebar</CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='flex justify-between items-center'>
+                <div>
+                  <Label>Trading Card Game</Label>
+                  <p className='text-sm text-muted-foreground'>Show TCG section in sidebar</p>
+                </div>
+                <Switch
+                  checked={preferences.games.tradingCardGame}
+                  onCheckedChange={(checked) => handleGameToggle('tradingCardGame', checked)}
+                />
+              </div>
+              <Separator />
+              <div className='flex justify-between items-center'>
+                <div>
+                  <Label>Video Game</Label>
+                  <p className='text-sm text-muted-foreground'>Show VGC section in sidebar</p>
+                </div>
+                <Switch
+                  checked={preferences.games.videoGame}
+                  onCheckedChange={(checked) => handleGameToggle('videoGame', checked)}
+                />
+              </div>
+              <Separator />
+              <div className='flex justify-between items-center'>
+                <div>
+                  <Label>Pocket</Label>
+                  <p className='text-sm text-muted-foreground'>Show Pocket section in sidebar</p>
+                </div>
+                <Switch
+                  checked={preferences.games.pocket}
+                  onCheckedChange={(checked) => handleGameToggle('pocket', checked)}
+                />
+              </div>
+              <div className='mt-4 p-4 bg-muted rounded-lg'>
+                <p className='text-sm text-muted-foreground'>
+                  Note: You must have at least one game enabled to use Training Court.
+                </p>
               </div>
             </CardContent>
           </Card>

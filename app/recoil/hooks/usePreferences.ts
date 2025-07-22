@@ -1,18 +1,20 @@
 'use client';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import {
   userPreferencesAtom,
   preferencesLoadingAtom,
   UserPreferences,
 } from '../atoms/preferences';
+import { userAtom } from '../atoms/user';
 
 const PREFERENCES_STORAGE_KEY = 'training-court-preferences';
 
 export function usePreferences() {
   const [preferences, setPreferences] = useRecoilState(userPreferencesAtom);
   const [loading, setLoading] = useRecoilState(preferencesLoadingAtom);
+  const user = useRecoilValue(userAtom);
 
   const updatePreference = useCallback(<K extends keyof UserPreferences>(
     key: K,
@@ -32,7 +34,7 @@ export function usePreferences() {
     setPreferences(prev => ({
       ...prev,
       [key]: {
-        ...prev[key],
+        ...(prev[key] as any),
         [nestedKey]: value,
       },
     }));
@@ -64,6 +66,11 @@ export function usePreferences() {
         showAvatars: true,
         animationsEnabled: true,
       },
+      games: {
+        tradingCardGame: true,
+        videoGame: true,
+        pocket: true,
+      },
     };
     setPreferences(defaultPreferences);
     localStorage.removeItem(PREFERENCES_STORAGE_KEY);
@@ -79,16 +86,28 @@ export function usePreferences() {
       const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        
+        // If user has game preferences in metadata and no games stored locally, use metadata
+        if (user?.user_metadata?.games && !parsed.games) {
+          parsed.games = user.user_metadata.games;
+        }
+        
         setPreferences(parsed);
+      } else if (user?.user_metadata?.games) {
+        // If no stored preferences but user has game metadata, use it
+        setPreferences(prev => ({
+          ...prev,
+          games: user.user_metadata.games,
+        }));
       }
     } catch (error) {
       console.error('Failed to load preferences:', error);
     } finally {
       setLoading(false);
     }
-  }, [setPreferences, setLoading]);
+  }, [setPreferences, setLoading, user]);
 
-  // Load preferences on mount
+  // Load preferences on mount and when user changes
   useEffect(() => {
     loadPreferences();
   }, [loadPreferences]);

@@ -27,6 +27,11 @@ export interface UserPreferences {
     showAvatars: boolean;
     animationsEnabled: boolean;
   };
+  games: {
+    tradingCardGame: boolean;
+    videoGame: boolean;
+    pocket: boolean;
+  };
 }
 
 export const userPreferencesAtom = atom<UserPreferences>({
@@ -55,6 +60,11 @@ export const userPreferencesAtom = atom<UserPreferences>({
       compactView: false,
       showAvatars: true,
       animationsEnabled: true,
+    },
+    games: {
+      tradingCardGame: true,
+      videoGame: true,
+      pocket: true,
     },
   },
 });

@@ -54,17 +54,12 @@ export const TournamentContainerClientRecoil = ({
       const tournament: Tournament = {
         id: initialTournament.id,
         name: initialTournament.name,
-        deckName: initialTournament.deckname ?? '',
-        deckList: initialTournament.decklist ?? undefined,
-        roundsDay1: initialTournament.rounds_day_1 ?? undefined,
-        roundsDay2: initialTournament.rounds_day_2 ?? undefined,
+        deckName: initialTournament.deck ?? '',
         startDate: initialTournament.date_from ?? undefined,
         endDate: initialTournament.date_to ?? undefined,
-        placement: initialTournament.placement ?? undefined,
-        playersCount: initialTournament.players_count ?? undefined,
+        placement: initialTournament.placement ? parseInt(initialTournament.placement) : undefined,
         user: initialTournament.user ?? undefined,
         createdAt: initialTournament.created_at ?? undefined,
-        updatedAt: initialTournament.updated_at ?? undefined,
       };
       
       setSelectedTournament(tournament);
@@ -72,15 +67,13 @@ export const TournamentContainerClientRecoil = ({
       if (initialRounds) {
         const tournamentRounds: TournamentRound[] = initialRounds.map(round => ({
           id: round.id,
-          tournamentId: round.tournament_id,
+          tournamentId: round.tournament ?? '',
           roundNumber: round.round_num ?? 0,
-          opponentDeck: round.opp_archetype ?? undefined,
-          win: round.win ?? undefined,
-          loss: round.loss ?? undefined,
-          tie: round.tie ?? undefined,
-          tableName: round.table_num ?? undefined,
-          day: round.day ?? undefined,
-          notes: round.notes ?? undefined,
+          opponentDeck: round.deck ?? undefined,
+          // Parse result array to determine win/loss/tie
+          win: round.result?.includes('W') ?? undefined,
+          loss: round.result?.includes('L') ?? undefined,
+          tie: round.result?.includes('T') ?? undefined,
         }));
         
         setRounds(tournamentRounds);
@@ -95,15 +88,13 @@ export const TournamentContainerClientRecoil = ({
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     const tournamentRound: TournamentRound = {
       id: newRound.id,
-      tournamentId: newRound.tournament_id,
+      tournamentId: newRound.tournament ?? '',
       roundNumber: newRound.round_num ?? 0,
-      opponentDeck: newRound.opp_archetype ?? undefined,
-      win: newRound.win ?? undefined,
-      loss: newRound.loss ?? undefined,
-      tie: newRound.tie ?? undefined,
-      tableName: newRound.table_num ?? undefined,
-      day: newRound.day ?? undefined,
-      notes: newRound.notes ?? undefined,
+      opponentDeck: newRound.deck ?? undefined,
+      // Parse result array to determine win/loss/tie
+      win: newRound.result?.includes('W') ?? undefined,
+      loss: newRound.result?.includes('L') ?? undefined,
+      tie: newRound.result?.includes('T') ?? undefined,
     };
     
     addRound(tournamentRound);
@@ -112,13 +103,11 @@ export const TournamentContainerClientRecoil = ({
 
   const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
     const updates: Partial<TournamentRound> = {
-      opponentDeck: newRound.opp_archetype ?? undefined,
-      win: newRound.win ?? undefined,
-      loss: newRound.loss ?? undefined,
-      tie: newRound.tie ?? undefined,
-      tableName: newRound.table_num ?? undefined,
-      day: newRound.day ?? undefined,
-      notes: newRound.notes ?? undefined,
+      opponentDeck: newRound.deck ?? undefined,
+      // Parse result array to determine win/loss/tie
+      win: newRound.result?.includes('W') ?? undefined,
+      loss: newRound.result?.includes('L') ?? undefined,
+      tie: newRound.result?.includes('T') ?? undefined,
     };
     
     updateRound(pos, updates);
@@ -149,11 +138,18 @@ export const TournamentContainerClientRecoil = ({
   }
 
   const isOwner = user?.id === selectedTournament.user;
-  const record = getRecord(rounds);
+  const record = getRecord(rounds.map(r => ({ 
+    result: [
+      r.win ? 'W' : r.loss ? 'L' : r.tie ? 'T' : ''
+    ].filter(Boolean)
+  })));
   const dateDisplay = selectedTournament.startDate && selectedTournament.endDate
-    ? displayTournamentDateRange(selectedTournament.startDate, selectedTournament.endDate)
+    ? displayTournamentDateRange({ 
+        from: parseISO(selectedTournament.startDate), 
+        to: parseISO(selectedTournament.endDate) 
+      })
     : selectedTournament.startDate
-    ? displayTournamentDate(selectedTournament.startDate)
+    ? displayTournamentDate(selectedTournament.startDate, selectedTournament.startDate)
     : 'No date';
 
   return (
@@ -176,8 +172,8 @@ export const TournamentContainerClientRecoil = ({
                 updateClientTournament={updateClientTournamentDataOnEdit}
               />
               <TournamentDeleteDialog
-                tournament={selectedTournament}
-                user={user}
+                tournamentId={selectedTournament.id}
+                tournamentName={selectedTournament.name}
               />
             </div>
           )}
@@ -188,9 +184,19 @@ export const TournamentContainerClientRecoil = ({
           <div className="grid grid-cols-2 pt-4 gap-4">
             <div className="flex justify-center rounded-md bg-secondary p-4">
               <EditableTournamentArchetype
-                tournamentId={tournamentId}
-                deckName={selectedTournament.deckName}
-                canEdit={isOwner}
+                tournament={{
+                  id: selectedTournament.id,
+                  name: selectedTournament.name,
+                  deck: selectedTournament.deckName || null,
+                  date_from: selectedTournament.startDate || '',
+                  date_to: selectedTournament.endDate || '',
+                  placement: selectedTournament.placement?.toString() || null,
+                  user: selectedTournament.user || null,
+                  created_at: selectedTournament.createdAt || null,
+                  category: null,
+                  format: null,
+                }}
+                editDisabled={!isOwner}
               />
             </div>
             
@@ -218,14 +224,41 @@ export const TournamentContainerClientRecoil = ({
         
         <div className="px-2">
           <TournamentRoundList
-            rounds={rounds}
-            tournamentId={tournamentId}
-            tournamentDeckName={selectedTournament.deckName}
-            editable={isOwner}
+            tournament={{
+              id: selectedTournament.id,
+              name: selectedTournament.name,
+              deck: selectedTournament.deckName || null,
+              date_from: selectedTournament.startDate || '',
+              date_to: selectedTournament.endDate || '',
+              placement: selectedTournament.placement?.toString() || null,
+              user: selectedTournament.user || null,
+              created_at: selectedTournament.createdAt || null,
+              category: null,
+              format: null,
+            }}
+            userId={user?.id}
+            rounds={rounds.map(r => ({
+              id: r.id || '',
+              tournament: r.tournamentId || null,
+              round_num: r.roundNumber,
+              deck: r.opponentDeck || null,
+              result: [
+                r.win ? 'W' : r.loss ? 'L' : r.tie ? 'T' : ''
+              ].filter(Boolean),
+              created_at: null,
+              match_end_reason: null,
+              turn_orders: null,
+              user: null,
+            }))}
             updateClientRoundsOnEdit={updateClientRoundsOnEdit}
           />
           
-          {isOwner && <AddTournamentRound tournamentId={tournamentId} handleAddRound={updateClientRoundsOnAdd} />}
+          {isOwner && <AddTournamentRound 
+            tournamentId={tournamentId} 
+            userId={user?.id || ''} 
+            editedRoundNumber={rounds.length + 1}
+            updateClientRounds={updateClientRoundsOnAdd} 
+          />}
         </div>
       </div>
     </div>

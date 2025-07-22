@@ -38,7 +38,7 @@ export const filteredBattleLogsSelector = selector({
       filtered = filtered.filter(log => {
         if (!log.timestamp) return false;
         const logDate = new Date(log.timestamp);
-        return logDate >= filter.dateRange.start! && logDate <= filter.dateRange.end!;
+        return logDate >= filter.dateRange!.start! && logDate <= filter.dateRange!.end!;
       });
     }
     

@@ -8,6 +8,8 @@ import { withValidation } from "@/lib/api/validation/validate";
 import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 // Query schema for this endpoint
 const querySchema = z.object({
   limit: z.coerce.number().int().positive().max(1000).optional(),
@@ -51,7 +53,7 @@ export async function GET(request: NextRequest) {
         // Nothing to update if everything is already filled
         if (row.archetype && row.opp_archetype && row.turn_order && row.result) return row;
 
-        const parsedLog = parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, userData?.live_screen_name ?? null);
+        const parsedLog = parseBattleLog(row.log, row.id, row.created_at || new Date().toISOString(), row.archetype, row.opp_archetype, userData?.live_screen_name || null);
 
         const metadata = getBattleLogMetadataFromLog(parsedLog, userData?.live_screen_name);
         return {

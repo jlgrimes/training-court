@@ -34,7 +34,6 @@ export function BattleLogsContainerRecoil() {
     setSortField,
     loadBattleLogs,
     addBattleLog,
-    battleLogEditModeAtom,
   } = useBattleLogs();
   
   const { data: userData } = useUserData(user?.id);
@@ -87,28 +86,15 @@ export function BattleLogsContainerRecoil() {
     try {
       const battleLog: BattleLogRecord = {
         id: newLog.id,
-        user: newLog.user,
+        user: newLog.user || '',
         log: newLog.log,
-        logNotes: newLog.log_notes || undefined,
-        logDeckCode: newLog.log_deck_code || undefined,
+        logNotes: newLog.notes || undefined,
         format: newLog.format || undefined,
-        formatSearchDisplay: newLog.format_search_display || undefined,
         userDeck: newLog.archetype || undefined,
-        userDecklist: newLog.log_decklist || undefined,
         oppDeck: newLog.opp_archetype || undefined,
-        oppDecklist: newLog.opp_decklist || undefined,
-        winLoss: newLog.win_loss as 'W' | 'L' | 'T' | undefined,
-        round: newLog.round || undefined,
-        tableNumber: newLog.table_number || undefined,
-        conceded: newLog.conceded || undefined,
-        oppConceded: newLog.opp_conceded || undefined,
-        coinFlipWon: newLog.coin_flip_won || undefined,
-        wentFirst: newLog.went_first || undefined,
-        points: newLog.points || undefined,
-        oppPoints: newLog.opp_points || undefined,
+        winLoss: newLog.result as 'W' | 'L' | 'T' | undefined,
+        wentFirst: newLog.turn_order === 'first' || undefined,
         createdAt: newLog.created_at || undefined,
-        importHash: newLog.import_hash || undefined,
-        timestamp: newLog.timestamp || undefined,
       };
       
       addBattleLog(battleLog);

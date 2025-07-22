@@ -42,7 +42,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
     <Card>
       <CardHeader>
         <CardTitle>{`${props.feedback.feature_name} > ${props.feedback.bug_type}`} {isFixed && <Badge variant='secondary' className="bg-green-200 ml-1">Resolved</Badge>}</CardTitle>
-        <CardDescription>{formatDistanceToNowStrict(props.feedback.created_at, { addSuffix: true })}</CardDescription>
+        <CardDescription>{formatDistanceToNowStrict(props.feedback.created_at || new Date(), { addSuffix: true })}</CardDescription>
       </CardHeader>
       <CardContent>
         <>

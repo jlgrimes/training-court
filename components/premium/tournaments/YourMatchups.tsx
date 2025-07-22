@@ -25,7 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PremiumIcon } from "../PremiumIcon"
 
 interface YourMatchupsProps {
-  matchupData: Database['public']['Functions']['getusertournamentresults']['Returns'] | null;
+  matchupData: any[] | null;
 }
 
 const chartConfig = {

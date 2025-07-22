@@ -88,15 +88,17 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
     }
 
     const supabase = createClient();
-    const logMetadata = getBattleLogMetadataFromLog(log, username ?? '');
+    
+    // Parse the log first
+    const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+    const logMetadata = getBattleLogMetadataFromLog(parsedLog, username ?? '');
     
     if (!logMetadata) {
       showErrorToast('Invalid battle log format');
       return;
     }
 
-    const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
-    const timestamp = new Date(parsedLog.startTimestamp).toISOString();
+    const timestamp = new Date(parsedLog.date).toISOString();
 
     try {
       const { data, error } = await supabase
@@ -136,10 +138,10 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
         
         addBattleLog(battleLog);
         track('Battle log added', { 
-          username, 
-          archetype, 
-          oppArchetype, 
-          format, 
+          username: username || 'unknown', 
+          archetype: archetype || 'unknown', 
+          oppArchetype: oppArchetype || 'unknown', 
+          format: format || 'unknown', 
           hasLog: Boolean(log) 
         });
         
@@ -177,11 +179,16 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
       return;
     }
 
-    const logMetadata = getBattleLogMetadataFromLog(log, username ?? '');
-    if (logMetadata) {
-      setParsedLogDetails(logMetadata);
-      setShowDialog(true);
-    } else {
+    try {
+      const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+      const logMetadata = getBattleLogMetadataFromLog(parsedLog, username ?? '');
+      if (logMetadata) {
+        setParsedLogDetails(logMetadata);
+        setShowDialog(true);
+      } else {
+        showErrorToast('Unable to parse battle log. Please check the format.');
+      }
+    } catch (error) {
       showErrorToast('Unable to parse battle log. Please check the format.');
     }
   };
@@ -246,9 +253,8 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
               </Label>
               <div className="col-span-3">
                 <AddArchetype
-                  selectedArchetype={archetype}
-                  setSelectedArchetype={setArchetype}
-                  label=""
+                  archetype={archetype}
+                  setArchetype={setArchetype}
                 />
               </div>
             </div>
@@ -259,9 +265,8 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
               </Label>
               <div className="col-span-3">
                 <AddArchetype
-                  selectedArchetype={oppArchetype}
-                  setSelectedArchetype={setOppArchetype}
-                  label=""
+                  archetype={oppArchetype}
+                  setArchetype={setOppArchetype}
                 />
               </div>
             </div>

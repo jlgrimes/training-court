@@ -211,34 +211,16 @@ export function MyTournamentPreviewsRecoil() {
                 tournament={{
                   id: tournament.id,
                   name: tournament.name,
-                  deckname: tournament.deckName,
+                  deck: tournament.deckName || null,
                   date_from: tournament.startDate || '',
                   date_to: tournament.endDate || '',
-                  placement: tournament.placement || null,
-                  players_count: tournament.playersCount || null,
-                  decklist: tournament.deckList || null,
-                  rounds_day_1: tournament.roundsDay1 || null,
-                  rounds_day_2: tournament.roundsDay2 || null,
-                  user: tournament.user || '',
-                  created_at: tournament.createdAt || '',
-                  updated_at: tournament.updatedAt || null,
+                  placement: tournament.placement?.toString() || null,
+                  user: tournament.user || null,
+                  created_at: tournament.createdAt || null,
                   category: null,
                   format: null,
                 }}
-                rounds={tournament.rounds?.map(r => ({
-                  id: r.id || '',
-                  tournament_id: r.tournamentId || '',
-                  round_num: r.roundNumber,
-                  opp_archetype: r.opponentDeck || null,
-                  win: r.win || null,
-                  loss: r.loss || null,
-                  tie: r.tie || null,
-                  table_num: r.tableName || null,
-                  day: r.day || null,
-                  notes: r.notes || null,
-                  user: tournament.user || null,
-                  created_at: '',
-                })) || []}
+                rounds={[]}
               />
             ))}
           </div>
@@ -251,34 +233,16 @@ export function MyTournamentPreviewsRecoil() {
                   tournament={{
                     id: tournament.id,
                     name: tournament.name,
-                    deckname: tournament.deckName,
+                    deck: tournament.deckName || null,
                     date_from: tournament.startDate || '',
                     date_to: tournament.endDate || '',
-                    placement: tournament.placement || null,
-                    players_count: tournament.playersCount || null,
-                    decklist: tournament.deckList || null,
-                    rounds_day_1: tournament.roundsDay1 || null,
-                    rounds_day_2: tournament.roundsDay2 || null,
-                    user: tournament.user || '',
-                    created_at: tournament.createdAt || '',
-                    updated_at: tournament.updatedAt || null,
+                    placement: tournament.placement?.toString() || null,
+                    user: tournament.user || null,
+                    created_at: tournament.createdAt || null,
                     category: null,
                     format: null,
                   }}
-                  rounds={tournament.rounds?.map(r => ({
-                    id: r.id || '',
-                    tournament_id: r.tournamentId || '',
-                    round_num: r.roundNumber,
-                    opp_archetype: r.opponentDeck || null,
-                    win: r.win || null,
-                    loss: r.loss || null,
-                    tie: r.tie || null,
-                    table_num: r.tableName || null,
-                    day: r.day || null,
-                    notes: r.notes || null,
-                    user: tournament.user || null,
-                    created_at: '',
-                  })) || []}
+                  rounds={[]}
                   shouldHideCategoryBadge
                 />
               ))}

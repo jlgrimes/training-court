@@ -279,7 +279,7 @@ export function NotificationCenterWithRecoil() {
                   {notification.message}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {new Date(notification.createdAt).toRelativeString()}
+                  {new Date(notification.createdAt).toDateString()}
                 </p>
               </div>
               <div className="flex gap-2 ml-4">

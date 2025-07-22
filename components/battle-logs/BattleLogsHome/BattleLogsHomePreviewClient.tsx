@@ -42,7 +42,7 @@ export function BattleLogsHomePreviewClient (props: BattleLogsHomePreviewClientP
     <div className="flex flex-col gap-4">
       <div>
         {userData?.live_screen_name && logs && (
-          <BattleLogsByDayPreview userData={userData} battleLogs={logs.map( log => (parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData.live_screen_name)))}  />
+          <BattleLogsByDayPreview userData={userData} battleLogs={logs.map( log => (parseBattleLog(log.log, log.id, log.created_at || new Date().toISOString(), log.archetype, log.opp_archetype, userData.live_screen_name)))}  />
         )}
       </div>
       <AddBattleLogInput userData={userData ?? null} handleAddLog={handleAddLog} />

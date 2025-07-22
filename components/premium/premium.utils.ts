@@ -8,7 +8,7 @@ function getPremiumUserIds(): string[] {
     const premiumIds = process.env.PREMIUM_USER_IDS?.split(',').map(id => id.trim()) || [];
     const adminIds = process.env.ADMIN_USER_IDS?.split(',').map(id => id.trim()) || [];
     // Admins are automatically premium users
-    return [...new Set([...premiumIds, ...adminIds])];
+    return Array.from(new Set([...premiumIds, ...adminIds]));
   } else {
     // Client-side - these IDs should be fetched from an API endpoint instead
     // For now, return empty array on client side for security
@@ -32,7 +32,7 @@ export function isPremiumUserServer(userId: string | null | undefined) {
   
   const premiumIds = process.env.PREMIUM_USER_IDS?.split(',').map(id => id.trim()) || [];
   const adminIds = process.env.ADMIN_USER_IDS?.split(',').map(id => id.trim()) || [];
-  const allPremiumUsers = [...new Set([...premiumIds, ...adminIds])];
+  const allPremiumUsers = Array.from(new Set([...premiumIds, ...adminIds]));
   
   return allPremiumUsers.includes(userId);
 }

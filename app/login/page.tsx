@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { SubmitButton } from "../forgot-password/submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function Login({
   searchParams,
@@ -84,13 +85,11 @@ export default function Login({
         >
           Sign In
         </SubmitButton>
-        <SubmitButton
-          formAction={signUp}
-          variant={'secondary'}
-          pendingText="Signing Up..."
-        >
-          Sign Up
-        </SubmitButton>
+        <Link href="/signup" className="w-full">
+          <Button type="button" variant="secondary" className="w-full">
+            Sign Up
+          </Button>
+        </Link>
 
         <p className="mt-4 text-sm text-center">
           Forgot your password?{" "}

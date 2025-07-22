@@ -9,8 +9,8 @@ export const clientBattleLogSchema = z.object({
   archetype: z.string().min(1, 'Archetype is required').max(50),
   opp_archetype: z.string().min(1, 'Opponent archetype is required').max(50),
   log: z.string().min(1, 'Battle log cannot be empty'),
-  turn_order: z.enum(['1', '2'], { errorMap: () => ({ message: 'Turn order must be 1 or 2' }) }),
-  result: z.enum(['W', 'L', 'T'], { errorMap: () => ({ message: 'Result must be Win, Loss, or Tie' }) }),
+  turn_order: z.enum(['1', '2']).describe('Turn order must be 1 or 2'),
+  result: z.enum(['W', 'L', 'T']).describe('Result must be Win, Loss, or Tie'),
   format: z.enum(['Standard', 'Expanded', 'Other']).optional(),
 });
 
@@ -42,5 +42,5 @@ export const clientPocketMatchSchema = z.object({
   user: z.string().uuid('Invalid user ID'),
   deck: z.string().min(1, 'Deck is required').max(100),
   opp_deck: z.string().min(1, 'Opponent deck is required').max(100),
-  result: z.enum(['W', 'L', 'T'], { errorMap: () => ({ message: 'Result must be Win, Loss, or Tie' }) }),
+  result: z.enum(['W', 'L', 'T']).describe('Result must be Win, Loss, or Tie'),
 });

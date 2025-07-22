@@ -152,65 +152,77 @@ export function AppSidebarClient() {
       
       {isAuthenticated && (
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {tcgItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.tooltip}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {preferences.games.tradingCardGame && (
+            <>
+              <SidebarGroup>
+                <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {tcgItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild tooltip={item.tooltip}>
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarSeparator />
+            </>
+          )}
           
-          <SidebarSeparator />
+          {preferences.games.videoGame && (
+            <>
+              <SidebarGroup>
+                <SidebarGroupLabel>Video Game</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {videoGameItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild tooltip={item.tooltip}>
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarSeparator />
+            </>
+          )}
           
-          <SidebarGroup>
-            <SidebarGroupLabel>Video Game</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {videoGameItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.tooltip}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          
-          <SidebarSeparator />
-          
-          <SidebarGroup>
-            <SidebarGroupLabel>Pocket</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {pocketItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.tooltip}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          
-          <SidebarSeparator />
+          {preferences.games.pocket && (
+            <>
+              <SidebarGroup>
+                <SidebarGroupLabel>Pocket</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {pocketItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild tooltip={item.tooltip}>
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarSeparator />
+            </>
+          )}
           
           {/* Analytics Section */}
           <SidebarGroup>

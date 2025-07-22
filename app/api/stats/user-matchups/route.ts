@@ -6,6 +6,8 @@ import { userIdSchema } from "@/lib/api/validation/schemas";
 import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 // Query schema for this endpoint
 const querySchema = z.object({
   user_id: userIdSchema.optional(),
