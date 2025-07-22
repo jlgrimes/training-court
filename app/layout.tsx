@@ -6,6 +6,7 @@ import HeaderBreadcrumbs from '@/components/app-bar/HeaderBreadcrumbs';
 import {
   SidebarProvider,
   SidebarTrigger,
+  SidebarInset,
 } from '@/components/ui/sidebar';
 import { AppSidebarClient } from '@/components/app-sidebar-client';
 import { RecoilProvider } from './recoil/recoil-provider';
@@ -40,22 +41,22 @@ export default function RootLayout({
             <RealtimeProvider>
               <SidebarProvider>
                 <AppSidebarClient />
-                <main className='min-h-screen h-full w-full'>
-                <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
-                  <div className='flex px-4 py-4 gap-4 items-center'>
-                    <SidebarTrigger />
-                    <HeaderBreadcrumbs />
+                <SidebarInset>
+                  <header className='sticky top-0 z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
+                    <div className='flex px-4 py-4 gap-4 items-center'>
+                      <SidebarTrigger />
+                      <HeaderBreadcrumbs />
+                    </div>
+                  </header>
+                  <div className='flex flex-col items-center h-full'>
+                    <div className='flex flex-col p-4 gap-6 w-full h-full'>
+                      {children}
+                    </div>
                   </div>
-                </header>
-                <div className='flex flex-col items-center h-full pt-[52px]'>
-                  <div className='flex flex-col p-4 gap-6 w-full h-full'>
-                    {children}
-                  </div>
-                </div>
-                <RecoilToaster />
-                <Analytics />
-              </main>
-            </SidebarProvider>
+                  <RecoilToaster />
+                  <Analytics />
+                </SidebarInset>
+              </SidebarProvider>
             </RealtimeProvider>
           </DarkModeHydrationGuard>
         </RecoilProvider>

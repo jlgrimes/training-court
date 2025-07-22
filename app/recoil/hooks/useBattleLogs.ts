@@ -9,7 +9,7 @@ import {
   battleLogsLoadingAtom,
   battleLogsPageAtom,
   selectedBattleLogAtom,
-  BattleLog,
+  BattleLogRecord,
   BattleLogsFilter,
   BattleLogsSortOptions,
 } from '../atoms/battle-logs';
@@ -33,11 +33,11 @@ export function useBattleLogs() {
   const stats = useRecoilValue(battleLogsStatsSelector);
   const logsByDeck = useRecoilValue(battleLogsByDeckSelector);
 
-  const addBattleLog = useCallback((log: BattleLog) => {
+  const addBattleLog = useCallback((log: BattleLogRecord) => {
     setBattleLogs(prev => [log, ...prev]);
   }, [setBattleLogs]);
 
-  const updateBattleLog = useCallback((id: string, updates: Partial<BattleLog>) => {
+  const updateBattleLog = useCallback((id: string, updates: Partial<BattleLogRecord>) => {
     setBattleLogs(prev => 
       prev.map(log => log.id === id ? { ...log, ...updates } : log)
     );
@@ -70,7 +70,7 @@ export function useBattleLogs() {
     setPage(1);
   }, [setFilter, setPage]);
 
-  const loadBattleLogs = useCallback(async (logs: BattleLog[]) => {
+  const loadBattleLogs = useCallback(async (logs: BattleLogRecord[]) => {
     setLoading(true);
     try {
       setBattleLogs(logs);

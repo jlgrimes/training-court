@@ -1,6 +1,6 @@
 import { getBattleLogMetadataFromLog } from "@/components/battle-logs/BattleLogInput/BattleLogInput.utils";
 import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
-import { fetchUserData } from "@/components/user-data.utils";
+import { fetchUserData } from "@/lib/utils/user-data.server";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
 import { withAuthAndRateLimit, withErrorHandler, withCORS } from "@/lib/api/middleware";

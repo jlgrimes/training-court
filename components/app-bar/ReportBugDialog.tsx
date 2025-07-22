@@ -82,9 +82,9 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
   return (
     <Dialog>
       <DialogTrigger className="w-full">
-        <SidebarMenuButton asChild>
-          <span><Bug />
-          <span>Feedback</span></span>
+        <SidebarMenuButton tooltip="Feedback">
+          <Bug />
+          <span>Feedback</span>
         </SidebarMenuButton>
       </DialogTrigger>
       <DialogContent>

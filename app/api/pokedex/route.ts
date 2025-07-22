@@ -1,16 +1,15 @@
 import { load } from "cheerio";
 import { withRateLimit, withErrorHandler } from "@/lib/api/middleware";
-import { NextRequest } from "next/server";
-
-const axios = require("axios");
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   return withErrorHandler(async () => {
     return withRateLimit(
       { max: 30, windowMs: 60 * 1000 }, // 30 requests per minute
       async () => {
-        const response = await axios.get('https://limitlesstcg.com/cards/pokedex');
-        const $ = load(response.data);
+        const response = await fetch('https://limitlesstcg.com/cards/pokedex');
+        const html = await response.text();
+        const $ = load(html);
         const pokemon = $('body .pokedex > tbody > tr[data-pokedex] img');
         const pokedex: string[] = [];
 
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
           if (src) pokedex.push(src);
         });
 
-        return Response.json({ pokedex, code: 200 })
+        return NextResponse.json({ pokedex, code: 200 })
       }
     )(request);
   });

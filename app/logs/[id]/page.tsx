@@ -3,7 +3,7 @@ import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogCarousel } from "@/components/battle-logs/BattleLogDisplay/BattleLogCarousel";
 import { Notes } from "@/components/battle-logs/Notes/Notes";
 import { getPlayerNames, parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
-import { fetchUserData } from "@/components/user-data.utils";
+import { fetchUserData } from "@/lib/utils/user-data.server";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";

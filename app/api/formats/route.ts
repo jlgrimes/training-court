@@ -2,7 +2,7 @@ import { parseISO, nextFriday, add, isBefore, isAfter } from "date-fns";
 import { PokemonTCGApiPokemonSet } from "./_types";
 import { getRotationBlocks } from "./_utils";
 import { withRateLimit, withErrorHandler } from "@/lib/api/middleware";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   return withErrorHandler(async () => {
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
         const blocks = getRotationBlocks(alteredData)
 
-        return Response.json({ data: blocks, code: 200 })
+        return NextResponse.json({ data: blocks, code: 200 })
       }
     )(request);
   });

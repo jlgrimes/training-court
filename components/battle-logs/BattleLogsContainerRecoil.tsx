@@ -17,7 +17,7 @@ import { useBattleLogs } from "@/app/recoil/hooks/useBattleLogs";
 import { useAuth } from "@/app/recoil/hooks/useAuth";
 import { useUI } from "@/app/recoil/hooks/useUI";
 import { createClient } from "@/utils/supabase/client";
-import { BattleLog } from "@/app/recoil/atoms/battle-logs";
+import { BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
 
 export function BattleLogsContainerRecoil() {
   const { user, isAuthenticated } = useAuth();
@@ -59,7 +59,7 @@ export function BattleLogsContainerRecoil() {
         if (error) throw error;
         
         if (data) {
-          loadBattleLogs(data as BattleLog[]);
+          loadBattleLogs(data as BattleLogRecord[]);
         }
       } catch (error) {
         showErrorToast('Failed to load battle logs');
@@ -85,7 +85,7 @@ export function BattleLogsContainerRecoil() {
 
   const handleAddLog = useCallback(async (newLog: Database['public']['Tables']['logs']['Row']) => {
     try {
-      const battleLog: BattleLog = {
+      const battleLog: BattleLogRecord = {
         id: newLog.id,
         user: newLog.user,
         log: newLog.log,

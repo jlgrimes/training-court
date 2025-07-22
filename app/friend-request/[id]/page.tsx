@@ -3,7 +3,6 @@ import { fetchFriendRequestWithUserData, FetchFriendRequestError } from "@/compo
 import { FriendRequestAcceptPage } from "@/components/friends/friend-requests/FriendRequestAcceptPage";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { fetchUserData } from "@/components/user-data.utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 

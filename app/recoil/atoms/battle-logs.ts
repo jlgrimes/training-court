@@ -2,7 +2,11 @@
 
 import { atom } from 'recoil';
 
-export interface BattleLog {
+/**
+ * Database/storage representation of a battle log record
+ * Contains raw log data and metadata
+ */
+export interface BattleLogRecord {
   id: string;
   user: string;
   log: string;
@@ -29,6 +33,9 @@ export interface BattleLog {
   battleLogGames?: any[];
 }
 
+// Export alias for backwards compatibility during migration
+export type BattleLog = BattleLogRecord;
+
 export interface BattleLogsFilter {
   format?: string;
   userDeck?: string;
@@ -46,7 +53,7 @@ export interface BattleLogsSortOptions {
   direction: 'asc' | 'desc';
 }
 
-export const battleLogsAtom = atom<BattleLog[]>({
+export const battleLogsAtom = atom<BattleLogRecord[]>({
   key: 'battleLogsState',
   default: [],
 });
@@ -79,7 +86,7 @@ export const battleLogsPageSizeAtom = atom<number>({
   default: 20,
 });
 
-export const selectedBattleLogAtom = atom<BattleLog | null>({
+export const selectedBattleLogAtom = atom<BattleLogRecord | null>({
   key: 'selectedBattleLogState',
   default: null,
 });

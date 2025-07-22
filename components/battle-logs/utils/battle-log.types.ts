@@ -27,6 +27,11 @@ export interface BattleLogAction {
   details: string[];
 }
 
+/**
+ * Parsed battle log representation for UI display
+ * Contains structured turn-by-turn data parsed from raw log strings
+ * Note: This is different from BattleLogRecord which is the database model
+ */
 export interface BattleLog {
   language: Language;
   id: string;

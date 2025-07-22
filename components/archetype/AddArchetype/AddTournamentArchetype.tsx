@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/hover-card"
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
-import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
+import Cookies from 'js-cookie';
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
@@ -35,12 +35,12 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
   }, [tournament.date_to]);
 
   useEffect(() => {
-    setClientDeck(getCookie(getLocalDeckCookieKey(tournament.id)));
+    setClientDeck(Cookies.get(getLocalDeckCookieKey(tournament.id)));
   }, []);
 
   useEffect(() => {
     if (clientDeck && !shouldLocalizeDeckInput) {
-      removeCookie(getLocalDeckCookieKey(tournament.id))
+      Cookies.remove(getLocalDeckCookieKey(tournament.id))
       setArchetype(clientDeck);
     }
   }, [clientDeck]);
@@ -51,7 +51,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
   
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
-      setCookie(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });
+      Cookies.set(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });
       return setClientDeck(deck);
     }
 
