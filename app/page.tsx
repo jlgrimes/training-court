@@ -1,5 +1,9 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
-import { fetchCurrentUser } from "@/components/auth.utils";
+import { fetchCurrentUserClient } from "@/components/auth.client.utils";
 import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
@@ -8,7 +12,6 @@ import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 const mockJWToronto = {
   id: 'toronto',
@@ -23,11 +26,24 @@ const mockJWToronto = {
   format: null
 }
 
-export default async function Index() {
-  const currentUser = await fetchCurrentUser();
+export default function Index() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (currentUser) {
-    redirect('/home');
+  useEffect(() => {
+    async function checkUser() {
+      const currentUser = await fetchCurrentUserClient();
+      if (currentUser) {
+        router.push('/home');
+      } else {
+        setIsLoading(false);
+      }
+    }
+    checkUser();
+  }, [router]);
+
+  if (isLoading) {
+    return <div className="flex-1 w-full flex items-center justify-center">Loading...</div>;
   }
 
   return (
@@ -140,7 +156,7 @@ export default async function Index() {
           tournament={mockJWToronto}
           userId=''
           rounds={[{
-            id: '',
+            id: 'round-16',
             created_at: '',
             deck: 'goodra',
             round_num: 16,
@@ -150,7 +166,7 @@ export default async function Index() {
             user: 'JW',
             turn_orders: []
           },{
-            id: '',
+            id: 'round-17',
             created_at: '',
             deck: 'lugia',
             round_num: 17,
@@ -160,7 +176,7 @@ export default async function Index() {
             user: 'JW',
             turn_orders: []
           }, {
-            id: '',
+            id: 'round-18',
             created_at: '',
             deck: 'gardevoir',
             round_num: 18,
@@ -170,7 +186,10 @@ export default async function Index() {
             user: 'JW',
             turn_orders: []
           }]}
-          updateClientRoundsOnEdit={async () => {'use server'}}
+          updateClientRoundsOnEdit={(newRound, pos) => {
+            // Demo component - no actual updates needed
+            console.log('Demo: Round update', newRound, pos);
+          }}
         />
         </div>
       </div>

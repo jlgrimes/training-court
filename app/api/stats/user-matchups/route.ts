@@ -1,16 +1,46 @@
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
+import { withAuthAndRateLimit, withErrorHandler, withCORS } from "@/lib/api/middleware";
+import { withValidation } from "@/lib/api/validation/validate";
+import { userIdSchema } from "@/lib/api/validation/schemas";
+import { z } from "zod";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase.rpc('get_user_tournament_and_battle_logs_v2', { user_id: '01a36333-aa26-47e1-bec6-bbdd596a7020' }).returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v2']['Returns']>();
-    if (error) throw error;
+// Query schema for this endpoint
+const querySchema = z.object({
+  user_id: userIdSchema.optional(),
+});
 
-    return Response.json({ data, code: 200 })
-  } catch (error) {
-    console.error(error);
+export async function GET(request: NextRequest) {
+  return withErrorHandler(async () => {
+    return withAuthAndRateLimit(
+      request,
+      async (req, userId) => {
+        return withValidation(
+          { query: querySchema },
+          async (_, { query }) => {
+          const supabase = createClient();
+          
+          // Get user_id from validated query params, or use authenticated user's ID
+          const targetUserId = query?.user_id || userId;
+      
+      // Optional: Add permission check if users should only access their own data
+      if (targetUserId !== userId) {
+        // You might want to check if the user has permission to view another user's stats
+        // For now, we'll allow it since this might be for public profiles
+      }
+      
+      const { data, error } = await supabase.rpc('get_user_tournament_and_battle_logs_v2', { 
+        user_id: targetUserId 
+      }).returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v2']['Returns']>();
+      
+      if (error) throw error;
 
-    return Response.json({ message: 'Error', code: 500 })
-  }
+          return withCORS(NextResponse.json({ data, code: 200 }));
+          }
+        )(req);
+      },
+      { max: 60, windowMs: 60 * 1000 } // 60 requests per minute
+    );
+  });
 }

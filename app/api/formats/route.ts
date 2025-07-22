@@ -1,11 +1,16 @@
 import { parseISO, nextFriday, add, isBefore, isAfter } from "date-fns";
 import { PokemonTCGApiPokemonSet } from "./_types";
 import { getRotationBlocks } from "./_utils";
+import { withRateLimit, withErrorHandler } from "@/lib/api/middleware";
+import { NextRequest } from "next/server";
 
-export async function GET() {
-  try {
-    const response = await fetch('https://api.pokemontcg.io/v2/sets');
-    const data: Record<string, PokemonTCGApiPokemonSet[]> = await response.json();
+export async function GET(request: NextRequest) {
+  return withErrorHandler(async () => {
+    return withRateLimit(
+      { max: 30, windowMs: 60 * 1000 }, // 30 requests per minute
+      async () => {
+        const response = await fetch('https://api.pokemontcg.io/v2/sets');
+        const data: Record<string, PokemonTCGApiPokemonSet[]> = await response.json();
     const dataWithLegalities = data['data'].map((obj) => {
       const releaseDate = parseISO(obj['releaseDate'].replaceAll('/', ''));
       const legalityDate = add(nextFriday(releaseDate), {
@@ -29,12 +34,10 @@ export async function GET() {
       return 0;
     }).filter((set, idx) => dataWithLegalities.findIndex(({ legalityDate }) => legalityDate === set.legalityDate) === idx && !['sve'].includes(set.id) && !set.name.includes(' Promos') && set.series !== 'Other');
 
-    const blocks = getRotationBlocks(alteredData)
+        const blocks = getRotationBlocks(alteredData)
 
-    return Response.json({ data: blocks, code: 200 })
-  } catch (error) {
-    console.error(error);
-
-    return Response.json({ message: 'Error scraping', code: 500 })
-  }
+        return Response.json({ data: blocks, code: 200 })
+      }
+    )(request);
+  });
 }

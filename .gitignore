@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env.example
 
 # vercel
 .vercel
@@ -34,3 +35,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude files
+CLAUDE.md
+.claude/
+claude-code/
+.claude*
+
+# Markdown files (except README)
+*.md
+!README.md
+
+# Project documentation
+projectReview.md
+ericWork.md
+overview.md
+LOCAL_SETUP.md
+error.txt
+
+# SQL scripts
+scripts/*.sql

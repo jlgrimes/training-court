@@ -49,7 +49,7 @@ const SmallCardHeader = React.forwardRef<
     {...props}
   />
 ))
-CardHeader.displayName = "CardHeader"
+SmallCardHeader.displayName = "SmallCardHeader"
 
 const CardTitle = React.forwardRef<
   HTMLParagraphElement,

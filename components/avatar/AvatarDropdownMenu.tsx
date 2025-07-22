@@ -48,14 +48,17 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
   return (
     <div>
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          {selectedImage && <img src={selectedImage} height='48px' width='48px' className='pixel-image' />}
-          {!selectedImage && (
+        <DropdownMenuTrigger asChild>
+          {selectedImage ? (
+            <button className='outline-none'>
+              <img src={selectedImage} height='48px' width='48px' className='pixel-image' />
+            </button>
+          ) : (
             <Button className='h-[48px]' variant='outline'>
               Select an avatar
             </Button>
           )}
-          </DropdownMenuTrigger>
+        </DropdownMenuTrigger>
         <DropdownMenuContent className='grid grid-cols-5'>
           <div className='col-span-5 grid grid-cols-5'>
 

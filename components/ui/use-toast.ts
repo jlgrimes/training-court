@@ -1,5 +1,8 @@
 "use client"
 
+// DEPRECATED: This file is kept for backward compatibility
+// Please use useUI() hook from @/app/recoil/hooks/useUI instead
+
 // Inspired by react-hot-toast library
 import * as React from "react"
 

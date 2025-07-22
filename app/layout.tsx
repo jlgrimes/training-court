@@ -1,16 +1,17 @@
 import { GeistSans } from 'geist/font/sans';
 import { Analytics } from '@vercel/analytics/react';
-import { Toaster } from '@/components/ui/toaster';
+import { RecoilToaster } from '@/components/ui/recoil-toaster';
 import './globals.css';
 import HeaderBreadcrumbs from '@/components/app-bar/HeaderBreadcrumbs';
 import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/app-sidebar';
+import { AppSidebarClient } from '@/components/app-sidebar-client';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
+import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -36,10 +37,10 @@ export default function RootLayout({
         <RecoilProvider>
           <DarkModeHydrationGuard>
             <DarkModeProvider />
-            
-            <SidebarProvider>
-              <AppSidebar />
-              <main className='min-h-screen h-full w-full'>
+            <RealtimeProvider>
+              <SidebarProvider>
+                <AppSidebarClient />
+                <main className='min-h-screen h-full w-full'>
                 <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
                   <div className='flex px-4 py-4 gap-4 items-center'>
                     <SidebarTrigger />
@@ -51,11 +52,11 @@ export default function RootLayout({
                     {children}
                   </div>
                 </div>
-                <Toaster />
+                <RecoilToaster />
                 <Analytics />
               </main>
             </SidebarProvider>
-
+            </RealtimeProvider>
           </DarkModeHydrationGuard>
         </RecoilProvider>
       </body>

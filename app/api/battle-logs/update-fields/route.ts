@@ -3,43 +3,72 @@ import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils"
 import { fetchUserData } from "@/components/user-data.utils";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
+import { withAuthAndRateLimit, withErrorHandler, withCORS } from "@/lib/api/middleware";
+import { withValidation } from "@/lib/api/validation/validate";
+import { z } from "zod";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
-  try {
-    const supabase = createClient();
-    const jaredUserId = '01a36333-aa26-47e1-bec6-bbdd596a7020';
+// Query schema for this endpoint
+const querySchema = z.object({
+  limit: z.coerce.number().int().positive().max(1000).optional(),
+});
 
-    const userData = await fetchUserData(jaredUserId);
+export async function GET(request: NextRequest) {
+  return withErrorHandler(async () => {
+    return withAuthAndRateLimit(
+      request,
+      async (req, userId) => {
+        return withValidation(
+          { query: querySchema },
+          async (_, { query }) => {
+          const supabase = createClient();
 
-    if (!userData?.live_screen_name) {
-      return Response.json({ res: 'Nothing to update. User does not have a live screen name.', code: 200 });
-    }
+      const userData = await fetchUserData(userId);
 
-
-    const { data, error } = await supabase.from('logs').select().eq('user', jaredUserId).returns<Database['public']['Tables']['logs']['Row'][]>();
-
-    console.log('Filling in logs...');
-    const filledInLogs = data?.map((row) => {
-      // Nothing to update if everything is already filled
-      if (row.archetype && row.opp_archetype && row.turn_order && row.result) return row;
-
-      const parsedLog = parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, userData?.live_screen_name ?? null);
-
-      const metadata = getBattleLogMetadataFromLog(parsedLog, userData?.live_screen_name);
-      return {
-        ...row,
-        ...metadata
+      if (!userData?.live_screen_name) {
+        return withCORS(NextResponse.json({ res: 'Nothing to update. User does not have a live screen name.', code: 200 }));
       }
-    });
 
-    console.log('Updating data for user ' + jaredUserId + '...');
-    const { data: updatedData, error: updatedError } = await supabase.from('logs').upsert(filledInLogs)
-    if (updatedError) throw updatedError;
+          // Apply limit if provided
+          let logsQuery = supabase.from('logs').select().eq('user', userId);
+          if (query?.limit) {
+            logsQuery = logsQuery.limit(query.limit);
+          }
+          
+          const { data, error } = await logsQuery.returns<Database['public']['Tables']['logs']['Row'][]>();
 
-    return Response.json({ data: updatedData, code: 200 })
-  } catch (error) {
-    console.error(error);
+      if (error) {
+        console.error('Error fetching logs:', error);
+        return withCORS(NextResponse.json({ message: 'Error fetching logs', code: 500 }));
+      }
 
-    return Response.json({ message: 'Error', code: 500 })
-  }
+      if (!data || data.length === 0) {
+        return withCORS(NextResponse.json({ res: 'No logs found for user', code: 200 }));
+      }
+
+      console.log('Filling in logs...');
+      const filledInLogs = data.map((row) => {
+        // Nothing to update if everything is already filled
+        if (row.archetype && row.opp_archetype && row.turn_order && row.result) return row;
+
+        const parsedLog = parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, userData?.live_screen_name ?? null);
+
+        const metadata = getBattleLogMetadataFromLog(parsedLog, userData?.live_screen_name);
+        return {
+          ...row,
+          ...metadata
+        }
+      });
+
+      console.log('Updating data for user ' + userId + '...');
+      const { data: updatedData, error: updatedError } = await supabase.from('logs').upsert(filledInLogs)
+      if (updatedError) throw updatedError;
+
+          return withCORS(NextResponse.json({ data: updatedData, code: 200 }));
+          }
+        )(req);
+      },
+      { max: 10, windowMs: 60 * 1000 } // 10 requests per minute for this heavy operation
+    );
+  });
 }
