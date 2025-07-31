@@ -53,7 +53,7 @@ export function usePreferences() {
         inApp: true,
       },
       privacy: {
-        profileVisibility: 'public',
+        profileVisibility: 'private',
         showStats: true,
         showBattleLogs: true,
       },

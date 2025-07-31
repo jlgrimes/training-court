@@ -13,7 +13,7 @@ export const TrainingCourtWelcomeClient = () => {
 
   useEffect(() => {
     // For now, use a static list of avatar images
-    // In production, this should be fetched from an API endpoint
+    // @TODO, this should be fetched from an API endpoint
     const defaultAvatars = [
       'ace-trainer-f.png', 'ace-trainer-m.png', 'aether-employee-f.png', 
       'aether-employee-m.png', 'beauty.png', 'blackbelt.png', 

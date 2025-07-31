@@ -47,7 +47,7 @@ export const userPreferencesAtom = atom<UserPreferences>({
       inApp: true,
     },
     privacy: {
-      profileVisibility: 'public',
+      profileVisibility: 'private',
       showStats: true,
       showBattleLogs: true,
     },
