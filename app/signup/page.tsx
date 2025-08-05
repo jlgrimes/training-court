@@ -15,6 +15,7 @@ export default function SignUp({
   const signUp = async (formData: FormData) => {
     "use server";
 
+    const origin = headers().get("origin") || "http://localhost:3000";
     const supabase = createClient();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -27,7 +28,7 @@ export default function SignUp({
       email,
       password,
       options: {
-        emailRedirectTo: `trainingcourt.app/auth/callback`,
+        emailRedirectTo: `${origin}/auth/callback`,
         data: {
           games: {
             tradingCardGame: games.includes('tradingCardGame'),

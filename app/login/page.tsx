@@ -35,7 +35,7 @@ export default function Login({
     "use server";
 
     const supabase = createClient();
-    const origin = headers().get("origin");
+    const origin = headers().get("origin") || "http://localhost:3000";
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const games = formData.getAll("games") as string[];
@@ -44,7 +44,7 @@ export default function Login({
       email,
       password,
       options: {
-        emailRedirectTo: `trainingcourt.app/auth/callback`,
+        emailRedirectTo: `${origin}/auth/callback`,
         data: {
           selected_games: games
         }
