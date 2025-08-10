@@ -22,7 +22,7 @@ import { TournamentPlacementSelect } from "./Placement/TournamentPlacementSelect
 import { TournamentPlacement } from "./Placement/tournament-placement.types";
 import { Database } from "@/database.types";
 import { TournamentFormats, tournamentFormats } from "./Format/tournament-format.types";
-import { convertToUTC } from "./utils/tournaments.utils";
+import { toUtcNoon } from "./utils/tournaments.utils";
 
 export default function TournamentCreate({ userId }: { userId: string }) {
   const [editing, setEditing] = useState(false);
@@ -40,8 +40,8 @@ export default function TournamentCreate({ userId }: { userId: string }) {
     setIsCreatingTournament(true);
     const supabase = createClient();
 
-    const dateFromUTC = convertToUTC(tournamentDate.from);
-    const dateToUTC = convertToUTC(tournamentDate.to ?? tournamentDate.from);
+    const dateFromUTC = toUtcNoon(tournamentDate.from);
+    const dateToUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { data, error } = await supabase.from('tournaments').insert({
       name: tournamentName,

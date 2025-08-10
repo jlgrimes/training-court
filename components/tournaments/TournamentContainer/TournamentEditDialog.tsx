@@ -8,15 +8,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useCallback, useEffect, useState } from "react"
+} from "@/components/ui/select";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { createClient } from "@/utils/supabase/client";
@@ -30,6 +30,7 @@ import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
 import { tournamentFormats, TournamentFormats } from "../Format/tournament-format.types";
+import { toUtcNoon } from "../utils/tournaments.utils";
 
 interface TournamentEditDialogProps {
   tournamentId: string;
@@ -39,7 +40,13 @@ interface TournamentEditDialogProps {
   tournamentDateRange: DateRange;
   tournamentFormat: TournamentFormats | null;
   user: User | null;
-  updateClientTournament: (newName: string, newDateRange: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => void;
+  updateClientTournament: (
+    newName: string,
+    newDateRange: DateRange,
+    newCategory: TournamentCategory | null,
+    newPlacement: TournamentPlacement | null,
+    newFormat: TournamentFormats | null
+  ) => void;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
@@ -61,41 +68,62 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
 
   useEffect(() => {
     setTournamentCategory(props.tournamentCategory);
-  }, [props.tournamentCategory])
+  }, [props.tournamentCategory]);
 
   useEffect(() => {
     setTournamentPlacement(props.tournamentPlacement);
-  }, [props.tournamentPlacement])
+  }, [props.tournamentPlacement]);
 
   useEffect(() => {
     setTournamentFormat(props.tournamentFormat);
-  }, [props.tournamentPlacement])
+  }, [props.tournamentFormat]);
 
   const handleUpdateTournament = useCallback(async () => {
+    if (!tournamentDate?.from) return;
+
     const supabase = createClient();
-    const { error } = await supabase.from('tournaments').update({
-      name: tournamentName,
-      date_from: tournamentDate?.from,
-      date_to: tournamentDate?.to,
-      category: tournamentCategory,
-      placement: tournamentPlacement,
-      format: tournamentFormat
-    }).eq('id', props.tournamentId);
+
+    const fromNoonUTC = toUtcNoon(tournamentDate.from);
+    const toNoonUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
+
+    const { error } = await supabase
+      .from('tournaments')
+      .update({
+        name: tournamentName,
+        date_from: fromNoonUTC?.toISOString(),
+        date_to: toNoonUTC?.toISOString(),
+        category: tournamentCategory,
+        placement: tournamentPlacement,
+        format: tournamentFormat
+      })
+      .eq('id', props.tournamentId);
 
     if (error) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error.message,
-      })
-    } else {
-      props.updateClientTournament(tournamentName, tournamentDate as DateRange, tournamentCategory, tournamentPlacement, tournamentFormat);
-
-      toast({
-        title: "Tournament changes saved.",
       });
+    } else {
+      props.updateClientTournament(
+        tournamentName,
+        tournamentDate as DateRange,
+        tournamentCategory,
+        tournamentPlacement,
+        tournamentFormat
+      );
+      toast({ title: "Tournament changes saved." });
     }
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, tournamentFormat]);
+  }, [
+    tournamentName,
+    tournamentDate,
+    tournamentCategory,
+    tournamentPlacement,
+    tournamentFormat,
+    props.tournamentId,
+    props.updateClientTournament,
+    toast
+  ]);
 
   return (
     <Dialog>
@@ -104,31 +132,30 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
           <Pencil className="h-4 w-4" color="gray" />
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit tournament</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col w-full max-w-sm gap-2 space-x-2">
-          <Input className="ml-2" placeholder="Tournament name" value={tournamentName} onChange={(e) => setTournamentName(e.target.value)} />
-            <DatePicker date={tournamentDate} setDate={setTournamentDate} />
-            <Select value={tournamentCategory ? (tournamentCategory as string) : undefined} onValueChange={(value) => setTournamentCategory(value as TournamentCategory)}>
+          <Input
+            className="ml-2"
+            placeholder="Tournament name"
+            value={tournamentName}
+            onChange={(e) => setTournamentName(e.target.value)}
+          />
+
+          <DatePicker date={tournamentDate} setDate={setTournamentDate} />
+
+          {/* Category select */}
+          <Select
+            value={tournamentCategory ?? undefined}
+            onValueChange={(value) => setTournamentCategory(value as TournamentCategory)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select tournament category" />
             </SelectTrigger>
-
-            <Select value={tournamentFormat ? (tournamentFormat as string) : undefined} onValueChange={(value) => setTournamentFormat(value as TournamentFormats)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select format" />
-              </SelectTrigger>
-              <SelectContent>
-                {tournamentFormats.map((format) => (
-                  <SelectItem key={format} value={format}>
-                    {format}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <SelectContent>
               {allTournamentCategories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
@@ -140,14 +167,42 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
               ))}
             </SelectContent>
           </Select>
-          <TournamentPlacementSelect value={tournamentPlacement} onChange={(newPlacement: TournamentPlacement) => setTournamentPlacement(newPlacement)} />
+
+          {/* Format select */}
+          <Select
+            value={tournamentFormat ?? undefined}
+            onValueChange={(value) => setTournamentFormat(value as TournamentFormats)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select format" />
+            </SelectTrigger>
+            <SelectContent>
+              {tournamentFormats.map((fmt) => (
+                <SelectItem key={fmt} value={fmt}>
+                  {fmt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <TournamentPlacementSelect
+            value={tournamentPlacement}
+            onChange={(newPlacement: TournamentPlacement) => setTournamentPlacement(newPlacement)}
+          />
         </div>
+
         <DialogFooter>
-        <DialogClose asChild>
-          <Button onClick={handleUpdateTournament} type="submit" disabled={(tournamentName.length === 0) || !tournamentDate?.from}>Save changes</Button>
-        </DialogClose>
+          <DialogClose asChild>
+            <Button
+              onClick={handleUpdateTournament}
+              type="submit"
+              disabled={(tournamentName.length === 0) || !tournamentDate?.from}
+            >
+              Save changes
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
