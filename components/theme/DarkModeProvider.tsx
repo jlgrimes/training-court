@@ -1,19 +1,37 @@
 'use client';
 
-import { useRecoilValue } from 'recoil';
-import { darkModeState } from '@/app/recoil/darkMode/darkModeState';
 import { useEffect } from 'react';
+import { useUI } from '@/app/recoil/hooks/useUI';
+import { usePreferences } from '@/app/recoil/hooks/usePreferences';
 
 export const DarkModeProvider = () => {
-  const isDarkMode = useRecoilValue(darkModeState);
+  const { darkMode, setDarkMode } = useUI();
+  const { preferences } = usePreferences();
 
   useEffect(() => {
-    if (isDarkMode) {
+    // Handle system theme preference
+    if (preferences.theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        setDarkMode(e.matches);
+      };
+      
+      setDarkMode(mediaQuery.matches);
+      mediaQuery.addEventListener('change', handleChange);
+      
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      setDarkMode(preferences.theme === 'dark');
+    }
+  }, [preferences.theme, setDarkMode]);
+
+  useEffect(() => {
+    if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [isDarkMode]);
+  }, [darkMode]);
 
   return null;
 };
