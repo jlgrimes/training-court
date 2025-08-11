@@ -85,31 +85,34 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
             </div>
           )}
   
-          <div className="grid grid-cols-4 sm:grid-cols-7 items-start">
-            <div className="flex flex-col gap-1 col-span-2 sm:col-span-5">
-              <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
-                {tournamentName}
-              </h1>
-              <h3 className="text-sm text-muted-foreground">
-                {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
-              </h3>
-              <div className="flex gap-1 mt-1 no-wrap">
-                {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
-                {tournamentPlacement && (<TournamentPlacementBadge placement={tournamentPlacement} />)}
-                {tournamentFormat && (<TournamentFormatBadge format={tournamentFormat} />)}
+          <div className="flex flex-col gap-1 sm:gap-2">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="flex flex-col min-w-0 flex-1">
+                <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
+                  {tournamentName}
+                </h1>
+                <h3 className="text-sm text-muted-foreground">
+                  {displayTournamentDate(props.tournament.date_from, props.tournament.date_to)}
+                </h3>
+                <div className="flex flex-wrap gap-1 mt-0.5">
+                  {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
+                  {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
+                  {tournamentFormat && <TournamentFormatBadge format={tournamentFormat} />}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-end shrink-0">
+                <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
+                  {getRecord(rounds)}
+                </h1>
+                <EditableTournamentArchetype
+                  tournament={props.tournament}
+                  editDisabled={props.tournament.user !== props.user?.id}
+                />
               </div>
             </div>
-  
-            <div className="flex flex-col items-end col-span-2 gap-1 px-1 pt-[2px]">
-              <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
-                {getRecord(rounds)}
-              </h1>
-              <EditableTournamentArchetype
-                tournament={props.tournament}
-                editDisabled={props.tournament.user !== props.user?.id}
-              />
-            </div>
           </div>
+
   
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4">
