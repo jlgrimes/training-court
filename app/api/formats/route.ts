@@ -6,18 +6,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   return withErrorHandler(async () => {
-    const rateLimitResult = await withRateLimit(
+    return withRateLimit(
       { max: 30, windowMs: 60 * 1000 },
-      async () => true
+      async () => {
+        const sets = await getProcessedPokemonSets();
+        const blocks = getRotationBlocks(sets);
+
+        return NextResponse.json({ data: blocks, code: 200 });
+      }
     )(request);
-
-    if (rateLimitResult !== true) {
-      return rateLimitResult;
-    }
-
-    const sets = await getProcessedPokemonSets();
-    const blocks = getRotationBlocks(sets);
-
-    return NextResponse.json({ data: blocks, code: 200 });
   });
 }
