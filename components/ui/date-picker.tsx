@@ -8,16 +8,20 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { DateRange } from "react-day-picker"
  
 export function DatePicker({ date, setDate }: { date: DateRange | undefined, setDate: (date: DateRange | undefined) => void}) {
+  const [open, setOpen] = React.useState(false)
+  
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
@@ -28,15 +32,23 @@ export function DatePicker({ date, setDate }: { date: DateRange | undefined, set
           <CalendarIcon className="mr-2 h-4 w-4" />
           {(date?.from && date?.to) ? (format(date.from, "LLL d") + ' - ' + format(date.to, "LLL d yyyy")) : date?.from ? (format(date.from, "LLL d")) : <span>Pick a date</span>}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Select Date Range</DialogTitle>
+        </DialogHeader>
         <Calendar
           mode="range"
           selected={date}
-          onSelect={setDate}
+          onSelect={(newDate) => {
+            setDate(newDate)
+            if (newDate?.from && newDate?.to) {
+              setTimeout(() => setOpen(false), 100)
+            }
+          }}
           initialFocus
         />
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   )
 }
