@@ -69,7 +69,10 @@ export const getTournamentRoundsFromUserRounds = (allRounds: Database['public'][
   return allRounds.filter((round) => round.tournament === tournament.id);
 }
 
-export const convertToUTC = (date?: Date) => {
-  if (!date) return undefined;
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-};
+export function toUtcNoon(date: Date | null | undefined): Date | null {
+  if (!date) return null;
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+  return new Date(Date.UTC(y, m, d, 12, 0, 0, 0));
+}
