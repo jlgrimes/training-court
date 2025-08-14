@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { TournamentFormatsTab } from "../Format/tournament-format.types";
+import MultiSelect from "@/components/ui/multi-select";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -25,7 +26,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   // The code relating to dropdown is one StackOverflow suggestion to fix this behavior. Behavior is fine on desktop.
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isInteractionBlocked, setIsInteractionBlocked] = useState(false);
-  const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
+  const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
   const handleDropdownOpenChange = (open: boolean) => {
@@ -39,9 +40,14 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
 
   
   const availableTournamentCategories = useMemo(() =>
-    allTournamentCategoryTabs.filter(
-      (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
-    ), 
+    allTournamentCategoryTabs .filter((cat) => cat !== 'all')
+      .map((cat) => ({
+        value: cat,
+        label: `${displayTournamentCategoryTab(cat)} (${
+          tournaments?.filter((t) => t.category === cat).length ?? 0
+        })`,
+        leftSlot: <TournamentCategoryIcon category={cat} />,
+      })),
     [allTournamentCategoryTabs, tournaments]
   );
 
@@ -53,8 +59,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   });
 
   const filteredTournaments = tournaments?.filter((tournament) =>
-    (selectedCat === 'all' || tournament.category === selectedCat) 
-  &&  (selectedFormat === 'All' || tournament.format === selectedFormat)
+    (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
+    && (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
 
   if (tournaments && tournaments?.length === 0) {
@@ -73,26 +79,13 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
 
-        <Select defaultValue="all" onValueChange={(val) => setSelectedCat(val as TournamentCategoryTab)} open={isDropdownOpen} onOpenChange={handleDropdownOpenChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableTournamentCategories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                <div className="flex justify-between w-full items-center">
-                  {cat !== 'all' && <TournamentCategoryIcon category={cat} />}
-                  <p>
-                    {displayTournamentCategoryTab(cat)} (
-                    {tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})
-                  </p>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MultiSelect
+          options={availableTournamentCategories}
+          value={selectedCats}
+          onChange={(vals) => setSelectedCats(vals as TournamentCategoryTab[])}
+          placeholder="Select category"
+        />
 
-          {/* @TODO: Implement Format */}
       <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
         <SelectTrigger>
           <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
@@ -121,7 +114,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           </Card>
         )}
 
-        {selectedCat === 'all' ? (
+        {selectedCats.length === 0 ? (
           <div className="flex flex-col gap-2">
             {filteredTournaments?.map((tournament) =>
               rounds ? (
