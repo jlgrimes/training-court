@@ -57,7 +57,8 @@ export default function MultiSelect({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           className={cn(
-            "flex h-10 w-full transition-all items-center justify-between rounded-md border border-input bg-background text-sm",
+            "grid h-10 w-full items-center rounded-md border border-input bg-background text-sm",
+            "[grid-template-columns:minmax(0,1fr)_auto_auto]",
             "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
             "disabled:cursor-not-allowed disabled:opacity-50",
             "hover:bg-transparent hover:text-accent-foreground"
@@ -65,7 +66,7 @@ export default function MultiSelect({
           disabled={disabled}
           aria-expanded={open}
         >
-          <div className="flex justify-between flex-1 overflow-hidden">
+        <div className="flex justify-between flex-1 overflow-hidden">
             <div
               className="flex gap-1 flex-1 py-2 px-3 overflow-x-auto"
               style={{
