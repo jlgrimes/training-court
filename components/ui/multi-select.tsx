@@ -58,7 +58,7 @@ export default function MultiSelect({
         <PopoverTrigger
           className={cn(
             "flex h-10 w-full transition-all items-center justify-between rounded-md border border-input bg-background text-sm",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
             "disabled:cursor-not-allowed disabled:opacity-50",
             "hover:bg-transparent hover:text-accent-foreground"
           )}
@@ -82,9 +82,9 @@ export default function MultiSelect({
                   const option = options?.find((opt) => opt.value === item);
                   return (
                     <>
-                        <Badge key={item} variant="default" className="text-xs">
+                        <Badge key={item} variant="default" className="text-xs flex-nowrap inline-flex items-center">
                         {option?.icon}
-                        {option?.label}
+                        <span className="whitespace-nowrap">{option?.label}</span>
                         <span
                             role="button"
                             tabIndex={0}
