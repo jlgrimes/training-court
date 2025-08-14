@@ -31,11 +31,11 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       .map((cat) => ({
         value: cat,
         label: `${displayTournamentCategoryTab(cat)} (${
-          tournaments?.filter((t) => t.category === cat).length ?? 0
+          tournaments?.filter((t) => t.category === cat && (t.format === selectedFormat || selectedFormat === 'All')).length ?? 0
         })`,
         icon: <TournamentCategoryIcon category={cat} />
       })),
-    [allTournamentCategoryTabs, tournaments]
+    [allTournamentCategoryTabs, tournaments, selectedFormat]
   );
 
   const availableFormats: TournamentFormatsTab[] = ['All'];
