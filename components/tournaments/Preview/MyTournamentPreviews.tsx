@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
+import { TournamentCategory, TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { TournamentFormatsTab } from "../Format/tournament-format.types";
+import MultiSelect from "@/components/ui/multi-select";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -21,28 +22,20 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: tournaments } = useTournaments(props.user?.id);
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
-  // @TODO: Known issue on mobile aka a ghostClick. If clicking on a dropdown menu option, it will pass-through and click the tournament underneath.
-  // The code relating to dropdown is one StackOverflow suggestion to fix this behavior. Behavior is fine on desktop.
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isInteractionBlocked, setIsInteractionBlocked] = useState(false);
-  const [selectedCat, setSelectedCat] = useState<TournamentCategoryTab>('all');
+  const [isInteractionBlocked, ] = useState(false);
+  const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
-  const handleDropdownOpenChange = (open: boolean) => {
-    setIsDropdownOpen(open);
-    if (!open) {
-      setIsInteractionBlocked(true);
-      setTimeout(() => setIsInteractionBlocked(false), 300);
-    }
-  };
-
-
-  
   const availableTournamentCategories = useMemo(() =>
-    allTournamentCategoryTabs.filter(
-      (cat) => cat === 'all' || tournaments?.some((tournament) => tournament.category === cat)
-    ), 
-    [allTournamentCategoryTabs, tournaments]
+    allTournamentCategoryTabs.filter((cat) => cat !== 'all')
+      .map((cat) => ({
+        value: cat,
+        label: `${displayTournamentCategoryTab(cat)} (${
+          tournaments?.filter((t) => t.category === cat && (t.format === selectedFormat || selectedFormat === 'All')).length ?? 0
+        })`,
+        icon: <TournamentCategoryIcon category={cat as TournamentCategory} />
+      })),
+    [allTournamentCategoryTabs, tournaments, selectedFormat]
   );
 
   const availableFormats: TournamentFormatsTab[] = ['All'];
@@ -53,8 +46,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   });
 
   const filteredTournaments = tournaments?.filter((tournament) =>
-    (selectedCat === 'all' || tournament.category === selectedCat) 
-  &&  (selectedFormat === 'All' || tournament.format === selectedFormat)
+    (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
+    && (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
 
   if (tournaments && tournaments?.length === 0) {
@@ -68,31 +61,17 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     );
   }
 
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
 
-        <Select defaultValue="all" onValueChange={(val) => setSelectedCat(val as TournamentCategoryTab)} open={isDropdownOpen} onOpenChange={handleDropdownOpenChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableTournamentCategories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                <div className="flex justify-between w-full items-center">
-                  {cat !== 'all' && <TournamentCategoryIcon category={cat} />}
-                  <p>
-                    {displayTournamentCategoryTab(cat)} (
-                    {tournaments?.filter((tournament) => cat === 'all' ? true : tournament.category === cat).length})
-                  </p>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MultiSelect
+          options={availableTournamentCategories}
+          value={selectedCats}
+          onChange={(vals) => setSelectedCats(vals as TournamentCategoryTab[])}
+          placeholder="All Categories"
+        />
 
-          {/* @TODO: Implement Format */}
       <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
         <SelectTrigger>
           <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
@@ -103,7 +82,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
               <div className="flex justify-between w-full items-center">
                 <p>
                   {format === 'All' ? 'All Formats' : format} (
-                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length})
+                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length}
+                  )
                 </p>
               </div>
             </SelectItem>
@@ -121,14 +101,14 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           </Card>
         )}
 
-        {selectedCat === 'all' ? (
+        {selectedCats.length === 0 ? (
           <div className="flex flex-col gap-2">
             {filteredTournaments?.map((tournament) =>
               rounds ? (
                 <TournamentPreview
-                key={tournament.id}
-                tournament={tournament}
-                rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  key={tournament.id}
+                  tournament={tournament}
+                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
                 />
               ) : null
             )}

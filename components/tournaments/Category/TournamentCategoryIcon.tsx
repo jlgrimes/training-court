@@ -2,7 +2,7 @@ import { Earth, Map, MapPinHouse, Plane, Swords, Trophy, Laptop } from "lucide-r
 import { TournamentCategory } from "./tournament-category.types"
 
 interface TournamentCategoryIconProps {
-  category: TournamentCategory;
+  category?: TournamentCategory;
 }
 
 export const TournamentCategoryIcon = (props: TournamentCategoryIconProps) => {

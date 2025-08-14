@@ -117,7 +117,6 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
         </Button>
       </DialogTrigger>
 
-      {/* Responsive, compact modal */}
       <DialogContent
         className="
           w-[min(92vw,560px)]
@@ -131,7 +130,6 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
             <DialogTitle>Create tournament</DialogTitle>
           </DialogHeader>
 
-          {/* Form stack */}
           <div className="space-y-4">
             <Input
               className="w-full"
@@ -140,12 +138,10 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
               onChange={(e) => setTournamentName(e.target.value)}
             />
 
-            {/* Make date trigger full-width; ensure the popover matches trigger width */}
             <div className="w-full">
               <DatePicker date={tournamentDate} setDate={setTournamentDate} />
             </div>
 
-            {/* Category */}
             <Select
               value={tournamentCategory ?? undefined}
               onValueChange={(val) => setTournamentCategory(val as TournamentCategory)}
@@ -165,7 +161,6 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
               </SelectContent>
             </Select>
 
-            {/* Format */}
             <Select
               value={format ?? undefined}
               onValueChange={(val) => setFormat(val as TournamentFormats)}
@@ -182,7 +177,6 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
               </SelectContent>
             </Select>
 
-            {/* Placement */}
             <TournamentPlacementSelect
               value={tournamentPlacement}
               onChange={(p: TournamentPlacement) => setTournamentPlacement(p)}
