@@ -69,7 +69,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           options={availableTournamentCategories}
           value={selectedCats}
           onChange={(vals) => setSelectedCats(vals as TournamentCategoryTab[])}
-          placeholder="Select Category"
+          placeholder="All Categories"
         />
 
       <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>

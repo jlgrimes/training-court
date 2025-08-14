@@ -83,7 +83,7 @@ export default function MultiSelect({
                   const option = options?.find((opt) => opt.value === item);
                   return (
                     <>
-                        <Badge key={item} variant="default" className="text-xs flex-nowrap inline-flex items-center">
+                        <Badge key={item} variant="default" className="text-xs flex-nowrap inline-flex items-center" title={option?.label}>
                         {option?.icon}
                         <span className="whitespace-nowrap">{option?.label}</span>
                         <span
