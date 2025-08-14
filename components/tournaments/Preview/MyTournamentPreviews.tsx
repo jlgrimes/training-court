@@ -22,21 +22,10 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: tournaments } = useTournaments(props.user?.id);
   const { data: rounds } = useTournamentRounds(props.user?.id);
 
-  // @TODO: Known issue on mobile aka a ghostClick. If clicking on a dropdown menu option, it will pass-through and click the tournament underneath.
-  // The code relating to dropdown is one StackOverflow suggestion to fix this behavior. Behavior is fine on desktop.
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isInteractionBlocked, setIsInteractionBlocked] = useState(false);
+  const [isInteractionBlocked, ] = useState(false);
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
 
-  const handleDropdownOpenChange = (open: boolean) => {
-    setIsDropdownOpen(open);
-    if (!open) {
-      setIsInteractionBlocked(true);
-      setTimeout(() => setIsInteractionBlocked(false), 300);
-    }
-  };
-  
   const availableTournamentCategories = useMemo(() =>
     allTournamentCategoryTabs.filter((cat) => cat !== 'all')
       .map((cat) => ({
@@ -72,7 +61,6 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     );
   }
 
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
@@ -81,7 +69,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           options={availableTournamentCategories}
           value={selectedCats}
           onChange={(vals) => setSelectedCats(vals as TournamentCategoryTab[])}
-          placeholder="Select category"
+          placeholder="Select Category"
         />
 
       <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
@@ -94,7 +82,8 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
               <div className="flex justify-between w-full items-center">
                 <p>
                   {format === 'All' ? 'All Formats' : format} (
-                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length})
+                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length}
+                  )
                 </p>
               </div>
             </SelectItem>
@@ -117,9 +106,9 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
             {filteredTournaments?.map((tournament) =>
               rounds ? (
                 <TournamentPreview
-                key={tournament.id}
-                tournament={tournament}
-                rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  key={tournament.id}
+                  tournament={tournament}
+                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
                 />
               ) : null
             )}

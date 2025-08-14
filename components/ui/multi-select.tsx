@@ -18,8 +18,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TournamentCategory } from "../tournaments/Category/tournament-category.types";
-import { TournamentCategoryIcon } from "../tournaments/Category/TournamentCategoryIcon";
 
 interface MultiSelectProps {
   options?: { label: string; value: string; icon?: React.ReactNode }[];
@@ -62,7 +60,7 @@ export default function MultiSelect({
             "flex h-10 w-full transition-all items-center justify-between rounded-md border border-input bg-background text-sm",
             "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            "hover:bg-accent hover:text-accent-foreground"
+            "hover:bg-transparent hover:text-accent-foreground"
           )}
           disabled={disabled}
           aria-expanded={open}
@@ -76,7 +74,7 @@ export default function MultiSelect({
               }}
             >
               {value.length === 0 ? (
-                <span className="text-muted-foreground truncate">
+                <span className="truncate">
                   {placeholder}
                 </span>
               ) : (
@@ -104,7 +102,6 @@ export default function MultiSelect({
                 })
               )}
             </div>
-            <hr className="border-l border-border bg-red-300 h-6 mx-0.5 my-auto" />
             <span
               role="button"
               onClick={(e) => {
@@ -115,16 +112,15 @@ export default function MultiSelect({
               className={cn(
                 "p-1 mx-1.5 my-auto h-full outline-none",
                 "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                "hover:bg-accent/50 rounded-sm cursor-pointer"
+                "hover:bg-transparent rounded-sm cursor-pointer"
               )}
             >
               <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
             </span>
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="p-0" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
           <Command>
-            <CommandInput autoFocus={false} placeholder="Search items..." />
             <CommandList>
               <CommandEmpty className="p-0">
                 {isLoading ? (
