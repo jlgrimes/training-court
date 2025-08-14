@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
+import { TournamentCategory, TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,7 +33,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         label: `${displayTournamentCategoryTab(cat)} (${
           tournaments?.filter((t) => t.category === cat && (t.format === selectedFormat || selectedFormat === 'All')).length ?? 0
         })`,
-        icon: <TournamentCategoryIcon category={cat} />
+        icon: <TournamentCategoryIcon category={cat as TournamentCategory} />
       })),
     [allTournamentCategoryTabs, tournaments, selectedFormat]
   );
