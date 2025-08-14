@@ -36,17 +36,15 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
       setTimeout(() => setIsInteractionBlocked(false), 300);
     }
   };
-
-
   
   const availableTournamentCategories = useMemo(() =>
-    allTournamentCategoryTabs .filter((cat) => cat !== 'all')
+    allTournamentCategoryTabs.filter((cat) => cat !== 'all')
       .map((cat) => ({
         value: cat,
         label: `${displayTournamentCategoryTab(cat)} (${
           tournaments?.filter((t) => t.category === cat).length ?? 0
         })`,
-        leftSlot: <TournamentCategoryIcon category={cat} />,
+        icon: <TournamentCategoryIcon category={cat} />
       })),
     [allTournamentCategoryTabs, tournaments]
   );

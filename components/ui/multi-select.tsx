@@ -18,9 +18,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TournamentCategory } from "../tournaments/Category/tournament-category.types";
+import { TournamentCategoryIcon } from "../tournaments/Category/TournamentCategoryIcon";
 
 interface MultiSelectProps {
-  options?: { label: string; value: string }[];
+  options?: { label: string; value: string; icon?: React.ReactNode }[];
   value: string[];
   onChange: (selected: string[]) => void;
   placeholder?: string;
@@ -81,20 +83,23 @@ export default function MultiSelect({
                 value.map((item) => {
                   const option = options?.find((opt) => opt.value === item);
                   return (
-                    <Badge key={item} variant="default" className="text-xs">
-                      {option?.label}
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        className="ml-1 hover:bg-destructive transition-all hover:text-destructive-foreground rounded-full p-0.5"
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && handleUnselect(item)
-                        }
-                        onClick={() => handleUnselect(item)}
-                      >
-                        <X className="h-3 w-3" />
-                      </span>
-                    </Badge>
+                    <>
+                        <Badge key={item} variant="default" className="text-xs">
+                        {option?.icon}
+                        {option?.label}
+                        <span
+                            role="button"
+                            tabIndex={0}
+                            className="ml-1 hover:bg-destructive transition-all hover:text-destructive-foreground rounded-full p-0.5"
+                            onKeyDown={(e) =>
+                                e.key === "Enter" && handleUnselect(item)
+                            }
+                            onClick={() => handleUnselect(item)}
+                            >
+                            <X className="h-3 w-3" />
+                        </span>
+                        </Badge>
+                    </>
                   );
                 })
               )}
@@ -152,6 +157,7 @@ export default function MultiSelect({
                           : "opacity-0"
                       )}
                     />
+                    {option?.icon}
                     {option.label}
                   </CommandItem>
                 ))}
