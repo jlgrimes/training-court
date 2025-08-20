@@ -24,7 +24,6 @@ import { LogOutButton } from "./app-bar/LogOutButton";
 import { DarkModeToggle } from "./theme/DarkModeToggle";
 import { useAuth } from "@/app/recoil/hooks/useAuth";
 import { useFriends } from "@/app/recoil/hooks/useFriends";
-import { useNotifications } from "@/app/recoil/hooks/useNotifications";
 import { usePreferences } from "@/app/recoil/hooks/usePreferences";
 import { isUserAnAdmin } from "./admin/admin.utils";
 
@@ -63,7 +62,6 @@ const pocketItems = [
 
 export function AppSidebarClient() {
   const { user, isAuthenticated, isPremium, isAdmin } = useAuth();
-  const { unreadCount: notificationCount } = useNotifications();
   const { state, toggleSidebar } = useSidebar();
   const { preferences, updatePreference } = usePreferences();
 
@@ -220,45 +218,7 @@ export function AppSidebarClient() {
                 <ReportBugDialog user={user} />
               </SidebarMenuItem>
             </SidebarMenu>
-            
-            {/* Notifications Button */}
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton tooltip="Notifications">
-                      <Bell />
-                      <span>Notifications</span>
-                      {notificationCount > 0 && (
-                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                          {notificationCount}
-                        </span>
-                      )}
-                    </SidebarMenuButton>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    side="right"
-                    align="end"
-                    className="w-80"
-                  >
-                    <div className="p-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold">Notifications</h3>
-                        <Link href="/notifications" className="text-sm text-muted-foreground hover:underline">
-                          View all
-                        </Link>
-                      </div>
-                      {notificationCount > 0 ? (
-                        <p className="text-sm text-muted-foreground">You have {notificationCount} unread notifications</p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">No new notifications</p>
-                      )}
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            </SidebarMenu>
-            
+                                  
             {/* User Profile */}
             <SidebarMenu>
               <SidebarMenuItem>
