@@ -26,6 +26,7 @@ import { useAuth } from "@/app/recoil/hooks/useAuth";
 import { useFriends } from "@/app/recoil/hooks/useFriends";
 import { useNotifications } from "@/app/recoil/hooks/useNotifications";
 import { usePreferences } from "@/app/recoil/hooks/usePreferences";
+import { isUserAnAdmin } from "./admin/admin.utils";
 
 const items = [
   {
@@ -49,33 +50,6 @@ const tcgItems = [
     icon: Trophy,
     tooltip: "TCG Tournaments",
   },
-  {
-    title: "My Decks",
-    url: "/decks",
-    icon: Atom,
-    tooltip: "My Decks",
-  },
-];
-
-const videoGameItems = [
-  {
-    title: "Battle Logs",
-    url: "/vg/logs",
-    icon: ScrollText,
-    tooltip: "VGC Battle Logs",
-  },
-  {
-    title: "Tournaments",
-    url: "/vg/tournaments",
-    icon: Trophy,
-    tooltip: "VGC Tournaments",
-  },
-  {
-    title: "My Teams",
-    url: "/vg/teams",
-    icon: Users,
-    tooltip: "My Teams",
-  },
 ];
 
 const pocketItems = [
@@ -89,7 +63,6 @@ const pocketItems = [
 
 export function AppSidebarClient() {
   const { user, isAuthenticated, isPremium, isAdmin } = useAuth();
-  const { pendingCount: friendRequestCount } = useFriends();
   const { unreadCount: notificationCount } = useNotifications();
   const { state, toggleSidebar } = useSidebar();
   const { preferences, updatePreference } = usePreferences();
@@ -176,30 +149,6 @@ export function AppSidebarClient() {
             </>
           )}
           
-          {preferences.games.videoGame && (
-            <>
-              <SidebarGroup>
-                <SidebarGroupLabel>Video Game</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {videoGameItems.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild tooltip={item.tooltip}>
-                          <Link href={item.url}>
-                            <item.icon />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-              
-              <SidebarSeparator />
-            </>
-          )}
-          
           {preferences.games.pocket && (
             <>
               <SidebarGroup>
@@ -223,47 +172,6 @@ export function AppSidebarClient() {
               <SidebarSeparator />
             </>
           )}
-          
-          {/* Analytics Section */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Analytics</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Stats">
-                    <Link href='/stats'>
-                      <BarChart3 />
-                      <span>Stats</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          
-          <SidebarSeparator />
-          
-          {/* Friends & Notifications */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Social</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Friends">
-                    <Link href='/friends'>
-                      <BriefcaseBusiness />
-                      <span>Friends</span>
-                      {friendRequestCount > 0 && (
-                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                          {friendRequestCount}
-                        </span>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
           
           {/* Admin section - visible only if user has isAdmin flag in their profile */}
           {isAdmin && (

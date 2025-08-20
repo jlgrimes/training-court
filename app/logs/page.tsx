@@ -1,6 +1,5 @@
 import { BattleLogsContainerRecoil } from '@/components/battle-logs/BattleLogsContainerRecoil';
 import { Header } from '@/components/ui/header';
-import { ActiveDeckIndicator } from '@/components/decks/ActiveDeckIndicator';
 import { createClient } from '@/utils/supabase/server';
 import { Metadata } from 'next';
 
@@ -15,11 +14,7 @@ export default async function LogsPage() {
   return (
     <>
       <Header description='Record your PTCG Live battle logs'>Logs</Header>
-      {user && (
-        <div className="mb-4">
-          <ActiveDeckIndicator userId={user.id} />
-        </div>
-      )}
+      
       <BattleLogsContainerRecoil />
     </>
   );
