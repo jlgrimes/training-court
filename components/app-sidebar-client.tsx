@@ -139,6 +139,14 @@ export function AppSidebarClient() {
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Stats">
+                    <Link href='/stats'>
+                      <BarChart3 />
+                      <span>Stats</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
