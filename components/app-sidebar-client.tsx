@@ -23,10 +23,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { LogOutButton } from "./app-bar/LogOutButton";
 import { DarkModeToggle } from "./theme/DarkModeToggle";
 import { useAuth } from "@/app/recoil/hooks/useAuth";
-import { useFriends } from "@/app/recoil/hooks/useFriends";
 import { useNotifications } from "@/app/recoil/hooks/useNotifications";
 import { usePreferences } from "@/app/recoil/hooks/usePreferences";
-import { isUserAnAdmin } from "./admin/admin.utils";
 
 const items = [
   {
@@ -144,8 +142,6 @@ export function AppSidebarClient() {
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-              
-              <SidebarSeparator />
             </>
           )}
           
@@ -168,8 +164,6 @@ export function AppSidebarClient() {
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-              
-              <SidebarSeparator />
             </>
           )}
           
