@@ -82,18 +82,6 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
           <TabsTrigger value='appearance' className='w-full'>
             Appearance
           </TabsTrigger>
-          <TabsTrigger value='notifications' className='w-full'>
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value='privacy' className='w-full'>
-            Privacy
-          </TabsTrigger>
-          <TabsTrigger value='gameplay' className='w-full'>
-            Gameplay
-          </TabsTrigger>
-          <TabsTrigger value='games' className='w-full'>
-            Games
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value='account' className='w-full'>
@@ -136,45 +124,7 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
                   </SelectContent>
                 </Select>
               </div>
-              <Separator />
-              <div className='flex justify-between items-center'>
-                <Label>Date Format</Label>
-                <Select value={preferences.dateFormat} onValueChange={(value) => updatePreference('dateFormat', value)}>
-                  <SelectTrigger className='w-[180px]'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='MM/DD/YYYY'>MM/DD/YYYY</SelectItem>
-                    <SelectItem value='DD/MM/YYYY'>DD/MM/YYYY</SelectItem>
-                    <SelectItem value='YYYY-MM-DD'>YYYY-MM-DD</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Separator />
-              <div className='space-y-2'>
-                <h3 className='font-medium'>Display Options</h3>
-                <div className='flex justify-between items-center'>
-                  <Label>Compact View</Label>
-                  <Switch
-                    checked={preferences.display.compactView}
-                    onCheckedChange={(checked) => handleDisplayToggle('compactView', checked)}
-                  />
-                </div>
-                <div className='flex justify-between items-center'>
-                  <Label>Show Avatars</Label>
-                  <Switch
-                    checked={preferences.display.showAvatars}
-                    onCheckedChange={(checked) => handleDisplayToggle('showAvatars', checked)}
-                  />
-                </div>
-                <div className='flex justify-between items-center'>
-                  <Label>Enable Animations</Label>
-                  <Switch
-                    checked={preferences.display.animationsEnabled}
-                    onCheckedChange={(checked) => handleDisplayToggle('animationsEnabled', checked)}
-                  />
-                </div>
-              </div>
+             
             </CardContent>
           </Card>
         </TabsContent>
