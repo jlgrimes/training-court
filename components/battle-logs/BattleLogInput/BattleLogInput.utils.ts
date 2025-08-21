@@ -15,8 +15,8 @@ export const getBattleLogMetadataFromLog = (log: BattleLog, screenName: string |
 
   const myDeck = me?.deck ?? null;
   const oppDeck = opp?.deck ?? null;
-  const turnOrder = log.sections[1].player === screenName ? '1' : '2';
-  const result = log.winner === screenName ? 'W' : 'L';
+  const turnOrder = log.sections[1].player.toLowerCase() === screenName.toLowerCase() ? '1' : '2';
+  const result = log.winner.toLowerCase() === screenName.toLowerCase() ? 'W' : 'L';
 
   return {
     archetype: myDeck,
