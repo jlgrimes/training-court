@@ -70,7 +70,7 @@ export async function AppSidebar() {
           />
         </Link>
 
-        {isPremiumUser(user?.id) && <DarkModeToggle />}
+        <DarkModeToggle />
       </div>
       <SidebarSeparator />
       <SidebarMenu>

@@ -1,12 +1,12 @@
 'use client';
 
 import { useRecoilState } from 'recoil';
-import { darkModeState } from '../../app/recoil/darkMode/darkModeState';
 import { Button } from '../ui/button';
 import { Moon, Sun } from 'lucide-react';
+import { darkModeAtom } from '@/app/recoil';
 
 export function DarkModeToggle() {
-  const [isDarkMode, setIsDarkMode] = useRecoilState(darkModeState);
+  const [isDarkMode, setIsDarkMode] = useRecoilState(darkModeAtom);
 
   return (
     <Button
