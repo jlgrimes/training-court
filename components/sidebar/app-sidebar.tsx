@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +25,8 @@ import { LogOutButton } from "../app-bar/LogOutButton";
 import { isUserAnAdmin } from "../admin/admin.utils";
 import { DarkModeToggle } from "../theme/DarkModeToggle";
 import { isPremiumUser } from "../premium/premium.utils";
+import { useRecoilValue } from "recoil";
+import { authLoadingAtom, isAuthenticatedAtom, userAtom } from "@/app/recoil";
  
 const items = [
   {
@@ -58,8 +62,12 @@ const pocketItems = [
   }
 ]
 
-export async function AppSidebar() {
-  const user = await fetchCurrentUser();
+export function AppSidebar() {
+  const user = useRecoilValue(userAtom);
+  const authed = useRecoilValue(isAuthenticatedAtom);
+  const loading = useRecoilValue(authLoadingAtom);
+
+  if (loading) return <Sidebar></Sidebar>;
 
   return (
   <Sidebar>
