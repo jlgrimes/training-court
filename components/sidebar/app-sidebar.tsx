@@ -64,7 +64,6 @@ const pocketItems = [
 
 export function AppSidebar() {
   const user = useRecoilValue(userAtom);
-  const authed = useRecoilValue(isAuthenticatedAtom);
   const loading = useRecoilValue(authLoadingAtom);
 
   if (loading) return <Sidebar></Sidebar>;
