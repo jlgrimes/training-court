@@ -14,15 +14,15 @@ import {
 
 import { Atom, ChevronUp, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
 import Image from "next/image"
-import { fetchCurrentUser } from "./auth.utils";
-import { ReportBugDialog } from "./app-bar/ReportBugDialog";
+import { fetchCurrentUser } from "../auth.utils";
+import { ReportBugDialog } from "../app-bar/ReportBugDialog";
 import Link from "next/link";
-import { MyProfileAvatar } from "./app-bar/MyProfileAvatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { LogOutButton } from "./app-bar/LogOutButton";
-import { isUserAnAdmin } from "./admin/admin.utils";
-import { DarkModeToggle } from "./theme/DarkModeToggle";
-import { isPremiumUser } from "./premium/premium.utils";
+import { MyProfileAvatar } from "../app-bar/MyProfileAvatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { LogOutButton } from "../app-bar/LogOutButton";
+import { isUserAnAdmin } from "../admin/admin.utils";
+import { DarkModeToggle } from "../theme/DarkModeToggle";
+import { isPremiumUser } from "../premium/premium.utils";
  
 const items = [
   {
