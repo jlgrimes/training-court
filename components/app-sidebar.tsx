@@ -12,7 +12,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Atom, BriefcaseBusiness, Calendar, ChevronUp, Home, Inbox, Info, LogIn, ScrollText, Search, Settings, ToggleLeft, ToggleRight, Trophy, WalletMinimal } from "lucide-react"
+import { Atom, ChevronUp, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
 import Image from "next/image"
 import { fetchCurrentUser } from "./auth.utils";
 import { ReportBugDialog } from "./app-bar/ReportBugDialog";
@@ -42,6 +42,11 @@ const tcgItems = [
     title: "Tournaments",
     url: "/tournaments",
     icon: Trophy,
+  },
+  {
+    title: "Stats",
+    url: "/stats",
+    icon: ChartBarDecreasing,
   },
 ]
 
