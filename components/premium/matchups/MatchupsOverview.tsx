@@ -1,50 +1,38 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { MatchupProps, MatchupResult, Matchups } from "./Matchups.types";
-import { PremiumHeader } from "../PremiumHeader";
+import { useEffect } from "react";
+import { MatchupProps } from "./Matchups.types";
 import { DeckMatchupsDetail } from "./DeckMatchupsDetail";
 import { MatchupsTable } from "./MatchupsTable";
 import { useMatchups } from "@/hooks/matchups/useMatchups";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { deckMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
-import { deckMatchupsAtom } from "./recoil-matchups/deckMatchupAtom";
-import { convertRpcRetToMatchups } from "./CombinedMatchups/CombinedMatchups.utils";
 import { flattenMatchupsToDeckSummary } from "./Matchups.utils";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { tournamentFormats } from "@/components/tournaments/Format/tournament-format.types";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom } from "./recoil-matchups/deckMatchupAtom";
+import { transformedMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
 
 export const MatchupsOverview = (props: MatchupProps) => {
-  const { data: rawResults, isLoading } = useMatchups(props.userId);
-  const [sourceFilter, setSourceFilter] = useState<string[]>([
-    "Battle Logs",
-    "Tournament Rounds"
-  ]);
-  const [matchupDetailView, setMatchupDetailView] = useState<string | undefined>();
-  const [formatFilter, setFormatFilter] = useState<string | null>('All');
+  const { data, isLoading } = useMatchups(props.userId);
 
-  const filteredAndTransformedMatchups = useMemo(() => {
-    if (!rawResults) return null;
+  const setRaw = useSetRecoilState(rawMatchupsAtom);
+  useEffect(() => {
+    setRaw(data ?? null);
+  }, [data, setRaw]);
 
-      const filtered =
-        sourceFilter.length === 0
-          ? []
-          : rawResults.filter((r) =>
-              sourceFilter.includes(r.source) &&
-              (formatFilter === null || formatFilter === 'All' || r.format === formatFilter)
-            );
-
-      return convertRpcRetToMatchups(filtered);
-    }, [rawResults, sourceFilter, formatFilter]);
+  const [sourceFilter, setSourceFilter] = useRecoilState(sourceFilterAtom);
+  const [formatFilter, setFormatFilter] = useRecoilState(formatFilterAtom);
+  const detailDeck = useRecoilValue(detailDeckAtom);
+  const setDetailDeck = useSetRecoilState(detailDeckAtom);
+  const transformed = useRecoilValue(transformedMatchupsSelector);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <h1 className="text-xl tracking-wide font-semibold">Matchups (Beta)</h1>
-        
 
         <ToggleGroup
           type="multiple"
@@ -83,22 +71,19 @@ export const MatchupsOverview = (props: MatchupProps) => {
         </div>
       )}
 
-      {filteredAndTransformedMatchups && (
-        <>
-          {matchupDetailView ? (
-            <DeckMatchupsDetail
-              deckName={matchupDetailView}
-              deckMatchup={filteredAndTransformedMatchups[matchupDetailView]}
-              handleExitDetailView={() => setMatchupDetailView(undefined)}
-            />
-          ) : (
-            <MatchupsTable
-              matchups={flattenMatchupsToDeckSummary(filteredAndTransformedMatchups)}
-              onRowClick={(deck) => setMatchupDetailView(deck)}
-            />
-
-          )}
-        </>
+      {transformed && (
+        detailDeck ? (
+          <DeckMatchupsDetail
+            deckName={detailDeck}
+            deckMatchup={transformed[detailDeck]}
+            handleExitDetailView={() => {setDetailDeck('')}}
+          />
+        ) : (
+          <MatchupsTable 
+            matchups={flattenMatchupsToDeckSummary(transformed)}
+            onRowClick={(deck) => setDetailDeck(deck)}
+          />
+        )
       )}
     </div>
   );
