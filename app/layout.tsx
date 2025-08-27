@@ -11,6 +11,7 @@ import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
+import { AuthListener } from '@/components/AuthListener';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -22,7 +23,7 @@ export const metadata = {
     template: '%s | Training Court',
     default: 'Training Court',
   },
-  description: 'Your favorite PTCG testing companion.',
+  description: 'Your favorite TCG testing companion.',
 };
 
 export default function RootLayout({
@@ -34,6 +35,7 @@ export default function RootLayout({
     <html lang='en' className={GeistSans.className}>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
+          <AuthListener/>
           <DarkModeHydrationGuard>
             <DarkModeProvider />
             
