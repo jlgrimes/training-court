@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Atom, BriefcaseBusiness, Calendar, ChevronLeft, ChevronRight, ChevronUp, Home, Inbox, Info, LogIn, ScrollText, Search, Settings, ToggleLeft, ToggleRight, Trophy, WalletMinimal, Bell, BarChart3, BookOpenCheck, Gamepad2, Users, Moon, Sun, Monitor } from "lucide-react";
 import Image from "next/image";
-import { ReportBugDialog } from "./app-bar/ReportBugDialog";
+import { ReportBugDialog } from "../app-bar/ReportBugDialog";
 import Link from "next/link";
-import { MyProfileAvatar } from "./app-bar/MyProfileAvatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "./ui/dropdown-menu";
-import { LogOutButton } from "./app-bar/LogOutButton";
-import { DarkModeToggle } from "./theme/DarkModeToggle";
+import { MyProfileAvatar } from "../app-bar/MyProfileAvatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "../ui/dropdown-menu";
+import { LogOutButton } from "../app-bar/LogOutButton";
+import { DarkModeToggle } from "../theme/DarkModeToggle";
 import { useAuth } from "@/app/recoil/hooks/useAuth";
 import { useFriends } from "@/app/recoil/hooks/useFriends";
 import { useNotifications } from "@/app/recoil/hooks/useNotifications";

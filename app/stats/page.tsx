@@ -7,7 +7,7 @@ import { isPremiumUser } from '@/components/premium/premium.utils';
 import { MatchupsOverview } from '@/components/premium/matchups/MatchupsOverview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
 
-export default async function Profile() {
+export default async function Stats() {
   const user = await fetchCurrentUser();
 
   if (!user) {
@@ -15,15 +15,6 @@ export default async function Profile() {
   }
 
   return (
-    <>
-      <TrainingCourtWelcome userId={user.id} />
-
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
-        <BattleLogsHomePreview userId={user.id} />
-        <TournamentsHomePreview user={user} />
-      </div>
-{/*      
-        <MatchupsOverview userId={user.id} shouldDisableDrillDown /> */}
-    </>
+    <MatchupsOverview userId={user.id} shouldDisableDrillDown />
   );
 }
