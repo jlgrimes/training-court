@@ -78,14 +78,19 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
 
   return (
     <Link className="flex-grow" href={`/logs/${props.battleLog.id}`}>
-      <Card result={gameResult} clickable>
+      <Card result={gameResult} className={cn(
+          "clickable",
+          gameResult === "W" && "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:hover:bg-emerald-700",
+          gameResult === "L" && "bg-red-100 text-red-700 dark:bg-red-900 dark:hover:bg-red-700",
+          gameResult === undefined && "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-300",
+        )}>
         <SmallCardHeader>
           <div className="grid grid-cols-8 items-center">
           <Sprite name={props.battleLog.players[0].deck} shouldSmush={true}/>
           {/* uh, idk where the mt- is coming from, can't find it so here */}
           <div className="col-span-4 ml-4">
-            <CardTitle>{`${gameResultAsText} vs ${props.battleLog.players[0].oppDeck ? formatDeckName(props.battleLog.players[0].oppDeck) : formatDeckName(props.battleLog.players[1].deck)}`}</CardTitle>
-            <CardDescription className="text-slate-800 opacity-50">{cardSubtitle}</CardDescription>
+            <CardTitle className="text-zinc-900 dark:text-zinc-100">{`${gameResultAsText} vs ${props.battleLog.players[0].oppDeck ? formatDeckName(props.battleLog.players[0].oppDeck) : formatDeckName(props.battleLog.players[1].deck)}`}</CardTitle>
+            <CardDescription>{cardSubtitle}</CardDescription>
           </div>
           <div className="text-right">
             <CardDescription className="font-semibold">{getTurnOrderOfPlayer(props.battleLog, props.battleLog.players[0].name)}</CardDescription>
