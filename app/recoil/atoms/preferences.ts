@@ -37,7 +37,7 @@ export interface UserPreferences {
 export const userPreferencesAtom = atom<UserPreferences>({
   key: 'userPreferencesState',
   default: {
-    theme: localStorage["training-court-preferences"].theme,
+    theme: localStorage["training-court-preferences"].theme || 'system',
     language: 'en',
     timezone: 'UTC',
     dateFormat: 'MM/DD/YYYY',
