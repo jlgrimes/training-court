@@ -44,8 +44,29 @@ export const MatchupsOverview = (props: MatchupProps) => {
           onValueChange={(val) => setSourceFilter(val)}
           >
           {/* <ToggleGroupItem value="all" aria-label="All Sources">All</ToggleGroupItem> */}
-          <ToggleGroupItem value="Battle Logs" aria-label="Battle Logs">Battle Logs</ToggleGroupItem>
-          <ToggleGroupItem value="Tournament Rounds" aria-label="Tournament Rounds">Tournament Rounds</ToggleGroupItem>
+          <ToggleGroupItem
+            value="Battle Logs"
+            aria-label="Battle Logs"
+            className="
+            font-medium rounded-lg
+            border border-transparent
+            data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
+            transition-colors
+          ">
+            Battle Logs
+          </ToggleGroupItem>
+
+          <ToggleGroupItem 
+            value="Tournament Rounds" 
+            aria-label="Tournament Rounds" 
+            className="
+            font-medium rounded-lg
+            border border-transparent
+            data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
+            transition-colors
+          ">
+            Tournament Rounds
+          </ToggleGroupItem>
 
           <Select onValueChange={(val) => setFormatFilter(val)}>
             <SelectTrigger className="w-[180px]">
