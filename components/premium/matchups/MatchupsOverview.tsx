@@ -31,34 +31,38 @@ export const MatchupsOverview = (props: MatchupProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl tracking-wide font-semibold">Matchups (Beta)</h1>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl tracking-wide font-semibold">Matchups</h1>
+          <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+
+
 
         <ToggleGroup
           type="multiple"
           variant="outline"
           value={sourceFilter}
           onValueChange={(val) => setSourceFilter(val)}
-        >
+          >
           {/* <ToggleGroupItem value="all" aria-label="All Sources">All</ToggleGroupItem> */}
           <ToggleGroupItem value="Battle Logs" aria-label="Battle Logs">Battle Logs</ToggleGroupItem>
           <ToggleGroupItem value="Tournament Rounds" aria-label="Tournament Rounds">Tournament Rounds</ToggleGroupItem>
 
           <Select onValueChange={(val) => setFormatFilter(val)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All formats" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={"All"}>All formats</SelectItem>
-            {tournamentFormats.map((format) => (
-              <SelectItem key={format} value={format}>
-                {format}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All formats" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"All"}>All formats</SelectItem>
+              {tournamentFormats.map((format) => (
+                <SelectItem key={format} value={format}>
+                  {format}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </ToggleGroup>
         
+      </div>
       </div>
 
       {isLoading && (
