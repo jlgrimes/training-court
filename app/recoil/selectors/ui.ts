@@ -24,11 +24,8 @@ export const themeSelector = selector({
   key: 'themeSelector',
   get: ({ get }) => {
     const preferences = get(userPreferencesAtom);
-    const darkMode = get(darkModeAtom);
-    
-    if (preferences.theme === 'system') {
-      return darkMode ? 'dark' : 'light';
-    }
+
+    console.log(preferences.theme)
     
     return preferences.theme;
   },

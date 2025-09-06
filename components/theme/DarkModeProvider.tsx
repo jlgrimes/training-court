@@ -10,7 +10,7 @@ export const DarkModeProvider = () => {
 
   useEffect(() => {
     // Handle system theme preference
-    if (preferences.theme === 'system') {
+    if (preferences.theme === 'dark') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = (e: MediaQueryListEvent) => {
         setDarkMode(e.matches);
@@ -21,7 +21,7 @@ export const DarkModeProvider = () => {
       
       return () => mediaQuery.removeEventListener('change', handleChange);
     } else {
-      setDarkMode(preferences.theme === 'dark');
+      setDarkMode(preferences.theme === 'light');
     }
   }, [preferences.theme, setDarkMode]);
 

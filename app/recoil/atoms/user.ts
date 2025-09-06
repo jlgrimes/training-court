@@ -10,7 +10,7 @@ export interface UserProfile {
   isPremium?: boolean;
   isAdmin?: boolean;
   preferences?: {
-    theme?: 'light' | 'dark' | 'system';
+    theme?: 'light' | 'dark';
     notifications?: boolean;
     emailUpdates?: boolean;
   };

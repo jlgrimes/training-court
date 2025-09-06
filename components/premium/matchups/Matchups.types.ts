@@ -18,3 +18,14 @@ export interface MatchupProps {
   // if the ability to filter by rounds shouldn't be there
   shouldDisableRoundGroup?: boolean;
 }
+
+export type MatchupRow = {
+  source: string;
+  deck: string;
+  opp_deck: string;
+  result: string;
+  match_end_reason: string;
+  turn_order: string;
+  date: string;
+  format: string;
+};
