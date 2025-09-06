@@ -378,11 +378,11 @@ export function AppSidebarClient() {
                       <DropdownMenuSubTrigger>
                         {preferences.theme === 'light' && <Sun className="w-4 h-4 mr-2" />}
                         {preferences.theme === 'dark' && <Moon className="w-4 h-4 mr-2" />}
-                        {preferences.theme === 'system' && <Monitor className="w-4 h-4 mr-2" />}
+                        {/* {preferences.theme === 'system' && <Monitor className="w-4 h-4 mr-2" />} */}
                         Theme
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
-                        <DropdownMenuRadioGroup value={preferences.theme} onValueChange={(value) => updatePreference('theme', value as 'light' | 'dark' | 'system')}>
+                        <DropdownMenuRadioGroup value={preferences.theme} onValueChange={(value) => updatePreference('theme', value as 'light' | 'dark')}>
                           <DropdownMenuRadioItem value="light">
                             <Sun className="w-4 h-4 mr-2" />
                             Light

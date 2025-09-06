@@ -3,7 +3,7 @@
 import { atom } from 'recoil';
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: 'light' | 'dark';
   language: string;
   timezone: string;
   dateFormat: string;

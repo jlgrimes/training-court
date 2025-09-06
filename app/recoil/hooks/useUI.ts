@@ -34,7 +34,6 @@ export function useUI() {
   
   const activeToasts = useRecoilValue(activeToastsSelector);
   const openModals = useRecoilValue(openModalsSelector);
-  const theme = useRecoilValue(themeSelector);
   const isAnyModalOpen = useRecoilValue(isAnyModalOpenSelector);
 
   const showToast = useCallback((toast: Omit<Toast, 'id'>) => {
@@ -124,7 +123,6 @@ export function useUI() {
     modals: openModals,
     loadingOverlay,
     activeTab,
-    theme,
     isAnyModalOpen,
     setDarkMode,
     setSidebarOpen,
