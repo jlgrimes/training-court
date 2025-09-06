@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MatchupProps } from "./Matchups.types";
 import { DeckMatchupsDetail } from "./DeckMatchupsDetail";
 import { MatchupsTable } from "./MatchupsTable";
@@ -14,7 +14,6 @@ import { tournamentFormats } from "@/components/tournaments/Format/tournament-fo
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom } from "./recoil-matchups/deckMatchupAtom";
 import { transformedMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
-import { Cookies } from "typescript-cookie";
 
 export const MatchupsOverview = (props: MatchupProps) => {
   const { data, isLoading } = useMatchups(props.userId);
@@ -29,7 +28,6 @@ export const MatchupsOverview = (props: MatchupProps) => {
   const detailDeck = useRecoilValue(detailDeckAtom);
   const setDetailDeck = useSetRecoilState(detailDeckAtom);
   const transformed = useRecoilValue(transformedMatchupsSelector);
-  const userDefaultFormat = useState(Cookies.get("format") || "All formats");
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,7 +68,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
 
           <Select onValueChange={(val) => setFormatFilter(val)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={userDefaultFormat} />
+              <SelectValue placeholder="All formats" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={"All"}>All formats</SelectItem>

@@ -18,7 +18,6 @@ import {
 import {
   activeToastsSelector,
   openModalsSelector,
-  themeSelector,
   isAnyModalOpenSelector,
 } from '../selectors/ui';
 
