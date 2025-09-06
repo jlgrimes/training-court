@@ -1,31 +1,13 @@
 'use client';
 
-/**
- * usePreferences
- * ---------------
- * Single source of truth for user preferences.
- *
- * Key ideas:
- * 1) The userPreferencesAtom persists itself to localStorage via atomEffect,
- *    so the atom *hydrates synchronously* from disk before React effects run.
- *    => No more "theme reverts to system on refresh".
- *
- * 2) This hook only merges DB-backed fields (currently: `games`).
- *    We never touch `theme` here, so toggling light/dark persists locally
- *    and won’t get clobbered by post-login merges.
- *
- * 3) Writes to DB are debounced to avoid spamming updates.
- */
-
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCallback, useEffect, useRef } from 'react';
 import { userPreferencesAtom, UserPreferences } from '../atoms/preferences';
 import { userAtom } from '../atoms/user';
 import { createClient } from '@/utils/supabase/client';
 
-const PREFERENCES_STORAGE_KEY = 'training-court-preferences'; // used only by reset()
+const PREFERENCES_STORAGE_KEY = 'training-court-preferences';
 
-// Small utility: shallow merge a nested object key while preserving other keys.
 function mergeNested<K extends keyof UserPreferences, NK extends keyof UserPreferences[K]>(
   prev: UserPreferences,
   key: K,
@@ -41,14 +23,8 @@ export function usePreferences() {
   const [preferences, setPreferences] = useRecoilState(userPreferencesAtom);
   const user = useRecoilValue(userAtom);
 
-  // Debounce handle for DB writes to avoid frequent updates.
   const dbWriteTimerRef = useRef<number | null>(null);
 
-  /**
-   * updatePreference
-   * Overwrite a top-level key of preferences.
-   * Example: updatePreference('theme', 'dark')
-   */
   const updatePreference = useCallback(
     <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {
       setPreferences(prev => ({ ...prev, [key]: value }));
@@ -56,11 +32,6 @@ export function usePreferences() {
     [setPreferences]
   );
 
-  /**
-   * updateNestedPreference
-   * Overwrite a nested key of a specific section.
-   * Example: updateNestedPreference('display', 'compactView', true)
-   */
   const updateNestedPreference = useCallback(
     <K extends keyof UserPreferences, NK extends keyof UserPreferences[K]>(
       key: K,
@@ -78,25 +49,11 @@ export function usePreferences() {
     [setPreferences]
   );
 
-  /**
-   * resetPreferences
-   * Reset the atom to its default (as defined in the atom file) and clear localStorage.
-   * NOTE: This assumes your atomEffect repopulates from defaults on next mount.
-   */
   const resetPreferences = useCallback(() => {
-    // If your atom file exports DEFAULT_PREFERENCES, you could import and use it here.
-    // Keeping a minimal reset: remove persisted storage and rely on atom default on next load.
     localStorage.removeItem(PREFERENCES_STORAGE_KEY);
-    // Clear current atom state back to an empty object merged against defaults inside the atomEffect.
-    // If you prefer a hard reset, you can set explicit defaults here instead.
-    setPreferences(prev => ({ ...prev, theme: 'system' })); // minimal nudge; the atomEffect will rehydrate on next mount
+    setPreferences(prev => ({ ...prev, theme: 'light' }));
   }, [setPreferences]);
 
-  /**
-   * Pull DB-backed preferences on login (ONLY the pieces we store server-side).
-   * Currently we sync `games` from profiles.selected_games.
-   * We DO NOT touch the theme here so local theme persists.
-   */
   useEffect(() => {
     if (!user?.id) return;
 
@@ -109,7 +66,7 @@ export function usePreferences() {
           .eq('id', user.id)
           .single();
 
-        if (error) return; // silently ignore; local stays authoritative
+        if (error) return;
 
         if (data?.selected_games) {
           setPreferences(prev =>
@@ -126,10 +83,6 @@ export function usePreferences() {
     })();
   }, [user?.id, setPreferences]);
 
-  /**
-   * Push the `games` subkey to DB when it changes (debounced).
-   * We don’t sync other keys here (theme/language/etc. remain local-first).
-   */
   useEffect(() => {
     if (!user?.id) return;
 
@@ -149,7 +102,6 @@ export function usePreferences() {
       }
     };
 
-    // Debounce 400ms
     if (dbWriteTimerRef.current) {
       window.clearTimeout(dbWriteTimerRef.current);
     }

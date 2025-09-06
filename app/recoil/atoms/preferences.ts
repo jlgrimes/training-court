@@ -37,7 +37,7 @@ export interface UserPreferences {
 export const userPreferencesAtom = atom<UserPreferences>({
   key: 'userPreferencesState',
   default: {
-    theme: 'system',
+    theme: 'light',
     language: 'en',
     timezone: 'UTC',
     dateFormat: 'MM/DD/YYYY',
