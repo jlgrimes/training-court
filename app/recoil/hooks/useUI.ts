@@ -18,12 +18,12 @@ import {
 import {
   activeToastsSelector,
   openModalsSelector,
-  themeSelector,
   isAnyModalOpenSelector,
 } from '../selectors/ui';
+import { darkModeState } from '../darkMode/darkModeState';
 
 export function useUI() {
-  const [darkMode, setDarkMode] = useRecoilState(darkModeAtom);
+  const [darkMode, setDarkMode] = useRecoilState(darkModeState);
   const [sidebarOpen, setSidebarOpen] = useRecoilState(sidebarOpenAtom);
   const [mobileMenuOpen, setMobileMenuOpen] = useRecoilState(mobileMenuOpenAtom);
   const [toasts, setToasts] = useRecoilState(toastsAtom);
@@ -34,7 +34,6 @@ export function useUI() {
   
   const activeToasts = useRecoilValue(activeToastsSelector);
   const openModals = useRecoilValue(openModalsSelector);
-  const theme = useRecoilValue(themeSelector);
   const isAnyModalOpen = useRecoilValue(isAnyModalOpenSelector);
 
   const showToast = useCallback((toast: Omit<Toast, 'id'>) => {
@@ -124,7 +123,6 @@ export function useUI() {
     modals: openModals,
     loadingOverlay,
     activeTab,
-    theme,
     isAnyModalOpen,
     setDarkMode,
     setSidebarOpen,

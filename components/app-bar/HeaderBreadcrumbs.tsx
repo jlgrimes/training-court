@@ -65,6 +65,13 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
+    if (pathname.includes('/stats')) {
+      breadcrumbs.push({
+        path: '/stats',
+        label: 'Stats'
+      });
+    }
+
     return breadcrumbs;
   }, [pathname]);
 
