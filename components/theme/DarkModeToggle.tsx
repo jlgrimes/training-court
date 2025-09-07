@@ -3,18 +3,19 @@
 import { Button } from '../ui/button';
 import { Moon, Sun } from 'lucide-react';
 import { usePreferences } from '@/app/recoil/hooks/usePreferences';
+import { useRecoilState } from 'recoil';
+import { darkModeState } from '@/app/recoil/darkMode/darkModeState';
 
 export function DarkModeToggle() {
-  const { preferences, updatePreference } = usePreferences();
-  const isDark = preferences.theme === 'dark';
+  const [darkMode, setDarkMode] = useRecoilState(darkModeState);
 
   const onToggle = () => {
-    updatePreference('theme', isDark ? 'light' : 'dark');
+    setDarkMode(!darkMode)
   };
 
   return (
     <Button variant="ghost" size="icon" onClick={onToggle} aria-label="Toggle Dark Mode">
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </Button>
   );
 }

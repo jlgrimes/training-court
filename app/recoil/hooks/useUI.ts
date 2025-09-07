@@ -20,9 +20,10 @@ import {
   openModalsSelector,
   isAnyModalOpenSelector,
 } from '../selectors/ui';
+import { darkModeState } from '../darkMode/darkModeState';
 
 export function useUI() {
-  const [darkMode, setDarkMode] = useRecoilState(darkModeAtom);
+  const [darkMode, setDarkMode] = useRecoilState(darkModeState);
   const [sidebarOpen, setSidebarOpen] = useRecoilState(sidebarOpenAtom);
   const [mobileMenuOpen, setMobileMenuOpen] = useRecoilState(mobileMenuOpenAtom);
   const [toasts, setToasts] = useRecoilState(toastsAtom);
