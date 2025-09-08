@@ -24,31 +24,60 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
 
   const [isInteractionBlocked, ] = useState(false);
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
-  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
+  const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab[]>([]);
 
-  const availableTournamentCategories = useMemo(() =>
-    allTournamentCategoryTabs.filter((cat) => cat !== 'all')
-      .map((cat) => ({
-        value: cat,
-        label: `${displayTournamentCategoryTab(cat)} (${
-          tournaments?.filter((t) => t.category === cat && (t.format === selectedFormat || selectedFormat === 'All')).length ?? 0
-        })`,
-        icon: <TournamentCategoryIcon category={cat as TournamentCategory} />
-      })),
-    [allTournamentCategoryTabs, tournaments, selectedFormat]
-  );
+    const formatMatches = (fmt?: string | null) => {
+    if (!selectedFormat || selectedFormat.length === 0) return true;
+    if (selectedFormat.includes('All')) return true;
+    if (!fmt) return false;
+    return selectedFormat.includes(fmt as TournamentFormatsTab);
+  };
 
-  const availableFormats: TournamentFormatsTab[] = ['All'];
-  tournaments?.forEach((tournament) => {
-    if (tournament.format && !availableFormats.includes(tournament.format as TournamentFormatsTab)) {
-      availableFormats.push(tournament.format as TournamentFormatsTab);
-    }
-  });
+  const availableTournamentCategories = useMemo(() => {
+    return allTournamentCategoryTabs
+      .filter((cat) => cat !== 'all')
+      .map((cat) => {
+        const count = (tournaments ?? []).filter(
+          (t) => t.category === cat && formatMatches(t.format)
+        ).length;
 
-  const filteredTournaments = tournaments?.filter((tournament) =>
-    (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
-    && (selectedFormat === 'All' || tournament.format === selectedFormat)
-  );
+        return {
+          value: cat,
+          label: `${displayTournamentCategoryTab(cat)} (${count})`,
+          icon: <TournamentCategoryIcon category={cat as TournamentCategory} />
+        };
+      });
+  }, [tournaments, selectedFormat]);
+
+    const availableFormatOptions = useMemo(() => {
+    const formats = new Set<TournamentFormatsTab>([]);
+    (tournaments ?? []).forEach((t) => {
+      if (t.format) formats.add(t.format as TournamentFormatsTab);
+    });
+
+    return Array.from(formats).map((format) => {
+      const count = (tournaments ?? []).filter((t) =>
+        format === 'All' ? true : t.format === format
+      ).length;
+
+      return {
+        value: format,
+        label: `${format === 'All' ? 'All Formats' : format} (${count})`
+      };
+    });
+  }, [tournaments]);
+
+  const filteredTournaments = useMemo(() => {
+    return (tournaments ?? []).filter((tournament) => {
+      const catOk =
+        selectedCats.length === 0 ||
+        selectedCats.includes(tournament.category as TournamentCategoryTab);
+
+      const formatOk = formatMatches(tournament.format);
+
+      return catOk && formatOk;
+    });
+  }, [tournaments, selectedCats, selectedFormat]);
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -72,24 +101,12 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           placeholder="All Categories"
         />
 
-      <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
-        <SelectTrigger>
-          <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {availableFormats.map((format) => (
-            <SelectItem key={format} value={format}>
-              <div className="flex justify-between w-full items-center">
-                <p>
-                  {format === 'All' ? 'All Formats' : format} (
-                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length}
-                  )
-                </p>
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <MultiSelect
+          options={availableFormatOptions}
+          value={selectedFormat}
+          onChange={(vals) => setSelectedFormat(vals as TournamentFormatsTab[])}
+          placeholder="All Formats"
+        />
       </div>
 
       <div className={isInteractionBlocked ? 'pointer-events-none' : ''}>
