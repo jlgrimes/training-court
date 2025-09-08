@@ -28,7 +28,7 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
     return <div>Please log in to view preferences.</div>;
   }
 
-  const handleThemeChange = (value: 'light' | 'dark' | 'system') => {
+  const handleThemeChange = (value: 'light' | 'dark') => {
     updatePreference('theme', value);
     showSuccessToast('Theme preference updated');
   };

@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Atom, BriefcaseBusiness, Calendar, ChevronLeft, ChevronRight, ChevronUp, Home, Inbox, Info, LogIn, ScrollText, Search, Settings, ToggleLeft, ToggleRight, Trophy, WalletMinimal, Bell, BarChart3, BookOpenCheck, Gamepad2, Users, Moon, Sun, Monitor } from "lucide-react";
 import Image from "next/image";
-import { ReportBugDialog } from "./app-bar/ReportBugDialog";
+import { ReportBugDialog } from "../app-bar/ReportBugDialog";
 import Link from "next/link";
-import { MyProfileAvatar } from "./app-bar/MyProfileAvatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "./ui/dropdown-menu";
-import { LogOutButton } from "./app-bar/LogOutButton";
-import { DarkModeToggle } from "./theme/DarkModeToggle";
+import { MyProfileAvatar } from "../app-bar/MyProfileAvatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "../ui/dropdown-menu";
+import { LogOutButton } from "../app-bar/LogOutButton";
+import { DarkModeToggle } from "../theme/DarkModeToggle";
 import { useAuth } from "@/app/recoil/hooks/useAuth";
 import { useFriends } from "@/app/recoil/hooks/useFriends";
 import { useNotifications } from "@/app/recoil/hooks/useNotifications";
@@ -378,11 +378,11 @@ export function AppSidebarClient() {
                       <DropdownMenuSubTrigger>
                         {preferences.theme === 'light' && <Sun className="w-4 h-4 mr-2" />}
                         {preferences.theme === 'dark' && <Moon className="w-4 h-4 mr-2" />}
-                        {preferences.theme === 'system' && <Monitor className="w-4 h-4 mr-2" />}
+                        {/* {preferences.theme === 'system' && <Monitor className="w-4 h-4 mr-2" />} */}
                         Theme
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
-                        <DropdownMenuRadioGroup value={preferences.theme} onValueChange={(value) => updatePreference('theme', value as 'light' | 'dark' | 'system')}>
+                        <DropdownMenuRadioGroup value={preferences.theme} onValueChange={(value) => updatePreference('theme', value as 'light' | 'dark')}>
                           <DropdownMenuRadioItem value="light">
                             <Sun className="w-4 h-4 mr-2" />
                             Light

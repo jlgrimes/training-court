@@ -191,7 +191,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
       oppDeck: isCurrentUser 
         ? (opp_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)) 
         : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)),
-      result: winner === player ? 'W' : 'L',
+      result: winner.toLowerCase() === player.toLowerCase() ? 'W' : 'L',
     };
   });
 

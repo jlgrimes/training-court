@@ -44,8 +44,8 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
     <Table className="-mx-2">
       <TableHeader>
         <TableRow>
-          <TableHead className="md:w-auto">Deck</TableHead>
-          <TableHead className="px-0">
+          <TableHead className="px-8">Deck</TableHead>
+          <TableHead className="px-0 hidden sm:table-cell">
             <SortColHeader
               direction={getSortDirection('last-played')}
               onClick={() => handleHeaderClick('last-played')}
@@ -81,7 +81,7 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
               <Sprite name={deck} />
               <span className="hidden md:block">{capitalizeName(deck)}</span>  
             </TableCell>
-            <TableCell>
+            <TableCell className="hidden sm:table-cell">
               {convertBattleLogDateIntoDay(result.lastPlayed)}
             </TableCell>
             <TableCell className="text-right font-mono">{getMatchupRecord(result.total)}</TableCell>

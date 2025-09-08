@@ -317,7 +317,6 @@ export function NotificationCenterWithRecoil() {
 // Example: Theme and UI Preferences
 export function ThemePreferencesWithRecoil() {
   const { preferences, updatePreference, updateNestedPreference } = usePreferences();
-  const { theme, toggleDarkMode } = useUI();
   
   return (
     <div className="p-4">

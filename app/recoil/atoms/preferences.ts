@@ -3,7 +3,7 @@
 import { atom } from 'recoil';
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: 'light' | 'dark';
   language: string;
   timezone: string;
   dateFormat: string;
@@ -37,7 +37,7 @@ export interface UserPreferences {
 export const userPreferencesAtom = atom<UserPreferences>({
   key: 'userPreferencesState',
   default: {
-    theme: 'system',
+    theme: 'light',
     language: 'en',
     timezone: 'UTC',
     dateFormat: 'MM/DD/YYYY',
