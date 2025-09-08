@@ -25,7 +25,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab[]>([]);
 
-    const formatMatches = (fmt?: string | null) => {
+  const formatMatches = (fmt?: string | null) => {
     if (!selectedFormat || selectedFormat.length === 0) return true;
     if (selectedFormat.includes('All')) return true;
     if (!fmt) return false;
@@ -59,9 +59,11 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
         format === 'All' ? true : t.format === format
       ).length;
 
+      //@TODO: For fun - you could calculate the count of tournaments in each category in each format.
+      // Basically, do the reverse of what is happening 
       return {
         value: format,
-        label: `${format === 'All' ? 'All Formats' : format} (${count})`
+        label: `${format === 'All' ? 'All Formats' : format}`
       };
     });
   }, [tournaments]);
