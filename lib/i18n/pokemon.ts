@@ -98,7 +98,7 @@ export function getPokemonToFind(language: Language) {
     'entei',
     'great tusk',
     'iron hands',
-    'galvantula',
+    'joltik',
     'lunatone',
   
     // rogue

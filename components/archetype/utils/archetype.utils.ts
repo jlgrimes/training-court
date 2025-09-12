@@ -29,7 +29,7 @@ const associatedPokemon = [{
   deck: 'dipplin'
 }, {
   association: 'joltik',
-  deck: 'galvantula'
+  deck: 'joltik'
 }, {
   association: 'venonat',
   deck: 'venomoth'
@@ -39,9 +39,6 @@ const associatedPokemon = [{
 },{
   association: 'raging-bolt',
   deck: 'raging-bolt,ogerpon'
-},{
-  association: 'joltik',
-  deck: 'joltik,pikachu'
 },{
   association: 'tarountula',
   deck: 'spidops,mewtwo'
