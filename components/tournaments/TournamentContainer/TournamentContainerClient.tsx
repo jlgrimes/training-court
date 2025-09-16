@@ -20,6 +20,7 @@ import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprite
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 import { TournamentFormats } from "../Format/tournament-format.types";
+import { TournamentNotesDialog } from "./TournamentNotesDialog";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -78,6 +79,9 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 user={props.user}
                 updateClientTournament={updateClientTournamentDataOnEdit}
               />
+              {/* <TournamentNotesDialog
+                tournamentId={props.tournament.id} 
+              /> */}
               <TournamentDeleteDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
