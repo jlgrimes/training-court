@@ -39,39 +39,39 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-          <Accordion type="single" collapsible className="flex flex-col">
-      {battleLogsByDayList.map(([day, logs]) => (
-        <AccordionItem key={day} value={day}>
-          <AccordionTrigger>
-            <div className="grid grid-cols-4 w-full items-center">
-              <div className="col-span-2 text-left">
-                {day}
+      <Accordion type="single" collapsible className="flex flex-col">
+        {battleLogsByDayList.map(([day, logs]) => (
+          <AccordionItem key={day} value={day}>
+            <AccordionTrigger>
+              <div className="grid grid-cols-4 w-full items-center">
+                <div className="col-span-2 text-left">
+                  {day}
+                </div>
+                <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
+                <div className="text-right mr-2">
+                  <h4 className="leading-5">
+                    {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+                  </h4>
+                  <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
+                </div>
               </div>
-              <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
-              <div className="text-right mr-2">
-                <h4 className="leading-5">
-                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
-                </h4>
-                <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
-              </div>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="flex flex-col gap-2">
-            {logs.length === 0 && (
-              <Card className="border-none">
-                <CardHeader className="px-2">
-                  <CardDescription>No battles recorded for today</CardDescription>
-                  <CardDescription>Get out there and play some games!</CardDescription>
-                </CardHeader>
-              </Card>
-            )}
-            {logs.map((battleLog) => (
-              <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
-            ))}
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col gap-2">
+              {logs.length === 0 && (
+                <Card className="border-none">
+                  <CardHeader className="px-2">
+                    <CardDescription>No battles recorded for today</CardDescription>
+                    <CardDescription>Get out there and play some games!</CardDescription>
+                  </CardHeader>
+                </Card>
+              )}
+              {logs.map((battleLog) => (
+                <BattleLogPreview key={battleLog.id} battleLog={battleLog} currentUserScreenName={props.userData?.live_screen_name} />
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
     <SeeMoreButton href="/logs" />
     </div>
   )
