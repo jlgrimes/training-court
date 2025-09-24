@@ -273,7 +273,8 @@ export type Database = {
           id: string
           name: string
           placement: string | null
-          user: string
+          user: string,
+          notes: string | null
         }
         Insert: {
           category?: string | null
@@ -285,7 +286,8 @@ export type Database = {
           id?: string
           name: string
           placement?: string | null
-          user: string
+          user: string,
+          notes: string | null
         }
         Update: {
           category?: string | null
@@ -297,7 +299,8 @@ export type Database = {
           id?: string
           name?: string
           placement?: string | null
-          user?: string
+          user?: string,
+          notes: string | null
         }
         Relationships: [
           {
