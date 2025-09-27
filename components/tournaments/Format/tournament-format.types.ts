@@ -3,8 +3,8 @@
 
 export type LogFormats = 'SVI-MEG' | 'SVI-WHT/BLK' | 'SVI-DRI' | 'SVI-JTG' | 'BRS-PRE' | 'BRS-SSP' | 'BRS-SCR';
 export type LogFormatsTab = LogFormats | 'All';
-export const logFormats: LogFormats[] = ['SVI-MEG' | 'SVI-WHT/BLK', 'SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR']
+export const logFormats: LogFormats[] = ['SVI-MEG', 'SVI-WHT/BLK', 'SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR']
 
 export type TournamentFormats = 'SVI-MEG' | 'SVI-WHT/BLK' | 'SVI-DRI' | 'SVI-JTG' | 'BRS-PRE' | 'BRS-SSP' | 'BRS-SCR' | 'PTCG Pocket' | 'GLC' ;
 export type TournamentFormatsTab = TournamentFormats | 'All';
-export const tournamentFormats: TournamentFormats[] = ['SVI-MEG' | 'SVI-WHT/BLK', 'SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR', 'PTCG Pocket', 'GLC']
+export const tournamentFormats: TournamentFormats[] = ['SVI-MEG', 'SVI-WHT/BLK', 'SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR', 'PTCG Pocket', 'GLC']
