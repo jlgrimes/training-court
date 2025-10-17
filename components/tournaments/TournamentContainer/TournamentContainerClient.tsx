@@ -20,6 +20,7 @@ import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprite
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 import { TournamentFormats } from "../Format/tournament-format.types";
+import { TournamentNotesDialog } from "./TournamentNotesDialog";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -35,6 +36,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
   const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
+  const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
@@ -77,6 +79,11 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 tournamentFormat={tournamentFormat}
                 user={props.user}
                 updateClientTournament={updateClientTournamentDataOnEdit}
+              />
+              <TournamentNotesDialog
+                tournamentId={props.tournament.id} 
+                tournamentNotes={tournamentNotes}
+                tournamentName={tournamentName}
               />
               <TournamentDeleteDialog
                 tournamentId={props.tournament.id}

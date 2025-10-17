@@ -20,7 +20,8 @@ const mockJWToronto = {
   user: '',
   category: null,
   placement: null,
-  format: null
+  format: null,
+  notes: null
 }
 
 export default async function Index() {
@@ -110,7 +111,8 @@ export default async function Index() {
                 user: '',
                 category: null,
                 placement: null,
-                format: null
+                format: null,
+                notes: null
               }} editDisabled />
             </div>
             <div className="col-span-4 grid-cols-5">

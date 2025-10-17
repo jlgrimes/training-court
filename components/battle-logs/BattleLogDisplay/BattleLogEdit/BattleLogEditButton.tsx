@@ -13,7 +13,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { BattleLog, BattleLogPlayer } from "../../utils/battle-log.types";
 import { AddArchetype } from "@/components/archetype/AddArchetype/AddArchetype";
