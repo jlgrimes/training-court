@@ -126,7 +126,7 @@ export function TournamentNotesDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="w-8 h-8" aria-label="Open notes">
-          <NotepadText className="h-4 w-4" />
+          <NotepadText className="h-4 w-4" color="gray"/>
         </Button>
       </DialogTrigger>
 
@@ -143,7 +143,7 @@ export function TournamentNotesDialog({
               dirtyRef.current = true;
             }}
             placeholder="Start typing… (Markdown is supported)"
-            className="min-h-[50vh] resize-vertical"
+            className="min-h-[55vh] resize-vertical"
             disabled={loading}
           />
          <div className="mt-2 text-xs text-muted-foreground h-4">
