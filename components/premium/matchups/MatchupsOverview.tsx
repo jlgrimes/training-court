@@ -12,7 +12,7 @@ import { ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { tournamentFormats } from "@/components/tournaments/Format/tournament-format.types";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom } from "./recoil-matchups/deckMatchupAtom";
+import { detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom, turnOrderFilterAtom } from "./recoil-matchups/deckMatchupAtom";
 import { transformedMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
 
 export const MatchupsOverview = (props: MatchupProps) => {
@@ -25,6 +25,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
 
   const [sourceFilter, setSourceFilter] = useRecoilState(sourceFilterAtom);
   const [formatFilter, setFormatFilter] = useRecoilState(formatFilterAtom);
+  const [turnOrderFilter, setTurnOrderFilter] = useRecoilState(turnOrderFilterAtom);
   const detailDeck = useRecoilValue(detailDeckAtom);
   const setDetailDeck = useSetRecoilState(detailDeckAtom);
   const transformed = useRecoilValue(transformedMatchupsSelector);
@@ -37,10 +38,43 @@ export const MatchupsOverview = (props: MatchupProps) => {
 
         <ToggleGroup
           type="multiple"
+          value={turnOrderFilter}
+          onValueChange={setTurnOrderFilter}
+          variant="outline"
+        >
+          <ToggleGroupItem 
+            value="1" 
+            aria-label="First" 
+            className="
+            font-medium rounded-lg
+            border border-transparent
+            data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
+            transition-colors
+            hover:bg-transparent hover:no-underline
+          ">
+            First
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="2" 
+            aria-label="Second" 
+            className="
+            font-medium rounded-lg
+            border border-transparent
+            data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
+            transition-colors
+            hover:bg-transparent hover:no-underline
+          ">
+            Second
+          </ToggleGroupItem>
+        </ToggleGroup>
+
+        <ToggleGroup
+          type="multiple"
           variant="outline"
           value={sourceFilter}
           onValueChange={(val) => setSourceFilter(val)}
           >
+
           {/* <ToggleGroupItem value="all" aria-label="All Sources">All</ToggleGroupItem> */}
           <ToggleGroupItem
             value="Battle Logs"
@@ -50,7 +84,8 @@ export const MatchupsOverview = (props: MatchupProps) => {
             border border-transparent
             data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
             transition-colors
-            hover:bg-transparent hover:no-underline
+            // This resolves a hover issue on mobile where unclicking a button still gives hover color
+            hover:bg-transparent hover:no-underline 
           ">
             Battle Logs
           </ToggleGroupItem>

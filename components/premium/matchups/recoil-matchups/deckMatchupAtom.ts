@@ -21,6 +21,14 @@ export const formatFilterAtom = atom<string | null>({
 	default: "All",
 });
 
+// turn_order field represents 1 (first) and 2 (second).
+// Both are selected representing all games.
+export const turnOrderFilterAtom = atom<string[]>({
+  key: "turnOrderFilter",
+  default: ["1", "2"],
+});
+
+
 export const detailDeckAtom = atom<string | undefined>({
 	key: "detailDeckAtom",
 	default: undefined,
