@@ -50,6 +50,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
             border border-transparent
             data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
             transition-colors
+            hover:bg-transparent hover:no-underline
           ">
             Battle Logs
           </ToggleGroupItem>
@@ -62,6 +63,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
             border border-transparent
             data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary
             transition-colors
+            hover:bg-transparent hover:no-underline
           ">
             Tournament Rounds
           </ToggleGroupItem>
