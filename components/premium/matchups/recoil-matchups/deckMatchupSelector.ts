@@ -40,22 +40,24 @@ export const filteredRowsSelector = selector<MatchupRow[] | null>({
 		const filterByTurn = !(selectedStartingTurn.length === 0 || selectedStartingTurn.length === 2);
 
 		return rows.filter((r) => {
-		// source
-		if (!sources.includes(r.source)) return false;
+			// source filter
+			if (!sources.includes(r.source)) return false;
 
-		// format
-		if (!(fmt === null || fmt === "All" || r.format === fmt)) return false;
+			// format filter
+			if (!(fmt === null || fmt === "All" || r.format === fmt)) return false;
 
-		// turn order
-		const to = Number(r.turn_order);
-		const isValid = to === 1 || to === 2;
-		if (!isValid) return false;
+			// turn order filter
+			const to = Number(r.turn_order);
 
-		// apply turn filter only when exactly one is selected
-		if (filterByTurn && !selectedStartingTurn.includes(String(to))) return false;
+			if (filterByTurn) {
+				// only filter if one option is selected
+				if (!(to === 1 || to === 2)) return false; // invalid turn order gets excluded
+				if (!selectedStartingTurn.includes(String(to))) return false;
+			}
 
-		return true;
-		});
+			// if both or none selected, include everything (even missing turn_order)
+			return true;
+			});
 	},
 });
 

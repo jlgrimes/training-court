@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { MatchupResult, MatchupRow } from "../Matchups.types";
+import { MatchupRow } from "../Matchups.types";
 
 // export const deckMatchupsAtom = atom<Record<string, DeckMatchup> | null>({
 //   key: 'deckMatchupsAtom',
