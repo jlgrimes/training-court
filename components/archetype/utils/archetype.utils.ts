@@ -67,8 +67,8 @@ const associatedPokemon = [{
   association: 'girafarig',
   deck: 'milotic,girafarig'
 },{
-  association: 'feebas',
-  deck: 'milotic,girafarig'
+  association: 'jellicent',
+  deck: 'gardevoir,jellicent'
 }]
 
 // TODO: Fix false positive case - I think it's when you knock out opp Pokemon or something...
