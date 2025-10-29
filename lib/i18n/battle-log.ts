@@ -91,8 +91,7 @@ export const getPlayerNameFromSetup = (line: string, language: Language): string
   }
 
   if (language === 'it') {
-    //@TODO: We don't have an italian log in supabase.
-    const drawMatch = /(.*) ha pescato 7 carte per la mano iniziale/g.exec(line);
+    const drawMatch = /(.*) ha pescato 7 carte come mano d’apertura/g.exec(line);
     if (drawMatch) return drawMatch[1];
   }
 

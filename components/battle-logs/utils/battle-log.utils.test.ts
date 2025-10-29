@@ -1,5 +1,6 @@
 import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "./battle-log.utils";
 import { battleLogGerman } from "./testing-files/battleLogGerman";
+import { battleLogItalian } from "./testing-files/battleLogItalian";
 import { battleLogNoPlayer2Turn } from "./testing-files/battleLogNoPlayer2Turn";
 import { battleLogSpanish } from "./testing-files/battleLogSpanish";
 
@@ -20,6 +21,11 @@ describe('battle log utils', () => {
   it('should correctly extract player names in German from complete log', () => {
     const mockLog = trimBattleLog(battleLogGerman);
     expect(getPlayerNames(mockLog, 'de')).toEqual(['player1', 'player2'])
+  });
+
+  it('should correctly extract player names in Italian from complete log', () => {
+    const mockLog = trimBattleLog(battleLogItalian);
+    expect(getPlayerNames(mockLog, 'it')).toEqual(['italianPlayer2', 'italianPlayer1'])
   });
 
   describe('determineWinner', () => {
