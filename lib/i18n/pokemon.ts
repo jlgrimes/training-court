@@ -47,6 +47,15 @@ export const PokemonStrings: Record<Language, Record<PokemonStringsKey, string>>
     palkia_origin: 'origin forme palkia',
     raging_bolt: 'furiatonante',
     snorlax: 'snorlax'
+  },
+  "pt-br": {
+    charizard: "charizard",
+    chien_pao: "chien-pao",
+    dialga_origin: "Dialga Forma Origem",
+    dragapult: "dragapult",
+    palkia_origin: "Palkia Forma Origem",
+    raging_bolt: "Raio Furioso",
+    snorlax: "snorlax"
   }
 };
 

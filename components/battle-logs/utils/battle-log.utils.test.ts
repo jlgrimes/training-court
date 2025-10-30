@@ -1,4 +1,5 @@
 import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "./battle-log.utils";
+import { battleLogBrazilianPortuguese } from "./testing-files/battleLogBrazilianPortuguese";
 import { battleLogGerman } from "./testing-files/battleLogGerman";
 import { battleLogItalian } from "./testing-files/battleLogItalian";
 import { battleLogNoPlayer2Turn } from "./testing-files/battleLogNoPlayer2Turn";
@@ -66,6 +67,20 @@ describe('battle log utils', () => {
       expect(parsedLog.players[0].name).toBe('Bassoonboy135');
       expect(parsedLog.players[1].name).toBe('player2');
       expect(parsedLog.sections).toHaveLength(2); // Setup, Bassoonboy135's turn, donk before player 2's turn.
+    })
+  })
+
+  describe('parseBattleLog', () => {
+    it('should correctly parse a detailed battle log in Brazilian Portuguese', () => {
+      const battleLog = battleLogBrazilianPortuguese;
+      const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null, null);
+
+      expect(parsedLog.winner).toBe('BrPtPlayer2');
+      expect(parsedLog.players).toHaveLength(2);
+      expect(parsedLog.players[0].name).toBe('BrPtPlayer1');
+      expect(parsedLog.players[1].name).toBe('BrPtPlayer2');
+      expect(parsedLog.language).toBe('pt-br')
+      expect(parsedLog.sections).toHaveLength(5); // Full game
     })
   })
 
