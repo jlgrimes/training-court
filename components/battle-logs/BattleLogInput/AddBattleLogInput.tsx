@@ -121,7 +121,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
-      // 3) Roll back optimistic if insert failed
+      // Roll back optimistic if insert failed
       setUserLogs(prev => prev.filter(l => l.id !== optimisticId));
       return toast({
         variant: "destructive",
