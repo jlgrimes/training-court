@@ -23,10 +23,11 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
+import { useSetRecoilState } from 'recoil';
+import { BattleLog, userLogsAtom } from '@/app/recoil/atoms/battleLogs';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
-  handleAddLog: (newLog: Database['public']['Tables']['logs']['Row']) => void;
 }
 
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
@@ -43,6 +44,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
+  const setUserLogs = useSetRecoilState(userLogsAtom);
 
   useEffect(() => {
     if (parsedLogDetails) {
@@ -92,6 +94,22 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
 
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimistic: BattleLog = {
+      id: optimisticId,
+      created_at: new Date().toISOString(),
+      user: props.userData?.id ?? '',
+      log,
+      archetype: archetype ?? null,
+      opp_archetype: oppArchetype ?? null,
+      turn_order,
+      result,
+      notes: null,
+      format,
+    };
+
+    setUserLogs(prev => [optimistic, ...prev]);
+
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
       archetype,
@@ -103,34 +121,34 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
-      toast({
+      // 3) Roll back optimistic if insert failed
+      setUserLogs(prev => prev.filter(l => l.id !== optimisticId));
+      return toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: error.message,
-      })
-    } else {
-      props.handleAddLog(data[0]);
-      setLog('');
-      track('Import battle log');
-
-      toast({
-        title: "Battle log successfully imported!",
-      })
-      setLog('');
-      setParsedLogDetails(null);
-      setShowDialog(false);
-      Cookies.set("format", format, { expires: 30 });
+        description: error?.message ?? 'Insert failed',
+      });
     }
+    const saved = data[0];
+    setUserLogs(prev => {
+      const withoutOptimistic = prev.filter(l => l.id !== optimisticId);
+      return [saved, ...withoutOptimistic];
+    });
+
+    track('Import battle log');
+    toast({ title: "Battle log successfully imported!" });
+
+    setLog('');
+    setParsedLogDetails(null);
+    setShowDialog(false);
+    Cookies.set("format", format, { expires: 30 });
   };
+
 
   useEffect(() => {
     const cookieFormat = Cookies.get("format");
     setFormat(cookieFormat || format);
   }, []);
-
-  // const isAddButtonDisabled = useMemo(() => {
-  //   return log.length === 0;
-  // }, [log]);
 
   return (
     <div className="relative">
