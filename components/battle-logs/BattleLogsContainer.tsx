@@ -39,8 +39,6 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
       ? useLiveLogs(userId)
       : usePaginatedLiveLogs(userId, page, pageSize);
     
-  // @TODO: implement format
-  // const [format, setFormat] = useState<LogFormatsTab>(Cookies.get("format") as LogFormatsTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const availableSortBys = ['Day', 'Deck', 'All'];
@@ -76,7 +74,7 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
-        {userData?.live_screen_name && <AddBattleLogInput userData={userData} handleAddLog={handleAddLog} />}
+        {userData?.live_screen_name && <AddBattleLogInput userData={userData} />}
         <div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
