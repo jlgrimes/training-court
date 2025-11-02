@@ -1,120 +1,134 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { EditIcon } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { PremiumIcon } from "@/components/premium/PremiumIcon";
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
-import { Database } from "@/database.types";
-import { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
-import { track } from '@vercel/analytics';
-import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
-import { PremiumIcon } from "../premium/PremiumIcon";
-import { parseBattleLog } from "./utils/battle-log.utils";
-import { useSWRConfig } from "swr";
-import { useUserData } from "@/hooks/user-data/useUserData";
-import { logFormats, LogFormatsTab } from "../tournaments/Format/tournament-format.types";
-import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
 import { BattleLogsPaginationByDay } from "./BattleLogsPagination/BattleLogsPaginationByDay";
+import { useUserData } from "@/hooks/user-data/useUserData";
 import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
+import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
+import { userLogsAtom } from "@/app/recoil/atoms/battleLogs";
+import type { Database } from "@/database.types";
+import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
+import { parseBattleLog } from "./utils/battle-log.utils";
+import { track } from "@vercel/analytics";
 
-export function BattleLogsContainer ({ userId }: { userId: string | undefined}) {
-  const { mutate } = useSWRConfig();
+type LogRow = Database["public"]["Tables"]["logs"]["Row"];
+
+export function BattleLogsContainer({ userId }: { userId?: string }) {
   const { data: userData } = useUserData(userId);
+
   const [page, setPage] = useState(0);
-  const [sortBy, setSortBy] = useState<BattleLogSortBy>('Day');
+  const [sortBy, setSortBy] = useState<BattleLogSortBy>("Day");
+  const [isEditing, setIsEditing] = useState(false);
+
   const pageSize = 50;
   const daysPerPage = 5;
-  const isSortByDay = sortBy === 'Day';
-  const isSortByDeck = sortBy === 'Deck';
-  const isSortByAll = sortBy === 'All';
 
-  const {
-    data: logs,
-    isLoading
-  } = isSortByDay
-    ? usePaginatedLogsByDay(userId, page, daysPerPage)
-    : isSortByDeck
-      ? useLiveLogs(userId)
-      : usePaginatedLiveLogs(userId, page, pageSize);
-    
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const isSortByDay = sortBy === "Day";
+  const isSortByDeck = sortBy === "Deck";
+  const isSortByAll = sortBy === "All";
 
-  const availableSortBys = ['Day', 'Deck', 'All'];
+  const { data: logsDay,  isLoading: loadingDay  } = usePaginatedLogsByDay(userId, page, daysPerPage);
+  const { data: logsDeck, isLoading: loadingDeck } = useLiveLogs(userId);
+  const { data: logsAll,  isLoading: loadingAll  } = usePaginatedLiveLogs(userId, page, pageSize);
 
-  // const filteredLogs = useMemo(() => {
-  //   if (!logs) return [];
-  //   if (format === "All") return logs;
-  //   return logs.filter((log) => log.format === format);
-  // }, [logs, format]);
+  const isLoading = isSortByDay ? loadingDay : isSortByDeck ? loadingDeck : loadingAll;
+  const incoming: LogRow[] =
+    isSortByDay ? (logsDay ?? []) : isSortByDeck ? (logsDeck ?? []) : (logsAll ?? []);
 
-  // const filteredLogs = useMemo(() => {
-  //   if (!logs) return [];
-  //   return logs
-  // }, [logs]);
+  const setUserLogs = useSetRecoilState(userLogsAtom);
+  const rawRows = useRecoilValue(userLogsAtom);
+
+  const viewKey = `${userId ?? "anon"}|${sortBy}`;
+  const prevViewKeyRef = useRef<string | undefined>();
+  useEffect(() => {
+    if (prevViewKeyRef.current !== viewKey) {
+      prevViewKeyRef.current = viewKey;
+      setUserLogs([]);
+      setPage(0);
+    }
+  }, [viewKey, setUserLogs]);
+
+  const incomingIds = useMemo(() => incoming.map(r => r.id).join("|"), [incoming]);
+  const lastHydratedIdsRef = useRef<string>("");
+
+  useEffect(() => {
+    if (!incoming.length) return;
+    if (incomingIds === lastHydratedIdsRef.current) return;
+    lastHydratedIdsRef.current = incomingIds;
+
+    setUserLogs(prev => {
+      if (page === 0) {
+        const prevIds = prev.map(r => r.id).join("|");
+        return prevIds === incomingIds ? prev : incoming;
+      }
+      const seen = new Set(prev.map(l => l.id));
+      let changed = false;
+      const merged = [...prev];
+      for (const row of incoming) {
+        if (!seen.has(row.id)) {
+          merged.push(row);
+          changed = true;
+        }
+      }
+      return changed ? merged : prev;
+    });
+  }, [incoming, incomingIds, page, setUserLogs]);
 
   const battleLogs: BattleLog[] = useMemo(
-    () => (logs ?? []).map((battleLog: Database['public']['Tables']['logs']['Row']) => parseBattleLog(battleLog.log, battleLog.id, battleLog.created_at, battleLog.archetype, battleLog.opp_archetype, userData?.live_screen_name ?? '')), [logs, userData?.live_screen_name]);
+    () =>
+      rawRows.map((l: LogRow) =>
+        parseBattleLog(
+          l.log,
+          l.id,
+          l.created_at,
+          l.archetype,
+          l.opp_archetype,
+          userData?.live_screen_name ?? ""
+        )
+      ),
+    [rawRows, userData?.live_screen_name]
+  );
 
-  const handleAddLog = useCallback((newLog: Database['public']['Tables']['logs']['Row']) => {
-    // Puts most recent (now) in the front
-    logs && mutate(['live-logs', userId], [newLog, ...logs])
-  }, [logs, userId]);
-
-  // Disable edit mode every time we change tabs because that makes sense
   useEffect(() => {
     setIsEditing(false);
   }, [sortBy]);
 
-  useEffect(() => {
-    console.log('PAGE CHANGED:', page);
-  }, [page]);
+  const availableSortBys: BattleLogSortBy[] = ["Day", "Deck", "All"];
 
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
         {userData?.live_screen_name && <AddBattleLogInput userData={userData} />}
-        <div>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Tabs defaultValue='Day' onValueChange={(value) => {
-              track('Battle log sort by changed', { value })
-              setSortBy(value as BattleLogSortBy)
-            }}>
+            <Tabs
+              defaultValue="Day"
+              onValueChange={(value) => {
+                track("Battle log sort by changed", { value });
+                setSortBy(value as BattleLogSortBy);
+              }}
+            >
               <TabsList>
-                {availableSortBys.map((sortBy) => (
-                  <TabsTrigger key={sortBy} value={sortBy} disabled={!userData?.live_screen_name}>{sortBy}{sortBy === 'Matchups' && <PremiumIcon />}</TabsTrigger>
+                {availableSortBys.map((s) => (
+                  <TabsTrigger key={s} value={s} disabled={!userData?.live_screen_name}>
+                    {s}
+                  </TabsTrigger>
                 ))}
               </TabsList>
             </Tabs>
-
-            {/* <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-md hover:bg-gray-300">
-                  {format}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {[ "All", ...logFormats ].map((sortByLogs) => (
-                  <DropdownMenuItem
-                    key={sortByLogs}
-                    onClick={() => {
-                      track("Battle log sort by changed", { value: sortByLogs });
-                      setFormat(sortByLogs as LogFormatsTab);
-                      Cookies.set("format", sortByLogs);
-                    }}
-                    disabled={!userData?.live_screen_name}
-                  >
-                    {sortByLogs}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu> */}
           </div>
 
-          <ToggleGroup type='multiple' className="justify-start" size='sm'>
-            <ToggleGroupItem value='edit' onClick={() => setIsEditing(!isEditing)}>
+          <ToggleGroup type="multiple" className="justify-start" size="sm">
+            <ToggleGroupItem value="edit" onClick={() => setIsEditing(!isEditing)}>
               <EditIcon className="h-4 w-4 mr-2" /> Edit logs
             </ToggleGroupItem>
           </ToggleGroup>
@@ -122,31 +136,34 @@ export function BattleLogsContainer ({ userId }: { userId: string | undefined}) 
 
         {userData?.live_screen_name && (
           <div>
-            <MyBattleLogPreviews userData={userData} battleLogs={battleLogs} sortBy={sortBy} isEditing={isEditing} isLoading={isLoading}/>
+            <MyBattleLogPreviews
+              userData={userData}
+              battleLogs={battleLogs}
+              sortBy={sortBy}
+              isEditing={isEditing}
+              isLoading={isLoading && battleLogs.length === 0}
+            />
 
-            {(sortBy === 'Day') && (
+            {sortBy === "Day" && (
               <BattleLogsPaginationByDay
                 page={page}
                 onPageChange={setPage}
                 hasPrev={true}
-                hasNext={!!logs && logs.length > daysPerPage}
+                hasNext={incoming && incoming.length > daysPerPage}
               />
             )}
 
-            {(sortBy === 'All') && (
+            {sortBy === "All" && (
               <BattleLogsPaginationByDay
                 page={page}
                 onPageChange={setPage}
                 hasPrev={page > 0}
-                hasNext={!!logs && logs.length === pageSize}
+                hasNext={incoming && incoming.length === pageSize}
               />
             )}
           </div>
         )}
       </div>
-        {/* {isPremiumUser(props.userData?.id) && <PremiumBattleLogs logs={props.logs} currentUserScreenName={props.userData?.live_screen_name ?? null}/>} */}
-      </div>
-      {/* {isPremiumUser(props.userData?.id) && <Matchups matchups={convertBattleLogsToMatchups(battleLogs)} userId={props.userData?.id} shouldDisableDrillDown shouldDisableRoundGroup />} */}
     </div>
-  )
+  );
 }
