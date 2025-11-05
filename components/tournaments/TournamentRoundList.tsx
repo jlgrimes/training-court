@@ -32,24 +32,23 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
     if (!wrapper || !content) return;
 
     const top = Math.max(wrapper.getBoundingClientRect().top, 0);
-    const padding = 12; // breathing room so the Add button isn't crushed
+    const padding = 12; 
     const available = Math.max(window.innerHeight - top - padding, 1);
 
     const needed = content.scrollHeight;
 
     const nextScale = Math.min(1, available / Math.max(needed, 1));
     setScale(nextScale > 0 && isFinite(nextScale) ? nextScale : 1);
-    setBlockHeight(available); // real layout height to remove the gap below
+    setBlockHeight(available);
   }, []);
 
-  // Initial fit + whenever round count changes
+  
   useLayoutEffect(() => {
     fit();
-    const id = setTimeout(fit, 0); // catch late fonts/images
+    const id = setTimeout(fit, 0);
     return () => clearTimeout(id);
   }, [fit, props.rounds.length]);
 
-  // Refits on viewport resize and when content height changes (new round, edit, etc.)
   useEffect(() => {
     const onResize = () => fit();
     window.addEventListener("resize", onResize);
@@ -70,15 +69,14 @@ export default function TournamentRoundList (props: TournamentRoundListProps) {
     <div
       ref={wrapperRef}
       style={{
-        height: blockHeight,              // real space (prevents big gap)
-        transform: `scale(${scale})`,     // visual fit
+        height: blockHeight,
+        transform: `scale(${scale})`,
         transformOrigin: "top left",
-        width: `${100 / scale}%`,         // keep full width after scaling
+        width: `${100 / scale}%`,
         willChange: "transform,height",
       }}
       className="origin-top-left"
     >
-      {/* Unscaled content we measure/observe */}
       <div ref={contentRef}>
         <div className="grid grid-cols-8">
           <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">
