@@ -3,7 +3,7 @@
 import { Database } from "@/database.types"
 import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import AddTournamentRound from "../AddTournamentRound/AddTournamentRound";
@@ -37,6 +37,19 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
   const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
   const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
+  const prevLenRef = useRef<number>(props.rounds.length);
+
+  useEffect(() => {
+    const prev = prevLenRef.current;
+    const curr = rounds.length;
+
+    if (curr > prev) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+    prevLenRef.current = curr;
+  }, [rounds.length]);
 
   useEffect(() => {
     preload(USE_LIMITLESS_SPRITES_KEY, fetchLimitlessSprites);
