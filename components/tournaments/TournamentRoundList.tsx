@@ -20,9 +20,9 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
     setEditingRoundIdx(prev => (roundIdx === prev ? null : roundIdx));
   }, []);
 
-  const wrapperRef = useRef<HTMLDivElement>(null);     // scaled host (only when needed)
-  const contentRef = useRef<HTMLDivElement>(null);     // unscaled content to measure
-  const anchorDocTopRef = useRef<number | null>(null); // document-top anchor (scroll independent)
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const anchorDocTopRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
 
   const [layout, setLayout] = useState<{ scale: number; height?: number }>({
@@ -35,25 +35,23 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
     const content = contentRef.current;
     if (!wrapper || !content) return;
 
-    // Anchor to page top: element's top in document coords (not affected by current scroll)
     if (anchorDocTopRef.current == null) {
       anchorDocTopRef.current = wrapper.getBoundingClientRect().top + window.scrollY;
     }
     const anchorDocTop = Math.max(anchorDocTopRef.current!, 0);
 
-    const PADDING = 12; // bottom breathing room
+    const PADDING = 12;
     const available = Math.max(window.innerHeight - anchorDocTop - PADDING, 1);
 
-    const needed = content.scrollHeight; // natural (unscaled) height
+    const needed = content.scrollHeight;
 
     if (needed <= available) {
-      // Fits naturally → no scale, no fixed height (prevents gaps)
       setLayout({ scale: 1, height: undefined });
       return;
     }
 
     const ratio = available / needed;
-    const scale = clamp(ratio, 0, 1); // add a floor like 0.85 if you want readability
+    const scale = clamp(ratio, 0, .9); 
     setLayout({ scale, height: available });
   }, []);
 
@@ -65,15 +63,13 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
     });
   }, [fitNow]);
 
-  // Recalc on mount and whenever rounds change count (add/remove)
   useLayoutEffect(() => {
-    anchorDocTopRef.current = null; // re-anchor for new structure
-    fitNow();                       // immediate pass
-    const id = requestAnimationFrame(fitNow); // settle next frame (fonts/layout)
+    anchorDocTopRef.current = null;
+    fitNow();
+    const id = requestAnimationFrame(fitNow);
     return () => cancelAnimationFrame(id);
   }, [props.rounds.length, fitNow]);
 
-  // Refit on viewport changes and when content height changes (edit/async content)
   useEffect(() => {
     const onResize = () => fit();
     window.addEventListener("resize", onResize);
@@ -100,12 +96,12 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
       style={{
         ...(height
           ? {
-              height,                         // real layout height (no gap below)
-              transform: `scale(${scale})`,   // visual fit
-              width: `${100 / (scale || 1)}%` // width compensation
+              height,
+              transform: `scale(${scale})`,
+              width: `${100 / (scale || 1)}%`
             }
           : {}),
-        transformOrigin: "top left",          // resize from the top of the page
+        transformOrigin: "top left",
       }}
       className="origin-top-left"
     >
