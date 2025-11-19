@@ -7,8 +7,12 @@ export const DarkModeProvider = () => {
   const { darkMode } = useUI();
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', !!darkMode);
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    const theme = darkMode ? 'dark' : 'light';
+
+    document.documentElement.classList.toggle('dark', darkMode);
+    document.documentElement.setAttribute('data-theme', theme);
+
+    document.cookie = `theme=${theme}; path=/; max-age=31536000`;
   }, [darkMode]);
 
   return null;

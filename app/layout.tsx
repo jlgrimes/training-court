@@ -11,6 +11,7 @@ import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
+import { cookies } from 'next/headers';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -30,8 +31,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const theme = cookies().get("theme")?.value ?? "light";
+  const isDark = theme === "dark";
+
   return (
-    <html lang='en' className={GeistSans.className}>
+     <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
           <DarkModeHydrationGuard>
