@@ -12,12 +12,8 @@ import { convertBattleLogDateIntoDay, getBattleLogsByDayList, groupBattleLogInto
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/sprites/SpriteLayer";
 import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
-import { isAfter, parseISO } from "date-fns";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { BattleLogPreview } from "../BattleLogDisplay/BattleLogPreview";
-import { Button } from "@/components/ui/button";
-import { ChevronRightIcon } from "lucide-react";
-import Link from "next/link";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
 
 interface BattleLogsByDayProps {

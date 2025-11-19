@@ -143,24 +143,6 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
               isEditing={isEditing}
               isLoading={isLoading && battleLogs.length === 0}
             />
-
-            {sortBy === "Day" && (
-              <BattleLogsPaginationByDay
-                page={page}
-                onPageChange={setPage}
-                hasPrev={true}
-                hasNext={incoming && incoming.length > daysPerPage}
-              />
-            )}
-
-            {sortBy === "All" && (
-              <BattleLogsPaginationByDay
-                page={page}
-                onPageChange={setPage}
-                hasPrev={page > 0}
-                hasNext={incoming && incoming.length === pageSize}
-              />
-            )}
           </div>
         )}
       </div>
