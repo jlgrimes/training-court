@@ -105,6 +105,8 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
         })}
       </div>
 
+      {/* <Separator /> */}
+
       <div className='flex justify-end'>
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
