@@ -23,6 +23,8 @@ import { LogOutButton } from "../app-bar/LogOutButton";
 import { isUserAnAdmin } from "../admin/admin.utils";
 import { DarkModeToggle } from "../theme/DarkModeToggle";
 import { isPremiumUser } from "../premium/premium.utils";
+import { fetchUserData } from "../user-data.utils";
+import { normalizePreferredGames } from "@/lib/game-preferences";
  
 const items = [
   {
@@ -60,6 +62,10 @@ const pocketItems = [
 
 export async function AppSidebar() {
   const user = await fetchCurrentUser();
+  const userData = user ? await fetchUserData(user.id) : null;
+  const preferredGames = user ? normalizePreferredGames(userData?.preferred_games) : [];
+  const showTcg = preferredGames.includes('ptcg-live');
+  const showPocket = preferredGames.includes('pokemon-pocket');
 
   return (
   <Sidebar>
@@ -110,40 +116,44 @@ export async function AppSidebar() {
       </SidebarHeader>
       {user && (
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
-            <SidebarGroupContent>
-            <SidebarMenu>
-            {tcgItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>Pocket</SidebarGroupLabel>
-            <SidebarGroupContent>
-            <SidebarMenu>
-            {pocketItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {showTcg && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
+              <SidebarGroupContent>
+              <SidebarMenu>
+              {tcgItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+          {showPocket && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Pocket</SidebarGroupLabel>
+              <SidebarGroupContent>
+              <SidebarMenu>
+              {pocketItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
           {isUserAnAdmin(user.id) && (
             <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>

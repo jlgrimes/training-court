@@ -3,9 +3,9 @@ import { redirect } from 'next/navigation';
 import { fetchCurrentUser } from '@/components/auth.utils';
 import { BattleLogsHomePreview } from '@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview';
 import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome/TournamentsHomePreview';
-import { isPremiumUser } from '@/components/premium/premium.utils';
-import { MatchupsOverview } from '@/components/premium/matchups/MatchupsOverview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
+import { fetchPreferredGames } from '@/components/user-data.utils';
+import { isGameEnabled } from '@/lib/game-preferences';
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -14,16 +14,19 @@ export default async function Profile() {
     return redirect('/');
   }
 
+  const preferredGames = await fetchPreferredGames(user.id);
+  const showTcgl = isGameEnabled(preferredGames, 'ptcg-live');
+
   return (
     <>
       <TrainingCourtWelcome userId={user.id} />
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
-        <BattleLogsHomePreview userId={user.id} />
-        <TournamentsHomePreview user={user} />
-      </div>
-{/*      
-        <MatchupsOverview userId={user.id} shouldDisableDrillDown /> */}
+      {showTcgl && (
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
+          <BattleLogsHomePreview userId={user.id} />
+          <TournamentsHomePreview user={user} />
+        </div>
+      )}
     </>
   );
 }

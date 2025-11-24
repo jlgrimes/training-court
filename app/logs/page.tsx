@@ -3,6 +3,8 @@ import { BattleLogsContainer } from '@/components/battle-logs/BattleLogsContaine
 import { Header } from '@/components/ui/header';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { fetchPreferredGames } from '@/components/user-data.utils';
+import { isGameEnabled } from '@/lib/game-preferences';
 
 export const metadata: Metadata = {
   title: 'Logs',
@@ -13,6 +15,11 @@ export default async function LogsPage() {
 
   if (!currentUser) {
     redirect('/');
+  }
+
+  const preferredGames = await fetchPreferredGames(currentUser.id);
+  if (!isGameEnabled(preferredGames, 'ptcg-live')) {
+    redirect('/preferences');
   }
 
   return (

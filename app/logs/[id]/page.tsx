@@ -9,6 +9,8 @@ import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { fetchPreferredGames } from "@/components/user-data.utils";
+import { isGameEnabled } from "@/lib/game-preferences";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const supabase = createClient();
@@ -29,7 +31,13 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
   const currentUser = await fetchCurrentUser();
-  const userData = await fetchUserData(currentUser?.id ?? '');
+  const preferredGames = currentUser ? await fetchPreferredGames(currentUser.id) : [];
+
+  if (!currentUser || !isGameEnabled(preferredGames, 'ptcg-live')) {
+    return redirect("/preferences");
+  }
+
+  const userData = await fetchUserData(currentUser.id);
   const { data: logData } = await supabase.from('logs').select().eq('id', params.id).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
 
   if (!logData ) {
