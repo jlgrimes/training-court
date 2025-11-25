@@ -64,7 +64,7 @@ export async function AppSidebar() {
   const user = await fetchCurrentUser();
   const userData = user ? await fetchUserData(user.id) : null;
   const preferredGames = user ? normalizePreferredGames(userData?.preferred_games) : [];
-  const showTcg = preferredGames.includes('ptcg-live');
+  const showTcg = preferredGames.includes('pokemon-tcg');
   const showPocket = preferredGames.includes('pokemon-pocket');
 
   return (

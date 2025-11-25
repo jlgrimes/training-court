@@ -15,13 +15,13 @@ export default async function Profile() {
   }
 
   const preferredGames = await fetchPreferredGames(user.id);
-  const showTcgl = isGameEnabled(preferredGames, 'ptcg-live');
+  const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');
 
   return (
     <>
       <TrainingCourtWelcome userId={user.id} />
 
-      {showTcgl && (
+      {showPokemonTcg && (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
           <BattleLogsHomePreview userId={user.id} />
           <TournamentsHomePreview user={user} />

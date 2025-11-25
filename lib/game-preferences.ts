@@ -1,5 +1,5 @@
 export type GameId =
-  | 'ptcg-live'
+  | 'pokemon-tcg'
   | 'pokemon-pocket'
   // | 'mtg'
   // | 'yugioh'
@@ -14,9 +14,9 @@ export interface GameOption {
 
 export const GAME_OPTIONS: GameOption[] = [
   {
-    id: 'ptcg-live',
-    label: 'Pokemon TCG Live',
-    description: 'Battle logs, tournaments, and stats',
+    id: 'pokemon-tcg',
+    label: 'Pokemon TCG',
+    description: 'Battle logs, tournaments, and stats (online or in-person)',
     available: true,
   },
   {

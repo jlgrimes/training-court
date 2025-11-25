@@ -18,7 +18,7 @@ export default async function LogsPage() {
   }
 
   const preferredGames = await fetchPreferredGames(currentUser.id);
-  if (!isGameEnabled(preferredGames, 'ptcg-live')) {
+  if (!isGameEnabled(preferredGames, 'pokemon-tcg')) {
     redirect('/preferences');
   }
 

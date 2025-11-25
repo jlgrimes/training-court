@@ -19,7 +19,7 @@ export default async function Tournaments() {
   }
 
   const preferredGames = await fetchPreferredGames(user.id);
-  if (!isGameEnabled(preferredGames, 'ptcg-live')) {
+  if (!isGameEnabled(preferredGames, 'pokemon-tcg')) {
     return redirect('/preferences');
   }
 

@@ -33,7 +33,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
   const currentUser = await fetchCurrentUser();
   const preferredGames = currentUser ? await fetchPreferredGames(currentUser.id) : [];
 
-  if (!currentUser || !isGameEnabled(preferredGames, 'ptcg-live')) {
+  if (!currentUser || !isGameEnabled(preferredGames, 'pokemon-tcg')) {
     return redirect("/preferences");
   }
 
