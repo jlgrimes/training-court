@@ -3,24 +3,25 @@
 import Link from "next/link";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "../../ui/card";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
-import { Database } from "@/database.types";
 import { renderTournamentPlacement, TournamentPlacement } from "../Placement/tournament-placement.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
-import { Label } from "@/components/ui/label";
+import { TournamentLike, TournamentRoundLike } from "@/lib/tournaments/types";
 
 interface TournamentPreviewProps {
-  tournament: Database['public']['Tables']['tournaments']['Row'];
-  rounds: Database['public']['Tables']['tournament rounds']['Row'][];
+  tournament: TournamentLike;
+  rounds: TournamentRoundLike[];
   shouldHideCategoryBadge?: boolean;
+  routeBase?: string;
 }
 
 export default function TournamentPreview(props: TournamentPreviewProps) {
+  const routeBase = props.routeBase ?? '/tournaments';
   return (
-    <Link href={`/tournaments/${props.tournament.id}`}>
+    <Link href={`${routeBase}/${props.tournament.id}`}>
       <Card clickable>
         <SmallCardHeader>
           <div className="grid grid-cols-two-sprite+3 items-center">
-            <Sprite name={props.tournament.deck} />
+            <Sprite name={props.tournament.deck ?? ''} />
             <div className="text-left col-span-2">
               <CardTitle className="dark:text-white">{props.tournament.name}</CardTitle>
               <CardDescription>

@@ -8,10 +8,10 @@ import { useToast } from "../../ui/use-toast";
 import { AddArchetype } from "../../archetype/AddArchetype/AddArchetype";
 import { GhostIcon, HandIcon, HandshakeIcon, Loader2, Plus, Upload } from "lucide-react";
 import { RoundResultInput } from "./RoundResultInput";
-import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/constants";
 import { Label } from "@/components/ui/label";
+import { TournamentRoundLike } from "@/lib/tournaments/types";
 
 export interface TournamentRoundEditProps {
   editing: boolean;
@@ -20,8 +20,9 @@ export interface TournamentRoundEditProps {
   tournamentId: string;
   userId: string;
   editedRoundNumber: number;
-  existingRound?: Database['public']['Tables']['tournament rounds']['Row'];
-  updateClientRounds: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void
+  existingRound?: TournamentRoundLike;
+  updateClientRounds: (newRound: TournamentRoundLike) => void;
+  roundsTable?: import('@/lib/tournaments/config').TournamentRoundsTableName;
 }
 
 export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
@@ -86,18 +87,18 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       
       if (props.existingRound) {
         response = await supabase
-          .from('tournament rounds')
+          .from(props.roundsTable ?? 'tournament rounds')
           .update(payload)
           .eq('tournament', props.tournamentId)
           .eq('round_num', props.editedRoundNumber)
           .select()
-          .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+          .returns<TournamentRoundLike[]>();
       } else {
         response = await supabase
-          .from('tournament rounds')
+          .from(props.roundsTable ?? 'tournament rounds')
           .insert(payload)
           .select()
-          .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+          .returns<TournamentRoundLike[]>();
       }
   
       if (response.error) {

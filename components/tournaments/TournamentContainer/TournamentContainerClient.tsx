@@ -1,6 +1,5 @@
 'use client';
 
-import { Database } from "@/database.types"
 import TournamentRoundList from "../TournamentRoundList";
 import { User } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -21,14 +20,18 @@ import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.ut
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 import { TournamentFormats } from "../Format/tournament-format.types";
 import { TournamentNotesDialog } from "./TournamentNotesDialog";
+import { TournamentLike, TournamentRoundLike } from "@/lib/tournaments/types";
+import { TournamentTablesConfig, DEFAULT_TOURNAMENT_CONFIG } from "@/lib/tournaments/config";
 
 interface TournamentContainerClientProps {
-  tournament: Database['public']['Tables']['tournaments']['Row'];
-  rounds: Database['public']['Tables']['tournament rounds']['Row'][];
+  tournament: TournamentLike;
+  rounds: TournamentRoundLike[];
   user: User | undefined | null;
+  config?: TournamentTablesConfig;
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
+  const config = props.config ?? DEFAULT_TOURNAMENT_CONFIG;
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed
@@ -78,7 +81,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     <div className="w-full flex justify-center px-4 sm:px-8">
       <div className="w-full max-w-xl flex flex-col flex-1 gap-2">
         <div className="flex flex-col gap-1">
-          {props.user?.id === props.tournament.user && (
+          {props.user?.id === props.tournament.user && config.tournamentsTable === 'tournaments' && (
             <div className="flex">
               <TournamentEditDialog
                 tournamentId={props.tournament.id}
@@ -125,10 +128,16 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
                   {getRecord(rounds)}
                 </h1>
-                <EditableTournamentArchetype
-                  tournament={props.tournament}
-                  editDisabled={props.tournament.user !== props.user?.id}
-                />
+                {config.tournamentsTable === 'tournaments' ? (
+                  <EditableTournamentArchetype
+                    tournament={props.tournament}
+                    editDisabled={props.tournament.user !== props.user?.id}
+                  />
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Deck: {props.tournament.deck ?? 'Unknown'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -141,6 +150,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 userId={props.user?.id}
                 rounds={rounds}
                 updateClientRoundsOnEdit={updateClientRoundsOnEdit}
+                config={config}
               />
               {props.user?.id === props.tournament.user && (
                 <AddTournamentRound
@@ -148,6 +158,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                   userId={props.user.id}
                   editedRoundNumber={rounds.length + 1}
                   updateClientRounds={updateClientRoundsOnAdd}
+                  roundsTable={config.roundsTable}
                 />
               )}
             </div>

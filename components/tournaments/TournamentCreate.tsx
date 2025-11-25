@@ -34,7 +34,8 @@ import { TournamentCategoryIcon } from './Category/TournamentCategoryIcon';
 import { TournamentPlacement } from './Placement/tournament-placement.types';
 import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect';
 import { tournamentFormats, TournamentFormats } from './Format/tournament-format.types';
-import { Database } from '@/database.types';
+import { TournamentTablesConfig, DEFAULT_TOURNAMENT_CONFIG } from '@/lib/tournaments/config';
+import { TournamentLike } from '@/lib/tournaments/types';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;
@@ -44,7 +45,12 @@ function toUtcNoon(date: Date | null | undefined): Date | null {
   return new Date(Date.UTC(y, m, d, 12, 0, 0, 0));
 }
 
-export default function TournamentCreateDialog({ userId }: { userId: string }) {
+interface TournamentCreateProps {
+  userId: string;
+  config?: TournamentTablesConfig;
+}
+
+export default function TournamentCreateDialog({ userId, config = DEFAULT_TOURNAMENT_CONFIG }: TournamentCreateProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
 
@@ -73,7 +79,7 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
     const dateToUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { data, error } = await supabase
-      .from('tournaments')
+      .from(config.tournamentsTable)
       .insert({
         name: tournamentName,
         date_from: dateFromUTC?.toISOString(),
@@ -84,7 +90,7 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
         format: format,
       })
       .select()
-      .returns<Database['public']['Tables']['tournaments']['Row'][]>();
+      .returns<TournamentLike[]>();
 
     setIsCreating(false);
 
@@ -99,8 +105,8 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
 
     setOpen(false);
     resetForm();
-    window.location.href = `/tournaments/${data![0].id}`;
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast]);
+    window.location.href = `${config.routeBase}/${data![0].id}`;
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config]);
 
   return (
     <Dialog

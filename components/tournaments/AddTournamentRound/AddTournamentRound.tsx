@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { Button } from "../../ui/button";
 import { Plus } from "lucide-react";
-import { Database } from "@/database.types";
 import TournamentRoundEdit from "./TournamentRoundEdit";
+import { TournamentRoundLike } from "@/lib/tournaments/types";
 
 export interface AddTournamentRoundProps {
   tournamentId: string;
   userId: string;
   editedRoundNumber: number;
-  updateClientRounds: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void
+  updateClientRounds: (newRound: TournamentRoundLike) => void;
+  roundsTable?: import('@/lib/tournaments/config').TournamentRoundsTableName;
 }
 
 export default function AddTournamentRound(props: AddTournamentRoundProps) {
@@ -24,6 +25,7 @@ export default function AddTournamentRound(props: AddTournamentRoundProps) {
       userId={props.userId}
       editedRoundNumber={props.editedRoundNumber}
       updateClientRounds={props.updateClientRounds}
+      roundsTable={props.roundsTable}
     />
   )
 

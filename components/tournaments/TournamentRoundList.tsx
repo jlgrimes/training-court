@@ -1,17 +1,18 @@
 'use client';
 
-import { Database } from "@/database.types";
 import { TournamentRound } from "./TournamentRound";
 import { useCallback, useLayoutEffect, useRef, useState, useEffect } from "react";
+import { TournamentLike, TournamentRoundLike } from "@/lib/tournaments/types";
 
 interface TournamentRoundListProps {
-  tournament: Database['public']['Tables']['tournaments']['Row'];
+  tournament: TournamentLike;
   userId: string | undefined;
-  rounds: Database['public']['Tables']['tournament rounds']['Row'][];
+  rounds: TournamentRoundLike[];
   updateClientRoundsOnEdit: (
-    newRound: Database['public']['Tables']['tournament rounds']['Row'],
+    newRound: TournamentRoundLike,
     pos: number
   ) => void;
+  config?: import('@/lib/tournaments/config').TournamentTablesConfig;
 }
 
 export default function TournamentRoundList(props: TournamentRoundListProps) {
@@ -122,6 +123,7 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
               updateClientRoundsOnEdit={props.updateClientRoundsOnEdit}
               isEditing={editingRoundIdx === idx}
               handleEditingRoundToggle={() => handleEditingRoundToggle(idx)}
+              roundsTable={props.config?.roundsTable}
             />
           ))}
         </div>

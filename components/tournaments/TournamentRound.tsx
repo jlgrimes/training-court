@@ -2,19 +2,20 @@
 
 import { Sprite } from "../archetype/sprites/Sprite";
 import { convertGameResultsToRoundResult } from "./utils/tournaments.utils";
-import { Database } from "@/database.types";
 import { useMemo } from "react";
 import TournamentRoundEdit from "./AddTournamentRound/TournamentRoundEdit";
 import { MATCH_END_REASONS } from "./TournamentConstants/constants";
 import { cn } from "@/lib/utils";
+import { TournamentLike, TournamentRoundLike } from "@/lib/tournaments/types";
 
 interface TournamentRoundProps {
-  tournament: Database['public']['Tables']['tournaments']['Row'];
+  tournament: TournamentLike;
   userId: string | undefined;
-  round: Database['public']['Tables']['tournament rounds']['Row'];
-  updateClientRoundsOnEdit: (newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => void;
+  round: TournamentRoundLike;
+  updateClientRoundsOnEdit: (newRound: TournamentRoundLike, pos: number) => void;
   isEditing: boolean;
   handleEditingRoundToggle: () => void;
+  roundsTable?: import('@/lib/tournaments/config').TournamentRoundsTableName;
 }
 
 export const TournamentRound = (props: TournamentRoundProps) => {
@@ -31,8 +32,7 @@ export const TournamentRound = (props: TournamentRoundProps) => {
           existingRound={props.round}
           updateClientRounds={(updatedRound) => props.updateClientRoundsOnEdit(updatedRound, props.round.round_num - 1)}
           editing={props.isEditing}
-          // a little deceptive whoops, but we don't need to pass set is editing true or false.
-          // maybe change this prop...
+          roundsTable={props.roundsTable}
           setEditing={() => props.handleEditingRoundToggle()}
         />
       </div>

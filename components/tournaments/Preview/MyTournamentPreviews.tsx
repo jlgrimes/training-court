@@ -6,21 +6,24 @@ import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TournamentCategory, TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
-import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMemo, useState } from "react";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { TournamentFormatsTab } from "../Format/tournament-format.types";
 import MultiSelect from "@/components/ui/multi-select";
+import { TournamentTablesConfig, DEFAULT_TOURNAMENT_CONFIG } from "@/lib/tournaments/config";
+import { TournamentLike, TournamentRoundLike } from "@/lib/tournaments/types";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
+  config?: TournamentTablesConfig;
 }
 
 export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
-  const { data: tournaments } = useTournaments(props.user?.id);
-  const { data: rounds } = useTournamentRounds(props.user?.id);
+  const config = props.config ?? DEFAULT_TOURNAMENT_CONFIG;
+  const { data: tournaments } = useTournaments(props.user?.id, config);
+  const { data: rounds } = useTournamentRounds(props.user?.id, config);
 
   const [isInteractionBlocked, ] = useState(false);
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
@@ -105,24 +108,26 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           <div className="flex flex-col gap-2">
             {filteredTournaments?.map((tournament) =>
               rounds ? (
-                <TournamentPreview
-                  key={tournament.id}
-                  tournament={tournament}
-                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
-                />
-              ) : null
-            )}
-          </div>
-        ) : (
-          <ScrollArea className="h-[36rem]">
+              <TournamentPreview
+                key={tournament.id}
+                tournament={tournament}
+                rounds={rounds.filter((r) => r.tournament === tournament.id)}
+                routeBase={config.routeBase}
+              />
+            ) : null
+          )}
+        </div>
+      ) : (
+        <ScrollArea className="h-[36rem]">
             <div className="flex flex-col gap-2">
               {filteredTournaments?.map((tournament) =>
                 rounds ? (
                   <TournamentPreview
                   key={tournament.id}
                   tournament={tournament}
-                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  rounds={rounds.filter((r) => r.tournament === tournament.id)}
                   shouldHideCategoryBadge
+                  routeBase={config.routeBase}
                   />
                 ) : null
               )}
