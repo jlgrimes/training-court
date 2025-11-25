@@ -16,7 +16,7 @@ export const GAME_OPTIONS: GameOption[] = [
   {
     id: 'pokemon-tcg',
     label: 'Pokemon TCG',
-    description: 'Battle logs, tournaments, and stats (online or in-person)',
+    description: 'Battle logs, tournaments, and stats',
     available: true,
   },
   {
