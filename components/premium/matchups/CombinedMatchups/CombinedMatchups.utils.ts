@@ -3,7 +3,7 @@ import { MatchupResult, Matchups } from "../Matchups.types";
 import { isAfter, parseISO } from "date-fns";
 import { EMPTY_MATCHUP_RESULT } from "../Matchups.utils";
 
-const appendMatchToMatchupResult = (match: Database['public']['Functions']['get_user_tournament_and_battle_logs_v2']['Returns'][0], existingResult: MatchupResult): MatchupResult => {
+const appendMatchToMatchupResult = (match: Database['public']['Functions']['get_user_tournament_and_battle_logs_v3']['Returns'][0], existingResult: MatchupResult): MatchupResult => {
   let newTotal: [number, number, number] = [...existingResult.total];
   // The target idx (0 for win, 1 for loss, 2 for tie) that we want to modify the result arrays with
   let targetIdx;
@@ -33,7 +33,7 @@ const appendMatchToMatchupResult = (match: Database['public']['Functions']['get_
   }
 }
 
-export const convertRpcRetToMatchups = (rpcRet: Database['public']['Functions']['get_user_tournament_and_battle_logs_v2']['Returns']) => {
+export const convertRpcRetToMatchups = (rpcRet: Database['public']['Functions']['get_user_tournament_and_battle_logs_v3']['Returns']) => {
   return rpcRet.reduce((acc: Matchups, curr) => {
     const myDeck = curr.deck;
     const oppDeck = curr.opp_deck;

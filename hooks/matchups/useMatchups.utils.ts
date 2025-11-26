@@ -6,7 +6,7 @@ export async function fetchMatchups(userId: string | undefined) {
   if (!userId) return null;
 
   const supabase = createClient();
-  const { data } = await supabase.rpc('get_user_tournament_and_battle_logs_v2', { user_id: userId }).returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v2']['Returns']>();
+  const { data } = await supabase.rpc('get_user_tournament_and_battle_logs_v3', { user_id: userId }).returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v3']['Returns']>();
 
   if (!data) return null;
 
