@@ -88,7 +88,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       
       if (props.existingRound) {
         response = await supabase
-          .from(roundsTable as any)
+          .from(roundsTable)
           .update(payload)
           .eq('tournament', props.tournamentId)
           .eq('round_num', props.editedRoundNumber)
@@ -96,7 +96,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
           .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
       } else {
         response = await supabase
-          .from(roundsTable as any)
+          .from(roundsTable)
           .insert(payload)
           .select()
           .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();

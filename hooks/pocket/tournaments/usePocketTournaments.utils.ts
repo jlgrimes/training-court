@@ -19,7 +19,7 @@ export async function fetchPocketTournaments(userId: string | undefined) {
 
   const supabase = createClient();
   const { data, error } = await supabase
-    .from('pocket_tournaments' as any)
+    .from('pocket_tournaments')
     .select('*')
     .eq('user', userId)
     .order('date_from', { ascending: false })

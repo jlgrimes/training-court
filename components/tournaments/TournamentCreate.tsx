@@ -77,7 +77,7 @@ export default function TournamentCreateDialog({
     const dateToUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { data, error } = await supabase
-      .from(config.tournamentsTable as any)
+      .from(config.tournamentsTable)
       .insert({
         name: tournamentName,
         date_from: dateFromUTC?.toISOString(),

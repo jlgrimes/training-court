@@ -43,7 +43,7 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
   
   const handleDeleteTournament = useCallback(async () => {
     const supabase = createClient();
-    const { error: roundErr } = await supabase.from(config.roundsTable as any).delete().eq('tournament', props.tournamentId);
+    const { error: roundErr } = await supabase.from(config.roundsTable).delete().eq('tournament', props.tournamentId);
 
     if (roundErr) {
       return toast({
@@ -53,7 +53,7 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
       })
     }
 
-    const { error } = await supabase.from(config.tournamentsTable as any).delete().eq('id', props.tournamentId);
+    const { error } = await supabase.from(config.tournamentsTable).delete().eq('id', props.tournamentId);
 
     if (error) {
       toast({

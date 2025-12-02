@@ -109,7 +109,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     const toNoonUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { error } = await supabase
-      .from(config.tournamentsTable as any)
+      .from(config.tournamentsTable)
       .update({
         name: tournamentName,
         date_from: fromNoonUTC?.toISOString(),

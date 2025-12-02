@@ -22,7 +22,7 @@ interface TournamentNotesDialogProps {
 async function loadNotes(tournamentId: string, tableName: string): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from(tableName as any)
+    .from(tableName)
     .select('notes')
     .eq('id', tournamentId)
     .maybeSingle();
@@ -33,7 +33,7 @@ async function loadNotes(tournamentId: string, tableName: string): Promise<strin
 async function saveNotes(tournamentId: string, notes: string, tableName: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
-    .from(tableName as any)
+    .from(tableName)
     .update({ notes })
     .eq('id', tournamentId);
   if (error) throw error;
