@@ -24,7 +24,7 @@ export default async function LogsPage() {
 
   return (
     <>
-      <Header description='Record your PTCG Live battle logs'>Logs</Header>
+      <Header description='Record your PTCG Live battle logs'>PTCG Logs</Header>
       <BattleLogsContainer userId={currentUser.id} />
     </>
   );
