@@ -43,7 +43,7 @@ export function TournamentNotesDialog({
   tournamentId,
   tournamentName,
   tournamentNotes,
-  config = PTCG_TOURNAMENT_CONFIG,
+  config,
 }: TournamentNotesDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);

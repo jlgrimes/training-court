@@ -47,8 +47,8 @@ function toUtcNoon(date: Date | null | undefined): Date | null {
 
 export default function TournamentCreateDialog({
   userId,
-  config = PTCG_TOURNAMENT_CONFIG,
-}: { userId: string; config?: TournamentGameConfig }) {
+  config,
+}: { userId: string; config: TournamentGameConfig }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
 
