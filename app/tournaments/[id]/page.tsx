@@ -20,6 +20,6 @@ export default async function TournamentPage({ params }: { params: { id: string 
   }
 
   return (
-    <TournamentContainerClient tournament={tournamentData} />
+    <TournamentContainer tournament={tournamentData} />
   );
 }
