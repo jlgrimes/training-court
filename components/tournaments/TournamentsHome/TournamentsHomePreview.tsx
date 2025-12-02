@@ -10,6 +10,7 @@ import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PTCG_TOURNAMENT_CONFIG } from "../utils/tournament-game-config";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -57,14 +58,19 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               {tournamentData?.map((tournament) => rounds && (
-                <TournamentPreview tournament={tournament} key={tournament.id} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)} />
+                <TournamentPreview
+                  tournament={tournament}
+                  key={tournament.id}
+                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  basePath={PTCG_TOURNAMENT_CONFIG.basePath}
+                />
               )).slice(0, 5)}
             </div>
             <SeeMoreButton href="/tournaments" />
           </div>
         </div>
       )}
-      <TournamentCreate userId={props.user.id} />
+      <TournamentCreate userId={props.user.id} config={PTCG_TOURNAMENT_CONFIG} />
     </div>
   )
   

@@ -10,7 +10,7 @@ export type TournamentGameConfig = {
 export const PTCG_TOURNAMENT_CONFIG: TournamentGameConfig = {
   tournamentsTable: "tournaments",
   roundsTable: "tournament rounds",
-  basePath: "/tournaments",
+  basePath: "/ptcg/tournaments",
   gameId: "pokemon-tcg",
 };
 

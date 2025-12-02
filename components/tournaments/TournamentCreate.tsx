@@ -35,7 +35,7 @@ import { TournamentPlacement } from './Placement/tournament-placement.types';
 import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect';
 import { tournamentFormats, TournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
-import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from './utils/tournament-game-config';
+import { TournamentGameConfig } from './utils/tournament-game-config';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;

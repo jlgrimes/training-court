@@ -3,6 +3,7 @@ import { fetchRounds, fetchTournament } from "@/components/tournaments/utils/tou
 import { Database } from "@/database.types";
 import { redirect } from "next/navigation";
 import { TournamentContainerClient } from "./TournamentContainerClient";
+import { PTCG_TOURNAMENT_CONFIG } from "../utils/tournament-game-config";
 
 interface TournamentContainer {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -18,6 +19,11 @@ export default async function TournamentContainer(props: TournamentContainer) {
   }
 
   return (
-    <TournamentContainerClient tournament={tournamentData} user={user} rounds={rounds ?? []} />
+    <TournamentContainerClient
+      tournament={tournamentData}
+      user={user}
+      rounds={rounds ?? []}
+      config={PTCG_TOURNAMENT_CONFIG}
+    />
   );
 }

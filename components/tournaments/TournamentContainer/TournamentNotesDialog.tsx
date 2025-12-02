@@ -10,13 +10,13 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { createClient } from '@/utils/supabase/client';
-import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from '../utils/tournament-game-config';
+import { TournamentGameConfig } from '../utils/tournament-game-config';
 
 interface TournamentNotesDialogProps {
   tournamentId: string;
   tournamentName: string;
   tournamentNotes: string | null;
-  config?: TournamentGameConfig;
+  config: TournamentGameConfig;
 }
 
 async function loadNotes(tournamentId: string, tableName: string): Promise<string> {
