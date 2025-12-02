@@ -118,7 +118,7 @@ export async function AppSidebar() {
         <SidebarContent>
           {showTcg && (
             <SidebarGroup>
-              <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
+              <SidebarGroupLabel>Pokémon TCG</SidebarGroupLabel>
               <SidebarGroupContent>
               <SidebarMenu>
               {tcgItems.map((item) => (
@@ -137,7 +137,7 @@ export async function AppSidebar() {
           )}
           {showPocket && (
             <SidebarGroup>
-              <SidebarGroupLabel>Pocket</SidebarGroupLabel>
+              <SidebarGroupLabel>Pokémon Pocket</SidebarGroupLabel>
               <SidebarGroupContent>
               <SidebarMenu>
               {pocketItems.map((item) => (

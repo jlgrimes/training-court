@@ -155,7 +155,7 @@ export function AppSidebarClient() {
           {preferences.games.tradingCardGame && (
             <>
               <SidebarGroup>
-                <SidebarGroupLabel>Trading Card Game</SidebarGroupLabel>
+                <SidebarGroupLabel>Pokémon TCG</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {tcgItems.map((item) => (

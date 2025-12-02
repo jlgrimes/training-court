@@ -15,13 +15,13 @@ export interface GameOption {
 export const GAME_OPTIONS: GameOption[] = [
   {
     id: 'pokemon-tcg',
-    label: 'Pokemon TCG',
+    label: 'Pokémon TCG',
     description: 'Battle logs, tournaments, and stats',
     available: true,
   },
   {
     id: 'pokemon-pocket',
-    label: 'Pokemon Pocket',
+    label: 'Pokémon Pocket',
     description: 'Record Pocket games',
     available: true,
   },

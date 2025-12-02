@@ -302,7 +302,7 @@ export function PreferencesPageClient({ avatarImages }: PreferencesPageClientPro
             <CardContent className='space-y-4'>
               <div className='flex justify-between items-center'>
                 <div>
-                  <Label>Trading Card Game</Label>
+                  <Label>Pokémon TCG</Label>
                   <p className='text-sm text-muted-foreground'>Show TCG section in sidebar</p>
                 </div>
                 <Switch
