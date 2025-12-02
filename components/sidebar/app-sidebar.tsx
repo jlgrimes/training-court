@@ -57,6 +57,11 @@ const pocketItems = [
     title: "Games",
     url: "/pocket",
     icon: WalletMinimal,
+  },
+  {
+    title: "Tournaments",
+    url: "/pocket/tournaments",
+    icon: Trophy,
   }
 ]
 

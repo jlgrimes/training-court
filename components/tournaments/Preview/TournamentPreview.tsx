@@ -12,11 +12,13 @@ interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
   shouldHideCategoryBadge?: boolean;
+  basePath?: string;
 }
 
 export default function TournamentPreview(props: TournamentPreviewProps) {
+  const basePath = props.basePath ?? '/tournaments';
   return (
-    <Link href={`/tournaments/${props.tournament.id}`}>
+    <Link href={`${basePath}/${props.tournament.id}`}>
       <Card clickable>
         <SmallCardHeader>
           <div className="grid grid-cols-two-sprite+3 items-center">

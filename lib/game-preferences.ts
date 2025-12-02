@@ -22,7 +22,7 @@ export const GAME_OPTIONS: GameOption[] = [
   {
     id: 'pokemon-pocket',
     label: 'Pokémon Pocket',
-    description: 'Record Pocket games',
+    description: 'Record Pocket games and tournaments',
     available: true,
   },
   // {

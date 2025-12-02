@@ -35,6 +35,7 @@ import { TournamentPlacement } from './Placement/tournament-placement.types';
 import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect';
 import { tournamentFormats, TournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
+import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from './utils/tournament-game-config';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;
@@ -44,7 +45,10 @@ function toUtcNoon(date: Date | null | undefined): Date | null {
   return new Date(Date.UTC(y, m, d, 12, 0, 0, 0));
 }
 
-export default function TournamentCreateDialog({ userId }: { userId: string }) {
+export default function TournamentCreateDialog({
+  userId,
+  config = TCG_TOURNAMENT_CONFIG,
+}: { userId: string; config?: TournamentGameConfig }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
 
@@ -73,7 +77,7 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
     const dateToUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { data, error } = await supabase
-      .from('tournaments')
+      .from(config.tournamentsTable as any)
       .insert({
         name: tournamentName,
         date_from: dateFromUTC?.toISOString(),
@@ -99,8 +103,8 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
 
     setOpen(false);
     resetForm();
-    window.location.href = `/tournaments/${data![0].id}`;
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast]);
+    window.location.href = `${config.basePath}/${data![0].id}`;
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config.basePath, config.tournamentsTable]);
 
   return (
     <Dialog

@@ -11,6 +11,7 @@ export interface AddTournamentRoundProps {
   userId: string;
   editedRoundNumber: number;
   updateClientRounds: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void
+  roundsTableName?: string;
 }
 
 export default function AddTournamentRound(props: AddTournamentRoundProps) {
@@ -24,6 +25,7 @@ export default function AddTournamentRound(props: AddTournamentRoundProps) {
       userId={props.userId}
       editedRoundNumber={props.editedRoundNumber}
       updateClientRounds={props.updateClientRounds}
+      roundsTableName={props.roundsTableName}
     />
   )
 

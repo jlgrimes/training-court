@@ -34,6 +34,7 @@ import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
 import { tournamentFormats, TournamentFormats } from "../Format/tournament-format.types";
+import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
 
 /** Normalize to 12:00:00Z to avoid TZ/DST off-by-one */
 function toUtcNoon(date: Date | null | undefined): Date | null {
@@ -59,10 +60,12 @@ interface TournamentEditDialogProps {
     newPlacement: TournamentPlacement | null,
     newFormat: TournamentFormats | null
   ) => void;
+  config?: TournamentGameConfig;
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const { toast } = useToast();
+  const config = props.config ?? TCG_TOURNAMENT_CONFIG;
 
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -106,7 +109,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     const toNoonUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { error } = await supabase
-      .from('tournaments')
+      .from(config.tournamentsTable as any)
       .update({
         name: tournamentName,
         date_from: fromNoonUTC?.toISOString(),
@@ -152,6 +155,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     props.tournamentPlacement,
     props.tournamentFormat,
     toast,
+    config.tournamentsTable,
   ]);
 
   const resetLocal = () => {
