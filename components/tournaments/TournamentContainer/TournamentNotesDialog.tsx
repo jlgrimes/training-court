@@ -10,7 +10,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { createClient } from '@/utils/supabase/client';
-import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from '../utils/tournament-game-config';
+import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from '../utils/tournament-game-config';
 
 interface TournamentNotesDialogProps {
   tournamentId: string;
@@ -43,7 +43,7 @@ export function TournamentNotesDialog({
   tournamentId,
   tournamentName,
   tournamentNotes,
-  config = TCG_TOURNAMENT_CONFIG,
+  config = PTCG_TOURNAMENT_CONFIG,
 }: TournamentNotesDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);

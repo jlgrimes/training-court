@@ -34,7 +34,7 @@ import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
 import { tournamentFormats, TournamentFormats } from "../Format/tournament-format.types";
-import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
+import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
 
 /** Normalize to 12:00:00Z to avoid TZ/DST off-by-one */
 function toUtcNoon(date: Date | null | undefined): Date | null {
@@ -65,7 +65,7 @@ interface TournamentEditDialogProps {
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const { toast } = useToast();
-  const config = props.config ?? TCG_TOURNAMENT_CONFIG;
+  const config = props.config ?? PTCG_TOURNAMENT_CONFIG;
 
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);

@@ -35,7 +35,7 @@ import { TournamentPlacement } from './Placement/tournament-placement.types';
 import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect';
 import { tournamentFormats, TournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
-import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from './utils/tournament-game-config';
+import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from './utils/tournament-game-config';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;
@@ -47,7 +47,7 @@ function toUtcNoon(date: Date | null | undefined): Date | null {
 
 export default function TournamentCreateDialog({
   userId,
-  config = TCG_TOURNAMENT_CONFIG,
+  config = PTCG_TOURNAMENT_CONFIG,
 }: { userId: string; config?: TournamentGameConfig }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);

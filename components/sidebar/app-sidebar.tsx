@@ -37,17 +37,17 @@ const items = [
 const tcgItems = [
   {
     title: "Battle Logs",
-    url: "/logs",
+    url: "/ptcg/logs",
     icon: ScrollText,
   },
   {
     title: "Tournaments",
-    url: "/tournaments",
+    url: "/ptcg/tournaments",
     icon: Trophy,
   },
   {
     title: "Stats",
-    url: "/stats",
+    url: "/ptcg/stats",
     icon: ChartBarDecreasing,
   },
 ]

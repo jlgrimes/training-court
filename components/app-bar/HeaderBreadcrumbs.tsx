@@ -37,9 +37,9 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
-    if (pathname.includes('/logs')) {
+    if (pathname.includes('/ptcg/logs')) {
       breadcrumbs.push({
-        path: '/logs',
+        path: '/ptcg/logs',
         label: 'Logs'
       });
     }
@@ -51,9 +51,9 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
-    if (pathname.includes('/tournaments')) {
+    if (pathname.includes('/ptcg/tournaments')) {
       breadcrumbs.push({
-        path: '/tournaments',
+        path: '/ptcg/tournaments',
         label: 'Tournaments'
       });
     }
@@ -65,9 +65,9 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
-    if (pathname.includes('/stats')) {
+    if (pathname.includes('/ptcg/stats')) {
       breadcrumbs.push({
-        path: '/stats',
+        path: '/ptcg/stats',
         label: 'Stats'
       });
     }

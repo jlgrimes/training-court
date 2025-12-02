@@ -21,7 +21,7 @@ import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.ut
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 import { TournamentFormats } from "../Format/tournament-format.types";
 import { TournamentNotesDialog } from "./TournamentNotesDialog";
-import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
+import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -31,7 +31,7 @@ interface TournamentContainerClientProps {
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
-  const config = props.config ?? TCG_TOURNAMENT_CONFIG;
+  const config = props.config ?? PTCG_TOURNAMENT_CONFIG;
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed

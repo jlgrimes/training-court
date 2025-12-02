@@ -14,7 +14,7 @@ import { Button } from "../../ui/button";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { Trash } from "lucide-react";
-import { TCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
+import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
 
 const Bugs = {
   BattleLogs: {
@@ -39,7 +39,7 @@ interface TournamentDeleteDialogProps {
 
 export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
   const { toast } = useToast();
-  const config = props.config ?? TCG_TOURNAMENT_CONFIG;
+  const config = props.config ?? PTCG_TOURNAMENT_CONFIG;
   
   const handleDeleteTournament = useCallback(async () => {
     const supabase = createClient();

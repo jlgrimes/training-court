@@ -77,7 +77,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }
 
   return (
-    <Link className="flex-grow" href={`/logs/${props.battleLog.id}`}>
+    <Link className="flex-grow" href={`/ptcg/logs/${props.battleLog.id}`}>
       <Card result={gameResult} className={cn(
           "clickable",
           gameResult === "W" && "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:hover:bg-emerald-700",

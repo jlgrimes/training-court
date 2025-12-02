@@ -7,7 +7,7 @@ export type TournamentGameConfig = {
   gameId: GameId;
 };
 
-export const TCG_TOURNAMENT_CONFIG: TournamentGameConfig = {
+export const PTCG_TOURNAMENT_CONFIG: TournamentGameConfig = {
   tournamentsTable: "tournaments",
   roundsTable: "tournament rounds",
   basePath: "/tournaments",
