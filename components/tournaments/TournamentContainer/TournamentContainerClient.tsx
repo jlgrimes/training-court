@@ -19,7 +19,6 @@ import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
-import { TournamentFormats } from "../Format/tournament-format.types";
 import { TournamentNotesDialog } from "./TournamentNotesDialog";
 import { TournamentGameConfig } from "../utils/tournament-game-config";
 
@@ -38,7 +37,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to + "T00:00:00Z") });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
-  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
+  const [tournamentFormat, setTournamentFormat] = useState<string | null>(props.tournament.format);
   const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
   const prevLenRef = useRef<number>(props.rounds.length);
 
@@ -69,7 +68,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
@@ -96,6 +95,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 user={props.user}
                 updateClientTournament={updateClientTournamentDataOnEdit}
                 config={config}
+                formats={config.formats}
               />
               <TournamentNotesDialog
                 tournamentId={props.tournament.id} 
@@ -123,7 +123,13 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 <div className="flex flex-wrap gap-1 mt-0.5">
                   {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
                   {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
-                  {tournamentFormat && <TournamentFormatBadge format={tournamentFormat} />}
+                  {tournamentFormat && config.formats.includes(tournamentFormat) ? (
+                    <TournamentFormatBadge format={tournamentFormat as any} />
+                  ) : tournamentFormat ? (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {tournamentFormat}
+                    </span>
+                  ) : null}
                 </div>
               </div>
 

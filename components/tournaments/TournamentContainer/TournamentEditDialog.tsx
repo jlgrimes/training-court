@@ -33,7 +33,7 @@ import {
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
-import { tournamentFormats, TournamentFormats } from "../Format/tournament-format.types";
+import { tournamentFormats } from "../Format/tournament-format.types";
 import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
 
 /** Normalize to 12:00:00Z to avoid TZ/DST off-by-one */
@@ -51,16 +51,17 @@ interface TournamentEditDialogProps {
   tournamentCategory: TournamentCategory | null;
   tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
-  tournamentFormat: TournamentFormats | null;
+  tournamentFormat: string | null;
   user: User | null;
   updateClientTournament: (
     newName: string,
     newDateRange: DateRange,
     newCategory: TournamentCategory | null,
     newPlacement: TournamentPlacement | null,
-    newFormat: TournamentFormats | null
+    newFormat: string | null
   ) => void;
   config?: TournamentGameConfig;
+  formats?: string[];
 }
 
 export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
@@ -74,7 +75,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [tournamentFormat, setTournamentFormat] = useState<TournamentFormats | null>(null);
+  const [tournamentFormat, setTournamentFormat] = useState<string | null>(null);
 
   // seed local state when dialog opens or props change
   useEffect(() => setTournamentName(props.tournamentName), [props.tournamentName]);
@@ -226,13 +227,13 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
 
             <Select
               value={tournamentFormat ?? undefined}
-              onValueChange={(v) => setTournamentFormat(v as TournamentFormats)}
+              onValueChange={(v) => setTournamentFormat(v)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {tournamentFormats.map((fmt) => (
+                {(props.formats ?? tournamentFormats).map((fmt) => (
                   <SelectItem key={fmt} value={fmt}>
                     {fmt}
                   </SelectItem>

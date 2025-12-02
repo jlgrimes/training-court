@@ -33,7 +33,7 @@ import {
 import { TournamentCategoryIcon } from './Category/TournamentCategoryIcon';
 import { TournamentPlacement } from './Placement/tournament-placement.types';
 import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect';
-import { tournamentFormats, TournamentFormats } from './Format/tournament-format.types';
+import { tournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
 import { TournamentGameConfig } from './utils/tournament-game-config';
 
@@ -57,7 +57,7 @@ export default function TournamentCreateDialog({
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [format, setFormat] = useState<TournamentFormats | null>(null);
+  const [format, setFormat] = useState<string | null>(null);
 
   const resetForm = () => {
     setTournamentName('');
@@ -167,13 +167,13 @@ export default function TournamentCreateDialog({
 
             <Select
               value={format ?? undefined}
-              onValueChange={(val) => setFormat(val as TournamentFormats)}
+              onValueChange={(val) => setFormat(val)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {tournamentFormats.map((fmt) => (
+                {(config.formats?.length ? config.formats : tournamentFormats).map((fmt) => (
                   <SelectItem key={fmt} value={fmt}>
                     {fmt}
                   </SelectItem>
