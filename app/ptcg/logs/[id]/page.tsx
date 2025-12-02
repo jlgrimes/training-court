@@ -2,15 +2,13 @@ import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogCarousel } from "@/components/battle-logs/BattleLogDisplay/BattleLogCarousel";
 import { Notes } from "@/components/battle-logs/Notes/Notes";
-import { getPlayerNames, parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { fetchUserData } from "@/components/user-data.utils";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { fetchPreferredGames } from "@/components/user-data.utils";
-import { isGameEnabled } from "@/lib/game-preferences";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const supabase = createClient();
@@ -31,13 +29,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
   const currentUser = await fetchCurrentUser();
-  const preferredGames = currentUser ? await fetchPreferredGames(currentUser.id) : [];
-
-  if (!currentUser || !isGameEnabled(preferredGames, 'pokemon-tcg')) {
-    return redirect("/preferences");
-  }
-
-  const userData = await fetchUserData(currentUser.id);
+  const userData = currentUser ? await fetchUserData(currentUser.id) : null;
   const { data: logData } = await supabase.from('logs').select().eq('id', params.id).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
 
   if (!logData ) {
@@ -65,7 +57,7 @@ export default async function LiveLog({ params }: { params: { id: string } }) {
             {formatDistanceToNowStrict(battleLog.date)} ago
           </h3>
         </div>
-        {userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
+        {currentUser && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
           <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
         )}
         <div className="mt-6">

@@ -43,11 +43,17 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
-    if (pathname.includes('/ptcg/logs')) {
+    if (pathname.includes('/ptcg')) {
       breadcrumbs.push({
         path: '/ptcg/logs',
-        label: 'Logs'
+        label: 'PTCG'
       });
+      if (pathname.includes('/ptcg/logs')) {
+        breadcrumbs.push({
+          path: '/ptcg/logs',
+          label: 'Logs'
+        });
+      }
     }
 
     if (pathname.includes('logs/')) {
@@ -98,12 +104,15 @@ export default function HeaderBreadcrumbs() {
                 {label}
               </Link>
             </BreadcrumbLink>
-            {idx === 2 && <ShareIcon onClick={() => {
-              navigator.clipboard.writeText('https://trainingcourt.app' + pathname);
-              toast({
-                title: "Copied sharable link to clipboard!",
-              })
-            }} className="mr-2 mb-1 h-4 w-4 cursor-pointer hover:stroke-slate-900" />}
+            {idx === breadcrumbs.length - 1 && /\d/.test(pathname) && (
+              <ShareIcon
+                onClick={() => {
+                  navigator.clipboard.writeText('https://trainingcourt.app' + pathname);
+                  toast({ title: "Copied sharable link to clipboard!" });
+                }}
+                className="mr-2 mb-1 h-4 w-4 cursor-pointer hover:stroke-slate-900"
+              />
+            )}
           </BreadcrumbItem>
           {(idx < breadcrumbs.length - 1) && <BreadcrumbSeparator />}
         </Fragment>
