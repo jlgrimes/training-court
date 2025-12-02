@@ -2,16 +2,18 @@ import { fetchCurrentUser } from '@/components/auth.utils';
 import { fetchAvatarImages } from '@/components/avatar/avatar.server.utils';
 import { AvatarSelector } from '@/components/avatar/AvatarSelector';
 import { ScreenNameEditable } from '@/components/screen-name/ScreenNameEditable';
-import { buttonVariants } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { fetchUserData } from '@/components/user-data.utils';
+import { GamePreferences } from '@/components/preferences/GamePreferences';
+import { normalizePreferredGames } from '@/lib/game-preferences';
 import { redirect } from 'next/navigation';
 
 export default async function PreferencesPage() {
   const user = await fetchCurrentUser();
   const avatars = fetchAvatarImages();
+  const userData = user ? await fetchUserData(user.id) : null;
 
   if (!user) {
     redirect('/');
@@ -29,7 +31,7 @@ export default async function PreferencesPage() {
           <TabsTrigger value='account' className='w-full'>
             Account
           </TabsTrigger>
-          <TabsTrigger value='appearance' className='w-full' disabled>
+          <TabsTrigger value='appearance' className='w-full'>
             Appearance
           </TabsTrigger>
         </TabsList>
@@ -43,6 +45,14 @@ export default async function PreferencesPage() {
               <Label>PTCG Live screen name</Label>
               <ScreenNameEditable userId={user.id} />
             </div>
+          </div>
+        </TabsContent>
+        <TabsContent value='appearance' className='w-full'>
+          <div className='flex flex-col gap-6'>
+            <GamePreferences
+              userId={user.id}
+              initialPreferredGames={normalizePreferredGames(userData?.preferred_games)}
+            />
           </div>
         </TabsContent>
       </Tabs>

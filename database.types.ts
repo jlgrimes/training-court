@@ -318,18 +318,21 @@ export type Database = {
           created_at: string
           id: string
           live_screen_name: string | null
+          preferred_games: string[] | null
         }
         Insert: {
           avatar?: string | null
           created_at?: string
           id: string
           live_screen_name?: string | null
+          preferred_games?: string[] | null
         }
         Update: {
           avatar?: string | null
           created_at?: string
           id?: string
           live_screen_name?: string | null
+          preferred_games?: string[] | null
         }
         Relationships: [
           {
