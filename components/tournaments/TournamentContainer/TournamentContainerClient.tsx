@@ -123,13 +123,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 <div className="flex flex-wrap gap-1 mt-0.5">
                   {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
                   {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
-                  {tournamentFormat && config.formats.includes(tournamentFormat) ? (
-                    <TournamentFormatBadge format={tournamentFormat as any} />
-                  ) : tournamentFormat ? (
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      {tournamentFormat}
-                    </span>
-                  ) : null}
+                  {tournamentFormat && <TournamentFormatBadge format={tournamentFormat} />}
                 </div>
               </div>
 

@@ -28,6 +28,12 @@ export default function HeaderBreadcrumbs() {
         path: '/pocket',
         label: 'Pocket'
       });
+      if (pathname.includes('/pocket/tournaments')) {
+        breadcrumbs.push({
+          path: '/pocket/tournaments',
+          label: 'Tournaments',
+        });
+      }
     }
 
     if (pathname.includes('/login')) {

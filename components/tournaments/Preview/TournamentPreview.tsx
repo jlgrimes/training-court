@@ -6,7 +6,6 @@ import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import { Database } from "@/database.types";
 import { renderTournamentPlacement, TournamentPlacement } from "../Placement/tournament-placement.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
-import { Label } from "@/components/ui/label";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];

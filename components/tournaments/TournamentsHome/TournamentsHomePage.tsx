@@ -16,7 +16,7 @@ export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
         Tournaments
       </Header>
       <TournamentCreate userId={props.user.id} config={PTCG_TOURNAMENT_CONFIG} />
-      <MyTournamentPreviews user={props.user} />
+      <MyTournamentPreviews user={props.user} basePath={PTCG_TOURNAMENT_CONFIG.basePath} />
     </div>
   );
 }

@@ -27,9 +27,9 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
   if (tournamentsAreLoading || roundsAreLoading) {
     return (
       <div className="flex flex-col gap-6">
-        <Link href='/tournaments'>
-          <h1 className="text-xl tracking-wide font-semibold">Tournaments</h1>
-        </Link>
+          <Link href={PTCG_TOURNAMENT_CONFIG.basePath}>
+            <h1 className="text-xl tracking-wide font-semibold">Tournaments</h1>
+          </Link>
         <div className="flex flex-col gap-2">
           <Skeleton className="w-full h-[68px] rounded-xl" />
           <Skeleton className="w-full h-[68px] rounded-xl" />
@@ -66,7 +66,7 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
                 />
               )).slice(0, 5)}
             </div>
-            <SeeMoreButton href="/tournaments" />
+            <SeeMoreButton href={PTCG_TOURNAMENT_CONFIG.basePath} />
           </div>
         </div>
       )}

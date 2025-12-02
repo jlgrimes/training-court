@@ -19,7 +19,7 @@ export default async function TournamentPage({ params }: { params: { id: string 
   const rounds = await fetchRounds(params.id);
   
   if (!tournamentData) {
-    return redirect("/");
+    return redirect("/ptcg/tournaments");
   }
   
   return (
