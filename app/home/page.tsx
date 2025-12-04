@@ -9,6 +9,7 @@ import { GamePreferences } from '@/components/preferences/GamePreferences';
 import { isGameEnabled } from '@/lib/game-preferences';
 import { PocketHomePreview } from '@/components/pocket/PocketHomePreview';
 import { PocketTournamentsHomePreview } from '@/components/pocket/tournaments/PocketTournamentsHomePreview';
+import { Separator } from '@/components/ui/separator';
 
 export default async function Profile() {
   const user = await fetchCurrentUser();
@@ -42,10 +43,13 @@ export default async function Profile() {
         </div>
       )}
       {hasPreferredGames && showPokemonPocket && (
+        <>
+        <Separator></Separator>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
           <PocketHomePreview userId={user.id} />
           <PocketTournamentsHomePreview user={user} />
         </div>
+        </>
       )}
     </>
   );
