@@ -19,23 +19,25 @@ import { preload } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
-import { TournamentFormats } from "../Format/tournament-format.types";
 import { TournamentNotesDialog } from "./TournamentNotesDialog";
+import { TournamentGameConfig } from "../utils/tournament-game-config";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
   user: User | undefined | null;
+  config: TournamentGameConfig;
 }
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
+  const config = props.config;
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to + "T00:00:00Z") });
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
-  const [tournamentFormat, setTournamentFormat] = useState(props.tournament.format as TournamentFormats | null);
+  const [tournamentFormat, setTournamentFormat] = useState<string | null>(props.tournament.format);
   const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
   const prevLenRef = useRef<number>(props.rounds.length);
 
@@ -66,7 +68,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: TournamentFormats | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
@@ -92,15 +94,19 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 tournamentFormat={tournamentFormat}
                 user={props.user}
                 updateClientTournament={updateClientTournamentDataOnEdit}
+                config={config}
+                formats={config.formats}
               />
               <TournamentNotesDialog
                 tournamentId={props.tournament.id} 
                 tournamentNotes={tournamentNotes}
                 tournamentName={tournamentName}
+                config={config}
               />
               <TournamentDeleteDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
+                config={config}
               />
             </div>
           )}
@@ -127,6 +133,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 </h1>
                 <EditableTournamentArchetype
                   tournament={props.tournament}
+                  tableName={config.tournamentsTable}
                   editDisabled={props.tournament.user !== props.user?.id}
                 />
               </div>
@@ -141,6 +148,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 userId={props.user?.id}
                 rounds={rounds}
                 updateClientRoundsOnEdit={updateClientRoundsOnEdit}
+                roundsTableName={config.roundsTable}
               />
               {props.user?.id === props.tournament.user && (
                 <AddTournamentRound
@@ -148,6 +156,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                   userId={props.user.id}
                   editedRoundNumber={rounds.length + 1}
                   updateClientRounds={updateClientRoundsOnAdd}
+                  roundsTableName={config.roundsTable}
                 />
               )}
             </div>

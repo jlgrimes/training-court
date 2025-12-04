@@ -312,24 +312,121 @@ export type Database = {
           },
         ]
       }
+      pocket_tournaments: {
+        Row: {
+          category: string | null
+          created_at: string
+          date_from: string
+          date_to: string
+          deck: string | null
+          format: string | null
+          id: string
+          name: string
+          placement: string | null
+          user: string
+          notes: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          date_from: string
+          date_to: string
+          deck?: string | null
+          format?: string | null
+          id?: string
+          name: string
+          placement?: string | null
+          user: string
+          notes: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          date_from?: string
+          date_to?: string
+          deck?: string | null
+          format?: string | null
+          id?: string
+          name?: string
+          placement?: string | null
+          user?: string
+          notes: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pocket_tournaments_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "top_5_users_battle_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pocket_tournament_rounds: {
+        Row: {
+          created_at: string
+          deck: string | null
+          id: string
+          match_end_reason: string | null
+          result: string[]
+          round_num: number
+          tournament: string
+          turn_orders: string[] | null
+          user: string
+        }
+        Insert: {
+          created_at?: string
+          deck?: string | null
+          id?: string
+          match_end_reason?: string | null
+          result: string[]
+          round_num: number
+          tournament: string
+          turn_orders?: string[] | null
+          user: string
+        }
+        Update: {
+          created_at?: string
+          deck?: string | null
+          id?: string
+          match_end_reason?: string | null
+          result?: string[]
+          round_num?: number
+          tournament?: string
+          turn_orders?: string[] | null
+          user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pocket_tournament_rounds_tournament_fkey"
+            columns: ["tournament"]
+            isOneToOne: false
+            referencedRelation: "pocket_tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       "user data": {
         Row: {
           avatar: string | null
           created_at: string
           id: string
           live_screen_name: string | null
+          preferred_games: string[] | null
         }
         Insert: {
           avatar?: string | null
           created_at?: string
           id: string
           live_screen_name?: string | null
+          preferred_games?: string[] | null
         }
         Update: {
           avatar?: string | null
           created_at?: string
           id?: string
           live_screen_name?: string | null
+          preferred_games?: string[] | null
         }
         Relationships: [
           {

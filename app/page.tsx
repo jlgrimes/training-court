@@ -35,7 +35,7 @@ export default async function Index() {
     <div className="flex-1 w-full flex flex-col gap-24 items-center p-8 sm:p-12 max-w-6xl">
       <div className="flex flex-col items-center gap-6 max-w-md py-8">
         <Image src={'/logo.png'} alt='logo' width={240} height={30} />
-        <p className="text-center">Don't lose track of a game of Pokemon ever again. From PTCG Live testing phases to Regional Championships, Training Court has your back.</p>
+        <p className="text-center">Don't lose track of a game of Pokémon ever again. From PTCG Live testing phases to Regional Championships, Training Court has your back.</p>
         <Link href={'login'}><Button size='lg'>Get started <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
       </div>
       <div className="grid md:grid-cols-2 items-center gap-8 md:gap-16">
@@ -92,7 +92,7 @@ export default async function Index() {
         <div className="flex flex-col gap-4">
           <h2 className="font-semibold text-2xl">Tournaments</h2>
           <p>
-            Keep full record of your IRL Pokemon tournaments - from league cups, 
+            Keep full record of your IRL Pokémon tournaments - from league cups, 
             to regionals, to international championships. Share tournament runs with your
             friends so they can keep up with the action at home.
           </p>

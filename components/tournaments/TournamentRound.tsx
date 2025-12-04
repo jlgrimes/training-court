@@ -15,6 +15,7 @@ interface TournamentRoundProps {
   updateClientRoundsOnEdit: (newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => void;
   isEditing: boolean;
   handleEditingRoundToggle: () => void;
+  roundsTableName?: string;
 }
 
 export const TournamentRound = (props: TournamentRoundProps) => {
@@ -34,6 +35,7 @@ export const TournamentRound = (props: TournamentRoundProps) => {
           // a little deceptive whoops, but we don't need to pass set is editing true or false.
           // maybe change this prop...
           setEditing={() => props.handleEditingRoundToggle()}
+          roundsTableName={props.roundsTableName}
         />
       </div>
     )

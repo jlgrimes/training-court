@@ -1,5 +1,7 @@
-import TournamentContainer from "@/components/tournaments/TournamentContainer/TournamentContainer";
-import { fetchTournament } from "@/components/tournaments/utils/tournaments.server.utils";
+import { fetchCurrentUser } from "@/components/auth.utils";
+import { TournamentContainerClient } from "@/components/tournaments/TournamentContainer/TournamentContainerClient";
+import { PTCG_TOURNAMENT_CONFIG } from "@/components/tournaments/utils/tournament-game-config";
+import { fetchRounds, fetchTournament } from "@/components/tournaments/utils/tournaments.server.utils";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -12,14 +14,20 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function TournamentPage({ params }: { params: { id: string } }) {
-  //@TODO: FetchTournament happens here and also in the TournamentContainer. This should be pushed to recoil so the call is made only once.
   const tournamentData = await fetchTournament(params.id);
-
+  const user = await fetchCurrentUser();
+  const rounds = await fetchRounds(params.id);
+  
   if (!tournamentData) {
     return redirect("/");
   }
-
+  
   return (
-    <TournamentContainer tournament={tournamentData} />
+    <TournamentContainerClient
+      tournament={tournamentData}
+      user={user}
+      rounds={rounds ?? []}
+      config={PTCG_TOURNAMENT_CONFIG}
+    />
   );
 }

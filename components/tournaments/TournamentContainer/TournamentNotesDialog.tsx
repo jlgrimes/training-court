@@ -10,17 +10,19 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { createClient } from '@/utils/supabase/client';
+import { TournamentGameConfig } from '../utils/tournament-game-config';
 
 interface TournamentNotesDialogProps {
   tournamentId: string;
   tournamentName: string;
   tournamentNotes: string | null;
+  config: TournamentGameConfig;
 }
 
-async function loadNotes(tournamentId: string): Promise<string> {
+async function loadNotes(tournamentId: string, tableName: string): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from('tournaments')
+    .from(tableName)
     .select('notes')
     .eq('id', tournamentId)
     .maybeSingle();
@@ -28,10 +30,10 @@ async function loadNotes(tournamentId: string): Promise<string> {
   return (data?.notes ?? '') as string;
 }
 
-async function saveNotes(tournamentId: string, notes: string): Promise<void> {
+async function saveNotes(tournamentId: string, notes: string, tableName: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
-    .from('tournaments')
+    .from(tableName)
     .update({ notes })
     .eq('id', tournamentId);
   if (error) throw error;
@@ -41,6 +43,7 @@ export function TournamentNotesDialog({
   tournamentId,
   tournamentName,
   tournamentNotes,
+  config,
 }: TournamentNotesDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -60,7 +63,7 @@ export function TournamentNotesDialog({
     (async () => {
       try {
         setLoading(true);
-        const latest = await loadNotes(tournamentId);
+        const latest = await loadNotes(tournamentId, config.tournamentsTable);
         if (!alive) return;
         setText(latest);
       } catch (e: any) {
@@ -86,7 +89,7 @@ export function TournamentNotesDialog({
     autosaveTimer.current = window.setTimeout(async () => {
       try {
         setSaving(true);
-        await saveNotes(tournamentId, text);
+        await saveNotes(tournamentId, text, config.tournamentsTable);
         dirtyRef.current = false;
       } catch (e: any) {
         toast({
@@ -107,7 +110,7 @@ export function TournamentNotesDialog({
   const onManualSave = async () => {
     try {
       setSaving(true);
-      await saveNotes(tournamentId, text);
+      await saveNotes(tournamentId, text, config.tournamentsTable);
       dirtyRef.current = false;
       toast({ title: 'Notes saved' });
       setOpen(false);

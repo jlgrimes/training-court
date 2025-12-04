@@ -14,7 +14,7 @@ export default async function About() {
       </Header>
       <p>
         Training Court was made to consolidate all of your tournaments and practice rounds
-        for the Pokemon Trading Card Game. It was made to be as easy-to-use and accessible
+        for the Pokémon Trading Card Game. It was made to be as easy-to-use and accessible
         as possible, with the player at the forefront of design.
       </p>
       <p>

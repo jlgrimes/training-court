@@ -47,7 +47,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
         description: error.message,
       })
     } else {
-      window.location.href = '/logs';
+      window.location.href = '/ptcg/logs';
     }
   }, [toast, newArchetype, newOppArchetype]);
 

@@ -33,8 +33,9 @@ import {
 import { TournamentCategoryIcon } from './Category/TournamentCategoryIcon';
 import { TournamentPlacement } from './Placement/tournament-placement.types';
 import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect';
-import { tournamentFormats, TournamentFormats } from './Format/tournament-format.types';
+import { tournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
+import { TournamentGameConfig } from './utils/tournament-game-config';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;
@@ -44,7 +45,10 @@ function toUtcNoon(date: Date | null | undefined): Date | null {
   return new Date(Date.UTC(y, m, d, 12, 0, 0, 0));
 }
 
-export default function TournamentCreateDialog({ userId }: { userId: string }) {
+export default function TournamentCreateDialog({
+  userId,
+  config,
+}: { userId: string; config: TournamentGameConfig }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
 
@@ -53,7 +57,7 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
   const [tournamentDate, setTournamentDate] = useState<DateRange | undefined>();
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
-  const [format, setFormat] = useState<TournamentFormats | null>(null);
+  const [format, setFormat] = useState<string | null>(null);
 
   const resetForm = () => {
     setTournamentName('');
@@ -73,7 +77,7 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
     const dateToUTC = toUtcNoon(tournamentDate.to ?? tournamentDate.from);
 
     const { data, error } = await supabase
-      .from('tournaments')
+      .from(config.tournamentsTable)
       .insert({
         name: tournamentName,
         date_from: dateFromUTC?.toISOString(),
@@ -99,8 +103,8 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
 
     setOpen(false);
     resetForm();
-    window.location.href = `/tournaments/${data![0].id}`;
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast]);
+    window.location.href = `${config.basePath}/${data![0].id}`;
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config.basePath, config.tournamentsTable]);
 
   return (
     <Dialog
@@ -163,13 +167,13 @@ export default function TournamentCreateDialog({ userId }: { userId: string }) {
 
             <Select
               value={format ?? undefined}
-              onValueChange={(val) => setFormat(val as TournamentFormats)}
+              onValueChange={(val) => setFormat(val)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {tournamentFormats.map((fmt) => (
+                {(config.formats?.length ? config.formats : tournamentFormats).map((fmt) => (
                   <SelectItem key={fmt} value={fmt}>
                     {fmt}
                   </SelectItem>
