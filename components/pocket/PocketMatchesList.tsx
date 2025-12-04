@@ -8,15 +8,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -27,10 +24,14 @@ import { useToast } from '../ui/use-toast';
 import { useSWRConfig } from 'swr';
 import { format, formatDistanceToNowStrict } from 'date-fns';
 
+//@TODO: Need to add edit capabilities for Pocket...
+
 export const PocketMatchesList = ({
   userId,
+  limit
 }: {
   userId: string | undefined;
+  limit?: number | undefined;
 }) => {
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
@@ -69,8 +70,13 @@ export const PocketMatchesList = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {games?.map((game, idx) => (
-          <TableRow key={`pocket-game-${idx}`} result={game.result}>
+        {games?.slice(0, limit).map((game, idx) => (
+          <TableRow key={`pocket-game-${idx}`} result={game.result} className={cn(
+              'font-bold',
+              game.result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300',
+              game.result === 'T' && 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300',
+              game.result === 'L' && 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300',
+            )}>
             <TableCell className='text-muted-foreground'>
               {formatDistanceToNowStrict(game.created_at, {
                 addSuffix: true,

@@ -22,10 +22,12 @@ export interface TournamentRoundEditProps {
   editedRoundNumber: number;
   existingRound?: Database['public']['Tables']['tournament rounds']['Row'];
   updateClientRounds: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void
+  roundsTableName?: string;
 }
 
 export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const { toast } = useToast();
+  const roundsTable = props.roundsTableName ?? 'tournament rounds';
 
   const [deck, setDeck] = useState<string | undefined>(undefined);
   const [result, setResult] = useState<string[]>([]);
@@ -86,7 +88,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
       
       if (props.existingRound) {
         response = await supabase
-          .from('tournament rounds')
+          .from(roundsTable)
           .update(payload)
           .eq('tournament', props.tournamentId)
           .eq('round_num', props.editedRoundNumber)
@@ -94,7 +96,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
           .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
       } else {
         response = await supabase
-          .from('tournament rounds')
+          .from(roundsTable)
           .insert(payload)
           .select()
           .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
@@ -119,7 +121,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
     } finally {
       setLoading(false);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders]);
+  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders, roundsTable]);
   
 
   if (props.editing) return (

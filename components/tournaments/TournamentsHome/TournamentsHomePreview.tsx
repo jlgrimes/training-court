@@ -10,6 +10,9 @@ import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PTCG_TOURNAMENT_CONFIG } from "../utils/tournament-game-config";
+import { Header } from "@/components/ui/header";
+import TournamentCreateDialog from "../TournamentCreate";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -26,9 +29,9 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
   if (tournamentsAreLoading || roundsAreLoading) {
     return (
       <div className="flex flex-col gap-6">
-        <Link href='/tournaments'>
-          <h1 className="text-xl tracking-wide font-semibold">Tournaments</h1>
-        </Link>
+          <Link href={PTCG_TOURNAMENT_CONFIG.basePath}>
+            <h1 className="text-xl tracking-wide font-semibold">PTCG Tournaments</h1>
+          </Link>
         <div className="flex flex-col gap-2">
           <Skeleton className="w-full h-[68px] rounded-xl" />
           <Skeleton className="w-full h-[68px] rounded-xl" />
@@ -51,20 +54,24 @@ export function TournamentsHomePreview (props: MyTournamentPreviewsProps) {
         </Card>
       ) : (
         <div className="flex flex-col gap-6">
-          <Link href='/tournaments'>
-            <h1 className="text-xl tracking-wide font-semibold">Tournaments</h1>
-          </Link>
+          <Header
+            actionButton={<TournamentCreateDialog userId={props.user.id} config={PTCG_TOURNAMENT_CONFIG} />}
+          >PTCG Tournaments</Header>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               {tournamentData?.map((tournament) => rounds && (
-                <TournamentPreview tournament={tournament} key={tournament.id} rounds={getTournamentRoundsFromUserRounds(rounds, tournament)} />
+                <TournamentPreview
+                  tournament={tournament}
+                  key={tournament.id}
+                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  basePath={PTCG_TOURNAMENT_CONFIG.basePath}
+                />
               )).slice(0, 5)}
             </div>
-            <SeeMoreButton href="/tournaments" />
+            <SeeMoreButton href={PTCG_TOURNAMENT_CONFIG.basePath} />
           </div>
         </div>
       )}
-      <TournamentCreate userId={props.user.id} />
     </div>
   )
   

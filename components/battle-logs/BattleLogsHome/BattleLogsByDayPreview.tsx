@@ -68,7 +68,7 @@ export const BattleLogsByDayPreview = (props: BattleLogsByDayProps) => {
           </AccordionItem>
         ))}
       </Accordion>
-    <SeeMoreButton href="/logs" />
+    <SeeMoreButton href="/ptcg/logs" />
     </div>
   )
 }

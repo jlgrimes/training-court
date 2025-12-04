@@ -24,7 +24,7 @@ import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
-export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean }) => {
+export const EditableTournamentArchetype = ({ tournament, editDisabled, tableName = 'tournaments' }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean; tableName?: string }) => {
   const [deck, setDeck] = useState('');
   const [serverDeck, setServerDeck] = useState(tournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
@@ -57,7 +57,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled }: { tour
 
     const supabase = createClient();
     
-    const { error } = await supabase.from('tournaments').update({ deck }).eq('id', tournament.id);
+    const { error } = await supabase.from(tableName).update({ deck }).eq('id', tournament.id);
 
     if (error) throw error;
 

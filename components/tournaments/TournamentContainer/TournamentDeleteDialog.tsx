@@ -14,6 +14,7 @@ import { Button } from "../../ui/button";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "../../ui/use-toast";
 import { Trash } from "lucide-react";
+import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
 
 const Bugs = {
   BattleLogs: {
@@ -33,14 +34,16 @@ const Bugs = {
 interface TournamentDeleteDialogProps {
   tournamentId: string;
   tournamentName: string;
+  config?: TournamentGameConfig;
 }
 
 export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
   const { toast } = useToast();
+  const config = props.config ?? PTCG_TOURNAMENT_CONFIG;
   
   const handleDeleteTournament = useCallback(async () => {
     const supabase = createClient();
-    const { error: roundErr } = await supabase.from('tournament rounds').delete().eq('tournament', props.tournamentId);
+    const { error: roundErr } = await supabase.from(config.roundsTable).delete().eq('tournament', props.tournamentId);
 
     if (roundErr) {
       return toast({
@@ -50,7 +53,7 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
       })
     }
 
-    const { error } = await supabase.from('tournaments').delete().eq('id', props.tournamentId);
+    const { error } = await supabase.from(config.tournamentsTable).delete().eq('id', props.tournamentId);
 
     if (error) {
       toast({
@@ -59,9 +62,9 @@ export const TournamentDeleteDialog = (props: TournamentDeleteDialogProps) => {
         description: error.message,
       })
     } else {
-      window.location.href = '/tournaments';
+      window.location.href = config.basePath;
     }
-  }, [toast]);
+  }, [toast, config.basePath, config.roundsTable, config.tournamentsTable]);
 
   return (
     <Dialog>

@@ -18,7 +18,7 @@ export const Header = (props: HeaderProps) => {
         )}
       {props.actionButton}
       </div>
-      <Separator />
+      {/* <Separator /> */}
   </div>
   )
 }

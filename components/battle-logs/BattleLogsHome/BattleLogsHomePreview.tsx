@@ -1,5 +1,5 @@
+import { Header } from "@/components/ui/header";
 import { BattleLogsHomePreviewClient } from "./BattleLogsHomePreviewClient";
-import Link from "next/link";
 
 interface BattleLogsHomePreviewProps {
   userId: string | undefined;
@@ -10,9 +10,7 @@ export const BattleLogsHomePreview = async (props: BattleLogsHomePreviewProps) =
 
   return (
     <div className="flex flex-col gap-4">
-      <Link href='/logs'>
-        <h1 className="text-xl tracking-wide font-semibold">Logs</h1>
-      </Link>
+      <Header>PTCG Logs</Header>
       <BattleLogsHomePreviewClient userId={props.userId} />
     </div>
   )

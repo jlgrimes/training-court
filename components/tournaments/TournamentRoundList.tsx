@@ -12,6 +12,7 @@ interface TournamentRoundListProps {
     newRound: Database['public']['Tables']['tournament rounds']['Row'],
     pos: number
   ) => void;
+  roundsTableName?: string;
 }
 
 export default function TournamentRoundList(props: TournamentRoundListProps) {
@@ -122,6 +123,7 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
               updateClientRoundsOnEdit={props.updateClientRoundsOnEdit}
               isEditing={editingRoundIdx === idx}
               handleEditingRoundToggle={() => handleEditingRoundToggle(idx)}
+              roundsTableName={props.roundsTableName}
             />
           ))}
         </div>

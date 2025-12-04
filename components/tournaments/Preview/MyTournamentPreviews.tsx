@@ -16,11 +16,13 @@ import MultiSelect from "@/components/ui/multi-select";
 
 interface MyTournamentPreviewsProps {
   user: User | null;
+  basePath?: string;
 }
 
 export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const { data: tournaments } = useTournaments(props.user?.id);
   const { data: rounds } = useTournamentRounds(props.user?.id);
+  const basePath = props.basePath ?? '/tournaments';
 
   const [isInteractionBlocked, ] = useState(false);
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
@@ -109,6 +111,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
                   key={tournament.id}
                   tournament={tournament}
                   rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  basePath={basePath}
                 />
               ) : null
             )}
@@ -123,6 +126,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
                   tournament={tournament}
                   rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
                   shouldHideCategoryBadge
+                  basePath={basePath}
                   />
                 ) : null
               )}
