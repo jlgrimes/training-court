@@ -74,7 +74,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
       <div className='space-y-2'>
         <h3 className='text-lg font-semibold'>Games</h3>
         <p className='text-sm text-muted-foreground'>
-          Choose which games you want to see in your sidebar and related pages.
+          Choose which games you want to show in the application.
         </p>
       </div>
       
