@@ -29,12 +29,15 @@ import { format, formatDistanceToNowStrict } from 'date-fns';
 
 export const PocketMatchesList = ({
   userId,
+  limit,
 }: {
   userId: string | undefined;
+  limit?: number;
 }) => {
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
   const { data: games } = usePocketGames(userId);
+  const displayGames = limit && games ? games.slice(0, limit) : games;
 
   const handleDeletePocketGame = useCallback(
     async (gameId: number) => {
@@ -69,7 +72,7 @@ export const PocketMatchesList = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {games?.map((game, idx) => (
+        {displayGames?.map((game, idx) => (
           <TableRow key={`pocket-game-${idx}`} result={game.result}>
             <TableCell className='text-muted-foreground'>
               {formatDistanceToNowStrict(game.created_at, {

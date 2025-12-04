@@ -5,9 +5,8 @@ import { usePocketGames } from '@/hooks/pocket/usePocketGames';
 import { Header } from '@/components/ui/header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
-import { formatDistanceToNowStrict } from 'date-fns';
-import { Sprite } from '@/components/archetype/sprites/Sprite';
 import { SeeMoreButton } from '../SeeMoreButton';
+import { PocketMatchesList } from './PocketMatchesList';
 
 export function PocketHomePreview({ userId }: { userId: string }) {
   const { data: games, isLoading } = usePocketGames(userId);
@@ -56,23 +55,8 @@ export function PocketHomePreview({ userId }: { userId: string }) {
       >
         Pocket Games
       </Header>
-      <div className="flex flex-col gap-2">
-        {recent.map((game) => (
-          <div key={game.id} className="flex items-center justify-between rounded-lg border px-3 py-2">
-            <div className="flex items-center gap-3">
-              <Sprite name={game.deck} shouldFill />
-              <span className="text-xs text-muted-foreground">
-                {formatDistanceToNowStrict(new Date(game.created_at), { addSuffix: true })}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="font-bold">{game.result}</span>
-              <Sprite name={game.opp_deck} shouldFill />
-            </div>
-          </div>
-        ))}
-      </div>
-      <SeeMoreButton href="/pocket/games"/>
+      <PocketMatchesList userId={userId} limit={5} />
+      <SeeMoreButton href="/pocket" />
     </div>
   );
 }
