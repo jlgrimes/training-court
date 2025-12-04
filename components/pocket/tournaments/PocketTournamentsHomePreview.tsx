@@ -4,8 +4,6 @@ import { Header } from "@/components/ui/header";
 import PocketTournamentCreate from "./PocketTournamentCreate";
 import { MyPocketTournamentPreviews } from "./Preview/MyPocketTournamentPreviews";
 import { User } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
 
 export function PocketTournamentsHomePreview({ user }: { user: User }) {
@@ -16,7 +14,7 @@ export function PocketTournamentsHomePreview({ user }: { user: User }) {
       >
         Pocket Tournaments
       </Header>
-      <MyPocketTournamentPreviews user={user} />
+      <MyPocketTournamentPreviews user={user} showFilters={false} limit={5} />
       <SeeMoreButton href="/pocket/tournaments"/>
     </div>
   );

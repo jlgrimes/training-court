@@ -15,6 +15,8 @@ import { usePocketTournamentRounds } from "@/hooks/pocket/tournaments/usePocketT
 
 interface MyPocketTournamentPreviewsProps {
   user: User | null;
+  showFilters?: boolean;
+  limit?: number;
 }
 
 export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsProps) {
@@ -48,6 +50,7 @@ export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsPro
     (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
     && (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
+  const limitedTournaments = props.limit ? filteredTournaments?.slice(0, props.limit) : filteredTournaments;
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -62,34 +65,35 @@ export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsPro
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
+      {props.showFilters !== false && (
+        <div className="flex gap-2">
+          <MultiSelect
+            options={availableTournamentCategories}
+            value={selectedCats}
+            onChange={(vals) => setSelectedCats(vals as TournamentCategoryTab[])}
+            placeholder="All Categories"
+          />
 
-        <MultiSelect
-          options={availableTournamentCategories}
-          value={selectedCats}
-          onChange={(vals) => setSelectedCats(vals as TournamentCategoryTab[])}
-          placeholder="All Categories"
-        />
-
-      <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
-        <SelectTrigger>
-          <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {availableFormats.map((format) => (
-            <SelectItem key={format} value={format}>
-              <div className="flex justify-between w-full items-center">
-                <p>
-                  {format === 'All' ? 'All Formats' : format} (
-                  {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length}
-                  )
-                </p>
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      </div>
+          <Select value={selectedFormat} onValueChange={(val) => setSelectedFormat(val as TournamentFormatsTab)}>
+            <SelectTrigger>
+              <SelectValue>{selectedFormat === 'All' ? 'All Formats' : selectedFormat}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {availableFormats.map((format) => (
+                <SelectItem key={format} value={format}>
+                  <div className="flex justify-between w-full items-center">
+                    <p>
+                      {format === 'All' ? 'All Formats' : format} (
+                      {tournaments?.filter((tournament) => format === 'All' ? true : tournament.format === format).length}
+                      )
+                    </p>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className={isInteractionBlocked ? 'pointer-events-none' : ''}>
         {filteredTournaments?.length === 0 && (
@@ -102,7 +106,7 @@ export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsPro
 
         {selectedCats.length === 0 ? (
           <div className="flex flex-col gap-2">
-            {filteredTournaments?.map((tournament) =>
+            {limitedTournaments?.map((tournament) =>
               rounds ? (
                 <PocketTournamentPreview
                   key={tournament.id}
@@ -113,9 +117,9 @@ export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsPro
             )}
           </div>
         ) : (
-          <ScrollArea className="h-[36rem]">
-            <div className="flex flex-col gap-2">
-              {filteredTournaments?.map((tournament) =>
+            <ScrollArea className="h-[36rem]">
+              <div className="flex flex-col gap-2">
+              {limitedTournaments?.map((tournament) =>
                 rounds ? (
                   <PocketTournamentPreview
                   key={tournament.id}

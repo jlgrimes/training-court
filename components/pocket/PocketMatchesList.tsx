@@ -28,8 +28,10 @@ import { format, formatDistanceToNowStrict } from 'date-fns';
 
 export const PocketMatchesList = ({
   userId,
+  limit
 }: {
   userId: string | undefined;
+  limit?: number | undefined;
 }) => {
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
@@ -68,7 +70,7 @@ export const PocketMatchesList = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {games?.map((game, idx) => (
+        {games?.slice(0, limit).map((game, idx) => (
           <TableRow key={`pocket-game-${idx}`} result={game.result} className={cn(
               'font-bold',
               game.result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300',
