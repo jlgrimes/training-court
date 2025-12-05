@@ -2,13 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { EditIcon } from "lucide-react";
+import { EditIcon, Loader2, LoaderCircle } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PremiumIcon } from "@/components/premium/PremiumIcon";
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
-import { BattleLogsPaginationByDay } from "./BattleLogsPagination/BattleLogsPaginationByDay";
 import { useUserData } from "@/hooks/user-data/useUserData";
 import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
@@ -18,15 +16,25 @@ import type { Database } from "@/database.types";
 import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
 import { parseBattleLog } from "./utils/battle-log.utils";
 import { track } from "@vercel/analytics";
+import { Button } from "@/components/ui/button";
 
 type LogRow = Database["public"]["Tables"]["logs"]["Row"];
 
-export function BattleLogsContainer({ userId }: { userId?: string }) {
+interface BattleLogsContainerProps {
+  userId?: string;
+  allowPagination?: boolean;
+}
+
+export function BattleLogsContainer({
+  userId,
+  allowPagination = false,
+}: BattleLogsContainerProps) {
   const { data: userData } = useUserData(userId);
 
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<BattleLogSortBy>("Day");
   const [isEditing, setIsEditing] = useState(false);
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const pageSize = 50;
   const daysPerPage = 5;
@@ -35,9 +43,16 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
   const isSortByDeck = sortBy === "Deck";
   const isSortByAll = sortBy === "All";
 
-  const { data: logsDay,  isLoading: loadingDay  } = usePaginatedLogsByDay(userId, page, daysPerPage);
-  const { data: logsDeck, isLoading: loadingDeck } = useLiveLogs(userId);
-  const { data: logsAll,  isLoading: loadingAll  } = usePaginatedLiveLogs(userId, page, pageSize);
+  const effectivePage = allowPagination ? page : 0;
+
+  const { data: logsDay,  isLoading: loadingDay  } =
+    usePaginatedLogsByDay(userId, effectivePage, daysPerPage);
+
+  const { data: logsDeck, isLoading: loadingDeck } =
+    useLiveLogs(userId);
+
+  const { data: logsAll,  isLoading: loadingAll  } =
+    usePaginatedLiveLogs(userId, effectivePage, pageSize);
 
   const isLoading = isSortByDay ? loadingDay : isSortByDeck ? loadingDeck : loadingAll;
   const incoming: LogRow[] =
@@ -48,16 +63,29 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
 
   const viewKey = `${userId ?? "anon"}|${sortBy}`;
   const prevViewKeyRef = useRef<string | undefined>();
+
   useEffect(() => {
     if (prevViewKeyRef.current !== viewKey) {
       prevViewKeyRef.current = viewKey;
       setUserLogs([]);
       setPage(0);
+      setHasReachedEnd(false);
     }
   }, [viewKey, setUserLogs]);
 
-  const incomingIds = useMemo(() => incoming.map(r => r.id).join("|"), [incoming]);
+  const incomingIds = useMemo(
+    () => incoming.map(r => r.id).join("|"),
+    [incoming]
+  );
   const lastHydratedIdsRef = useRef<string>("");
+
+  useEffect(() => {
+    if (!allowPagination) return;
+    if (isLoading) return;
+    if (effectivePage > 0 && incoming.length === 0) {
+      setHasReachedEnd(true);
+    }
+  }, [allowPagination, effectivePage, incoming.length, isLoading]);
 
   useEffect(() => {
     if (!incoming.length) return;
@@ -65,22 +93,29 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
     lastHydratedIdsRef.current = incomingIds;
 
     setUserLogs(prev => {
-      if (page === 0) {
+      if (effectivePage === 0) {
         const prevIds = prev.map(r => r.id).join("|");
         return prevIds === incomingIds ? prev : incoming;
       }
+
       const seen = new Set(prev.map(l => l.id));
       let changed = false;
       const merged = [...prev];
+
       for (const row of incoming) {
         if (!seen.has(row.id)) {
           merged.push(row);
           changed = true;
         }
       }
+
+      if (allowPagination && effectivePage > 0 && !changed) {
+        setHasReachedEnd(true);
+      }
+
       return changed ? merged : prev;
     });
-  }, [incoming, incomingIds, page, setUserLogs]);
+  }, [incoming, incomingIds, effectivePage, allowPagination, setUserLogs]);
 
   const battleLogs: BattleLog[] = useMemo(
     () =>
@@ -103,6 +138,16 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
 
   const availableSortBys: BattleLogSortBy[] = ["Day", "Deck", "All"];
 
+  const showPagination =
+    allowPagination &&
+    (isSortByDay || isSortByAll) &&
+    !!userData?.live_screen_name;
+
+  const canLoadMore =
+    showPagination &&
+    !isLoading &&
+    !hasReachedEnd;
+
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
@@ -115,6 +160,8 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
               onValueChange={(value) => {
                 track("Battle log sort by changed", { value });
                 setSortBy(value as BattleLogSortBy);
+                setHasReachedEnd(false);
+                setPage(0);
               }}
             >
               <TabsList>
@@ -135,7 +182,7 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
         </div>
 
         {userData?.live_screen_name && (
-          <div>
+          <>
             <MyBattleLogPreviews
               userData={userData}
               battleLogs={battleLogs}
@@ -143,7 +190,32 @@ export function BattleLogsContainer({ userId }: { userId?: string }) {
               isEditing={isEditing}
               isLoading={isLoading && battleLogs.length === 0}
             />
-          </div>
+
+            {showPagination && (
+              <div className="mt-4 flex justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    track("Battle log load more clicked", {
+                      sortBy,
+                      nextPage: page + 1,
+                    });
+                    setHasReachedEnd(false);
+                    setPage((prev) => prev + 1);
+                  }}
+                  disabled={!canLoadMore}
+                >
+                  {hasReachedEnd
+                    ? "No more logs"
+                    : isLoading
+                    ? <Loader2 className='mr-2 h-6 w-6 animate-spin'/>
+                    : "Load older logs"}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
