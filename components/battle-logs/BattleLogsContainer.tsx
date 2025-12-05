@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { EditIcon, Loader2, LoaderCircle } from "lucide-react";
+import { EditIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
