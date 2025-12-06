@@ -10,8 +10,6 @@ import { Calendar } from "@/components/ui/calendar"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { DateRange } from "react-day-picker"
@@ -33,10 +31,7 @@ export function DatePicker({ date, setDate }: { date: DateRange | undefined, set
           {(date?.from && date?.to) ? (format(date.from, "LLL d") + ' - ' + format(date.to, "LLL d yyyy")) : date?.from ? (format(date.from, "LLL d")) : <span>Pick a date</span>}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Select Date Range</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[425px] justify-center">
         <Calendar
           mode="range"
           selected={date}
