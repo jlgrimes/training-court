@@ -12,6 +12,7 @@ export type PocketTournamentRow = {
   deck: string | null;
   placement: string | null;
   notes: string | null;
+  hat_type: string | null;
 };
 
 export async function fetchPocketTournaments(userId: string | undefined) {

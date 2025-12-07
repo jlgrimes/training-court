@@ -272,6 +272,7 @@ export type Database = {
           format: string | null
           id: string
           name: string
+          hat_type: string | null
           placement: string | null
           user: string,
           notes: string | null
@@ -285,6 +286,7 @@ export type Database = {
           format?: string | null
           id?: string
           name: string
+          hat_type?: string | null
           placement?: string | null
           user: string,
           notes: string | null
@@ -298,6 +300,7 @@ export type Database = {
           format?: string | null
           id?: string
           name?: string
+          hat_type?: string | null
           placement?: string | null
           user?: string,
           notes: string | null
@@ -322,6 +325,7 @@ export type Database = {
           format: string | null
           id: string
           name: string
+          hat_type: string | null
           placement: string | null
           user: string
           notes: string | null
@@ -335,6 +339,7 @@ export type Database = {
           format?: string | null
           id?: string
           name: string
+          hat_type?: string | null
           placement?: string | null
           user: string
           notes: string | null
@@ -348,6 +353,7 @@ export type Database = {
           format?: string | null
           id?: string
           name?: string
+          hat_type?: string | null
           placement?: string | null
           user?: string
           notes: string | null

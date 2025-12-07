@@ -12,6 +12,7 @@ interface TournamentPreviewProps {
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
   shouldHideCategoryBadge?: boolean;
   basePath?: string;
+  hatType?: string | null;
 }
 
 export default function TournamentPreview(props: TournamentPreviewProps) {
@@ -21,7 +22,7 @@ export default function TournamentPreview(props: TournamentPreviewProps) {
       <Card clickable>
         <SmallCardHeader>
           <div className="grid grid-cols-two-sprite+3 items-center">
-            <Sprite name={props.tournament.deck} />
+            <Sprite name={props.tournament.deck} hatType={props.hatType ?? props.tournament.hat_type ?? undefined} />
             <div className="text-left col-span-2">
               <CardTitle className="dark:text-white">{props.tournament.name}</CardTitle>
               <CardDescription>

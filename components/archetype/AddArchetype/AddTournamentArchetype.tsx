@@ -24,7 +24,7 @@ import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
 
 const getLocalDeckCookieKey = (tournamentId: string) => `buddy-poffin__local-deck-for-${tournamentId}`
 
-export const EditableTournamentArchetype = ({ tournament, editDisabled, tableName = 'tournaments' }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean; tableName?: string }) => {
+export const EditableTournamentArchetype = ({ tournament, editDisabled, tableName = 'tournaments', hatType }: { tournament: Database['public']['Tables']['tournaments']['Row'], editDisabled?: boolean; tableName?: string; hatType?: string | null }) => {
   const [deck, setDeck] = useState('');
   const [serverDeck, setServerDeck] = useState(tournament.deck);
   const [clientDeck, setClientDeck] = useState<string | undefined>();
@@ -67,7 +67,7 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
   if (clientDeck) {
     return (
       <HoverCard>
-        <HoverCardTrigger className="cursor-pointer"><Sprite name={clientDeck} faded /> </HoverCardTrigger>
+        <HoverCardTrigger className="cursor-pointer"><Sprite name={clientDeck} faded hatType={hatType ?? undefined} /> </HoverCardTrigger>
         <HoverCardContent>
           Archetype will be stored on this device until the tournament is over, then it will be automatically uploaded to the cloud.
         </HoverCardContent>
@@ -77,14 +77,14 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
 
   if (editDisabled) {
     if (serverDeck) {
-      return <Sprite name={serverDeck} />
+      return <Sprite name={serverDeck} hatType={hatType ?? undefined} />
     }
     return null;
   }
 
   return (
     <Dialog>
-      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} /> : 'Add deck'}</DialogTrigger>
+      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} hatType={hatType ?? undefined} /> : 'Add deck'}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add your deck for {tournament.name}</DialogTitle>

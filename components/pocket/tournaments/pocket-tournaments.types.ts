@@ -10,6 +10,7 @@ export type PocketTournament = {
   deck: string | null;
   placement: string | null;
   notes: string | null;
+  hat_type: string | null;
 };
 
 export type PocketTournamentRound = {
