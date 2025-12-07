@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { CircleHelpIcon, HelpCircle } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../ui/hover-card";
 import { SpriteFromUrl } from "./SpriteFromUrl";
 import { pkmnToImgSrc } from "./sprites.utils";
 import { useMemo } from "react";
