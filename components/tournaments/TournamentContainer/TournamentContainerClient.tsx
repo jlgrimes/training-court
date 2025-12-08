@@ -112,6 +112,18 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 config={config}
                 formats={config.formats}
               />
+              
+              <TournamentNotesDialog
+                tournamentId={props.tournament.id} 
+                tournamentNotes={tournamentNotes}
+                tournamentName={tournamentName}
+                config={config}
+              />
+              <TournamentDeleteDialog
+                tournamentId={props.tournament.id}
+                tournamentName={tournamentName}
+                config={config}
+              />
               {isPremiumUser(props.user?.id) && (
                 <Select
                   value={hatType ?? 'none'}
@@ -126,17 +138,6 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                   </SelectContent>
                 </Select>
               )}
-              <TournamentNotesDialog
-                tournamentId={props.tournament.id} 
-                tournamentNotes={tournamentNotes}
-                tournamentName={tournamentName}
-                config={config}
-              />
-              <TournamentDeleteDialog
-                tournamentId={props.tournament.id}
-                tournamentName={tournamentName}
-                config={config}
-              />
             </div>
           )}
   
@@ -153,11 +154,6 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                   {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
                   {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
                   {tournamentFormat && <TournamentFormatBadge format={tournamentFormat as any} />}
-                  {hatType && (
-                    <span className="rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200 px-2 py-0.5 text-xs">
-                      {hatType}
-                    </span>
-                  )}
                 </div>
               </div>
 
