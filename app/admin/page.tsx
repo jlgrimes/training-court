@@ -30,7 +30,9 @@ export default async function AdminPage() {
   const mostCommonlyUsedAvatars = await fetchCommonlyUsedAvatars();
   const allFeedback = await fetchAllFeedback();
 
-  const unusedAvatars = getMainSelectableAvatars(allAvatarImages, '').filter((availableAvatar) => !mostCommonlyUsedAvatars?.some(({ avatar }) => avatar === availableAvatar));
+  const unusedAvatars = getMainSelectableAvatars(allAvatarImages, '').filter(
+    (availableAvatar) => !mostCommonlyUsedAvatars?.some((entry: { avatar: string }) => entry.avatar === availableAvatar)
+  );
   const totalUsers = await countAllUsers();
   const totalLogs = await countAllLogs();
   const lastSevenDaysUsers = await countUsersInLastXDays(0, 7) ?? 0;

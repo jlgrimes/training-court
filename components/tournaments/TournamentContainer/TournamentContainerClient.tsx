@@ -22,7 +22,7 @@ import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 import { TournamentNotesDialog } from "./TournamentNotesDialog";
 import { TournamentGameConfig } from "../utils/tournament-game-config";
 import { isPremiumUser } from "@/components/premium/premium.utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { HatEditDialog } from "@/components/hats/HatEditDialog";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -88,6 +88,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
       .eq('id', props.tournament.id);
     if (error) {
       setHatType(props.tournament.hat_type ?? null);
+      throw error;
     }
   }, [config.tournamentsTable, props.tournament.hat_type, props.tournament.id]);
 
@@ -119,25 +120,18 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 tournamentName={tournamentName}
                 config={config}
               />
+              {isPremiumUser(props.user?.id) && (
+                <HatEditDialog
+                  tournamentName={tournamentName}
+                  currentHat={hatType}
+                  onChange={handleHatChange}
+                />
+              )}
               <TournamentDeleteDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
                 config={config}
               />
-              {isPremiumUser(props.user?.id) && (
-                <Select
-                  value={hatType ?? 'none'}
-                  onValueChange={(val) => handleHatChange(val === 'none' ? null : val)}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Hat type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='none'>No hat</SelectItem>
-                    <SelectItem value='santa'>Santa hat</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
             </div>
           )}
   
@@ -198,3 +192,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     </div>
   );  
 }
+
+
+
+
+
