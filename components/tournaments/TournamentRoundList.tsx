@@ -13,6 +13,7 @@ interface TournamentRoundListProps {
     pos: number
   ) => void;
   roundsTableName?: string;
+  hatType?: string | null;
 }
 
 export default function TournamentRoundList(props: TournamentRoundListProps) {
@@ -124,6 +125,7 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
               isEditing={editingRoundIdx === idx}
               handleEditingRoundToggle={() => handleEditingRoundToggle(idx)}
               roundsTableName={props.roundsTableName}
+              hatType={props.hatType}
             />
           ))}
         </div>

@@ -16,6 +16,7 @@ interface TournamentRoundProps {
   isEditing: boolean;
   handleEditingRoundToggle: () => void;
   roundsTableName?: string;
+  hatType?: string | null;
 }
 
 export const TournamentRound = (props: TournamentRoundProps) => {
@@ -61,7 +62,7 @@ export const TournamentRound = (props: TournamentRoundProps) => {
         <div className="flex items-center text-sm font-bold">
           {MATCH_END_REASONS.BYE}
         </div>
-      ) : <Sprite name={props.round.deck} />}</span>
+      ) : <Sprite name={props.round.deck} hatType={props.hatType ?? undefined} />}</span>
       <span className="text-right font-bold tracking-wider text-md leading-4">{props.round.result.join('')}</span>
     </div>
   )

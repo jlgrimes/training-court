@@ -21,6 +21,8 @@ import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.ut
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
 import { TournamentNotesDialog } from "./TournamentNotesDialog";
 import { TournamentGameConfig } from "../utils/tournament-game-config";
+import { isPremiumUser } from "@/components/premium/premium.utils";
+import { HatEditDialog } from "@/components/hats/HatEditDialog";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -38,6 +40,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
   const [tournamentFormat, setTournamentFormat] = useState<string | null>(props.tournament.format);
+  const [hatType, setHatType] = useState<string | null>(props.tournament.hat_type ?? null);
   const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
   const prevLenRef = useRef<number>(props.rounds.length);
 
@@ -76,12 +79,25 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setTournamentFormat(newFormat);
   }, []);
 
+  const handleHatChange = useCallback(async (nextHat: string | null) => {
+    setHatType(nextHat);
+    const supabase = (await import("@/utils/supabase/client")).createClient();
+    const { error } = await supabase
+      .from(config.tournamentsTable as any)
+      .update({ hat_type: nextHat })
+      .eq('id', props.tournament.id);
+    if (error) {
+      setHatType(props.tournament.hat_type ?? null);
+      throw error;
+    }
+  }, [config.tournamentsTable, props.tournament.hat_type, props.tournament.id]);
+
   return (
     <div className="w-full flex justify-center px-4 sm:px-8">
       <div className="w-full max-w-xl flex flex-col flex-1 gap-2">
         <div className="flex flex-col gap-1">
           {props.user?.id === props.tournament.user && (
-            <div className="flex">
+            <div className="flex items-center gap-2">
               <TournamentEditDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
@@ -97,12 +113,20 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 config={config}
                 formats={config.formats}
               />
+              
               <TournamentNotesDialog
                 tournamentId={props.tournament.id} 
                 tournamentNotes={tournamentNotes}
                 tournamentName={tournamentName}
                 config={config}
               />
+              {isPremiumUser(props.user?.id) && (
+                <HatEditDialog
+                  tournamentName={tournamentName}
+                  currentHat={hatType}
+                  onChange={handleHatChange}
+                />
+              )}
               <TournamentDeleteDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
@@ -123,7 +147,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 <div className="flex flex-wrap gap-1 mt-0.5">
                   {tournamentCategory && <TournamentCategoryBadge category={tournamentCategory} />}
                   {tournamentPlacement && <TournamentPlacementBadge placement={tournamentPlacement} />}
-                  {tournamentFormat && <TournamentFormatBadge format={tournamentFormat} />}
+                  {tournamentFormat && <TournamentFormatBadge format={tournamentFormat as any} />}
                 </div>
               </div>
 
@@ -134,6 +158,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 <EditableTournamentArchetype
                   tournament={props.tournament}
                   tableName={config.tournamentsTable}
+                  hatType={hatType}
                   editDisabled={props.tournament.user !== props.user?.id}
                 />
               </div>
@@ -149,6 +174,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 rounds={rounds}
                 updateClientRoundsOnEdit={updateClientRoundsOnEdit}
                 roundsTableName={config.roundsTable}
+                hatType={hatType}
               />
               {props.user?.id === props.tournament.user && (
                 <AddTournamentRound
@@ -166,3 +192,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     </div>
   );  
 }
+
+
+
+
+

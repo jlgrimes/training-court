@@ -6,6 +6,10 @@ interface SpriteProps {
   url: string | null | undefined;
   faded?: boolean;
   small?: boolean;
+  hatSrc?: string;
+  hatOffsetX?: number;
+  hatOffsetY?: number;
+  hatScale?: number;
 }
 
 export const SpriteFromUrl = (props: SpriteProps) => {
@@ -18,12 +22,26 @@ export const SpriteFromUrl = (props: SpriteProps) => {
     </HoverCard>
   );
 
+  const sizeClass = props.small ? 'h-[27px] w-[27px]' : 'h-[40px] w-[40px]';
   return (
-    <img src={props.url} height={30} width={'auto'} alt={props.url} className={cn(
-      'pixel-image',
-      props.faded && 'opacity-40',
-      props.small ? 'h-[27px] w-[27px]' : 'h-[40px] w-[40px]',
-      'object-contain'
-    )} />
+    <div className="relative inline-flex">
+      <img src={props.url} height={30} width={'auto'} alt={props.url} className={cn(
+        'pixel-image',
+        props.faded && 'opacity-40',
+        sizeClass,
+        'object-contain'
+      )} />
+      {props.hatSrc && (
+        <img
+          src={props.hatSrc}
+          alt="hat"
+          className="pointer-events-none absolute"
+          style={{
+            transform: `translate(${props.hatOffsetX ?? 0}px, ${props.hatOffsetY ?? 0}px) scale(${props.hatScale ?? 1})`,
+            transformOrigin: 'top left',
+          }}
+        />
+      )}
+    </div>
   )
 }

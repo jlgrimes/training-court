@@ -112,6 +112,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
                   tournament={tournament}
                   rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
                   basePath={basePath}
+                  hatType={tournament.hat_type}
                 />
               ) : null
             )}
@@ -127,6 +128,7 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
                   rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
                   shouldHideCategoryBadge
                   basePath={basePath}
+                  hatType={tournament.hat_type}
                   />
                 ) : null
               )}

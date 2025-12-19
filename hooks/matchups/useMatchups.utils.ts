@@ -6,13 +6,19 @@ export async function fetchMatchups(userId: string | undefined) {
   if (!userId) return null;
 
   const supabase = createClient();
-  const { data } = await supabase.rpc('get_user_tournament_and_battle_logs_v3', { user_id: userId }).returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v3']['Returns']>();
+  const { data, error } = await supabase.rpc('get_user_tournament_and_battle_logs_v3', { user_id: userId }).returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v3']['Returns']>();
 
-  if (!data) return null;
+  if (error) {
+    console.error('Matchups RPC failed', error)
+    return [];
+  }
 
-  console.log(data)
+  if (!data) {
+    console.log("No data returned from Matchups RPC")
+    return [];
+  }
 
-  // const matchups = convertRpcRetToMatchups(data);
-  // return matchups;
+  console.log(data);
+
   return data;
 }

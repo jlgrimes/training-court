@@ -112,6 +112,7 @@ export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsPro
                   key={tournament.id}
                   tournament={tournament}
                   rounds={rounds.filter((round) => round.tournament === tournament.id)}
+                  hatType={tournament.hat_type}
                 />
               ) : null
             )}
@@ -125,6 +126,7 @@ export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsPro
                   key={tournament.id}
                   tournament={tournament}
                   rounds={rounds.filter((round) => round.tournament === tournament.id)}
+                  hatType={tournament.hat_type}
                   />
                 ) : null
               )}
