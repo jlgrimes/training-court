@@ -120,13 +120,13 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 tournamentName={tournamentName}
                 config={config}
               />
-              {isPremiumUser(props.user?.id) && (
+              {/* {isPremiumUser(props.user?.id) && ( */}
                 <HatEditDialog
                   tournamentName={tournamentName}
                   currentHat={hatType}
                   onChange={handleHatChange}
                 />
-              )}
+              {/* )} */}
               <TournamentDeleteDialog
                 tournamentId={props.tournament.id}
                 tournamentName={tournamentName}
