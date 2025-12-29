@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "jest && next build",
+    "build": "next build",
     "start": "next start",
     "test": "jest",
     "test:e2e": "playwright test",
