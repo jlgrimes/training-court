@@ -1,9 +1,9 @@
 'use client';
 
+import { useState } from "react";
 import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
 import { parseBattleLog } from "../utils/battle-log.utils";
-import { useBattleLogsSWR } from "@/hooks/battle-logs/useBattleLogsSWR";
 import type { UserData, BattleLog } from "@/lib/server/home-data";
 
 interface BattleLogsHomePreviewClientProps {
@@ -13,10 +13,12 @@ interface BattleLogsHomePreviewClientProps {
 }
 
 export function BattleLogsHomePreviewClient(props: BattleLogsHomePreviewClientProps) {
-  const { userId, userData, initialLogs } = props;
+  const { userData, initialLogs } = props;
+  const [logs, setLogs] = useState<BattleLog[]>(initialLogs);
 
-  // SWR handles hydration automatically via fallbackData - no useEffect needed!
-  const { logs } = useBattleLogsSWR(userId, { fallbackData: initialLogs });
+  const handleLogAdded = (newLog: BattleLog) => {
+    setLogs(prev => [newLog, ...prev].slice(0, 5));
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,7 +32,7 @@ export function BattleLogsHomePreviewClient(props: BattleLogsHomePreviewClientPr
           />
         )}
       </div>
-      <AddBattleLogInput userData={userData ?? null} />
+      <AddBattleLogInput userData={userData ?? null} onLogAdded={handleLogAdded} />
     </div>
   );
 }
