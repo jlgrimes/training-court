@@ -1,14 +1,21 @@
 'use client';
 
-import { useUserData } from "@/hooks/user-data/useUserData"
+import { Database } from "@/database.types";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { AvatarSelector } from "./avatar/AvatarSelector";
 import { ScreenNameEditable } from "./screen-name/ScreenNameEditable";
 
-export const TrainingCourtWelcomeClient = ({ userId, avatarImages }: { userId: string | undefined, avatarImages: string[] }) => {
-  const { data: userData, isLoading } = useUserData(userId);
+type UserData = Database['public']['Tables']['user data']['Row'];
 
-  if (!userId || isLoading || userData?.live_screen_name) return null;
+interface TrainingCourtWelcomeClientProps {
+  userId: string | undefined;
+  avatarImages: string[];
+  userData?: UserData | null;
+}
+
+export const TrainingCourtWelcomeClient = ({ userId, avatarImages, userData }: TrainingCourtWelcomeClientProps) => {
+  // Server already checked if user has screen name, so we can render directly
+  if (!userId) return null;
 
   return (
     <Card className="px-1 py-2">

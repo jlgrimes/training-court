@@ -59,6 +59,19 @@ test.describe('Instant Page Loading (No Spinners)', () => {
   });
 });
 
+test.describe('Welcome Screen', () => {
+  test('does not show welcome screen for users with screen name', async ({ page }) => {
+    await page.goto('/home');
+
+    // Wait for page to load
+    await expect(page.getByText('PTCG Logs')).toBeVisible({ timeout: 5000 });
+
+    // Welcome card should NOT be visible for users who have a screen name
+    const welcomeCard = page.getByText('Welcome to Training Court');
+    await expect(welcomeCard).not.toBeVisible();
+  });
+});
+
 test.describe('Data Hydration', () => {
   test('battle logs are rendered from server data', async ({ page }) => {
     await page.goto('/ptcg/logs');

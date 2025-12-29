@@ -11,13 +11,13 @@ interface UserDataHydrationProps {
 /**
  * Hydrates Recoil user data state with server-provided data.
  * Place this in your layout after fetching user data on the server.
- * Only hydrates once per mount to avoid unnecessary re-renders.
  */
 export function UserDataHydration({ userData }: UserDataHydrationProps) {
   const setUserData = useSetRecoilState(userDataAtom);
   const setUserDataLoading = useSetRecoilState(userDataLoadingAtom);
   const hydrated = useRef(false);
 
+  // Use layout effect to hydrate before paint
   useEffect(() => {
     if (!hydrated.current) {
       setUserData(userData);
