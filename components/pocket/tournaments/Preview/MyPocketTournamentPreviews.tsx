@@ -1,6 +1,5 @@
 'use client';
 
-import { User } from "@supabase/supabase-js";
 import PocketTournamentPreview from "./PocketTournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,7 +14,7 @@ import { usePocketTournamentRounds } from "@/hooks/pocket/tournaments/usePocketT
 import type { PocketTournament, PocketTournamentRound } from "@/lib/server/home-data";
 
 interface MyPocketTournamentPreviewsProps {
-  user: User | null;
+  userId?: string;
   showFilters?: boolean;
   limit?: number;
   /** Optional pre-fetched tournaments - if provided, skips SWR fetch */
@@ -28,8 +27,8 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
   const { initialTournaments, initialRounds } = props;
 
   // Only fetch via SWR if no initial data provided
-  const { data: swrTournaments } = usePocketTournaments(initialTournaments ? undefined : props.user?.id);
-  const { data: swrRounds } = usePocketTournamentRounds(initialRounds ? undefined : props.user?.id);
+  const { data: swrTournaments } = usePocketTournaments(initialTournaments ? undefined : props.userId);
+  const { data: swrRounds } = usePocketTournamentRounds(initialRounds ? undefined : props.userId);
 
   const tournaments = initialTournaments ?? swrTournaments;
   const rounds = initialRounds ?? swrRounds;

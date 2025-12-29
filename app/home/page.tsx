@@ -39,7 +39,7 @@ export default async function Home() {
       {hasPreferredGames && showPokemonTcg && (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
           <BattleLogsHomePreview userId={user.id} />
-          <TournamentsHomePreview user={user} />
+          <TournamentsHomePreview />
         </div>
       )}
       {hasPreferredGames && showPokemonPocket && (
@@ -47,7 +47,7 @@ export default async function Home() {
           <Separator />
           <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
             <PocketHomePreview userId={user.id} />
-            <PocketTournamentsHomePreview user={user} />
+            <PocketTournamentsHomePreview />
           </div>
         </>
       )}
