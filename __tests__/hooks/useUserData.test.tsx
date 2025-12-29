@@ -3,7 +3,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { RecoilRoot } from 'recoil';
-import { useUserData } from './useUserData';
+import { useUserData } from '@/hooks/user-data/useUserData';
 import { userDataAtom, userDataLoadingAtom, UserData } from '@/app/recoil/atoms/user';
 
 // Mock user data
