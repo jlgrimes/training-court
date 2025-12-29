@@ -10,8 +10,9 @@ import { isGameEnabled } from '@/lib/game-preferences';
 import { PocketHomePreview } from '@/components/pocket/PocketHomePreview';
 import { PocketTournamentsHomePreview } from '@/components/pocket/tournaments/PocketTournamentsHomePreview';
 import { Separator } from '@/components/ui/separator';
+import { fetchHomeDataServer } from '@/lib/server/home-data';
 
-export default async function Profile() {
+export default async function Home() {
   const user = await fetchCurrentUser();
 
   if (!user) {
@@ -21,7 +22,21 @@ export default async function Profile() {
   const preferredGames = await fetchPreferredGames(user.id);
   const hasPreferredGames = preferredGames.length > 0;
   const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');
-  const showPokemonPocket = isGameEnabled(preferredGames, 'pokemon-pocket')
+  const showPokemonPocket = isGameEnabled(preferredGames, 'pokemon-pocket');
+
+  // Fetch all data server-side in parallel for instant loading
+  const {
+    userData,
+    battleLogs,
+    tournaments,
+    tournamentRounds,
+    pocketGames,
+    pocketTournaments,
+    pocketTournamentRounds,
+  } = await fetchHomeDataServer(user.id, {
+    includePtcg: showPokemonTcg,
+    includePocket: showPokemonPocket,
+  });
 
   return (
     <>
@@ -38,17 +53,32 @@ export default async function Profile() {
 
       {hasPreferredGames && showPokemonTcg && (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
-          <BattleLogsHomePreview userId={user.id} />
-          <TournamentsHomePreview user={user} />
+          <BattleLogsHomePreview
+            userId={user.id}
+            userData={userData}
+            battleLogs={battleLogs}
+          />
+          <TournamentsHomePreview
+            user={user}
+            tournaments={tournaments}
+            rounds={tournamentRounds}
+          />
         </div>
       )}
       {hasPreferredGames && showPokemonPocket && (
         <>
-        <Separator></Separator>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
-          <PocketHomePreview userId={user.id} />
-          <PocketTournamentsHomePreview user={user} />
-        </div>
+          <Separator />
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
+            <PocketHomePreview
+              userId={user.id}
+              games={pocketGames}
+            />
+            <PocketTournamentsHomePreview
+              user={user}
+              tournaments={pocketTournaments}
+              rounds={pocketTournamentRounds}
+            />
+          </div>
         </>
       )}
     </>

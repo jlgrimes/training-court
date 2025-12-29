@@ -11,14 +11,11 @@ import { useUserData } from "@/hooks/user-data/useUserData";
 import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
-import { userLogsAtom } from "@/app/recoil/atoms/battleLogs";
-import type { Database } from "@/database.types";
+import { battleLogsAtom, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
 import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
 import { parseBattleLog } from "./utils/battle-log.utils";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
-
-type LogRow = Database["public"]["Tables"]["logs"]["Row"];
 
 interface BattleLogsContainerProps {
   userId?: string;
@@ -55,11 +52,11 @@ export function BattleLogsContainer({
     usePaginatedLiveLogs(userId, effectivePage, pageSize);
 
   const isLoading = isSortByDay ? loadingDay : isSortByDeck ? loadingDeck : loadingAll;
-  const incoming: LogRow[] =
+  const incoming: BattleLogRecord[] =
     isSortByDay ? (logsDay ?? []) : isSortByDeck ? (logsDeck ?? []) : (logsAll ?? []);
 
-  const setUserLogs = useSetRecoilState(userLogsAtom);
-  const rawRows = useRecoilValue(userLogsAtom);
+  const setBattleLogs = useSetRecoilState(battleLogsAtom);
+  const rawRows = useRecoilValue(battleLogsAtom);
 
   const viewKey = `${userId ?? "anon"}|${sortBy}`;
   const prevViewKeyRef = useRef<string | undefined>();
@@ -67,11 +64,11 @@ export function BattleLogsContainer({
   useEffect(() => {
     if (prevViewKeyRef.current !== viewKey) {
       prevViewKeyRef.current = viewKey;
-      setUserLogs([]);
+      setBattleLogs([]);
       setPage(0);
       setHasReachedEnd(false);
     }
-  }, [viewKey, setUserLogs]);
+  }, [viewKey, setBattleLogs]);
 
   const incomingIds = useMemo(
     () => incoming.map(r => r.id).join("|"),
@@ -92,7 +89,7 @@ export function BattleLogsContainer({
     if (incomingIds === lastHydratedIdsRef.current) return;
     lastHydratedIdsRef.current = incomingIds;
 
-    setUserLogs(prev => {
+    setBattleLogs(prev => {
       if (effectivePage === 0) {
         const prevIds = prev.map(r => r.id).join("|");
         return prevIds === incomingIds ? prev : incoming;
@@ -115,11 +112,11 @@ export function BattleLogsContainer({
 
       return changed ? merged : prev;
     });
-  }, [incoming, incomingIds, effectivePage, allowPagination, setUserLogs]);
+  }, [incoming, incomingIds, effectivePage, allowPagination, setBattleLogs]);
 
   const battleLogs: BattleLog[] = useMemo(
     () =>
-      rawRows.map((l: LogRow) =>
+      rawRows.map((l) =>
         parseBattleLog(
           l.log,
           l.id,

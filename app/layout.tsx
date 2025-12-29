@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
+import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
 import { cookies } from 'next/headers';
@@ -38,10 +39,11 @@ export default function RootLayout({
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
-          <DarkModeHydrationGuard>
-            <DarkModeProvider />
-            
-            <SidebarProvider>
+          <RealtimeProvider>
+            <DarkModeHydrationGuard>
+              <DarkModeProvider />
+
+              <SidebarProvider>
               <AppSidebar />
               <main className='min-h-screen h-full w-full'>
                 <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
@@ -60,7 +62,8 @@ export default function RootLayout({
               </main>
             </SidebarProvider>
 
-          </DarkModeHydrationGuard>
+            </DarkModeHydrationGuard>
+          </RealtimeProvider>
         </RecoilProvider>
       </body>
     </html>

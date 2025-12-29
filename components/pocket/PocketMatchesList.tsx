@@ -22,20 +22,27 @@ import { useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useToast } from '../ui/use-toast';
 import { useSWRConfig } from 'swr';
-import { format, formatDistanceToNowStrict } from 'date-fns';
+import { formatDistanceToNowStrict } from 'date-fns';
+import type { PocketGame } from '@/lib/server/home-data';
 
-//@TODO: Need to add edit capabilities for Pocket...
+interface PocketMatchesListProps {
+  userId: string | undefined;
+  limit?: number | undefined;
+  /** Optional pre-fetched games - if provided, skips SWR fetch */
+  initialGames?: PocketGame[];
+}
 
 export const PocketMatchesList = ({
   userId,
-  limit
-}: {
-  userId: string | undefined;
-  limit?: number | undefined;
-}) => {
+  limit,
+  initialGames,
+}: PocketMatchesListProps) => {
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
-  const { data: games } = usePocketGames(userId);
+  // Only fetch via SWR if no initial games provided
+  const { data: swrGames } = usePocketGames(initialGames ? undefined : userId);
+
+  const games = initialGames ?? swrGames;
 
   const handleDeletePocketGame = useCallback(
     async (gameId: number) => {
@@ -56,7 +63,7 @@ export const PocketMatchesList = ({
         mutate(['pocket-games', userId], data);
       }
     },
-    [userId]
+    [userId, toast, mutate]
   );
 
   return (
@@ -101,37 +108,5 @@ export const PocketMatchesList = ({
         ))}
       </TableBody>
     </Table>
-  );
-
-  return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full'>
-      {games?.map(game => (
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Card
-              result={game.result as 'W' | 'L'}
-              className='px-4 py-2 flex justify-between items-center'
-            >
-              <Sprite name={game.deck} shouldFill />
-              <div
-                className={cn(
-                  'text-md font-bold',
-                  game.result === 'W' && 'text-emerald-600',
-                  game.result === 'L' && 'text-red-600'
-                )}
-              >
-                {game.result}
-              </div>
-              <Sprite name={game.opp_deck} shouldFill />
-            </Card>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleDeletePocketGame(game.id)}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ))}
-    </div>
   );
 };
