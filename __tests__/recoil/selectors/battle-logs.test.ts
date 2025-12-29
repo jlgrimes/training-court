@@ -1,5 +1,3 @@
-'use client';
-
 import { snapshot_UNSTABLE } from 'recoil';
 import {
   battleLogsAtom,
@@ -8,7 +6,7 @@ import {
   battleLogsPageAtom,
   battleLogsPageSizeAtom,
   BattleLogRecord,
-} from '../atoms/battle-logs';
+} from '@/app/recoil/atoms/battle-logs';
 import {
   filteredBattleLogsSelector,
   sortedBattleLogsSelector,
@@ -16,7 +14,7 @@ import {
   battleLogsStatsSelector,
   battleLogsByDeckSelector,
   battleLogByIdSelector,
-} from './battle-logs';
+} from '@/app/recoil/selectors/battle-logs';
 
 // Mock battle log data
 const createMockBattleLog = (overrides: Partial<BattleLogRecord> = {}): BattleLogRecord => ({

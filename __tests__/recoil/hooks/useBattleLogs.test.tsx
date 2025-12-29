@@ -1,10 +1,8 @@
-'use client';
-
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { RecoilRoot, useRecoilValue } from 'recoil';
-import { useBattleLogs } from './useBattleLogs';
-import { battleLogsAtom, BattleLogRecord } from '../atoms/battle-logs';
+import { useBattleLogs } from '@/app/recoil/hooks/useBattleLogs';
+import { battleLogsAtom, BattleLogRecord } from '@/app/recoil/atoms/battle-logs';
 
 // Mock battle log data
 const createMockBattleLog = (overrides: Partial<BattleLogRecord> = {}): BattleLogRecord => ({

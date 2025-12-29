@@ -1,9 +1,9 @@
-import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "./battle-log.utils";
-import { battleLogBrazilianPortuguese } from "./testing-files/battleLogBrazilianPortuguese";
-import { battleLogGerman } from "./testing-files/battleLogGerman";
-import { battleLogItalian } from "./testing-files/battleLogItalian";
-import { battleLogNoPlayer2Turn } from "./testing-files/battleLogNoPlayer2Turn";
-import { battleLogSpanish } from "./testing-files/battleLogSpanish";
+import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { battleLogBrazilianPortuguese } from "@/components/battle-logs/utils/testing-files/battleLogBrazilianPortuguese";
+import { battleLogGerman } from "@/components/battle-logs/utils/testing-files/battleLogGerman";
+import { battleLogItalian } from "@/components/battle-logs/utils/testing-files/battleLogItalian";
+import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-files/battleLogNoPlayer2Turn";
+import { battleLogSpanish } from "@/components/battle-logs/utils/testing-files/battleLogSpanish";
 
 describe('battle log utils', () => {
   it('should correctly extract player names', () => {
