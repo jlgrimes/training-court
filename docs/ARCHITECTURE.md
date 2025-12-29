@@ -41,48 +41,95 @@ This document describes the architecture and key patterns used in Training Court
 └── database.types.ts      # Auto-generated DB types
 ```
 
-## Data Fetching Strategy
+## Self-Contained Server Component Widgets
 
-### Server-Side Fetching (Preferred for Initial Load)
+The key architectural pattern in Training Court is **self-contained server component widgets**. Each preview component on the home page is a server component that:
 
-For pages that need to load instantly without skeletons, we use server-side data fetching:
+1. Fetches its own data server-side
+2. Renders a client component for interactivity
+3. Can be placed on any page without coordination
 
-```typescript
-// lib/server/home-data.ts
-export async function fetchHomeDataServer(userId: string, options: {
-  includePtcg: boolean;
-  includePocket: boolean;
-}) {
-  // Fetch all data in parallel
-  const results = await Promise.all([
-    fetchUserDataServer(userId),
-    options.includePtcg && fetchBattleLogsServer(userId),
-    // ... more parallel fetches
-  ]);
-  return { userData, battleLogs, tournaments, ... };
-}
+### Widget Structure
+
+```
+ComponentPreview (Server Component)
+├── Fetches data using lib/server/home-data.ts utilities
+└── Renders ComponentPreviewClient (Client Component)
+    └── Handles interactivity (state, forms, Recoil)
 ```
 
-The server component fetches data and passes it as props:
+### Example: Battle Logs Widget
 
 ```typescript
-// app/home/page.tsx (Server Component)
-export default async function Home() {
-  const user = await fetchCurrentUser();
-  const data = await fetchHomeDataServer(user.id, { ... });
+// BattleLogsHomePreview.tsx (Server Component)
+export async function BattleLogsHomePreview({ userId }: Props) {
+  // Fetch data server-side in parallel
+  const [userData, battleLogs] = await Promise.all([
+    fetchUserDataServer(userId),
+    fetchBattleLogsServer(userId, 0, 4),
+  ]);
 
   return (
-    <BattleLogsHomePreview
-      userData={data.userData}
-      battleLogs={data.battleLogs}
+    <BattleLogsHomePreviewClient
+      userId={userId}
+      userData={userData}
+      initialLogs={battleLogs}
     />
   );
 }
 ```
 
-### Client-Side Fetching (For Interactive Features)
+```typescript
+// BattleLogsHomePreviewClient.tsx (Client Component)
+'use client';
 
-For subsequent data fetching (pagination, real-time updates), we use SWR:
+export function BattleLogsHomePreviewClient({ userData, initialLogs }: Props) {
+  // Client-side interactivity, Recoil state, etc.
+  return (
+    <div>
+      <BattleLogsByDayPreview battleLogs={initialLogs} />
+      <AddBattleLogInput userData={userData} />
+    </div>
+  );
+}
+```
+
+### Benefits
+
+- **Instant Loading**: No skeletons or loading states - data arrives with the HTML
+- **Self-Contained**: Each widget can be placed on any page
+- **Parallel Fetching**: Each widget fetches its data independently
+- **Simple Pages**: Pages just compose widgets without data coordination
+
+### Available Widgets
+
+| Widget | Server Component | Client Component |
+|--------|------------------|------------------|
+| Battle Logs | `BattleLogsHomePreview` | `BattleLogsHomePreviewClient` |
+| Tournaments | `TournamentsHomePreview` | `TournamentsHomePreviewClient` |
+| Pocket Games | `PocketHomePreview` | `PocketHomePreviewClient` |
+| Pocket Tournaments | `PocketTournamentsHomePreview` | `PocketTournamentsHomePreviewClient` |
+
+## Server-Side Data Fetching
+
+All server-side fetch functions are in `lib/server/home-data.ts`:
+
+```typescript
+// Available server fetch functions
+fetchUserDataServer(userId)
+fetchBattleLogsServer(userId, page, daysPerPage)
+fetchTournamentsServer(userId)
+fetchTournamentRoundsServer(userId)
+fetchPocketGamesServer(userId)
+fetchPocketTournamentsServer(userId)
+fetchPocketTournamentRoundsServer(userId)
+```
+
+These use the **server Supabase client** which reads cookies from the request.
+
+## Client-Side Fetching (For Interactive Features)
+
+For subsequent data fetching (pagination, real-time updates), components use SWR hooks:
 
 ```typescript
 // hooks/logs/usePaginatedLogsByDay.ts
@@ -97,10 +144,9 @@ export function usePaginatedLogsByDay(userId: string, page: number) {
 
 ### Hybrid Pattern
 
-Components can accept both server-fetched initial data AND support client-side refreshing:
+Components can accept server-fetched initial data AND support client-side refreshing:
 
 ```typescript
-// Component accepts optional initial data
 interface Props {
   initialGames?: PocketGame[];  // Server-fetched
 }
@@ -109,7 +155,6 @@ export function PocketMatchesList({ initialGames }: Props) {
   // Skip SWR if initial data provided
   const { data: swrGames } = usePocketGames(initialGames ? undefined : userId);
   const games = initialGames ?? swrGames;
-  // ...
 }
 ```
 
@@ -120,9 +165,9 @@ export function PocketMatchesList({ initialGames }: Props) {
 Used for state that needs to be shared across components:
 
 ```typescript
-// app/recoil/atoms/battleLogs.ts
-export const userLogsAtom = atom<BattleLog[]>({
-  key: 'userLogs',
+// app/recoil/atoms/battle-logs.ts
+export const battleLogsAtom = atom<BattleLog[]>({
+  key: 'battleLogs',
   default: [],
 });
 ```
@@ -158,44 +203,39 @@ if (!user) return redirect('/');
 - `pocket_tournaments` - Pocket tournaments
 - `pocket_tournament_rounds` - Pocket tournament rounds
 
-## Performance Optimizations
-
-### 1. Server-Side Data Fetching
-- Home page fetches all data server-side in parallel
-- No client-side loading states or skeletons
-- Instant page render with full content
-
-### 2. Parallel Queries
-```typescript
-const [userData, logs, tournaments] = await Promise.all([
-  fetchUserDataServer(userId),
-  fetchBattleLogsServer(userId),
-  fetchTournamentsServer(userId),
-]);
-```
-
-### 3. Conditional Fetching
-Only fetch data for enabled games:
-```typescript
-if (options.includePtcg) {
-  promises.push(fetchBattleLogsServer(userId));
-}
-```
-
-### 4. SWR Caching
-Client-side data is cached to prevent redundant fetches.
-
 ## Adding New Features
 
-### Adding a New Data Type
+### Adding a New Widget
 
-1. Add server fetch function in `lib/server/home-data.ts`
-2. Create SWR hook in `hooks/` for client-side use
-3. Update component to accept both server and client data
-4. Update page to fetch server-side if needed
+1. Create server fetch function in `lib/server/home-data.ts`
+2. Create client component `ComponentClient.tsx` with `'use client'`
+3. Create server component `Component.tsx` that:
+   - Fetches data using server utilities
+   - Renders the client component with data as props
+4. Add widget to the page
 
-### Adding a New Page
+### Example: Adding a Stats Widget
 
-1. Create route in `app/[route]/page.tsx`
-2. Fetch data server-side for instant loading
-3. Pass data to client components as props
+```typescript
+// 1. Add fetch function (lib/server/home-data.ts)
+export async function fetchStatsServer(userId: string) {
+  const supabase = createClient();
+  const { data } = await supabase.from('stats').select('*').eq('user', userId);
+  return data || [];
+}
+
+// 2. Create client component (components/stats/StatsPreviewClient.tsx)
+'use client';
+export function StatsPreviewClient({ stats }: { stats: Stat[] }) {
+  // Interactive UI
+}
+
+// 3. Create server component (components/stats/StatsPreview.tsx)
+export async function StatsPreview({ userId }: { userId: string }) {
+  const stats = await fetchStatsServer(userId);
+  return <StatsPreviewClient stats={stats} />;
+}
+
+// 4. Use in page
+<StatsPreview userId={user.id} />
+```
