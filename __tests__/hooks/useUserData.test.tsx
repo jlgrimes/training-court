@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { RecoilRoot } from 'recoil';
