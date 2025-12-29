@@ -10,9 +10,11 @@ import {
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
+import { AuthHydration } from './recoil/providers/AuthHydration';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
 import { cookies } from 'next/headers';
+import { fetchCurrentUser } from '@/components/auth.utils';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -27,18 +29,22 @@ export const metadata = {
   description: 'Your favorite PTCG testing companion.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const theme = cookies().get("theme")?.value ?? "light";
+  const [theme, user] = await Promise.all([
+    Promise.resolve(cookies().get("theme")?.value ?? "light"),
+    fetchCurrentUser(),
+  ]);
   const isDark = theme === "dark";
 
   return (
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
+          <AuthHydration user={user} />
           <RealtimeProvider>
             <DarkModeHydrationGuard>
               <DarkModeProvider />
