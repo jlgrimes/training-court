@@ -20,13 +20,18 @@ import { Button } from "@/components/ui/button";
 interface BattleLogsContainerProps {
   userId?: string;
   allowPagination?: boolean;
+  initialLogs?: BattleLogRecord[];
+  initialUserData?: { live_screen_name: string | null } | null;
 }
 
 export function BattleLogsContainer({
   userId,
   allowPagination = false,
+  initialLogs,
+  initialUserData,
 }: BattleLogsContainerProps) {
-  const { data: userData } = useUserData(userId);
+  const { data: fetchedUserData } = useUserData(userId);
+  const userData = fetchedUserData ?? initialUserData;
 
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<BattleLogSortBy>("Day");
@@ -60,11 +65,23 @@ export function BattleLogsContainer({
 
   const viewKey = `${userId ?? "anon"}|${sortBy}`;
   const prevViewKeyRef = useRef<string | undefined>();
+  const initializedRef = useRef(false);
+
+  // Initialize with server data on first render
+  useEffect(() => {
+    if (!initializedRef.current && initialLogs && initialLogs.length > 0) {
+      setBattleLogs(initialLogs);
+      initializedRef.current = true;
+    }
+  }, [initialLogs, setBattleLogs]);
 
   useEffect(() => {
     if (prevViewKeyRef.current !== viewKey) {
       prevViewKeyRef.current = viewKey;
-      setBattleLogs([]);
+      // Only clear if we've already initialized (user changed tabs)
+      if (initializedRef.current) {
+        setBattleLogs([]);
+      }
       setPage(0);
       setHasReachedEnd(false);
     }
@@ -114,9 +131,13 @@ export function BattleLogsContainer({
     });
   }, [incoming, incomingIds, effectivePage, allowPagination, setBattleLogs]);
 
+  // Use initialLogs directly on first render (before useEffect runs)
+  // This prevents the loading spinner from showing
+  const effectiveRows = rawRows.length > 0 ? rawRows : (isSortByDay && effectivePage === 0 && initialLogs ? initialLogs : []);
+
   const battleLogs: BattleLog[] = useMemo(
     () =>
-      rawRows.map((l) =>
+      effectiveRows.map((l) =>
         parseBattleLog(
           l.log,
           l.id,
@@ -126,7 +147,7 @@ export function BattleLogsContainer({
           userData?.live_screen_name ?? ""
         )
       ),
-    [rawRows, userData?.live_screen_name]
+    [effectiveRows, userData?.live_screen_name]
   );
 
   useEffect(() => {
@@ -206,7 +227,7 @@ export function BattleLogsContainer({
                 >
                   {hasReachedEnd
                     ? "No more logs"
-                    : isLoading
+                    : isLoading && battleLogs.length === 0
                     ? <Loader2 className='mr-2 h-6 w-6 animate-spin'/>
                     : "Load older logs"}
                 </Button>
