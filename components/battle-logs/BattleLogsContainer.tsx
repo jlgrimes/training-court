@@ -16,12 +16,13 @@ import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
 import { parseBattleLog } from "./utils/battle-log.utils";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
+import { Database } from "@/database.types";
 
 interface BattleLogsContainerProps {
   userId?: string;
   allowPagination?: boolean;
   initialLogs?: BattleLogRecord[];
-  initialUserData?: { live_screen_name: string | null } | null;
+  initialUserData?: Database['public']['Tables']['user data']['Row'] | null;
 }
 
 export function BattleLogsContainer({
