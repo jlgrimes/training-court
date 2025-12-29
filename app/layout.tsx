@@ -11,10 +11,12 @@ import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
 import { AuthHydration } from './recoil/providers/AuthHydration';
+import { UserDataHydration } from './recoil/providers/UserDataHydration';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
 import { cookies } from 'next/headers';
 import { fetchCurrentUser } from '@/components/auth.utils';
+import { fetchUserData } from '@/components/user-data.utils';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -40,11 +42,15 @@ export default async function RootLayout({
   ]);
   const isDark = theme === "dark";
 
+  // Fetch user data only if user is logged in
+  const userData = user ? await fetchUserData(user.id) : null;
+
   return (
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
           <AuthHydration user={user} />
+          <UserDataHydration userData={userData} />
           <RealtimeProvider>
             <DarkModeHydrationGuard>
               <DarkModeProvider />

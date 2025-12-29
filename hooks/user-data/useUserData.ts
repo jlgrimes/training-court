@@ -1,14 +1,18 @@
 'use client'
 
-import useSWR from 'swr'
-import { fetchUserData } from './useUserData.utils';
+import { useRecoilValue } from 'recoil';
+import { userDataAtom, userDataLoadingAtom } from '@/app/recoil/atoms/user';
 
 export function useUserData(userId: string | undefined) {
-  const { data, isLoading, error } = useSWR(['user-data', userId], () => fetchUserData(userId));
+  const userData = useRecoilValue(userDataAtom);
+  const isLoading = useRecoilValue(userDataLoadingAtom);
+
+  // Only return data if it matches the requested userId
+  const data = userData?.id === userId ? userData : undefined;
 
   return {
     data,
     isLoading,
-    error
+    error: null
   }
 }

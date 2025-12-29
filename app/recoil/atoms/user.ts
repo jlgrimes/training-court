@@ -2,6 +2,9 @@
 
 import { atom } from 'recoil';
 import { User } from '@supabase/supabase-js';
+import { Database } from '@/database.types';
+
+export type UserData = Database['public']['Tables']['user data']['Row'];
 
 export interface UserProfile {
   id: string;
@@ -38,5 +41,15 @@ export const isAuthenticatedAtom = atom<boolean>({
 
 export const authLoadingAtom = atom<boolean>({
   key: 'authLoadingState',
+  default: true,
+});
+
+export const userDataAtom = atom<UserData | null>({
+  key: 'userDataState',
+  default: null,
+});
+
+export const userDataLoadingAtom = atom<boolean>({
+  key: 'userDataLoadingState',
   default: true,
 });
