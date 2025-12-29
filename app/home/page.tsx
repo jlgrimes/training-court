@@ -4,7 +4,7 @@ import { fetchCurrentUser } from '@/components/auth.utils';
 import { BattleLogsHomePreview } from '@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview';
 import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome/TournamentsHomePreview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
-import { fetchPreferredGames, fetchUserData } from '@/components/user-data.utils';
+import { fetchPreferredGames } from '@/components/user-data.utils';
 import { GamePreferences } from '@/components/preferences/GamePreferences';
 import { isGameEnabled } from '@/lib/game-preferences';
 import { PocketHomePreview } from '@/components/pocket/PocketHomePreview';
@@ -18,17 +18,14 @@ export default async function Home() {
     return redirect('/');
   }
 
-  const [preferredGames, userData] = await Promise.all([
-    fetchPreferredGames(user.id),
-    fetchUserData(user.id),
-  ]);
+  const preferredGames = await fetchPreferredGames(user.id);
   const hasPreferredGames = preferredGames.length > 0;
   const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');
   const showPokemonPocket = isGameEnabled(preferredGames, 'pokemon-pocket');
 
   return (
     <>
-      <TrainingCourtWelcome userId={user.id} userData={userData} />
+      <TrainingCourtWelcome userId={user.id} />
 
       {!hasPreferredGames && (
         <div>
