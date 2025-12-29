@@ -23,8 +23,8 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
-import { useSetRecoilState } from 'recoil';
-import { battleLogsAtom, BattleLogRecord } from '@/app/recoil/atoms/battle-logs';
+import { useBattleLogsSWR } from '@/hooks/battle-logs/useBattleLogsSWR';
+import type { BattleLog } from '@/lib/server/home-data';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -44,7 +44,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
-  const setBattleLogs = useSetRecoilState(battleLogsAtom);
+  const { logs, mutate } = useBattleLogsSWR(props.userData?.id);
 
   useEffect(() => {
     if (parsedLogDetails) {
@@ -94,9 +94,9 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
 
-    const optimisticId = `optimistic-${Date.now()}`;
-    const optimistic: BattleLogRecord = {
-      id: optimisticId,
+    // Optimistic update with SWR
+    const optimisticLog: BattleLog = {
+      id: `optimistic-${Date.now()}`,
       created_at: new Date().toISOString(),
       user: props.userData?.id ?? '',
       log,
@@ -108,7 +108,8 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       format,
     };
 
-    setBattleLogs(prev => [optimistic, ...prev]);
+    // Optimistically add to cache
+    mutate([optimisticLog, ...logs], false);
 
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
@@ -121,19 +122,18 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
-      // Roll back optimistic if insert failed
-      setBattleLogs(prev => prev.filter(l => l.id !== optimisticId));
+      // Roll back optimistic update on error
+      mutate(logs, false);
       return toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error?.message ?? 'Insert failed',
       });
     }
+
+    // Replace optimistic with real data
     const saved = data[0];
-    setBattleLogs(prev => {
-      const withoutOptimistic = prev.filter(l => l.id !== optimisticId);
-      return [saved, ...withoutOptimistic];
-    });
+    mutate([saved, ...logs.filter(l => l.id !== optimisticLog.id)], false);
 
     track('Import battle log');
     toast({ title: "Battle log successfully imported!" });

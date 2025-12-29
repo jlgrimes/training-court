@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect } from "react";
 import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
 import { parseBattleLog } from "../utils/battle-log.utils";
-import { useSetRecoilState } from "recoil";
-import { battleLogsAtom } from "@/app/recoil/atoms/battle-logs";
+import { useBattleLogsSWR } from "@/hooks/battle-logs/useBattleLogsSWR";
 import type { UserData, BattleLog } from "@/lib/server/home-data";
 
 interface BattleLogsHomePreviewClientProps {
@@ -15,30 +13,18 @@ interface BattleLogsHomePreviewClientProps {
 }
 
 export function BattleLogsHomePreviewClient(props: BattleLogsHomePreviewClientProps) {
-  const { userData, initialLogs } = props;
-  const setBattleLogs = useSetRecoilState(battleLogsAtom);
+  const { userId, userData, initialLogs } = props;
 
-  // Hydrate Recoil with server-fetched data on mount
-  useEffect(() => {
-    if (initialLogs && initialLogs.length > 0) {
-      setBattleLogs(prev => {
-        if (prev.length === 0) return initialLogs;
-        // simple de-dupe by id to avoid double insert after a refetch
-        const seen = new Set(prev.map(l => l.id));
-        const merged = [...prev];
-        for (const l of initialLogs) if (!seen.has(l.id)) merged.push(l);
-        return merged;
-      });
-    }
-  }, [initialLogs, setBattleLogs]);
+  // SWR handles hydration automatically via fallbackData - no useEffect needed!
+  const { logs } = useBattleLogsSWR(userId, { fallbackData: initialLogs });
 
   return (
     <div className="flex flex-col gap-4">
       <div>
-        {userData?.live_screen_name && initialLogs && (
+        {userData?.live_screen_name && logs.length > 0 && (
           <BattleLogsByDayPreview
             userData={userData}
-            battleLogs={initialLogs.map(log => (
+            battleLogs={logs.map(log => (
               parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData.live_screen_name)
             ))}
           />
