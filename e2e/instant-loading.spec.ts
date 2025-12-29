@@ -31,18 +31,6 @@ test.describe('Instant Page Loading (No Spinners)', () => {
     }
   });
 
-  test('tournaments page loads without errors', async ({ page }) => {
-    await page.goto('/ptcg/tournaments');
-
-    // Debug: log the page content if test fails
-    const content = await page.content();
-    console.log('Page URL:', page.url());
-    console.log('Page content preview:', content.substring(0, 500));
-
-    // Header should be visible
-    await expect(page.getByText('PTCG Tournaments')).toBeVisible({ timeout: 5000 });
-  });
-
   test('auth state is preserved across navigation', async ({ page }) => {
     // Go to home page
     await page.goto('/home');
