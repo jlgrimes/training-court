@@ -34,7 +34,7 @@ interface AddBattleLogInputProps {
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [format, setFormat] = useState(Cookies.get("format") || '');
+  const [format, setFormat] = useState<LogFormats | undefined>(Cookies.get("format") as LogFormats | undefined);
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
@@ -121,14 +121,10 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     setLog('');
     setParsedLogDetails(null);
     setShowDialog(false);
-    Cookies.set("format", format, { expires: 30 });
+    if (format) Cookies.set("format", format, { expires: 30 });
   };
 
 
-  useEffect(() => {
-    const cookieFormat = Cookies.get("format");
-    setFormat(cookieFormat || format);
-  }, []);
 
   return (
     <div className="relative">
