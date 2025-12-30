@@ -22,6 +22,6 @@ export default async function PocketTournaments() {
   }
 
   return (
-    <PocketTournamentsHomePage user={user} />
+    <PocketTournamentsHomePage userId={user.id} />
   );
 }

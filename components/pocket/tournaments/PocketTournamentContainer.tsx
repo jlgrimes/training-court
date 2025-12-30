@@ -14,9 +14,12 @@ const mapRound = (r: any): Database['public']['Tables']['tournament rounds']['Ro
 });
 
 export default async function PocketTournamentContainer({ tournamentId }: { tournamentId: string }) {
-  const tournamentData = await fetchPocketTournament(tournamentId);
-  const user = await fetchCurrentUser();
-  const rounds = await fetchPocketRounds(tournamentId);
+  // Fetch all data in parallel
+  const [tournamentData, user, rounds] = await Promise.all([
+    fetchPocketTournament(tournamentId),
+    fetchCurrentUser(),
+    fetchPocketRounds(tournamentId),
+  ]);
 
   if (!tournamentData) {
     return redirect("/pocket/tournaments");

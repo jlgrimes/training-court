@@ -1,10 +1,19 @@
+import { fetchUserData } from "./user-data.utils";
 import { fetchAvatarImages } from "./avatar/avatar.server.utils";
 import { TrainingCourtWelcomeClient } from "./TrainingCourtWelcomeClient";
 
-export const TrainingCourtWelcome = ({ userId }: { userId: string | undefined }) => {
+interface TrainingCourtWelcomeProps {
+  userId: string | undefined;
+}
+
+export const TrainingCourtWelcome = async ({ userId }: TrainingCourtWelcomeProps) => {
+  if (!userId) return null;
+
+  const userData = await fetchUserData(userId);
+
+  // If user has screen name, don't render welcome
+  if (userData?.live_screen_name) return null;
+
   const avatarImages = fetchAvatarImages();
-
-  if (!userId ) return null;
-
   return <TrainingCourtWelcomeClient userId={userId} avatarImages={avatarImages} />
 }

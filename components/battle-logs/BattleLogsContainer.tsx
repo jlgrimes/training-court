@@ -11,25 +11,28 @@ import { useUserData } from "@/hooks/user-data/useUserData";
 import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
-import { userLogsAtom } from "@/app/recoil/atoms/battleLogs";
-import type { Database } from "@/database.types";
+import { battleLogsAtom, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
 import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
 import { parseBattleLog } from "./utils/battle-log.utils";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
-
-type LogRow = Database["public"]["Tables"]["logs"]["Row"];
+import { Database } from "@/database.types";
 
 interface BattleLogsContainerProps {
   userId?: string;
   allowPagination?: boolean;
+  initialLogs?: BattleLogRecord[];
+  initialUserData?: Database['public']['Tables']['user data']['Row'] | null;
 }
 
 export function BattleLogsContainer({
   userId,
   allowPagination = false,
+  initialLogs,
+  initialUserData,
 }: BattleLogsContainerProps) {
-  const { data: userData } = useUserData(userId);
+  const { data: fetchedUserData } = useUserData(userId);
+  const userData = fetchedUserData ?? initialUserData;
 
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<BattleLogSortBy>("Day");
@@ -55,23 +58,35 @@ export function BattleLogsContainer({
     usePaginatedLiveLogs(userId, effectivePage, pageSize);
 
   const isLoading = isSortByDay ? loadingDay : isSortByDeck ? loadingDeck : loadingAll;
-  const incoming: LogRow[] =
+  const incoming: BattleLogRecord[] =
     isSortByDay ? (logsDay ?? []) : isSortByDeck ? (logsDeck ?? []) : (logsAll ?? []);
 
-  const setUserLogs = useSetRecoilState(userLogsAtom);
-  const rawRows = useRecoilValue(userLogsAtom);
+  const setBattleLogs = useSetRecoilState(battleLogsAtom);
+  const rawRows = useRecoilValue(battleLogsAtom);
 
   const viewKey = `${userId ?? "anon"}|${sortBy}`;
   const prevViewKeyRef = useRef<string | undefined>();
+  const initializedRef = useRef(false);
+
+  // Initialize with server data on first render
+  useEffect(() => {
+    if (!initializedRef.current && initialLogs && initialLogs.length > 0) {
+      setBattleLogs(initialLogs);
+      initializedRef.current = true;
+    }
+  }, [initialLogs, setBattleLogs]);
 
   useEffect(() => {
     if (prevViewKeyRef.current !== viewKey) {
       prevViewKeyRef.current = viewKey;
-      setUserLogs([]);
+      // Only clear if we've already initialized (user changed tabs)
+      if (initializedRef.current) {
+        setBattleLogs([]);
+      }
       setPage(0);
       setHasReachedEnd(false);
     }
-  }, [viewKey, setUserLogs]);
+  }, [viewKey, setBattleLogs]);
 
   const incomingIds = useMemo(
     () => incoming.map(r => r.id).join("|"),
@@ -92,7 +107,7 @@ export function BattleLogsContainer({
     if (incomingIds === lastHydratedIdsRef.current) return;
     lastHydratedIdsRef.current = incomingIds;
 
-    setUserLogs(prev => {
+    setBattleLogs(prev => {
       if (effectivePage === 0) {
         const prevIds = prev.map(r => r.id).join("|");
         return prevIds === incomingIds ? prev : incoming;
@@ -115,11 +130,15 @@ export function BattleLogsContainer({
 
       return changed ? merged : prev;
     });
-  }, [incoming, incomingIds, effectivePage, allowPagination, setUserLogs]);
+  }, [incoming, incomingIds, effectivePage, allowPagination, setBattleLogs]);
+
+  // Use initialLogs directly on first render (before useEffect runs)
+  // This prevents the loading spinner from showing
+  const effectiveRows = rawRows.length > 0 ? rawRows : (isSortByDay && effectivePage === 0 && initialLogs ? initialLogs : []);
 
   const battleLogs: BattleLog[] = useMemo(
     () =>
-      rawRows.map((l: LogRow) =>
+      effectiveRows.map((l) =>
         parseBattleLog(
           l.log,
           l.id,
@@ -129,7 +148,7 @@ export function BattleLogsContainer({
           userData?.live_screen_name ?? ""
         )
       ),
-    [rawRows, userData?.live_screen_name]
+    [effectiveRows, userData?.live_screen_name]
   );
 
   useEffect(() => {
@@ -209,7 +228,7 @@ export function BattleLogsContainer({
                 >
                   {hasReachedEnd
                     ? "No more logs"
-                    : isLoading
+                    : isLoading && battleLogs.length === 0
                     ? <Loader2 className='mr-2 h-6 w-6 animate-spin'/>
                     : "Load older logs"}
                 </Button>

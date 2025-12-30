@@ -25,7 +25,7 @@ export const SpriteFromUrl = (props: SpriteProps) => {
   const sizeClass = props.small ? 'h-[27px] w-[27px]' : 'h-[40px] w-[40px]';
   return (
     <div className="relative inline-flex">
-      <img src={props.url} height={30} width={'auto'} alt={props.url} className={cn(
+      <img src={props.url} alt={props.url} className={cn(
         'pixel-image',
         props.faded && 'opacity-40',
         sizeClass,

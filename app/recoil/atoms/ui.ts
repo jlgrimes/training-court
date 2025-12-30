@@ -18,10 +18,8 @@ export interface Modal {
   content?: React.ReactNode;
 }
 
-export const darkModeAtom = atom<boolean>({
-  key: 'darkModeState',
-  default: false,
-});
+// Dark mode is managed in ../darkMode/darkModeState.ts with localStorage persistence
+// Do not add a dark mode atom here to avoid key conflicts
 
 export const sidebarOpenAtom = atom<boolean>({
   key: 'sidebarOpenState',

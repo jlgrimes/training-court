@@ -1,6 +1,5 @@
 'use client';
 
-import { User } from "@supabase/supabase-js";
 import PocketTournamentPreview from "./PocketTournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,16 +11,27 @@ import { TournamentFormatsTab } from "@/components/tournaments/Format/tournament
 import MultiSelect from "@/components/ui/multi-select";
 import { usePocketTournaments } from "@/hooks/pocket/tournaments/usePocketTournaments";
 import { usePocketTournamentRounds } from "@/hooks/pocket/tournaments/usePocketTournamentRounds";
+import type { PocketTournament, PocketTournamentRound } from "@/lib/server/home-data";
 
 interface MyPocketTournamentPreviewsProps {
-  user: User | null;
+  userId?: string;
   showFilters?: boolean;
   limit?: number;
+  /** Optional pre-fetched tournaments - if provided, skips SWR fetch */
+  initialTournaments?: PocketTournament[];
+  /** Optional pre-fetched rounds - if provided, skips SWR fetch */
+  initialRounds?: PocketTournamentRound[];
 }
 
-export function MyPocketTournamentPreviews (props: MyPocketTournamentPreviewsProps) {
-  const { data: tournaments } = usePocketTournaments(props.user?.id);
-  const { data: rounds } = usePocketTournamentRounds(props.user?.id);
+export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProps) {
+  const { initialTournaments, initialRounds } = props;
+
+  // Only fetch via SWR if no initial data provided
+  const { data: swrTournaments } = usePocketTournaments(initialTournaments ? undefined : props.userId);
+  const { data: swrRounds } = usePocketTournamentRounds(initialRounds ? undefined : props.userId);
+
+  const tournaments = initialTournaments ?? swrTournaments;
+  const rounds = initialRounds ?? swrRounds;
 
   const [isInteractionBlocked, ] = useState(false);
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);

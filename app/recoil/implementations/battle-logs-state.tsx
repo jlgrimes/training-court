@@ -24,7 +24,7 @@ export function BattleLogsStateProvider({
         .from('logs')
         .select('*')
         .eq('user', userId)
-        .order('timestamp', { ascending: false });
+        .order('created_at', { ascending: false });
       
       if (data && !error) {
         loadBattleLogs(data as BattleLog[]);
@@ -117,8 +117,8 @@ export function BattleLogsExample() {
         </select>
         
         <select
-          value={filter.winLoss || 'all'}
-          onChange={(e) => setFilterField('winLoss', e.target.value as any)}
+          value={filter.result || 'all'}
+          onChange={(e) => setFilterField('result', e.target.value as any)}
           className="px-3 py-2 border rounded-md"
         >
           <option value="all">All Results</option>
@@ -142,11 +142,11 @@ export function BattleLogsExample() {
           onChange={(e) => setSortField('field', e.target.value as any)}
           className="px-3 py-2 border rounded-md"
         >
-          <option value="timestamp">Date</option>
+          <option value="created_at">Date</option>
           <option value="format">Format</option>
-          <option value="userDeck">Your Deck</option>
-          <option value="oppDeck">Opponent Deck</option>
-          <option value="winLoss">Result</option>
+          <option value="archetype">Your Deck</option>
+          <option value="opp_archetype">Opponent Deck</option>
+          <option value="result">Result</option>
         </select>
         
         <button
@@ -168,18 +168,18 @@ export function BattleLogsExample() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium">
-                      {log.userDeck} vs {log.oppDeck}
+                      {log.archetype} vs {log.opp_archetype}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {log.format} • {new Date(log.timestamp || '').toLocaleDateString()}
+                      {log.format} • {new Date(log.created_at || '').toLocaleDateString()}
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-sm rounded ${
-                    log.winLoss === 'W' ? 'bg-green-100 text-green-800' :
-                    log.winLoss === 'L' ? 'bg-red-100 text-red-800' :
+                    log.result === 'W' ? 'bg-green-100 text-green-800' :
+                    log.result === 'L' ? 'bg-red-100 text-red-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
-                    {log.winLoss}
+                    {log.result}
                   </span>
                 </div>
               </div>

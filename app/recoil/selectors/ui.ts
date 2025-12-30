@@ -1,7 +1,7 @@
 'use client';
 
 import { selector } from 'recoil';
-import { toastsAtom, modalsAtom, darkModeAtom } from '../atoms/ui';
+import { toastsAtom, modalsAtom } from '../atoms/ui';
 import { userPreferencesAtom } from '../atoms/preferences';
 
 export const activeToastsSelector = selector({
@@ -24,9 +24,6 @@ export const themeSelector = selector({
   key: 'themeSelector',
   get: ({ get }) => {
     const preferences = get(userPreferencesAtom);
-
-    console.log(preferences.theme)
-    
     return preferences.theme;
   },
 });

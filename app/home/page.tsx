@@ -11,7 +11,7 @@ import { PocketHomePreview } from '@/components/pocket/PocketHomePreview';
 import { PocketTournamentsHomePreview } from '@/components/pocket/tournaments/PocketTournamentsHomePreview';
 import { Separator } from '@/components/ui/separator';
 
-export default async function Profile() {
+export default async function Home() {
   const user = await fetchCurrentUser();
 
   if (!user) {
@@ -21,7 +21,7 @@ export default async function Profile() {
   const preferredGames = await fetchPreferredGames(user.id);
   const hasPreferredGames = preferredGames.length > 0;
   const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');
-  const showPokemonPocket = isGameEnabled(preferredGames, 'pokemon-pocket')
+  const showPokemonPocket = isGameEnabled(preferredGames, 'pokemon-pocket');
 
   return (
     <>
@@ -39,16 +39,16 @@ export default async function Profile() {
       {hasPreferredGames && showPokemonTcg && (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
           <BattleLogsHomePreview userId={user.id} />
-          <TournamentsHomePreview user={user} />
+          <TournamentsHomePreview />
         </div>
       )}
       {hasPreferredGames && showPokemonPocket && (
         <>
-        <Separator></Separator>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
-          <PocketHomePreview userId={user.id} />
-          <PocketTournamentsHomePreview user={user} />
-        </div>
+          <Separator />
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
+            <PocketHomePreview userId={user.id} />
+            <PocketTournamentsHomePreview />
+          </div>
         </>
       )}
     </>

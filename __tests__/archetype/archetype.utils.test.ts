@@ -1,4 +1,4 @@
-import { determineArchetype } from "./archetype.utils";
+import { determineArchetype } from "@/components/archetype/utils/archetype.utils";
 
 describe('archetype utils', () => {
   it('should determine archetype from playing a Pokemon', () => {

@@ -37,24 +37,13 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         },
         (payload) => {
           if (payload.eventType === 'INSERT' && payload.new) {
-            const log = payload.new as any;
-            const battleLog: BattleLog = {
-              id: log.id,
-              user: log.user,
-              log: log.log,
-              userDeck: log.archetype || undefined,
-              oppDeck: log.opp_archetype || undefined,
-              format: log.format || undefined,
-              timestamp: log.timestamp || undefined,
-              winLoss: log.win_loss as 'W' | 'L' | 'T' | undefined,
-              createdAt: log.created_at || undefined,
-            };
-            addBattleLog(battleLog);
+            // Data matches database schema directly
+            addBattleLog(payload.new as BattleLog);
           } else if (payload.eventType === 'UPDATE' && payload.new) {
-            const log = payload.new as any;
+            const log = payload.new as BattleLog;
             updateBattleLog(log.id, log);
           } else if (payload.eventType === 'DELETE' && payload.old) {
-            deleteBattleLog((payload.old as any).id);
+            deleteBattleLog((payload.old as BattleLog).id);
           }
         }
       )

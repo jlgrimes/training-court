@@ -14,14 +14,17 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function TournamentPage({ params }: { params: { id: string } }) {
-  const tournamentData = await fetchTournament(params.id);
-  const user = await fetchCurrentUser();
-  const rounds = await fetchRounds(params.id);
-  
+  // Fetch all data in parallel (cache() dedupes the fetchTournament call from generateMetadata)
+  const [tournamentData, user, rounds] = await Promise.all([
+    fetchTournament(params.id),
+    fetchCurrentUser(),
+    fetchRounds(params.id),
+  ]);
+
   if (!tournamentData) {
     return redirect("/");
   }
-  
+
   return (
     <TournamentContainerClient
       tournament={tournamentData}
