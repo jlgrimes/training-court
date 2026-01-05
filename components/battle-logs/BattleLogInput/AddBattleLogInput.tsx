@@ -24,6 +24,7 @@ import { LogFormats, logFormats } from '@/components/tournaments/Format/tourname
 import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
 import type { BattleLog } from '@/lib/server/home-data';
+import { revalidateBattleLogs } from '@/lib/server/actions';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -114,6 +115,9 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const saved = data[0];
     props.onLogAdded?.(saved);
+
+    // Revalidate server-side cache so new log appears without page refresh
+    await revalidateBattleLogs();
 
     track('Import battle log');
     toast({ title: "Battle log successfully imported!" });
