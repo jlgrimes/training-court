@@ -1,15 +1,15 @@
 'use client';
 
-import { useUserData } from "@/hooks/user-data/useUserData"
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { AvatarSelector } from "./avatar/AvatarSelector";
 import { ScreenNameEditable } from "./screen-name/ScreenNameEditable";
 
-export const TrainingCourtWelcomeClient = ({ userId, avatarImages }: { userId: string | undefined, avatarImages: string[] }) => {
-  const { data: userData, isLoading } = useUserData(userId);
+interface TrainingCourtWelcomeClientProps {
+  userId: string;
+  avatarImages: string[];
+}
 
-  if (!userId || isLoading || userData?.live_screen_name) return null;
-
+export const TrainingCourtWelcomeClient = ({ userId, avatarImages }: TrainingCourtWelcomeClientProps) => {
   return (
     <Card className="px-1 py-2">
       <CardHeader>

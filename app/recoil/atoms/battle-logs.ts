@@ -1,55 +1,30 @@
 'use client';
 
 import { atom } from 'recoil';
+import type { Database } from '@/database.types';
 
 /**
- * Database/storage representation of a battle log record
- * Contains raw log data and metadata
+ * Battle log record type - matches the database schema
  */
-export interface BattleLogRecord {
-  id: string;
-  user: string;
-  log: string;
-  logNotes?: string;
-  logDeckCode?: string;
-  format?: string;
-  formatSearchDisplay?: string;
-  userDeck?: string;
-  userDecklist?: string;
-  oppDeck?: string;
-  oppDecklist?: string;
-  winLoss?: 'W' | 'L' | 'T';
-  round?: number;
-  tableNumber?: number;
-  conceded?: boolean;
-  oppConceded?: boolean;
-  coinFlipWon?: boolean;
-  wentFirst?: boolean;
-  points?: string;
-  oppPoints?: string;
-  createdAt?: string;
-  importHash?: string;
-  timestamp?: string;
-  battleLogGames?: any[];
-}
+export type BattleLogRecord = Database['public']['Tables']['logs']['Row'];
 
-// Export alias for backwards compatibility during migration
+// Export alias for backwards compatibility
 export type BattleLog = BattleLogRecord;
 
 export interface BattleLogsFilter {
   format?: string;
-  userDeck?: string;
-  oppDeck?: string;
+  archetype?: string;      // user's deck
+  opp_archetype?: string;  // opponent's deck
   dateRange?: {
     start: Date | null;
     end: Date | null;
   };
-  winLoss?: 'W' | 'L' | 'T' | 'all';
+  result?: 'W' | 'L' | 'T' | 'all';
   searchQuery?: string;
 }
 
 export interface BattleLogsSortOptions {
-  field: 'timestamp' | 'format' | 'userDeck' | 'oppDeck' | 'winLoss';
+  field: 'created_at' | 'format' | 'archetype' | 'opp_archetype' | 'result';
   direction: 'asc' | 'desc';
 }
 
@@ -66,7 +41,7 @@ export const battleLogsFilterAtom = atom<BattleLogsFilter>({
 export const battleLogsSortAtom = atom<BattleLogsSortOptions>({
   key: 'battleLogsSortState',
   default: {
-    field: 'timestamp',
+    field: 'created_at',
     direction: 'desc',
   },
 });

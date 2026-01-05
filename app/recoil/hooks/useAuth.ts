@@ -23,12 +23,19 @@ export function useAuth() {
   const [session, setSession] = useRecoilState(sessionAtom);
   const [isAuthenticated, setIsAuthenticated] = useRecoilState(isAuthenticatedAtom);
   const [authLoading, setAuthLoading] = useRecoilState(authLoadingAtom);
-  
+
   const isPremium = useRecoilValue(isPremiumUserSelector);
   const isAdmin = useRecoilValue(isAdminUserSelector);
   const displayName = useRecoilValue(userDisplayNameSelector);
-  
+
   const router = useRouter();
+
+  // Hydrate auth state from server-provided user (call this from a component that has server data)
+  const hydrateUser = useCallback((serverUser: User | null) => {
+    setUser(serverUser);
+    setIsAuthenticated(!!serverUser);
+    setAuthLoading(false);
+  }, [setUser, setIsAuthenticated, setAuthLoading]);
 
   const login = useCallback((user: User, sessionToken: string) => {
     setUser(user);
@@ -49,98 +56,38 @@ export function useAuth() {
     setUserProfile(prev => prev ? { ...prev, ...updates } : null);
   }, [setUserProfile]);
 
-  const checkAuth = useCallback(async () => {
-    setAuthLoading(true);
-    try {
-      const { createClient } = await import('@/utils/supabase/client');
-      const supabase = createClient();
-      
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      if (error || !user) {
-        setUser(null);
-        setSession(null);
-        setIsAuthenticated(false);
-      } else {
-        setUser(user);
-        setIsAuthenticated(true);
-        
-        // Also listen for auth state changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          if (event === 'SIGNED_IN' && session) {
-            setUser(session.user);
-            setSession(session.access_token);
-            setIsAuthenticated(true);
-          } else if (event === 'SIGNED_OUT') {
-            setUser(null);
-            setSession(null);
-            setIsAuthenticated(false);
-          }
-        });
-        
-        // Clean up subscription on unmount
-        return () => subscription.unsubscribe();
-      }
-    } catch (error) {
-      console.error('Auth check error:', error);
-      setIsAuthenticated(false);
-    } finally {
-      setAuthLoading(false);
-    }
-  }, [setAuthLoading, setIsAuthenticated, setUser, setSession]);
-
+  // Listen for auth state changes (sign in/out events) - but don't fetch on mount
   useEffect(() => {
     let subscription: any;
-    
-    const initAuth = async () => {
-      setAuthLoading(true);
-      try {
-        const { createClient } = await import('@/utils/supabase/client');
-        const supabase = createClient();
-        
-        // Check current user
-        const { data: { user }, error } = await supabase.auth.getUser();
-        
-        if (error || !user) {
+
+    const setupAuthListener = async () => {
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
+
+      // Only listen for auth state changes, don't fetch current user
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          setUser(session.user);
+          setSession(session.access_token);
+          setIsAuthenticated(true);
+        } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setSession(null);
           setIsAuthenticated(false);
-        } else {
-          setUser(user);
-          setIsAuthenticated(true);
         }
-        
-        // Listen for auth state changes
-        const { data } = supabase.auth.onAuthStateChange((event, session) => {
-          if (event === 'SIGNED_IN' && session) {
-            setUser(session.user);
-            setSession(session.access_token);
-            setIsAuthenticated(true);
-          } else if (event === 'SIGNED_OUT') {
-            setUser(null);
-            setSession(null);
-            setIsAuthenticated(false);
-          }
-        });
-        
-        subscription = data.subscription;
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setAuthLoading(false);
-      }
+      });
+
+      subscription = data.subscription;
     };
-    
-    initAuth();
-    
-    // Cleanup subscription on unmount
+
+    setupAuthListener();
+
     return () => {
       if (subscription) {
         subscription.unsubscribe();
       }
     };
-  }, [setAuthLoading, setIsAuthenticated, setUser, setSession]);
+  }, [setIsAuthenticated, setUser, setSession]);
 
   return {
     user,
@@ -151,9 +98,9 @@ export function useAuth() {
     isPremium,
     isAdmin,
     displayName,
+    hydrateUser,
     login,
     logout,
     updateProfile,
-    checkAuth,
   };
 }

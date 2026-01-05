@@ -1,7 +1,9 @@
+import { cache } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { PocketTournament, PocketTournamentRound } from "../pocket-tournaments.types";
 
-export const fetchPocketTournament = async (tournamentId: string) => {
+// cache() deduplicates calls within the same request
+export const fetchPocketTournament = cache(async (tournamentId: string) => {
   const supabase = createClient();
   const { data } = await supabase
     .from('pocket_tournaments')
@@ -11,9 +13,9 @@ export const fetchPocketTournament = async (tournamentId: string) => {
     .maybeSingle();
 
   return data ?? null;
-};
+});
 
-export const fetchPocketRounds = async (tournamentId: string) => {
+export const fetchPocketRounds = cache(async (tournamentId: string) => {
   const supabase = createClient();
   const { data } = await supabase
     .from('pocket_tournament_rounds')
@@ -23,9 +25,9 @@ export const fetchPocketRounds = async (tournamentId: string) => {
     .returns<PocketTournamentRound[]>();
 
   return data ?? null;
-};
+});
 
-export const fetchPocketRoundsForUser = async (userId: string | undefined) => {
+export const fetchPocketRoundsForUser = cache(async (userId: string | undefined) => {
   if (!userId) return null;
 
   const supabase = createClient();
@@ -37,4 +39,4 @@ export const fetchPocketRoundsForUser = async (userId: string | undefined) => {
     .returns<PocketTournamentRound[]>();
 
   return data ?? null;
-};
+});

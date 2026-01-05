@@ -23,17 +23,18 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { LogFormats, logFormats } from '@/components/tournaments/Format/tournament-format.types';
 import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
-import { useSetRecoilState } from 'recoil';
-import { BattleLog, userLogsAtom } from '@/app/recoil/atoms/battleLogs';
+import type { BattleLog } from '@/lib/server/home-data';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
+  /** Callback when a log is successfully added */
+  onLogAdded?: (log: BattleLog) => void;
 }
 
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [format, setFormat] = useState(Cookies.get("format") || '');
+  const [format, setFormat] = useState<LogFormats | undefined>(Cookies.get("format") as LogFormats | undefined);
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
@@ -44,7 +45,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
-  const setUserLogs = useSetRecoilState(userLogsAtom);
 
   useEffect(() => {
     if (parsedLogDetails) {
@@ -94,22 +94,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
 
-    const optimisticId = `optimistic-${Date.now()}`;
-    const optimistic: BattleLog = {
-      id: optimisticId,
-      created_at: new Date().toISOString(),
-      user: props.userData?.id ?? '',
-      log,
-      archetype: archetype ?? null,
-      opp_archetype: oppArchetype ?? null,
-      turn_order,
-      result,
-      notes: null,
-      format,
-    };
-
-    setUserLogs(prev => [optimistic, ...prev]);
-
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
       archetype,
@@ -121,19 +105,15 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
 
     if (error || !data) {
-      // Roll back optimistic if insert failed
-      setUserLogs(prev => prev.filter(l => l.id !== optimisticId));
       return toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error?.message ?? 'Insert failed',
       });
     }
+
     const saved = data[0];
-    setUserLogs(prev => {
-      const withoutOptimistic = prev.filter(l => l.id !== optimisticId);
-      return [saved, ...withoutOptimistic];
-    });
+    props.onLogAdded?.(saved);
 
     track('Import battle log');
     toast({ title: "Battle log successfully imported!" });
@@ -141,14 +121,10 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     setLog('');
     setParsedLogDetails(null);
     setShowDialog(false);
-    Cookies.set("format", format, { expires: 30 });
+    if (format) Cookies.set("format", format, { expires: 30 });
   };
 
 
-  useEffect(() => {
-    const cookieFormat = Cookies.get("format");
-    setFormat(cookieFormat || format);
-  }, []);
 
   return (
     <div className="relative">

@@ -138,12 +138,9 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
           log,
           archetype: archetype ?? logMetadata.archetype,
           opp_archetype: oppArchetype ?? logMetadata.opp_archetype,
-          format: format || undefined,
-          format_search_display: (format && archetype && oppArchetype) ? `${format}+${archetype}+${oppArchetype}` : undefined,
-          import_hash: `${importHash}`,
-          timestamp,
-          win_loss: logMetadata.result,
-          went_first: logMetadata.turn_order,
+          format: format || 'Standard',
+          turn_order: logMetadata.turn_order,
+          result: logMetadata.result,
         })
         .select()
         .single();
@@ -151,22 +148,8 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
       if (error) throw error;
 
       if (data) {
-        const battleLog: BattleLog = {
-          id: data.id,
-          user: data.user,
-          log: data.log,
-          userDeck: data.archetype || undefined,
-          oppDeck: data.opp_archetype || undefined,
-          format: data.format || undefined,
-          formatSearchDisplay: data.format_search_display || undefined,
-          importHash: data.import_hash || undefined,
-          timestamp: data.timestamp || undefined,
-          winLoss: data.win_loss as 'W' | 'L' | 'T' | undefined,
-          wentFirst: data.went_first || undefined,
-          createdAt: data.created_at || undefined,
-        };
-        
-        addBattleLog(battleLog);
+        // Data matches database schema directly
+        addBattleLog(data as BattleLog);
         track('Battle log added', { 
           username: username || 'unknown', 
           archetype: archetype || 'unknown', 

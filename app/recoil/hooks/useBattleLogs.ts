@@ -1,6 +1,6 @@
 'use client';
 
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCallback } from 'react';
 import {
   battleLogsAtom,

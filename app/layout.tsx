@@ -9,9 +9,14 @@ import {
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
+import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
+import { AuthHydration } from './recoil/providers/AuthHydration';
+import { UserDataHydration } from './recoil/providers/UserDataHydration';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
 import { cookies } from 'next/headers';
+import { fetchCurrentUser } from '@/components/auth.utils';
+import { fetchUserData } from '@/components/user-data.utils';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -26,22 +31,31 @@ export const metadata = {
   description: 'Your favorite PTCG testing companion.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const theme = cookies().get("theme")?.value ?? "light";
+  const [theme, user] = await Promise.all([
+    Promise.resolve(cookies().get("theme")?.value ?? "light"),
+    fetchCurrentUser(),
+  ]);
   const isDark = theme === "dark";
+
+  // Fetch user data only if user is logged in
+  const userData = user ? await fetchUserData(user.id) : null;
 
   return (
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
-          <DarkModeHydrationGuard>
-            <DarkModeProvider />
-            
-            <SidebarProvider>
+          <AuthHydration user={user} />
+          <UserDataHydration userData={userData} />
+          <RealtimeProvider>
+            <DarkModeHydrationGuard>
+              <DarkModeProvider />
+
+              <SidebarProvider>
               <AppSidebar />
               <main className='min-h-screen h-full w-full'>
                 <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
@@ -60,7 +74,8 @@ export default function RootLayout({
               </main>
             </SidebarProvider>
 
-          </DarkModeHydrationGuard>
+            </DarkModeHydrationGuard>
+          </RealtimeProvider>
         </RecoilProvider>
       </body>
     </html>

@@ -1,34 +1,22 @@
-'use client'
-
 import { AddPocketMatch } from '@/components/pocket/AddPocketMatch';
-import { usePocketGames } from '@/hooks/pocket/usePocketGames';
 import { Header } from '@/components/ui/header';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { SeeMoreButton } from '../SeeMoreButton';
 import { PocketMatchesList } from './PocketMatchesList';
+import { fetchPocketGamesServer } from '@/lib/server/home-data';
 
-export function PocketHomePreview({ userId }: { userId: string }) {
-  const { data: games, isLoading } = usePocketGames(userId);
+interface PocketHomePreviewProps {
+  userId: string;
+}
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Header
-          actionButton={<AddPocketMatch userId={userId} />}
-        >
-          Pocket Games
-        </Header>
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      </div>
-    );
-  }
+/**
+ * Self-contained server component widget for Pocket games.
+ * Fetches its own data - can be placed on any page.
+ */
+export async function PocketHomePreview({ userId }: PocketHomePreviewProps) {
+  const games = await fetchPocketGamesServer(userId);
 
-  if (!games || games.length === 0) {
+  if (games.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <Header
@@ -46,8 +34,6 @@ export function PocketHomePreview({ userId }: { userId: string }) {
     );
   }
 
-  const recent = games.slice(0, 5);
-
   return (
     <div className="flex flex-col gap-4">
       <Header
@@ -55,7 +41,7 @@ export function PocketHomePreview({ userId }: { userId: string }) {
       >
         Pocket Games
       </Header>
-      <PocketMatchesList userId={userId} limit={5} />
+      <PocketMatchesList userId={userId} limit={5} initialGames={games} />
       <SeeMoreButton href="/pocket" />
     </div>
   );

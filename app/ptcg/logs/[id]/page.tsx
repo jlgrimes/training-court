@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogCarousel } from "@/components/battle-logs/BattleLogDisplay/BattleLogCarousel";
@@ -10,13 +11,19 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+// Cache the log fetch so generateMetadata and page share the same query
+const fetchLog = cache(async (logId: string) => {
   const supabase = createClient();
-  const { data: logData } = await supabase.from('logs').select().eq('id', params.id).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
+  const { data } = await supabase.from('logs').select().eq('id', logId).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
+  return data;
+});
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const logData = await fetchLog(params.id);
 
   if (!logData) return {
     title: 'Battle'
-  }
+  };
 
   const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, logData.opp_archetype, null);
 
@@ -26,15 +33,18 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function LiveLog({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+  // Fetch all data in parallel
+  const [currentUser, logData] = await Promise.all([
+    fetchCurrentUser(),
+    fetchLog(params.id),
+  ]);
 
-  const currentUser = await fetchCurrentUser();
-  const userData = currentUser ? await fetchUserData(currentUser.id) : null;
-  const { data: logData } = await supabase.from('logs').select().eq('id', params.id).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
-
-  if (!logData ) {
+  if (!logData) {
     return redirect("/");
   }
+
+  // Fetch userData only if we have a user
+  const userData = currentUser ? await fetchUserData(currentUser.id) : null;
 
   const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, logData.opp_archetype, userData?.live_screen_name ?? null);
 
