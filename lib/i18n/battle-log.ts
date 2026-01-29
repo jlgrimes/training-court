@@ -114,28 +114,33 @@ export const getPlayerNameFromSetup = (line: string, language: Language): string
 };
 
 export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
+  const normalizedLine = line
+    .replace(/^Turn #\s*\d+\s*-\s*/i, '')
+    .replace(/^-\s*/, '')
+    .trim();
+
   if (language === 'en') {
-    return /- (.*)'s Turn/g.exec(line)?.[1]
+    return /^(.*)'s Turn$/i.exec(normalizedLine)?.[1];
   }
 
   if (language === 'es') {
-    return / - Turno de (.*)/g.exec(line)?.[1];
+    return /^Turno de (.*)$/i.exec(normalizedLine)?.[1];
   }
 
   if (language === 'de') {
-    return / - Zug von (.*)/g.exec(line)?.[1];
+    return /^Zug von (.*)$/i.exec(normalizedLine)?.[1];
   }
 
   if (language === 'fr') {
-    return / - Tour de (.*)/g.exec(line)?.[1];
+    return /^Tour de (.*)$/i.exec(normalizedLine)?.[1];
   }
 
   if (language === 'it') {
-    return / - Turno di (.*)/g.exec(line)?.[1];
+    return /^Turno di (.*)$/i.exec(normalizedLine)?.[1];
   }
 
   if (language === 'pt-br') {
-    return / - Turno de (.*)/g.exec(line)?.[1];
+    return /^Turno de (.*)$/i.exec(normalizedLine)?.[1];
   }
 
   return null;
