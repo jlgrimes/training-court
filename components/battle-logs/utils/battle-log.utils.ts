@@ -78,6 +78,30 @@ function getPlayerFromActionLine(line: string, playerNames: string[]) {
   return playerNames.find((player) => line?.includes(player)) || ''
 }
 
+function inferPlayerFromTurnBody(turnLines: string[], playerNames: string[]) {
+  const counts = playerNames.reduce((acc: Record<string, number>, player) => {
+    acc[player] = 0;
+    return acc;
+  }, {});
+
+  for (const line of turnLines) {
+    for (const player of playerNames) {
+      if (line.includes(player)) counts[player] += 1;
+    }
+  }
+
+  let bestPlayer = '';
+  let bestCount = 0;
+  for (const player of playerNames) {
+    if (counts[player] > bestCount) {
+      bestPlayer = player;
+      bestCount = counts[player];
+    }
+  }
+
+  return bestCount > 0 ? bestPlayer : '';
+}
+
 export function getTurnOrderOfPlayer(battleLog: BattleLog, playerName: string) {
   const foundTurnIdx = battleLog.sections.findIndex((turn) => turn.player === playerName);
 
@@ -100,10 +124,16 @@ export function divideBattleLogIntoSections(cleanedLog: string[], language: Lang
   cleanedLog.forEach((line) => {
     if (getPlayerNameFromTurnLine(line, language)) {
       if (currentTitle && currentBody.length > 0) {
+        const playerFromTitle = getPlayerFromActionLine(currentTitle, playerNames);
+        const inferredPlayer = currentTitle === BattleLogDetectedStrings[language].setup
+          ? ''
+          : inferPlayerFromTurnBody(currentBody, playerNames);
+        const player = playerFromTitle || inferredPlayer;
+
         sections.push({
           turnTitle: currentTitle,
           body: currentBody.join('\n'),
-          player: getPlayerFromActionLine(currentTitle, playerNames),
+          player,
           prizesAfterTurn: prizes,
           actions: getTurnActions(currentBody)
         });
@@ -134,10 +164,16 @@ export function divideBattleLogIntoSections(cleanedLog: string[], language: Lang
   });
 
   if (currentTitle && currentBody.length > 0) {
+    const playerFromTitle = getPlayerFromActionLine(currentTitle, playerNames);
+    const inferredPlayer = currentTitle === BattleLogDetectedStrings[language].setup
+      ? ''
+      : inferPlayerFromTurnBody(currentBody, playerNames);
+    const player = playerFromTitle || inferredPlayer;
+
     sections.push({
       turnTitle: currentTitle,
       body: currentBody.join('\n'),
-      player: getPlayerFromActionLine(currentTitle, playerNames),
+      player,
       prizesAfterTurn: prizes,
       actions: getTurnActions(currentBody)
     });
