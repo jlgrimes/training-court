@@ -1,5 +1,7 @@
 export type HatType = 'santa';
 
+export type HatPurchaseType = 'free' | 'purchasable' | 'not-for-sale';
+
 export interface HatOverlay {
   src: string;
   /** px offset from top-left of sprite */
@@ -7,6 +9,8 @@ export interface HatOverlay {
   offsetY: number;
   /** scale multiplier relative to sprite size */
   scale: number;
+  disabled?: boolean;
+  purchaseType?: HatPurchaseType;
   /** optional per-sprite overrides keyed by normalized name (lowercase) */
   perPokemon?: Record<string, Partial<Omit<HatOverlay, 'perPokemon'>>>;
 }
@@ -17,6 +21,8 @@ export const hatOverlays: Record<HatType, HatOverlay> = {
     offsetX: 5,
     offsetY: -12,
     scale: 0.85,
+    disabled: true,
+    purchaseType: 'not-for-sale',
     perPokemon: {
       // tweak positions for specific sprites
       gardevoir: { offsetX: 5, offsetY: -12, scale: 0.9 },

@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { HatType, hatOverlays } from '@/components/archetype/sprites/hats/hats.config';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,8 @@ interface HatOption {
   value: HatOptionValue;
   label: string;
   description?: string;
+  disabled?: boolean;
+  purchaseType?: string;
 }
 
 const formatHatLabel = (hat: HatOptionValue) => {
@@ -27,28 +29,51 @@ const formatHatLabel = (hat: HatOptionValue) => {
   return `${hat.charAt(0).toUpperCase()}${hat.slice(1)} hat`;
 };
 
+const getDisabledDescription = (purchaseType?: string) => {
+  if (purchaseType === 'purchasable') return 'Requires purchase.';
+  if (purchaseType === 'not-for-sale') return 'Not for sale.';
+  return 'Unavailable right now.';
+};
+
 export function HatEditDialog({ tournamentName, currentHat, onChange }: HatEditDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [savingValue, setSavingValue] = useState<HatOptionValue | null>(null);
 
-  const hatOptions = useMemo<HatOption[]>(() => [
-    { value: 'none', label: 'No hat', description: 'Keep sprites unadorned.' },
-    ...Object.keys(hatOverlays).map((key) => ({
-      value: key as HatType,
-      label: formatHatLabel(key as HatType),
-      description: 'Add a festive overlay to your decks.',
-    })),
-  ], []);
+  const currentHatOverlay = currentHat ? hatOverlays[currentHat as HatType] : undefined;
+  const currentHatDisabled = currentHat === 'santa' || !!currentHatOverlay?.disabled;
 
-  const handleSelect = async (value: HatOptionValue) => {
-    const nextHat = value === 'none' ? null : value;
-    setSavingValue(value);
+  const hatOptions: HatOption[] = [
+    { value: 'none', label: 'No hat', description: 'Keep sprites unadorned.' },
+    ...Object.entries(hatOverlays).map(([key, hat]) => {
+      const isDisabled = key === 'santa' || !!hat.disabled;
+      return {
+        value: key as HatType,
+        label: formatHatLabel(key as HatType),
+        description: isDisabled ? getDisabledDescription(hat.purchaseType) : 'Add a festive overlay to your decks.',
+        disabled: isDisabled,
+        purchaseType: hat.purchaseType,
+      };
+    }),
+  ];
+
+  const isOptionDisabled = (option: HatOption) => {
+    if (savingValue) return true;
+    if (currentHatDisabled) return true;
+    if (option.value === 'none') return false;
+    if (option.value === 'santa') return true;
+    return !!option.disabled;
+  };
+
+  const handleSelect = async (option: HatOption) => {
+    if (isOptionDisabled(option)) return;
+    const nextHat = option.value === 'none' ? null : option.value;
+    setSavingValue(option.value);
 
     try {
       await onChange(nextHat);
       toast({
-        title: nextHat ? `${formatHatLabel(value)} applied` : 'Hat removed',
+        title: nextHat ? `${formatHatLabel(option.value)} applied` : 'Hat removed',
       });
       setOpen(false);
     } catch (e: any) {
@@ -71,23 +96,27 @@ export function HatEditDialog({ tournamentName, currentHat, onChange }: HatEditD
         <DialogHeader>
           <DialogTitle>Choose a hat for {tournamentName}</DialogTitle>
           <p className="text-sm text-muted-foreground">Applies to this tournament only.</p>
+          {currentHatDisabled && (
+            <p className="text-xs text-muted-foreground">This hat is locked and cannot be changed yet.</p>
+          )}
         </DialogHeader>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
           {hatOptions.map((option) => {
             const isActive = (currentHat ?? 'none') === option.value;
+            const isDisabled = option.disabled
             return (
               <button
                 key={option.value}
                 type="button"
-                onClick={() => handleSelect(option.value)}
+                onClick={() => handleSelect(option)}
                 className={cn(
                   'flex items-center gap-3 rounded-lg border p-3 text-left transition',
-                  'hover:border-primary/60 hover:bg-muted',
+                  !isDisabled && 'hover:border-primary/60 hover:bg-muted',
                   isActive && 'border-primary bg-primary/5',
-                  savingValue && 'opacity-70 cursor-not-allowed'
+                  isDisabled && 'cursor-not-allowed opacity-60'
                 )}
-                disabled={!!savingValue}
+                disabled={isDisabled}
               >
                 <div className="relative flex h-12 w-12 items-center justify-center rounded-md border bg-background">
                   {option.value !== 'none' ? (
