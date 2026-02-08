@@ -1,4 +1,5 @@
 import { GeistSans } from 'geist/font/sans';
+import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
@@ -47,6 +48,14 @@ export default async function RootLayout({
 
   return (
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
+      <head>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3757741726375606"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
           <AuthHydration user={user} />
