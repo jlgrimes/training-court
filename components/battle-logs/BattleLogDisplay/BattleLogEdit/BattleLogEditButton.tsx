@@ -48,7 +48,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
     const { error } = await supabase.from('logs').update({
       archetype: newArchetype,
       opp_archetype: newOppArchetype,
-      format: newFormat ?? null
+      format: newFormat ?? props.log.format ?? ''
     }).eq('id', props.log.id);
 
     if (error) {
@@ -65,7 +65,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
                 ...row,
                 archetype: newArchetype,
                 opp_archetype: newOppArchetype,
-                format: newFormat ?? null,
+                format: newFormat ?? row.format,
               }
             : row
         )
