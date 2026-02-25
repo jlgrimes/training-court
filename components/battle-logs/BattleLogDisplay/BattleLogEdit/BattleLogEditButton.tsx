@@ -20,6 +20,8 @@ import { AddArchetype } from "@/components/archetype/AddArchetype/AddArchetype";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LogFormats, logFormats } from "@/components/tournaments/Format/tournament-format.types";
+import { useSetRecoilState } from "recoil";
+import { battleLogsAtom } from "@/app/recoil/atoms/battle-logs";
 
 interface BattleLogEditButtonProps {
   isEditing: boolean;
@@ -33,6 +35,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   const [newOppArchetype, setNewOppArchetype] = useState('');
   const [newFormat, setNewFormat] = useState<LogFormats | undefined>(undefined);
   const { toast } = useToast();
+  const setBattleLogs = useSetRecoilState(battleLogsAtom);
 
   useEffect(() => {
     setNewArchetype(props.currentPlayer.deck || '');
@@ -55,9 +58,23 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
         description: error.message,
       })
     } else {
-      window.location.href = '/ptcg/logs';
+      setBattleLogs((prev) =>
+        prev.map((row) =>
+          row.id === props.log.id
+            ? {
+                ...row,
+                archetype: newArchetype,
+                opp_archetype: newOppArchetype,
+                format: newFormat ?? null,
+              }
+            : row
+        )
+      );
+      toast({
+        title: "Log updated",
+      });
     }
-  }, [toast, newArchetype, newOppArchetype, newFormat, props.log.id]);
+  }, [toast, newArchetype, newOppArchetype, newFormat, props.log.id, setBattleLogs]);
 
   return (
     <Dialog>
