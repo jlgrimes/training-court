@@ -191,7 +191,7 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
   return false;
 };
 
-export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, opp_archetype: string | null, currentUserScreenName: string | null) {
+export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, opp_archetype: string | null, currentUserScreenName: string | null, format?: string | null) {
   const language = detectBattleLogLanguage(log);
 
   if (!language) throw 'Language not supported. Please DM @training_court on X with your battle log so we can add your language!';
@@ -233,6 +233,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
 
   const battleLog: BattleLog = {
     id,
+    format,
     language,
     players,
     date: created_at,

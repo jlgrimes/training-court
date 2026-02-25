@@ -23,7 +23,7 @@ export async function GET() {
       // Nothing to update if everything is already filled
       if (row.archetype && row.opp_archetype && row.turn_order && row.result) return row;
 
-      const parsedLog = parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, userData?.live_screen_name ?? null);
+      const parsedLog = parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, userData?.live_screen_name ?? null, row.format);
 
       const metadata = getBattleLogMetadataFromLog(parsedLog, userData?.live_screen_name);
       return {

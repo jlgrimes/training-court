@@ -145,7 +145,8 @@ export function BattleLogsContainer({
           l.created_at,
           l.archetype,
           l.opp_archetype,
-          userData?.live_screen_name ?? ""
+          userData?.live_screen_name ?? "",
+          l.format
         )
       ),
     [effectiveRows, userData?.live_screen_name]
