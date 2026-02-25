@@ -22,7 +22,7 @@ export async function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewPro
   ]);
 
   const parsedLogs = battleLogs.map(log => (
-    parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData?.live_screen_name ?? null)
+    parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData?.live_screen_name ?? null, log.format)
   ));
 
   return (
