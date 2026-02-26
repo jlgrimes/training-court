@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import TournamentRoundList from '../../components/tournaments/TournamentRoundList';
+import TournamentRoundList, { computeRoundListLayout } from '../../components/tournaments/TournamentRoundList';
 import { Database } from '../../database.types';
 
 jest.mock('../../components/tournaments/TournamentRound', () => ({
@@ -42,8 +42,38 @@ function createRounds(count: number): Round[] {
   }));
 }
 
+beforeAll(() => {
+  (global as any).ResizeObserver = class {
+    observe() {}
+    disconnect() {}
+  };
+});
+
+describe('computeRoundListLayout', () => {
+  it('does not scale when content already fits', () => {
+    expect(computeRoundListLayout(600, 500)).toEqual({
+      scale: 1,
+      height: undefined,
+    });
+  });
+
+  it('scales to fit when content is taller than viewport budget', () => {
+    expect(computeRoundListLayout(500, 1000)).toEqual({
+      scale: 0.5,
+      height: 500,
+    });
+  });
+
+  it('caps scale at 0.9 maximum', () => {
+    expect(computeRoundListLayout(900, 950)).toEqual({
+      scale: 0.9,
+      height: 900,
+    });
+  });
+});
+
 describe('TournamentRoundList', () => {
-  it('renders all rows for a large round list without scale transforms', () => {
+  it('renders all rows and does not use scroll-wrapper classes', () => {
     const { container } = render(
       <TournamentRoundList
         tournament={createTournament()}
@@ -54,25 +84,8 @@ describe('TournamentRoundList', () => {
     );
 
     expect(screen.getAllByTestId('round-row')).toHaveLength(25);
-    expect(container.querySelector('[style*="scale("]')).toBeNull();
-    expect(container.querySelector('[style*="transform"]')).toBeNull();
-  });
-
-  it('uses a scroll container with a sticky header', () => {
-    const { container } = render(
-      <TournamentRoundList
-        tournament={createTournament()}
-        userId="user-1"
-        rounds={createRounds(25)}
-        updateClientRoundsOnEdit={jest.fn()}
-      />
-    );
-
-    const scrollContainer = container.firstElementChild as HTMLElement;
-    const headerRow = screen.getByText('Round').closest('div');
-
-    expect(scrollContainer.className).toContain('overflow-y-auto');
-    expect(scrollContainer.className).toContain('max-h-[65vh]');
-    expect(headerRow?.className).toContain('sticky');
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).toContain('origin-top-left');
+    expect(root.className).not.toContain('overflow-y-auto');
   });
 });
