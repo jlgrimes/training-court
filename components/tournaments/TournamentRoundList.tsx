@@ -16,6 +16,20 @@ interface TournamentRoundListProps {
   hatType?: string | null;
 }
 
+export const computeRoundListLayout = (availableHeight: number, contentHeight: number) => {
+  if (contentHeight <= availableHeight) {
+    return { scale: 1, height: undefined as number | undefined };
+  }
+
+  const ratio = availableHeight / contentHeight;
+  const scale = clamp(ratio, 0, 0.9);
+
+  return {
+    scale,
+    height: availableHeight,
+  };
+};
+
 export default function TournamentRoundList(props: TournamentRoundListProps) {
   const [editingRoundIdx, setEditingRoundIdx] = useState<number | null>(null);
   const handleEditingRoundToggle = useCallback((roundIdx: number) => {
@@ -40,21 +54,13 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
     if (anchorDocTopRef.current == null) {
       anchorDocTopRef.current = wrapper.getBoundingClientRect().top + window.scrollY;
     }
-    const anchorDocTop = Math.max(anchorDocTopRef.current!, 0);
+    const anchorDocTop = Math.max(anchorDocTopRef.current, 0);
 
-    const PADDING = 12;
-    const available = Math.max(window.innerHeight - anchorDocTop - PADDING, 1);
+    const bottomPadding = 12;
+    const availableHeight = Math.max(window.innerHeight - anchorDocTop - bottomPadding, 1);
+    const contentHeight = content.scrollHeight;
 
-    const needed = content.scrollHeight;
-
-    if (needed <= available) {
-      setLayout({ scale: 1, height: undefined });
-      return;
-    }
-
-    const ratio = available / needed;
-    const scale = clamp(ratio, 0, .9); 
-    setLayout({ scale, height: available });
+    setLayout(computeRoundListLayout(availableHeight, contentHeight));
   }, []);
 
   const fit = useCallback(() => {

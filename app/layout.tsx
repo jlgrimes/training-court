@@ -48,8 +48,6 @@ export default async function RootLayout({
 
   return (
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
-      <head>
-      </head>
       <body className='bg-background text-foreground'>
         <RecoilProvider>
           <AuthHydration user={user} />
