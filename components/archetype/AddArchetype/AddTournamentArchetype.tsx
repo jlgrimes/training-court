@@ -83,23 +83,34 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
   }
 
   return (
-    <Dialog>
-      <DialogTrigger className="text-sm">{serverDeck ? <Sprite name={serverDeck} hatType={hatType ?? undefined} /> : 'Add deck'}</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
-        </DialogHeader>
-          <AddArchetype archetype={deck} setArchetype={setDeck} />
-          {shouldLocalizeDeckInput && (
-            <p className="my-0 text-sm">
-              Adding your deck before the tournament is over will be localized, and not uploaded to the cloud until after the tournament is over.
-              This is to preserve the integrity of the tournament for all participants.
-            </p>
+    <div className="flex flex-col items-end gap-1">
+      <span className="text-xs font-medium text-muted-foreground">Your deck:</span>
+      <Dialog>
+        <DialogTrigger asChild>
+          {serverDeck ? (
+            <Button variant="ghost" size="sm" className="h-auto p-0 hover:bg-transparent">
+              <Sprite name={serverDeck} hatType={hatType ?? undefined} />
+            </Button>
+          ) : (
+            <Button variant="secondary" size="sm">Add deck</Button>
           )}
-          <DialogClose asChild>
-            <Button disabled={deck.length === 0} onClick={() => setArchetype(deck)}>Save</Button>
-          </DialogClose>
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
+          </DialogHeader>
+            <AddArchetype archetype={deck} setArchetype={setDeck} />
+            {shouldLocalizeDeckInput && (
+              <p className="my-0 text-sm">
+                Adding your deck before the tournament is over will be localized, and not uploaded to the cloud until after the tournament is over.
+                This is to preserve the integrity of the tournament for all participants.
+              </p>
+            )}
+            <DialogClose asChild>
+              <Button disabled={deck.length === 0} onClick={() => setArchetype(deck)}>Save</Button>
+            </DialogClose>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
