@@ -13,11 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
 import { Database } from "@/database.types";
 import { isAfter } from "date-fns";
 import { getCookie, setCookie, removeCookie } from 'typescript-cookie';
@@ -36,19 +31,8 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
 
   useEffect(() => {
     setClientDeck(getCookie(getLocalDeckCookieKey(tournament.id)));
-  }, []);
+  }, [tournament.id]);
 
-  useEffect(() => {
-    if (clientDeck && !shouldLocalizeDeckInput) {
-      removeCookie(getLocalDeckCookieKey(tournament.id))
-      setArchetype(clientDeck);
-    }
-  }, [clientDeck]);
-
-  useEffect(() => {
-    serverDeck && setDeck(serverDeck);
-  }, [serverDeck]);
-  
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
       setCookie(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });
@@ -56,24 +40,31 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
     }
 
     const supabase = createClient();
-    
+
     const { error } = await supabase.from(tableName).update({ deck }).eq('id', tournament.id);
 
     if (error) throw error;
 
     setServerDeck(deck);
-  }, [createClient, deck, tournament.id]);
+  }, [shouldLocalizeDeckInput, tableName, tournament.id]);
 
-  if (clientDeck) {
-    return (
-      <HoverCard>
-        <HoverCardTrigger className="cursor-pointer"><Sprite name={clientDeck} faded hatType={hatType ?? undefined} /> </HoverCardTrigger>
-        <HoverCardContent>
-          Archetype will be stored on this device until the tournament is over, then it will be automatically uploaded to the cloud.
-        </HoverCardContent>
-      </HoverCard>
-    )
-  }
+  useEffect(() => {
+    if (clientDeck && !shouldLocalizeDeckInput) {
+      removeCookie(getLocalDeckCookieKey(tournament.id));
+      setArchetype(clientDeck);
+    }
+  }, [clientDeck, shouldLocalizeDeckInput, setArchetype, tournament.id]);
+
+  useEffect(() => {
+    if (clientDeck) {
+      setDeck(clientDeck);
+      return;
+    }
+
+    if (serverDeck) {
+      setDeck(serverDeck);
+    }
+  }, [clientDeck, serverDeck]);
 
   if (editDisabled) {
     if (serverDeck) {
@@ -82,35 +73,34 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
     return null;
   }
 
+  const displayDeck = clientDeck ?? serverDeck;
+
   return (
-    <div className="flex flex-col items-end gap-1">
-      <span className="text-xs font-medium text-muted-foreground">Your deck:</span>
-      <Dialog>
-        <DialogTrigger asChild>
-          {serverDeck ? (
-            <Button variant="ghost" size="sm" className="h-auto p-0 hover:bg-transparent">
-              <Sprite name={serverDeck} hatType={hatType ?? undefined} />
-            </Button>
-          ) : (
-            <Button variant="secondary" size="sm">Add deck</Button>
-          )}
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add your deck for {tournament.name}</DialogTitle>
-          </DialogHeader>
-            <AddArchetype archetype={deck} setArchetype={setDeck} />
-            {shouldLocalizeDeckInput && (
-              <p className="my-0 text-sm">
-                Adding your deck before the tournament is over will be localized, and not uploaded to the cloud until after the tournament is over.
-                This is to preserve the integrity of the tournament for all participants.
-              </p>
-            )}
-            <DialogClose asChild>
-              <Button disabled={deck.length === 0} onClick={() => setArchetype(deck)}>Save</Button>
-            </DialogClose>
-        </DialogContent>
-      </Dialog>
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        {displayDeck ? (
+          <Button variant="ghost" size="sm" className="h-auto p-0 hover:bg-transparent" aria-label="Edit deck">
+            <Sprite name={displayDeck} hatType={hatType ?? undefined} />
+          </Button>
+        ) : (
+          <Button variant="secondary" size="sm">Add deck</Button>
+        )}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{displayDeck ? `Edit your deck for ${tournament.name}` : `Add your deck for ${tournament.name}`}</DialogTitle>
+        </DialogHeader>
+        <AddArchetype archetype={deck} setArchetype={setDeck} />
+        {shouldLocalizeDeckInput && (
+          <p className="my-0 text-sm">
+            Adding your deck before the tournament is over will be localized, and not uploaded to the cloud until after the tournament is over.
+            This is to preserve the integrity of the tournament for all participants.
+          </p>
+        )}
+        <DialogClose asChild>
+          <Button disabled={deck.length === 0} onClick={() => setArchetype(deck)}>Save</Button>
+        </DialogClose>
+      </DialogContent>
+    </Dialog>
   );
 }
