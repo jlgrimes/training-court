@@ -73,7 +73,7 @@ describe('computeRoundListLayout', () => {
 });
 
 describe('TournamentRoundList', () => {
-  it('renders all rows and does not use scroll-wrapper classes', () => {
+  it('renders all rows while preserving single-screen fit behavior', () => {
     const { container } = render(
       <TournamentRoundList
         tournament={createTournament()}
