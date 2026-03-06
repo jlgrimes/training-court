@@ -1,9 +1,11 @@
 import { fetchCurrentUser } from '@/components/auth.utils';
 import { fetchAvatarImages } from '@/components/avatar/avatar.server.utils';
 import { AvatarSelector } from '@/components/avatar/AvatarSelector';
+import { DeleteAccountSection } from '@/components/preferences/DeleteAccountSection';
 import { ScreenNameEditable } from '@/components/screen-name/ScreenNameEditable';
 import { Header } from '@/components/ui/header';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchUserData } from '@/components/user-data.utils';
 import { GamePreferences } from '@/components/preferences/GamePreferences';
@@ -41,10 +43,13 @@ export default async function PreferencesPage() {
               <Label>Avatar</Label>
               <AvatarSelector userId={user.id} avatarImages={avatars} />
             </div>
+            <Separator className='my-4' />
             <div className='flex justify-between items-center'>
               <Label>PTCG Live screen name</Label>
               <ScreenNameEditable userId={user.id} />
             </div>
+            <Separator className='my-4' />
+            <DeleteAccountSection />
           </div>
         </TabsContent>
         <TabsContent value='appearance' className='w-full'>
