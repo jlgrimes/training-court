@@ -43,6 +43,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.2.0",
     "geist": "^1.2.1",
+    "gt-react": "^10.11.7",
     "js-cookie": "^3.0.5",
     "lexical": "^0.35.0",
     "lucide-react": "^0.427.0",
@@ -74,6 +75,7 @@
     "@types/react-dom": "18.2.18",
     "dotenv": "^17.2.3",
     "encoding": "^0.1.13",
+    "gt": "^2.9.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "supabase": "^1.191.3"

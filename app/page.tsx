@@ -1,13 +1,16 @@
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
 import { fetchCurrentUser } from "@/components/auth.utils";
 import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
+import LandingHeroTranslations from "@/components/general-translation/LandingHeroTranslations";
+import {
+  LandingBattleLogsCopy,
+  LandingFooterCopy,
+  LandingTournamentsCopy,
+} from "@/components/general-translation/LandingPageCopy";
 import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
-import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const mockJWToronto = {
@@ -36,20 +39,10 @@ export default async function Index() {
     <div className="flex-1 w-full flex flex-col gap-24 items-center p-8 sm:p-12 max-w-6xl">
       <div className="flex flex-col items-center gap-6 max-w-md py-8">
         <Image src={'/logo.png'} alt='logo' width={240} height={30} />
-        <p className="text-center">Don't lose track of a game of Pokémon ever again. From PTCG Live testing phases to Regional Championships, Training Court has your back.</p>
-        <Link href={'login'}><Button size='lg'>Get started <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
+        <LandingHeroTranslations />
       </div>
       <div className="grid md:grid-cols-2 items-center gap-8 md:gap-16">
-        <div className="flex flex-col gap-4">
-          <h2 className="font-semibold text-2xl">Battle Logs</h2>
-          <p>
-            Display your PTCG Live battle logs in a beautiful UI -
-            all you have to do is Copy Paste. Training court gives you 
-            a preview of each of your battles - all can be sorted by deck or day.
-            Additionally, you can interact with a turn-by-turn breakdown of your battles, 
-            including prize maps and other key actions each turn.
-          </p>
-        </div>
+        <LandingBattleLogsCopy />
         <div className="flex flex-col gap-2">
           <BattleLogPreview battleLog={{
             id: '',
@@ -90,14 +83,7 @@ export default async function Index() {
         </div>
       </div>
       <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-        <div className="flex flex-col gap-4">
-          <h2 className="font-semibold text-2xl">Tournaments</h2>
-          <p>
-            Keep full record of your IRL Pokémon tournaments - from league cups, 
-            to regionals, to international championships. Share tournament runs with your
-            friends so they can keep up with the action at home.
-          </p>
-        </div>
+        <LandingTournamentsCopy />
         <div className="flex flex-col gap-2">
         <Card>
           <SmallCardHeader className="grid grid-cols-6 items-center">
@@ -179,8 +165,10 @@ export default async function Index() {
         </div>
       </div>
       <div>
-        <CardDescription>Made by Jared Grimes and JW Kriewall</CardDescription>
+        <LandingFooterCopy />
       </div>
     </div>
   );
 }
+
+

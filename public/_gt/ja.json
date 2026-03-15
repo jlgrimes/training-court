@@ -1,0 +1,11 @@
+﻿{
+  "landing.tagline": "Pokemonの対戦記録をもう見失いません。PTCG Liveでのテストから地域大会まで、Training Courtがサポートします。",
+  "landing.getStarted": "はじめる",
+  "landing.battleLogs.title": "バトルログ",
+  "landing.battleLogs.description": "PTCG Liveのバトルログを見やすいUIで表示できます。コピー＆ペーストするだけで、デッキ別・日付別に整理された対戦一覧を確認できます。さらに、各ターンの重要な行動やサイド進行を含む詳細なターン別内訳も確認できます。",
+  "landing.tournaments.title": "大会",
+  "landing.tournaments.description": "League Cup、Regional、International Championshipまで、オフライン大会の記録をまとめて管理できます。大会結果を友だちと共有して、現地にいない人にも進行を伝えられます。",
+  "landing.footer.credits": "Jared Grimes と JW Kriewall が制作",
+  "home.welcomeCard.title": "Training Courtへようこそ",
+  "home.welcomeCard.description": "開始するには、PTCG Liveのスクリーンネームを入力してアバターを選択してください。"
+}
