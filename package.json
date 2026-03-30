@@ -30,6 +30,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
+    "@tcgdex/sdk": "^2.7.1",
     "@theohagos/recoil-observer": "^1.0.11",
     "@types/jest": "^29.5.12",
     "@types/uuid": "^10.0.0",

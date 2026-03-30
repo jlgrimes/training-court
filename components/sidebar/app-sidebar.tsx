@@ -12,7 +12,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Atom, ChevronUp, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
+import { Atom, ChevronUp, Hammer, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
 import Image from "next/image"
 import { fetchCurrentUser } from "../auth.utils";
 import { ReportBugDialog } from "../app-bar/ReportBugDialog";
@@ -49,6 +49,11 @@ const tcgItems = [
     title: "Stats",
     url: "/ptcg/stats",
     icon: ChartBarDecreasing,
+  },
+  {
+    title: "Deckbuilder",
+    url: "/ptcg/deckbuilder",
+    icon: Hammer,
   },
 ]
 
