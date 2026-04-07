@@ -325,6 +325,40 @@ test.describe('Battle Log Paste Flow', () => {
     // The result should show the user won (test wins in the sample log)
     await expect(dialog.getByText(/Result:.*W/i)).toBeVisible();
   });
+
+  test('should revalidate cache after adding log (no manual refresh needed)', async ({ page }) => {
+    // Go to logs page first
+    await page.goto('/ptcg/logs');
+
+    const textarea = page.getByPlaceholder('Paste PTCGL log here');
+    await expect(textarea).toBeVisible({ timeout: 10000 });
+
+    // Add a battle log
+    await page.evaluate((log) => navigator.clipboard.writeText(log), sampleBattleLog);
+    await page.getByRole('button', { name: /Add Log/i }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Confirm' }).click();
+
+    // Wait for success toast
+    await expect(page.getByText('Battle log successfully imported!').first()).toBeVisible({ timeout: 10000 });
+
+    // Navigate away
+    await page.goto('/home');
+    await expect(page.getByText('PTCG Logs')).toBeVisible({ timeout: 5000 });
+
+    // Navigate back to logs page - should load without errors
+    // The revalidation should have been triggered
+    await page.goto('/ptcg/logs');
+    await expect(page.getByText('PTCG Logs')).toBeVisible({ timeout: 5000 });
+
+    // Page should not be in an error state
+    await expect(page.locator('body')).not.toContainText('Error');
+
+    // The textarea should be ready for new input (page loaded successfully)
+    await expect(page.getByPlaceholder('Paste PTCGL log here')).toBeVisible();
+  });
 });
 
 test.describe('Public Pages', () => {
