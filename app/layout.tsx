@@ -18,6 +18,7 @@ import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuar
 import { cookies } from 'next/headers';
 import { fetchCurrentUser } from '@/components/auth.utils';
 import { fetchUserData } from '@/components/user-data.utils';
+import GTProviderClient from './general-translation/GTProviderClient';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -49,35 +50,37 @@ export default async function RootLayout({
   return (
      <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
-        <RecoilProvider>
-          <AuthHydration user={user} />
-          <UserDataHydration userData={userData} />
-          <RealtimeProvider>
-            <DarkModeHydrationGuard>
-              <DarkModeProvider />
+        <GTProviderClient>
+          <RecoilProvider>
+            <AuthHydration user={user} />
+            <UserDataHydration userData={userData} />
+            <RealtimeProvider>
+              <DarkModeHydrationGuard>
+                <DarkModeProvider />
 
-              <SidebarProvider>
-              <AppSidebar />
-              <main className='min-h-screen h-full w-full'>
-                <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
-                  <div className='flex px-4 py-4 gap-4 items-center'>
-                    <SidebarTrigger />
-                    <HeaderBreadcrumbs />
+                <SidebarProvider>
+                <AppSidebar />
+                <main className='min-h-screen h-full w-full'>
+                  <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
+                    <div className='flex px-4 py-4 gap-4 items-center'>
+                      <SidebarTrigger />
+                      <HeaderBreadcrumbs />
+                    </div>
+                  </header>
+                  <div className='flex flex-col items-center h-full pt-[52px]'>
+                    <div className='flex flex-col p-4 gap-6 w-full h-full'>
+                      {children}
+                    </div>
                   </div>
-                </header>
-                <div className='flex flex-col items-center h-full pt-[52px]'>
-                  <div className='flex flex-col p-4 gap-6 w-full h-full'>
-                    {children}
-                  </div>
-                </div>
-                <Toaster />
-                <Analytics />
-              </main>
-            </SidebarProvider>
+                  <Toaster />
+                  <Analytics />
+                </main>
+              </SidebarProvider>
 
-            </DarkModeHydrationGuard>
-          </RealtimeProvider>
-        </RecoilProvider>
+              </DarkModeHydrationGuard>
+            </RealtimeProvider>
+          </RecoilProvider>
+        </GTProviderClient>
       </body>
     </html>
   );

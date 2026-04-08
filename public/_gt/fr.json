@@ -1,0 +1,11 @@
+﻿{
+  "landing.tagline": "Ne perdez plus jamais le fil d'une partie de Pokemon. Des sessions de test sur PTCG Live aux championnats regionaux, Training Court vous accompagne.",
+  "landing.getStarted": "Commencer",
+  "landing.battleLogs.title": "Journaux de combat",
+  "landing.battleLogs.description": "Affichez vos journaux de combat PTCG Live dans une interface elegante : il vous suffit de copier-coller. Training Court vous donne un apercu de chaque partie, avec un tri par deck ou par jour. Vous pouvez aussi consulter un detail tour par tour, y compris les cartes recompense et les actions importantes de chaque tour.",
+  "landing.tournaments.title": "Tournois",
+  "landing.tournaments.description": "Conservez un historique complet de vos tournois Pokemon en presentiel, des League Cups aux Regionaux et aux Championnats Internationaux. Partagez vos parcours de tournoi avec vos amis pour qu'ils puissent suivre l'action depuis chez eux.",
+  "landing.footer.credits": "Cree par Jared Grimes et JW Kriewall",
+  "home.welcomeCard.title": "Bienvenue sur Training Court",
+  "home.welcomeCard.description": "Entrez votre pseudo PTCG Live et choisissez un avatar pour commencer !"
+}
