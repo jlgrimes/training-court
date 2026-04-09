@@ -90,16 +90,36 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
         response = await supabase
           .from(roundsTable)
           .update(payload)
-          .eq('tournament', props.tournamentId)
-          .eq('round_num', props.editedRoundNumber)
+          .eq('id', props.existingRound.id)
           .select()
           .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
       } else {
-        response = await supabase
+        const existingRoundResponse = await supabase
           .from(roundsTable)
-          .insert(payload)
-          .select()
+          .select('*')
+          .eq('tournament', props.tournamentId)
+          .eq('round_num', props.editedRoundNumber)
+          .limit(1)
           .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+
+        if (existingRoundResponse.error) {
+          throw new Error(existingRoundResponse.error.message);
+        }
+
+        if (existingRoundResponse.data?.length) {
+          response = await supabase
+            .from(roundsTable)
+            .update(payload)
+            .eq('id', existingRoundResponse.data[0].id)
+            .select()
+            .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+        } else {
+          response = await supabase
+            .from(roundsTable)
+            .insert(payload)
+            .select()
+            .returns<Database['public']['Tables']['tournament rounds']['Row'][]>();
+        }
       }
   
       if (response.error) {
@@ -121,7 +141,7 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
     } finally {
       setLoading(false);
     }
-  }, [props.tournamentId, deck, result, immediateMatchEnd, props.setEditing, turnOrders, roundsTable]);
+  }, [props.tournamentId, deck, result, props.userId, props.editedRoundNumber, immediateMatchEnd, props.existingRound, props.updateClientRounds, props.setEditing, turnOrders, roundsTable]);
   
 
   if (props.editing) return (
