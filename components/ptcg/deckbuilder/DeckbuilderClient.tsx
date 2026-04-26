@@ -1,24 +1,50 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import TCGdex, { type CardResume, type SetResume } from '@tcgdex/sdk';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
-const tcgdex = new TCGdex('en');
-
-const STORAGE_KEY = 'ptcg-deckbuilder-v1';
+const STORAGE_KEY = 'ptcg-deckbuilder-v2';
 const MAX_DECK_SIZE = 60;
+const ALL_SETS_ID = 'all';
+
+type CardMetadata = {
+  hp?: string;
+  setId?: string;
+  setName?: string;
+  setSeries?: string;
+  setReleaseDate?: string;
+  number?: string;
+  cardText: string[];
+  weakness: string[];
+  resistance: string[];
+  retreatCost: string[];
+  legalityIcon?: string;
+  rarity?: string;
+  rulebox: string[];
+};
+
+type CatalogCard = {
+  id: string;
+  localId: string;
+  name: string;
+  imageUrlHiRes?: string;
+  imageUrl?: string;
+  category: string;
+  metadata: CardMetadata;
+};
 
 type DeckEntry = {
   id: string;
   localId: string;
   name: string;
-  image?: string;
+  imageUrlHiRes?: string;
+  imageUrl?: string;
   qty: number;
   category?: string;
+  metadata?: CardMetadata;
 };
 
 type StoredDeck = {
@@ -31,13 +57,96 @@ type SetOption = {
   id: string;
   name: string;
   releaseDate?: string;
+  cardCount: number;
 };
 
-const buildImageUrl = (image?: string): string | undefined => {
-  if (!image) {
-    return undefined;
+type SetsResponse = {
+  sets: SetOption[];
+  code: number;
+};
+
+type SearchCardsResponse = {
+  cards: CatalogCard[];
+  totalInSet: number;
+  totalMatched: number;
+  returned: number;
+  code: number;
+};
+
+const buildImageUrl = (imageUrlHiRes?: string, imageUrl?: string): string | undefined => {
+  if (imageUrlHiRes) {
+    return imageUrlHiRes;
   }
-  return `${image}/low.png`;
+
+  if (imageUrl) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    return `${imageUrl}/low.png`;
+  }
+
+  return undefined;
+};
+
+const normalizeStoredDeck = (parsed: StoredDeck): StoredDeck => {
+  if (!Array.isArray(parsed.entries)) {
+    return {
+      name: parsed.name ?? 'Untitled Deck',
+      selectedSetId: parsed.selectedSetId ?? '',
+      entries: [],
+    };
+  }
+
+  const entries = parsed.entries.map((entry) => ({
+    ...entry,
+    metadata: entry.metadata ?? {
+      cardText: [],
+      weakness: [],
+      resistance: [],
+      retreatCost: [],
+      rulebox: [],
+    },
+  }));
+
+  return {
+    name: parsed.name ?? 'Untitled Deck',
+    selectedSetId: parsed.selectedSetId ?? '',
+    entries,
+  };
+};
+
+const readSets = async (): Promise<SetOption[]> => {
+  const response = await fetch('/api/ptcg/cards/sets');
+  if (!response.ok) {
+    throw new Error('Failed to load sets');
+  }
+
+  const payload = (await response.json()) as SetsResponse;
+  return payload.sets ?? [];
+};
+
+const readCardsBySet = async (
+  setId: string,
+  query: string
+): Promise<{ cards: CatalogCard[]; totalInSet: number; totalMatched: number }> => {
+  const normalizedQuery = query.trim();
+  const effectiveSetId = setId || ALL_SETS_ID;
+  const limit = normalizedQuery ? '2000' : effectiveSetId === ALL_SETS_ID ? '400' : '1200';
+  const params = new URLSearchParams({ setId: effectiveSetId, limit });
+  if (normalizedQuery) {
+    params.set('query', normalizedQuery);
+  }
+  const response = await fetch(`/api/ptcg/cards/search?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error('Failed to load cards');
+  }
+
+  const payload = (await response.json()) as SearchCardsResponse;
+  return {
+    cards: payload.cards ?? [],
+    totalInSet: payload.totalInSet ?? 0,
+    totalMatched: payload.totalMatched ?? 0,
+  };
 };
 
 const toDeckMap = (entries: Array<DeckEntry>): Record<string, DeckEntry> => {
@@ -50,7 +159,9 @@ const toDeckMap = (entries: Array<DeckEntry>): Record<string, DeckEntry> => {
 export function DeckbuilderClient() {
   const [sets, setSets] = useState<Array<SetOption>>([]);
   const [selectedSetId, setSelectedSetId] = useState('');
-  const [cards, setCards] = useState<Array<CardResume>>([]);
+  const [cards, setCards] = useState<Array<CatalogCard>>([]);
+  const [totalCardsInSelectedSet, setTotalCardsInSelectedSet] = useState(0);
+  const [totalMatchedCards, setTotalMatchedCards] = useState(0);
   const [isLoadingSets, setIsLoadingSets] = useState(true);
   const [isLoadingCards, setIsLoadingCards] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,63 +171,18 @@ export function DeckbuilderClient() {
   const [deck, setDeck] = useState<Record<string, DeckEntry>>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
-  const categoryCacheRef = useRef<Record<string, string>>({});
-  const inFlightCategoryFetchesRef = useRef<Set<string>>(new Set());
-
-  const hydrateCardCategory = useCallback(async (cardId: string) => {
-    if (categoryCacheRef.current[cardId]) {
-      return;
-    }
-
-    if (inFlightCategoryFetchesRef.current.has(cardId)) {
-      return;
-    }
-
-    inFlightCategoryFetchesRef.current.add(cardId);
-    try {
-      const card = await tcgdex.fetch('cards', cardId);
-      if (!card?.category) {
-        return;
-      }
-
-      categoryCacheRef.current[cardId] = card.category;
-      setDeck((prev) => {
-        const existing = prev[cardId];
-        if (!existing || existing.category === card.category) {
-          return prev;
-        }
-        return {
-          ...prev,
-          [cardId]: {
-            ...existing,
-            category: card.category,
-          },
-        };
-      });
-    } finally {
-      inFlightCategoryFetchesRef.current.delete(cardId);
-    }
-  }, []);
-
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as StoredDeck;
+        const parsed = normalizeStoredDeck(JSON.parse(raw) as StoredDeck);
         if (parsed.name) {
           setDeckName(parsed.name);
         }
         if (parsed.selectedSetId) {
           setSelectedSetId(parsed.selectedSetId);
         }
-        if (Array.isArray(parsed.entries)) {
-          setDeck(toDeckMap(parsed.entries));
-          parsed.entries.forEach((entry) => {
-            if (entry.category) {
-              categoryCacheRef.current[entry.id] = entry.category;
-            }
-          });
-        }
+        setDeck(toDeckMap(parsed.entries));
       }
     } catch {
       // Ignore corrupted local deck state and keep defaults.
@@ -133,48 +199,34 @@ export function DeckbuilderClient() {
       setError(null);
 
       try {
-        const data = await tcgdex.fetch('sets');
+        const setOptions = await readSets();
         if (!isActive) {
           return;
         }
 
-        const setList = data ?? [];
-        const setDetails = await Promise.allSettled(
-          setList.map((set) => tcgdex.fetch('sets', set.id))
-        );
+        const withAllSets: SetOption[] = [
+          {
+            id: ALL_SETS_ID,
+            name: 'All sets',
+            cardCount: setOptions.reduce((sum, set) => sum + set.cardCount, 0),
+          },
+          ...setOptions,
+        ];
 
-        const releaseDateBySetId = new Map<string, string>();
-        setDetails.forEach((result) => {
-          if (result.status !== 'fulfilled') {
-            return;
-          }
+        setSets(withAllSets);
+        if (withAllSets.length > 0) {
+          setSelectedSetId((current) => {
+            if (!current) {
+              return ALL_SETS_ID;
+            }
 
-          const set = result.value;
-          if (set?.id && set.releaseDate) {
-            releaseDateBySetId.set(set.id, set.releaseDate);
-          }
-        });
-
-        const setOptions: Array<SetOption> = setList
-          .map((set: SetResume) => ({
-            id: set.id,
-            name: set.name,
-            releaseDate: releaseDateBySetId.get(set.id),
-          }))
-          .sort((a, b) => {
-            const aTime = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
-            const bTime = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
-            return bTime - aTime;
+            const currentExists = withAllSets.some((set) => set.id === current);
+            return currentExists ? current : ALL_SETS_ID;
           });
-
-        setSets(setOptions);
-
-        if (setOptions.length > 0) {
-          setSelectedSetId((current) => current || setOptions[0].id);
         }
       } catch {
         if (isActive) {
-          setError('Failed to load sets from TCGdex.');
+          setError('Failed to load sets from the card catalog.');
         }
       } finally {
         if (isActive) {
@@ -202,17 +254,19 @@ export function DeckbuilderClient() {
       setError(null);
 
       try {
-        const data = await tcgdex.fetchCards(selectedSetId);
+        const { cards: cardsForSet, totalInSet, totalMatched } = await readCardsBySet(selectedSetId, query);
         if (!isActive) {
           return;
         }
-        const sortedCards = (data ?? []).slice().sort((a, b) =>
-          a.localId.localeCompare(b.localId, undefined, { numeric: true, sensitivity: 'base' })
-        );
-        setCards(sortedCards);
+        setCards(cardsForSet);
+        setTotalCardsInSelectedSet(totalInSet);
+        setTotalMatchedCards(totalMatched);
       } catch {
         if (isActive) {
           setError('Failed to load cards for the selected set.');
+          setCards([]);
+          setTotalCardsInSelectedSet(0);
+          setTotalMatchedCards(0);
         }
       } finally {
         if (isActive) {
@@ -226,7 +280,7 @@ export function DeckbuilderClient() {
     return () => {
       isActive = false;
     };
-  }, [selectedSetId]);
+  }, [query, selectedSetId]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -242,22 +296,7 @@ export function DeckbuilderClient() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }, [deck, deckName, isHydrated, selectedSetId]);
 
-  const filteredCards = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) {
-      return cards.slice(0, 100);
-    }
-
-    return cards
-      .filter((card) => {
-        return (
-          card.name.toLowerCase().includes(normalizedQuery) ||
-          card.id.toLowerCase().includes(normalizedQuery) ||
-          card.localId.toLowerCase().includes(normalizedQuery)
-        );
-      })
-      .slice(0, 100);
-  }, [cards, query]);
+  const filteredCards = useMemo(() => cards, [cards]);
 
   const deckEntries = useMemo(() => {
     return Object.values(deck).sort((a, b) => {
@@ -290,7 +329,7 @@ export function DeckbuilderClient() {
       .reduce((sum, entry) => sum + entry.qty, 0);
   }, [deckEntries]);
 
-  const addCard = useCallback((card: CardResume) => {
+  const addCard = useCallback((card: CatalogCard) => {
     setDeck((prev) => {
       const existing = prev[card.id];
       if (existing) {
@@ -309,15 +348,15 @@ export function DeckbuilderClient() {
           id: card.id,
           localId: card.localId,
           name: card.name,
-          image: card.image,
+          imageUrlHiRes: card.imageUrlHiRes,
+          imageUrl: card.imageUrl,
           qty: 1,
-          category: categoryCacheRef.current[card.id],
+          category: card.category,
+          metadata: card.metadata,
         },
       };
     });
-
-    void hydrateCardCategory(card.id);
-  }, [hydrateCardCategory]);
+  }, []);
 
   const decrementCard = useCallback((cardId: string) => {
     setDeck((prev) => {
@@ -380,11 +419,11 @@ export function DeckbuilderClient() {
                 className="flex items-center justify-between gap-2 rounded-md border border-border p-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  {buildImageUrl(entry.image) ? (
+                  {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
                     <img
-                      src={buildImageUrl(entry.image)}
+                      src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
                       alt={entry.name}
-                      className="h-12 w-9 rounded object-cover"
+                      className="h-12 w-9 rounded object-contain bg-muted"
                       loading="lazy"
                     />
                   ) : (
@@ -392,9 +431,7 @@ export function DeckbuilderClient() {
                   )}
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium">{entry.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {entry.category ?? 'Loading category...'}
-                    </div>
+                    <div className="text-xs text-muted-foreground">{entry.category ?? 'Unknown'}</div>
                   </div>
                 </div>
 
@@ -411,7 +448,16 @@ export function DeckbuilderClient() {
                         id: entry.id,
                         localId: entry.localId,
                         name: entry.name,
-                        image: entry.image,
+                        imageUrlHiRes: entry.imageUrlHiRes,
+                        imageUrl: entry.imageUrl,
+                        category: entry.category ?? 'Unknown',
+                        metadata: entry.metadata ?? {
+                          cardText: [],
+                          weakness: [],
+                          resistance: [],
+                          retreatCost: [],
+                          rulebox: [],
+                        },
                       })
                     }
                   >
@@ -472,7 +518,10 @@ export function DeckbuilderClient() {
           {error && <p className="text-sm text-red-400">{error}</p>}
 
           <p className="text-xs text-muted-foreground">
-            Showing {filteredCards.length} card{filteredCards.length === 1 ? '' : 's'} from the selected set.
+            Showing {filteredCards.length} card{filteredCards.length === 1 ? '' : 's'}
+            {query.trim()
+              ? ` from ${totalMatchedCards || filteredCards.length} matches (${totalCardsInSelectedSet || cards.length} total in selected scope).`
+              : ` from ${totalCardsInSelectedSet || cards.length} available in the selected set.`}
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -480,26 +529,36 @@ export function DeckbuilderClient() {
 
             {!isLoadingCards &&
               filteredCards.map((card) => (
-                <div key={card.id} className="rounded-md border border-border p-2">
+                <div
+                  key={card.id}
+                  className="rounded-md border border-border p-2 cursor-pointer transition-colors hover:bg-muted/30 focus-within:bg-muted/30"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => addCard(card)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      addCard(card);
+                    }
+                  }}
+                >
                   <div className="mb-2">
-                    {buildImageUrl(card.image) ? (
+                    {buildImageUrl(card.imageUrlHiRes, card.imageUrl) ? (
                       <img
-                        src={buildImageUrl(card.image)}
+                        src={buildImageUrl(card.imageUrlHiRes, card.imageUrl)}
                         alt={card.name}
-                        className="h-44 w-full rounded object-cover"
+                        className="w-full aspect-[5/7] rounded object-contain bg-muted"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="h-44 w-full rounded bg-muted" />
+                      <div className="w-full aspect-[5/7] rounded bg-muted" />
                     )}
                   </div>
                   <div className="mb-2">
                     <p className="truncate text-sm font-medium">{card.name}</p>
                     <p className="text-xs text-muted-foreground">{card.id}</p>
                   </div>
-                  <Button className="w-full" onClick={() => addCard(card)}>
-                    Add to Deck
-                  </Button>
+                  <p className="text-xs text-muted-foreground">Click card to add</p>
                 </div>
               ))}
           </div>
