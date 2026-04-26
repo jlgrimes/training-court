@@ -47,6 +47,8 @@ type DeckEntry = {
   metadata?: CardMetadata;
 };
 
+type PreviewSource = 'deck' | 'search';
+
 type StoredDeck = {
   name: string;
   selectedSetId: string;
@@ -170,6 +172,8 @@ export function DeckbuilderClient() {
   const [query, setQuery] = useState('');
   const [deck, setDeck] = useState<Record<string, DeckEntry>>({});
   const [isHydrated, setIsHydrated] = useState(false);
+  const [previewCard, setPreviewCard] = useState<CatalogCard | null>(null);
+  const [previewSource, setPreviewSource] = useState<PreviewSource>('search');
 
   useEffect(() => {
     try {
@@ -358,6 +362,24 @@ export function DeckbuilderClient() {
     });
   }, []);
 
+  const toCatalogCard = useCallback((entry: DeckEntry): CatalogCard => {
+    return {
+      id: entry.id,
+      localId: entry.localId,
+      name: entry.name,
+      imageUrlHiRes: entry.imageUrlHiRes,
+      imageUrl: entry.imageUrl,
+      category: entry.category ?? 'Unknown',
+      metadata: entry.metadata ?? {
+        cardText: [],
+        weakness: [],
+        resistance: [],
+        retreatCost: [],
+        rulebox: [],
+      },
+    };
+  }, []);
+
   const decrementCard = useCallback((cardId: string) => {
     setDeck((prev) => {
       const existing = prev[cardId];
@@ -387,8 +409,8 @@ export function DeckbuilderClient() {
   const isOverLimit = totalCards > MAX_DECK_SIZE;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-5">
-      <UICard className="lg:col-span-2">
+    <div className="grid gap-4 lg:grid-cols-8">
+      <UICard className="lg:col-span-5">
         <CardHeader>
           <CardTitle className="text-base text-slate-100">Deck</CardTitle>
         </CardHeader>
@@ -408,64 +430,49 @@ export function DeckbuilderClient() {
             <div>Energy: {energyCount}</div>
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto space-y-2 pr-1">
+          <div className="pr-1">
             {deckEntries.length === 0 && (
               <p className="text-sm text-muted-foreground">No cards in deck yet.</p>
             )}
 
-            {deckEntries.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-center justify-between gap-2 rounded-md border border-border p-2"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
-                    <img
-                      src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
-                      alt={entry.name}
-                      className="h-12 w-9 rounded object-contain bg-muted"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="h-12 w-9 rounded bg-muted" />
-                  )}
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">{entry.name}</div>
-                    <div className="text-xs text-muted-foreground">{entry.category ?? 'Unknown'}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Button size="sm" variant="outline" onClick={() => decrementCard(entry.id)}>
-                    -
-                  </Button>
-                  <span className="w-6 text-center text-sm">{entry.qty}</span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      addCard({
-                        id: entry.id,
-                        localId: entry.localId,
-                        name: entry.name,
-                        imageUrlHiRes: entry.imageUrlHiRes,
-                        imageUrl: entry.imageUrl,
-                        category: entry.category ?? 'Unknown',
-                        metadata: entry.metadata ?? {
-                          cardText: [],
-                          weakness: [],
-                          resistance: [],
-                          retreatCost: [],
-                          rulebox: [],
-                        },
-                      })
-                    }
+            {deckEntries.length > 0 && (
+              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-6 xl:grid-cols-8">
+                {deckEntries.map((entry) => (
+                  <div
+                    key={entry.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => {
+                      setPreviewCard(toCatalogCard(entry));
+                      setPreviewSource('deck');
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setPreviewCard(toCatalogCard(entry));
+                        setPreviewSource('deck');
+                      }
+                    }}
                   >
-                    +
-                  </Button>
-                </div>
+                    <div className="relative overflow-hidden rounded-md bg-muted">
+                      {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
+                        <img
+                          src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
+                          alt={entry.name}
+                          className="w-full aspect-[5/7] object-contain bg-muted"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full aspect-[5/7] bg-muted" />
+                      )}
+                      <div className="absolute bottom-[7%] left-1/2 flex min-h-12 min-w-12 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 px-3 text-2xl font-extrabold text-white shadow">
+                        {entry.qty}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
 
           <Button variant="outline" onClick={clearDeck}>
@@ -531,39 +538,81 @@ export function DeckbuilderClient() {
               filteredCards.map((card) => (
                 <div
                   key={card.id}
-                  className="rounded-md border border-border p-2 cursor-pointer transition-colors hover:bg-muted/30 focus-within:bg-muted/30"
+                  className="cursor-pointer rounded-md p-1 transition-transform duration-150 ease-out hover:scale-[1.03] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   role="button"
                   tabIndex={0}
-                  onClick={() => addCard(card)}
+                  onClick={() => {
+                    setPreviewCard(card);
+                    setPreviewSource('search');
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault();
-                      addCard(card);
+                      setPreviewCard(card);
+                      setPreviewSource('search');
                     }
                   }}
                 >
-                  <div className="mb-2">
-                    {buildImageUrl(card.imageUrlHiRes, card.imageUrl) ? (
-                      <img
-                        src={buildImageUrl(card.imageUrlHiRes, card.imageUrl)}
-                        alt={card.name}
-                        className="w-full aspect-[5/7] rounded object-contain bg-muted"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full aspect-[5/7] rounded bg-muted" />
-                    )}
-                  </div>
-                  <div className="mb-2">
-                    <p className="truncate text-sm font-medium">{card.name}</p>
-                    <p className="text-xs text-muted-foreground">{card.id}</p>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Click card to add</p>
+                  {buildImageUrl(card.imageUrlHiRes, card.imageUrl) ? (
+                    <img
+                      src={buildImageUrl(card.imageUrlHiRes, card.imageUrl)}
+                      alt={card.name}
+                      className="w-full aspect-[5/7] rounded object-contain bg-muted"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[5/7] rounded bg-muted" />
+                  )}
                 </div>
               ))}
           </div>
         </CardContent>
       </UICard>
+
+      {previewCard && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setPreviewCard(null)}
+        >
+          <div className="relative mx-auto flex h-full max-w-5xl items-center justify-center">
+            <button
+              type="button"
+              className="absolute right-2 top-2 rounded-md bg-black/70 px-3 py-2 text-sm text-white"
+              onClick={(event) => {
+                event.stopPropagation();
+                setPreviewCard(null);
+              }}
+            >
+              Close
+            </button>
+
+            {previewSource === 'search' && (
+              <Button
+                className="absolute left-2 top-2"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  addCard(previewCard);
+                }}
+              >
+                Add to Deck
+              </Button>
+            )}
+
+            {buildImageUrl(previewCard.imageUrlHiRes, previewCard.imageUrl) ? (
+              <img
+                src={buildImageUrl(previewCard.imageUrlHiRes, previewCard.imageUrl)}
+                alt={previewCard.name}
+                className="max-h-[95vh] w-auto max-w-full rounded object-contain"
+                onClick={(event) => event.stopPropagation()}
+              />
+            ) : (
+              <div className="h-[80vh] w-full max-w-3xl rounded bg-muted" onClick={(event) => event.stopPropagation()} />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

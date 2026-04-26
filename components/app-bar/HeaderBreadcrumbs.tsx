@@ -48,6 +48,12 @@ export default function HeaderBreadcrumbs() {
         path: '/ptcg/logs',
         label: 'PTCG'
       });
+      if (pathname.includes('/ptcg/deckbuilder')) {
+        breadcrumbs.push({
+          path: '/ptcg/deckbuilder',
+          label: 'Deckbuilder',
+        });
+      }
       if (pathname.includes('/ptcg/logs')) {
         breadcrumbs.push({
           path: '/ptcg/logs',
