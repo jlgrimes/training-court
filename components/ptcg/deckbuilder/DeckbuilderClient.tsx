@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -282,7 +283,13 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         const parsedSavedDecks = JSON.parse(rawSavedDecks) as SavedDeck[];
         if (Array.isArray(parsedSavedDecks)) {
           setSavedDecks(parsedSavedDecks);
-          if (props.initialDeckId) {
+          if (props.initialDeckId === 'new') {
+            setSelectedSavedDeckId('');
+            setDeckName('Untitled Deck');
+            setSelectedSetId(ALL_SETS_ID);
+            setDeck({});
+            setView('editor');
+          } else if (props.initialDeckId) {
             const initialDeck = parsedSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
             if (initialDeck) {
               setSelectedSavedDeckId(initialDeck.id);
@@ -653,15 +660,12 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   if (view === 'library') {
     return (
       <UICard>
-        <CardHeader>
-          <CardTitle className="text-base text-slate-100">My Decks</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <button
               type="button"
               onClick={startNewDeck}
-              className="rounded-md border border-dashed border-border bg-muted/20 p-3 text-left transition-colors hover:bg-muted/40"
+              className="rounded-md bg-muted/20 p-3 text-left transition-colors hover:bg-muted/40"
             >
               <div className="mb-2 grid aspect-[8/5] place-items-center rounded bg-muted">
                 <span className="text-4xl font-semibold text-muted-foreground">+</span>
@@ -671,7 +675,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
             </button>
 
             {savedDecks.map((savedDeck) => (
-              <div key={savedDeck.id} className="rounded-md border border-border p-3">
+              <div key={savedDeck.id} className="rounded-md p-3">
                 <button
                   type="button"
                   onClick={() => openSavedDeck(savedDeck)}
@@ -696,25 +700,32 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       <div key={`empty-${savedDeck.id}-${index}`} className="rounded-[2px] bg-muted/30" />
                     ))}
                   </div>
-                  <p className="truncate text-sm font-semibold">{savedDeck.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Last Saved {new Date(savedDeck.savedAt).toLocaleString()}
-                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{savedDeck.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Last Saved {new Date(savedDeck.savedAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={`Delete ${savedDeck.name}`}
+                      className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
+                        persistSavedDecks(nextSavedDecks);
+                        if (selectedSavedDeckId === savedDeck.id) {
+                          setSelectedSavedDeckId('');
+                        }
+                        toast({ title: `Deleted "${savedDeck.name}"` });
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </button>
-                <Button
-                  variant="outline"
-                  className="mt-2 w-full"
-                  onClick={() => {
-                    const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
-                    persistSavedDecks(nextSavedDecks);
-                    if (selectedSavedDeckId === savedDeck.id) {
-                      setSelectedSavedDeckId('');
-                    }
-                    toast({ title: `Deleted "${savedDeck.name}"` });
-                  }}
-                >
-                  Delete
-                </Button>
               </div>
             ))}
           </div>
@@ -842,7 +853,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
       <UICard className="lg:col-span-3">
         <CardHeader>
-          <CardTitle className="text-base text-slate-100">Card Search</CardTitle>
+          <CardTitle className="text-base text-slate-100" />
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2 md:grid-cols-2">
