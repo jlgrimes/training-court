@@ -7,6 +7,7 @@ type JsonObject = Record<string, unknown>;
 export type DeckbuilderCardMetadata = {
   hp?: string;
   setId?: string;
+  setPtcgoCode?: string;
   setName?: string;
   setSeries?: string;
   setReleaseDate?: string;
@@ -173,6 +174,7 @@ const parseSetData = (card: JsonObject) => {
     const setCode = toString(card.setCode) ?? setNameFromCardId ?? 'unknown';
     return {
       setId: setCode,
+      setPtcgoCode: undefined,
       setName: toString(card.setName) ?? setNameFromCardId ?? setCode ?? 'Unknown Set',
       setSeries: undefined,
       releaseDate: undefined,
@@ -184,6 +186,7 @@ const parseSetData = (card: JsonObject) => {
 
   return {
     setId: setCode ?? 'unknown',
+    setPtcgoCode: toString(set.ptcgoCode),
     setName,
     setSeries: toString(set.series),
     releaseDate: toString(set.releaseDate),
@@ -258,6 +261,7 @@ const parseCard = (rawCard: unknown): (DeckbuilderCatalogCard & { setId: string;
     metadata: {
       hp: toString(card.hp),
       setId: setData.setId,
+      setPtcgoCode: setData.setPtcgoCode,
       setName: setData.setName,
       setSeries: setData.setSeries,
       setReleaseDate: setData.releaseDate,

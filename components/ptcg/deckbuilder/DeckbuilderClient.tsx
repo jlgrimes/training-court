@@ -1,12 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 
 const STORAGE_KEY = 'ptcg-deckbuilder-v2';
+const SAVED_DECKS_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
 const MAX_DECK_SIZE = 60;
 const ALL_SETS_ID = 'all';
 
@@ -53,6 +56,24 @@ type StoredDeck = {
   name: string;
   selectedSetId: string;
   entries: Array<DeckEntry>;
+};
+
+type SavedDeck = StoredDeck & {
+  id: string;
+  savedAt: string;
+};
+type DeckbuilderView = 'library' | 'editor';
+
+type DeckbuilderClientProps = {
+  initialDeckId?: string;
+};
+type ImportResponse = {
+  entries: DeckEntry[];
+  totalCards: number;
+  unresolved: string[];
+  parsedLines: number;
+  importedLines: number;
+  code: number;
 };
 
 type SetOption = {
@@ -158,7 +179,11 @@ const toDeckMap = (entries: Array<DeckEntry>): Record<string, DeckEntry> => {
   }, {});
 };
 
-export function DeckbuilderClient() {
+export function DeckbuilderClient(props: DeckbuilderClientProps) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const deckClickTimersRef = useRef<Record<string, number>>({});
+  const lastDeckClickAtRef = useRef<Record<string, number>>({});
   const [sets, setSets] = useState<Array<SetOption>>([]);
   const [selectedSetId, setSelectedSetId] = useState('');
   const [cards, setCards] = useState<Array<CatalogCard>>([]);
@@ -169,11 +194,17 @@ export function DeckbuilderClient() {
   const [error, setError] = useState<string | null>(null);
 
   const [deckName, setDeckName] = useState('Untitled Deck');
+  const [selectedSavedDeckId, setSelectedSavedDeckId] = useState('');
   const [query, setQuery] = useState('');
   const [deck, setDeck] = useState<Record<string, DeckEntry>>({});
   const [isHydrated, setIsHydrated] = useState(false);
+  const [savedDecks, setSavedDecks] = useState<SavedDeck[]>([]);
+  const [view, setView] = useState<DeckbuilderView>('library');
   const [previewCard, setPreviewCard] = useState<CatalogCard | null>(null);
   const [previewSource, setPreviewSource] = useState<PreviewSource>('search');
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     try {
@@ -188,12 +219,32 @@ export function DeckbuilderClient() {
         }
         setDeck(toDeckMap(parsed.entries));
       }
+
+      const rawSavedDecks = localStorage.getItem(SAVED_DECKS_STORAGE_KEY);
+      if (rawSavedDecks) {
+        const parsedSavedDecks = JSON.parse(rawSavedDecks) as SavedDeck[];
+        if (Array.isArray(parsedSavedDecks)) {
+          setSavedDecks(parsedSavedDecks);
+          if (props.initialDeckId) {
+            const initialDeck = parsedSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
+            if (initialDeck) {
+              setSelectedSavedDeckId(initialDeck.id);
+              setDeckName(initialDeck.name);
+              setSelectedSetId(initialDeck.selectedSetId || ALL_SETS_ID);
+              setDeck(toDeckMap(initialDeck.entries));
+              setView('editor');
+            } else {
+              setView('library');
+            }
+          }
+        }
+      }
     } catch {
       // Ignore corrupted local deck state and keep defaults.
     } finally {
       setIsHydrated(true);
     }
-  }, []);
+  }, [props.initialDeckId]);
 
   useEffect(() => {
     let isActive = true;
@@ -315,24 +366,6 @@ export function DeckbuilderClient() {
     return deckEntries.reduce((sum, entry) => sum + entry.qty, 0);
   }, [deckEntries]);
 
-  const pokemonCount = useMemo(() => {
-    return deckEntries
-      .filter((entry) => entry.category === 'Pokemon')
-      .reduce((sum, entry) => sum + entry.qty, 0);
-  }, [deckEntries]);
-
-  const trainerCount = useMemo(() => {
-    return deckEntries
-      .filter((entry) => entry.category === 'Trainer')
-      .reduce((sum, entry) => sum + entry.qty, 0);
-  }, [deckEntries]);
-
-  const energyCount = useMemo(() => {
-    return deckEntries
-      .filter((entry) => entry.category === 'Energy')
-      .reduce((sum, entry) => sum + entry.qty, 0);
-  }, [deckEntries]);
-
   const addCard = useCallback((card: CatalogCard) => {
     setDeck((prev) => {
       const existing = prev[card.id];
@@ -402,32 +435,230 @@ export function DeckbuilderClient() {
     });
   }, []);
 
+  useEffect(() => {
+    return () => {
+      Object.values(deckClickTimersRef.current).forEach((timerId) => {
+        window.clearTimeout(timerId);
+      });
+      deckClickTimersRef.current = {};
+    };
+  }, []);
+
   const clearDeck = useCallback(() => {
     setDeck({});
   }, []);
 
+  const persistSavedDecks = useCallback((nextSavedDecks: SavedDeck[]) => {
+    setSavedDecks(nextSavedDecks);
+    localStorage.setItem(SAVED_DECKS_STORAGE_KEY, JSON.stringify(nextSavedDecks));
+  }, []);
+
+  const saveDeck = useCallback(() => {
+    const normalizedName = deckName.trim() || 'Untitled Deck';
+    const now = new Date().toISOString();
+    const entries = Object.values(deck);
+
+    const existing = savedDecks.find((savedDeck) => savedDeck.name.toLowerCase() === normalizedName.toLowerCase());
+    const nextDeck: SavedDeck = {
+      id: existing?.id ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      name: normalizedName,
+      selectedSetId,
+      entries,
+      savedAt: now,
+    };
+
+    const nextSavedDecks = existing
+      ? savedDecks.map((savedDeck) => (savedDeck.id === existing.id ? nextDeck : savedDeck))
+      : [nextDeck, ...savedDecks];
+
+    persistSavedDecks(nextSavedDecks);
+    setSelectedSavedDeckId(nextDeck.id);
+    setDeckName(normalizedName);
+    toast({ title: `Saved "${normalizedName}"` });
+  }, [deck, deckName, persistSavedDecks, savedDecks, selectedSetId, toast]);
+
+  const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
+    setSelectedSavedDeckId(savedDeck.id);
+    setDeckName(savedDeck.name);
+    setSelectedSetId(savedDeck.selectedSetId || ALL_SETS_ID);
+    setDeck(toDeckMap(savedDeck.entries));
+    setView('editor');
+    router.push(`/ptcg/deckbuilder/${savedDeck.id}`);
+  }, [router]);
+
+  const startNewDeck = useCallback(() => {
+    setSelectedSavedDeckId('');
+    setDeckName('Untitled Deck');
+    setDeck({});
+    setSelectedSetId(ALL_SETS_ID);
+    setView('editor');
+    router.push('/ptcg/deckbuilder/new');
+  }, [router]);
+
   const isOverLimit = totalCards > MAX_DECK_SIZE;
+
+  const importDecklist = useCallback(async () => {
+    if (!importText.trim()) {
+      toast({ title: 'Paste a decklist first.' });
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      const response = await fetch('/api/ptcg/cards/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ decklist: importText }),
+      });
+
+      const payload = (await response.json()) as ImportResponse;
+      if (!response.ok) {
+        throw new Error((payload as { message?: string }).message ?? 'Import failed');
+      }
+
+      setDeck(toDeckMap(payload.entries ?? []));
+      setIsImportOpen(false);
+      setImportText('');
+
+      if (payload.unresolved?.length) {
+        toast({ title: `Imported ${payload.importedLines}/${payload.parsedLines} lines (${payload.unresolved.length} unresolved).` });
+      } else {
+        toast({ title: `Imported ${payload.totalCards} cards.` });
+      }
+    } catch (error) {
+      toast({ title: error instanceof Error ? error.message : 'Failed to import decklist.' });
+    } finally {
+      setIsImporting(false);
+    }
+  }, [importText, toast]);
+
+  if (view === 'library') {
+    return (
+      <UICard>
+        <CardHeader>
+          <CardTitle className="text-base text-slate-100">My Decks</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <button
+              type="button"
+              onClick={startNewDeck}
+              className="rounded-md border border-dashed border-border bg-muted/20 p-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <div className="mb-2 grid aspect-[8/5] place-items-center rounded bg-muted">
+                <span className="text-4xl font-semibold text-muted-foreground">+</span>
+              </div>
+              <p className="truncate text-sm font-semibold">New Deck</p>
+              <p className="text-xs text-muted-foreground">Create from scratch</p>
+            </button>
+
+            {savedDecks.map((savedDeck) => (
+              <div key={savedDeck.id} className="rounded-md border border-border p-3">
+                <button
+                  type="button"
+                  onClick={() => openSavedDeck(savedDeck)}
+                  className="w-full text-left"
+                >
+                  <div className="mb-2 grid aspect-[8/5] grid-cols-8 grid-rows-5 gap-px overflow-hidden rounded bg-muted p-0.5">
+                    {savedDeck.entries.slice(0, 40).map((entry) => (
+                      <div key={entry.id} className="overflow-hidden rounded-[2px] bg-muted/40">
+                        {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
+                          <img
+                            src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
+                            alt={entry.name}
+                            className="h-full w-full object-contain"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-muted" />
+                        )}
+                      </div>
+                    ))}
+                    {Array.from({ length: Math.max(0, 40 - savedDeck.entries.length) }).map((_, index) => (
+                      <div key={`empty-${savedDeck.id}-${index}`} className="rounded-[2px] bg-muted/30" />
+                    ))}
+                  </div>
+                  <p className="truncate text-sm font-semibold">{savedDeck.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Last Saved {new Date(savedDeck.savedAt).toLocaleString()}
+                  </p>
+                </button>
+                <Button
+                  variant="outline"
+                  className="mt-2 w-full"
+                  onClick={() => {
+                    const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
+                    persistSavedDecks(nextSavedDecks);
+                    if (selectedSavedDeckId === savedDeck.id) {
+                      setSelectedSavedDeckId('');
+                    }
+                    toast({ title: `Deleted "${savedDeck.name}"` });
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            ))}
+          </div>
+          {savedDecks.length === 0 && (
+            <p className="text-sm text-muted-foreground">No saved decks yet. Use New Deck to get started.</p>
+          )}
+        </CardContent>
+      </UICard>
+    );
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-8">
       <UICard className="lg:col-span-5">
-        <CardHeader>
-          <CardTitle className="text-base text-slate-100">Deck</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            value={deckName}
-            onChange={(event) => setDeckName(event.target.value)}
-            placeholder="Deck name"
-          />
+        <CardContent className="space-y-4 pt-4">
+          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+            <Input
+              value={deckName}
+              onChange={(event) => setDeckName(event.target.value)}
+              placeholder="Deck name"
+            />
+            <Button onClick={saveDeck}>Save</Button>
+            <Button variant="outline" onClick={() => setIsImportOpen((prev) => !prev)}>
+              Import
+            </Button>
+            <Button variant="outline" onClick={clearDeck}>
+              Clear
+            </Button>
+          </div>
+
+          {isImportOpen && (
+            <div className="space-y-2 rounded-md border border-border p-3">
+              <p className="text-xs text-muted-foreground">Paste a PTCGL/Limitless-style decklist.</p>
+              <textarea
+                value={importText}
+                onChange={(event) => setImportText(event.target.value)}
+                className="min-h-36 w-full rounded-md border border-input bg-background p-2 text-sm"
+                placeholder={`Pokémon: 0\n\nTrainer: 57\n2 Pokémon Catcher POR 82\n...\n\nEnergy: 0`}
+              />
+              <div className="flex gap-2">
+                <Button onClick={importDecklist} disabled={isImporting}>
+                  {isImporting ? 'Importing...' : 'Import Decklist'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsImportOpen(false);
+                    setImportText('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="text-sm text-muted-foreground">
             <div className={isOverLimit ? 'text-red-400 font-semibold' : undefined}>
               Cards: {totalCards}/{MAX_DECK_SIZE}
             </div>
-            <div>Pokemon: {pokemonCount}</div>
-            <div>Trainers: {trainerCount}</div>
-            <div>Energy: {energyCount}</div>
           </div>
 
           <div className="pr-1">
@@ -442,15 +673,56 @@ export function DeckbuilderClient() {
                     key={entry.id}
                     role="button"
                     tabIndex={0}
-                    onClick={() => {
-                      setPreviewCard(toCatalogCard(entry));
-                      setPreviewSource('deck');
+                    onClick={(event) => {
+                      const now = Date.now();
+                      const lastClickAt = lastDeckClickAtRef.current[entry.id] ?? 0;
+                      const isDoubleClick = now - lastClickAt <= 320;
+
+                      if (isDoubleClick) {
+                        const existingTimer = deckClickTimersRef.current[entry.id];
+                        if (existingTimer) {
+                          window.clearTimeout(existingTimer);
+                          delete deckClickTimersRef.current[entry.id];
+                        }
+                        lastDeckClickAtRef.current[entry.id] = 0;
+                        setPreviewCard(toCatalogCard(entry));
+                        setPreviewSource('deck');
+                        return;
+                      }
+
+                      lastDeckClickAtRef.current[entry.id] = now;
+                      const existingTimer = deckClickTimersRef.current[entry.id];
+                      if (existingTimer) {
+                        window.clearTimeout(existingTimer);
+                      }
+                      deckClickTimersRef.current[entry.id] = window.setTimeout(() => {
+                        addCard(toCatalogCard(entry));
+                        delete deckClickTimersRef.current[entry.id];
+                        lastDeckClickAtRef.current[entry.id] = 0;
+                      }, 340);
+                    }}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
+                      const existingTimer = deckClickTimersRef.current[entry.id];
+                      if (existingTimer) {
+                        window.clearTimeout(existingTimer);
+                        delete deckClickTimersRef.current[entry.id];
+                      }
+                      decrementCard(entry.id);
                     }}
                     onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        addCard(toCatalogCard(entry));
+                      }
+                      if (event.key === ' ') {
                         event.preventDefault();
                         setPreviewCard(toCatalogCard(entry));
                         setPreviewSource('deck');
+                      }
+                      if (event.key === 'Backspace' || event.key === 'Delete') {
+                        event.preventDefault();
+                        decrementCard(entry.id);
                       }
                     }}
                   >
@@ -475,9 +747,6 @@ export function DeckbuilderClient() {
             )}
           </div>
 
-          <Button variant="outline" onClick={clearDeck}>
-            Clear Deck
-          </Button>
         </CardContent>
       </UICard>
 
@@ -541,12 +810,18 @@ export function DeckbuilderClient() {
                   className="cursor-pointer rounded-md p-1 transition-transform duration-150 ease-out hover:scale-[1.03] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   role="button"
                   tabIndex={0}
-                  onClick={() => {
+                  onClick={() => addCard(card)}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
                     setPreviewCard(card);
                     setPreviewSource('search');
                   }}
                   onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      addCard(card);
+                    }
+                    if (event.key === ' ') {
                       event.preventDefault();
                       setPreviewCard(card);
                       setPreviewSource('search');
