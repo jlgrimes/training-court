@@ -19,6 +19,8 @@ type CardMetadata = {
   setName?: string;
   setSeries?: string;
   setReleaseDate?: string;
+  subtypes?: string[];
+  energyKind?: 'Basic' | 'Special';
   number?: string;
   cardText: string[];
   weakness: string[];
@@ -179,6 +181,63 @@ const toDeckMap = (entries: Array<DeckEntry>): Record<string, DeckEntry> => {
   }, {});
 };
 
+const isBasicEnergy = (card: Pick<CatalogCard, 'category' | 'name' | 'metadata'>): boolean => {
+  if (card.category !== 'Energy') {
+    return false;
+  }
+
+  if (card.metadata.energyKind === 'Basic') {
+    return true;
+  }
+
+  if (card.metadata.energyKind === 'Special') {
+    return false;
+  }
+
+  return /basic/i.test(card.name) && /energy/i.test(card.name);
+};
+
+const isSpecialEnergy = (card: Pick<CatalogCard, 'category' | 'metadata'>): boolean => {
+  return card.category === 'Energy' && card.metadata.energyKind === 'Special';
+};
+
+const isStadiumCard = (card: Pick<CatalogCard, 'metadata'>): boolean => {
+  return (card.metadata.subtypes ?? []).some((subtype) => subtype.toLowerCase() === 'stadium');
+};
+
+const isFourCopyTypeRestricted = (card: Pick<CatalogCard, 'category' | 'metadata'>): boolean => {
+  if (card.category === 'Pokemon' || card.category === 'Trainer') {
+    return true;
+  }
+  if (isStadiumCard(card)) {
+    return true;
+  }
+  if (isSpecialEnergy(card)) {
+    return true;
+  }
+  return false;
+};
+
+const getRuleViolation = (card: CatalogCard, deckState: Record<string, DeckEntry>): string | null => {
+  const existingById = deckState[card.id];
+  const nextIdQty = (existingById?.qty ?? 0) + 1;
+
+  if (isFourCopyTypeRestricted(card) && nextIdQty > 4) {
+    return 'You can only include up to 4 copies of that card.';
+  }
+
+  if (!isBasicEnergy(card)) {
+    const sameNameQty = Object.values(deckState)
+      .filter((entry) => entry.name.toLowerCase() === card.name.toLowerCase())
+      .reduce((sum, entry) => sum + entry.qty, 0);
+    if (sameNameQty + 1 > 4) {
+      return 'You can only include up to 4 cards with that name.';
+    }
+  }
+
+  return null;
+};
+
 export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -202,8 +261,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const [view, setView] = useState<DeckbuilderView>('library');
   const [previewCard, setPreviewCard] = useState<CatalogCard | null>(null);
   const [previewSource, setPreviewSource] = useState<PreviewSource>('search');
-  const [isImportOpen, setIsImportOpen] = useState(false);
-  const [importText, setImportText] = useState('');
   const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
@@ -367,7 +424,14 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   }, [deckEntries]);
 
   const addCard = useCallback((card: CatalogCard) => {
+    let blockedReason: string | null = null;
     setDeck((prev) => {
+      const violation = getRuleViolation(card, prev);
+      if (violation) {
+        blockedReason = violation;
+        return prev;
+      }
+
       const existing = prev[card.id];
       if (existing) {
         return {
@@ -393,7 +457,11 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         },
       };
     });
-  }, []);
+
+    if (blockedReason) {
+      toast({ title: blockedReason });
+    }
+  }, [toast]);
 
   const toCatalogCard = useCallback((entry: DeckEntry): CatalogCard => {
     return {
@@ -497,20 +565,22 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
   const isOverLimit = totalCards > MAX_DECK_SIZE;
 
-  const importDecklist = useCallback(async () => {
-    if (!importText.trim()) {
-      toast({ title: 'Paste a decklist first.' });
-      return;
-    }
-
-    setIsImporting(true);
+  const importFromClipboard = useCallback(async () => {
     try {
+      const clipboardText = await navigator.clipboard.readText();
+      if (!clipboardText.trim()) {
+        toast({ title: 'Clipboard is empty.' });
+        return;
+      }
+
+      setIsImporting(true);
+
       const response = await fetch('/api/ptcg/cards/import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ decklist: importText }),
+        body: JSON.stringify({ decklist: clipboardText }),
       });
 
       const payload = (await response.json()) as ImportResponse;
@@ -518,21 +588,67 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         throw new Error((payload as { message?: string }).message ?? 'Import failed');
       }
 
-      setDeck(toDeckMap(payload.entries ?? []));
-      setIsImportOpen(false);
-      setImportText('');
+      const importEntries = payload.entries ?? [];
+      const importDeckMap: Record<string, DeckEntry> = {};
+      const importViolations: string[] = [];
 
-      if (payload.unresolved?.length) {
+      for (const entry of importEntries) {
+        const asCard: CatalogCard = {
+          id: entry.id,
+          localId: entry.localId,
+          name: entry.name,
+          imageUrlHiRes: entry.imageUrlHiRes,
+          imageUrl: entry.imageUrl,
+          category: entry.category ?? 'Unknown',
+          metadata: {
+            ...(entry.metadata ?? {
+              cardText: [],
+              weakness: [],
+              resistance: [],
+              retreatCost: [],
+              rulebox: [],
+            }),
+          },
+        };
+
+        for (let i = 0; i < entry.qty; i += 1) {
+          const violation = getRuleViolation(asCard, importDeckMap);
+          if (violation) {
+            importViolations.push(`${entry.name}: ${violation}`);
+            break;
+          }
+
+          const existing = importDeckMap[entry.id];
+          if (existing) {
+            existing.qty += 1;
+          } else {
+            importDeckMap[entry.id] = {
+              ...entry,
+              qty: 1,
+            };
+          }
+        }
+      }
+
+      // Import is authoritative: replace current deck contents entirely.
+      setDeck({});
+      setDeck(importDeckMap);
+      setSelectedSavedDeckId('');
+
+      if (importViolations.length > 0) {
+        toast({ title: `Imported with deck rule limits (${importViolations.length} line(s) capped).` });
+      } else if (payload.unresolved?.length) {
         toast({ title: `Imported ${payload.importedLines}/${payload.parsedLines} lines (${payload.unresolved.length} unresolved).` });
       } else {
-        toast({ title: `Imported ${payload.totalCards} cards.` });
+        const importedCount = Object.values(importDeckMap).reduce((sum, deckEntry) => sum + deckEntry.qty, 0);
+        toast({ title: `Imported ${importedCount} cards.` });
       }
-    } catch (error) {
-      toast({ title: error instanceof Error ? error.message : 'Failed to import decklist.' });
+    } catch {
+      toast({ title: 'Clipboard access blocked.' });
     } finally {
       setIsImporting(false);
     }
-  }, [importText, toast]);
+  }, [toast]);
 
   if (view === 'library') {
     return (
@@ -621,39 +737,13 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
               placeholder="Deck name"
             />
             <Button onClick={saveDeck}>Save</Button>
-            <Button variant="outline" onClick={() => setIsImportOpen((prev) => !prev)}>
-              Import
+            <Button variant="outline" onClick={importFromClipboard} disabled={isImporting}>
+              {isImporting ? 'Importing...' : 'Import'}
             </Button>
             <Button variant="outline" onClick={clearDeck}>
               Clear
             </Button>
           </div>
-
-          {isImportOpen && (
-            <div className="space-y-2 rounded-md border border-border p-3">
-              <p className="text-xs text-muted-foreground">Paste a PTCGL/Limitless-style decklist.</p>
-              <textarea
-                value={importText}
-                onChange={(event) => setImportText(event.target.value)}
-                className="min-h-36 w-full rounded-md border border-input bg-background p-2 text-sm"
-                placeholder={`Pokémon: 0\n\nTrainer: 57\n2 Pokémon Catcher POR 82\n...\n\nEnergy: 0`}
-              />
-              <div className="flex gap-2">
-                <Button onClick={importDecklist} disabled={isImporting}>
-                  {isImporting ? 'Importing...' : 'Import Decklist'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsImportOpen(false);
-                    setImportText('');
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
 
           <div className="text-sm text-muted-foreground">
             <div className={isOverLimit ? 'text-red-400 font-semibold' : undefined}>
@@ -676,7 +766,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                     onClick={(event) => {
                       const now = Date.now();
                       const lastClickAt = lastDeckClickAtRef.current[entry.id] ?? 0;
-                      const isDoubleClick = now - lastClickAt <= 320;
+                      const isDoubleClick = now - lastClickAt <= 280;
 
                       if (isDoubleClick) {
                         const existingTimer = deckClickTimersRef.current[entry.id];
@@ -699,7 +789,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                         addCard(toCatalogCard(entry));
                         delete deckClickTimersRef.current[entry.id];
                         lastDeckClickAtRef.current[entry.id] = 0;
-                      }, 340);
+                      }, 210);
                     }}
                     onContextMenu={(event) => {
                       event.preventDefault();

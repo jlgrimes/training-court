@@ -11,6 +11,8 @@ export type DeckbuilderCardMetadata = {
   setName?: string;
   setSeries?: string;
   setReleaseDate?: string;
+  subtypes?: string[];
+  energyKind?: 'Basic' | 'Special';
   number?: string;
   cardText: string[];
   weakness: string[];
@@ -144,6 +146,17 @@ const parseCardCategory = (card: JsonObject): string => {
   return 'Unknown';
 };
 
+const parseEnergyKind = (card: JsonObject): 'Basic' | 'Special' | undefined => {
+  const subtypes = toStringArray(card.subtypes).map((value) => value.toLowerCase());
+  if (subtypes.includes('basic')) {
+    return 'Basic';
+  }
+  if (subtypes.includes('special')) {
+    return 'Special';
+  }
+  return undefined;
+};
+
 const parseCardText = (card: JsonObject): string[] => {
   const textEntries = toStringArray(card.text);
   const attackEntries = Array.isArray(card.attacks)
@@ -265,6 +278,8 @@ const parseCard = (rawCard: unknown): (DeckbuilderCatalogCard & { setId: string;
       setName: setData.setName,
       setSeries: setData.setSeries,
       setReleaseDate: setData.releaseDate,
+      subtypes: toStringArray(card.subtypes),
+      energyKind: parseEnergyKind(card),
       number: toString(card.number) ?? localId,
       cardText: parseCardText(card),
       weakness: parseWeaknessLike(card.weaknesses),
