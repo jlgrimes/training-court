@@ -34,13 +34,13 @@ const buildIndex = (cards: DeckbuilderCatalogCard[]) => {
 
   cards.forEach((card) => {
     const setId = card.metadata.setId?.toLowerCase();
-    const setPtcgoCode = card.metadata.setPtcgoCode?.toLowerCase();
+    const setCode = card.metadata.setCode?.toLowerCase();
     const number = card.metadata.number?.toLowerCase();
     if (setId && number) {
       bySetNumber.set(`${setId}|${number}`, card);
     }
-    if (setPtcgoCode && number) {
-      byPtcgoSetNumber.set(`${setPtcgoCode}|${number}`, card);
+    if (setCode && number) {
+      byPtcgoSetNumber.set(`${setCode}|${number}`, card);
     }
 
     const key = normalize(card.name);
@@ -109,7 +109,7 @@ const resolveCard = (
     const bySet = candidates.find(
       (card) =>
         card.metadata.setId?.toLowerCase() === setCode ||
-        card.metadata.setPtcgoCode?.toLowerCase() === setCode
+        card.metadata.setCode?.toLowerCase() === setCode
     );
     if (bySet) {
       return bySet;

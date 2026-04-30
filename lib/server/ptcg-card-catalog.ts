@@ -6,8 +6,9 @@ type JsonObject = Record<string, unknown>;
 
 export type DeckbuilderCardMetadata = {
   hp?: string;
+  supertype?: string;
   setId?: string;
-  setPtcgoCode?: string;
+  setCode?: string;
   setName?: string;
   setSeries?: string;
   setReleaseDate?: string;
@@ -273,8 +274,9 @@ const parseCard = (rawCard: unknown): (DeckbuilderCatalogCard & { setId: string;
     category: parseCardCategory(card),
     metadata: {
       hp: toString(card.hp),
+      supertype: toString(card.supertype) ?? toString(card.category),
       setId: setData.setId,
-      setPtcgoCode: setData.setPtcgoCode,
+      setCode: setData.setPtcgoCode,
       setName: setData.setName,
       setSeries: setData.setSeries,
       setReleaseDate: setData.releaseDate,

@@ -16,7 +16,9 @@ const ALL_SETS_ID = 'all';
 
 type CardMetadata = {
   hp?: string;
+  supertype?: string;
   setId?: string;
+  setCode?: string;
   setName?: string;
   setSeries?: string;
   setReleaseDate?: string;
@@ -49,6 +51,7 @@ type DeckEntry = {
   imageUrlHiRes?: string;
   imageUrl?: string;
   qty: number;
+  order?: number;
   category?: string;
   metadata?: CardMetadata;
 };
@@ -123,8 +126,9 @@ const normalizeStoredDeck = (parsed: StoredDeck): StoredDeck => {
     };
   }
 
-  const entries = parsed.entries.map((entry) => ({
+  const entries = parsed.entries.map((entry, index) => ({
     ...entry,
+    order: entry.order ?? index,
     metadata: entry.metadata ?? {
       cardText: [],
       weakness: [],
@@ -182,8 +186,117 @@ const toDeckMap = (entries: Array<DeckEntry>): Record<string, DeckEntry> => {
   }, {});
 };
 
+const getNextDeckOrder = (deckState: Record<string, DeckEntry>): number => {
+  const maxOrder = Object.values(deckState).reduce((max, entry) => {
+    const current = typeof entry.order === 'number' ? entry.order : -1;
+    return current > max ? current : max;
+  }, -1);
+  return maxOrder + 1;
+};
+
+const getUniqueDeckName = (requestedName: string, existingDecks: SavedDeck[]): string => {
+  const baseName = requestedName.trim() || 'Untitled Deck';
+  const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const suffixPattern = new RegExp(`^${escapedBase}(?:\\s+(\\d+))?$`, 'i');
+
+  let hasExactMatch = false;
+  let maxSuffix = 0;
+  for (const deck of existingDecks) {
+    const match = deck.name.trim().match(suffixPattern);
+    if (!match) {
+      continue;
+    }
+    if (!match[1]) {
+      hasExactMatch = true;
+      continue;
+    }
+
+    const parsed = Number(match[1]);
+    if (Number.isFinite(parsed) && parsed > maxSuffix) {
+      maxSuffix = parsed;
+    }
+  }
+
+  if (!hasExactMatch && maxSuffix === 0) {
+    return baseName;
+  }
+  return `${baseName} ${maxSuffix + 1}`;
+};
+
+const formatDecklistName = (name: string): string => {
+  return name.replace(/^Pokemon\b/i, 'Pokémon');
+};
+
+const normalizeForMatch = (value: string): string =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+const getDecklistSection = (entry: DeckEntry): 'pokemon' | 'trainer' | 'energy' | 'other' => {
+  const normalizedSupertype = normalizeForMatch(entry.metadata?.supertype ?? '');
+  if (normalizedSupertype === 'pokemon') {
+    return 'pokemon';
+  }
+  if (normalizedSupertype === 'trainer') {
+    return 'trainer';
+  }
+  if (normalizedSupertype === 'energy') {
+    return 'energy';
+  }
+
+  const normalizedCategory = normalizeForMatch(entry.category ?? '');
+  if (normalizedCategory === 'pokemon') {
+    return 'pokemon';
+  }
+  if (normalizedCategory === 'trainer') {
+    return 'trainer';
+  }
+  if (normalizedCategory === 'energy') {
+    return 'energy';
+  }
+  return 'other';
+};
+
+const buildDecklistText = (entries: DeckEntry[]): string => {
+  const orderedEntries = entries.slice().sort((left, right) => {
+    const leftOrder = typeof left.order === 'number' ? left.order : Number.MAX_SAFE_INTEGER;
+    const rightOrder = typeof right.order === 'number' ? right.order : Number.MAX_SAFE_INTEGER;
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+    return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+  });
+
+  const pokemon = orderedEntries.filter((entry) => getDecklistSection(entry) === 'pokemon');
+  const trainer = orderedEntries.filter((entry) => getDecklistSection(entry) === 'trainer');
+  const energy = orderedEntries.filter((entry) => getDecklistSection(entry) === 'energy');
+  const other = orderedEntries.filter((entry) => getDecklistSection(entry) === 'other');
+
+  const formatLine = (entry: DeckEntry): string => {
+    const setCode = (entry.metadata?.setCode ?? entry.metadata?.setId ?? '').toUpperCase();
+    const number = entry.metadata?.number ?? entry.localId ?? '';
+    const cardName = formatDecklistName(entry.name);
+    return `${entry.qty} ${cardName}${setCode && number ? ` ${setCode} ${number}` : ''}`;
+  };
+
+  return [
+    `Pokémon: ${pokemon.reduce((sum, entry) => sum + entry.qty, 0)}`,
+    '',
+    ...pokemon.map(formatLine),
+    '',
+    `Trainer: ${trainer.reduce((sum, entry) => sum + entry.qty, 0)}`,
+    ...trainer.map(formatLine),
+    '',
+    `Energy: ${energy.reduce((sum, entry) => sum + entry.qty, 0) + other.reduce((sum, entry) => sum + entry.qty, 0)}`,
+    ...energy.map(formatLine),
+    ...other.map(formatLine),
+  ].join('\n');
+};
+
 const isBasicEnergy = (card: Pick<CatalogCard, 'category' | 'name' | 'metadata'>): boolean => {
-  if (card.category !== 'Energy') {
+  if (card.metadata.energyKind === 'Special') {
     return false;
   }
 
@@ -191,15 +304,28 @@ const isBasicEnergy = (card: Pick<CatalogCard, 'category' | 'name' | 'metadata'>
     return true;
   }
 
-  if (card.metadata.energyKind === 'Special') {
-    return false;
+  const normalizedCategory = normalizeForMatch(card.category ?? '');
+  const normalizedName = normalizeForMatch(card.name ?? '');
+
+  if (normalizedCategory === 'energy') {
+    return true;
   }
 
-  return /basic/i.test(card.name) && /energy/i.test(card.name);
+  // Strong fallback for catalog entries that omit energy metadata/category.
+  if (
+    /^(basic\s+)?(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy)\s+energy$/.test(
+      normalizedName
+    )
+  ) {
+    return true;
+  }
+
+  // Fallback for inconsistent category metadata: energy cards usually include "Energy" in name.
+  return normalizedName.includes('energy');
 };
 
 const isSpecialEnergy = (card: Pick<CatalogCard, 'category' | 'metadata'>): boolean => {
-  return card.category === 'Energy' && card.metadata.energyKind === 'Special';
+  return card.metadata.energyKind === 'Special';
 };
 
 const isStadiumCard = (card: Pick<CatalogCard, 'metadata'>): boolean => {
@@ -244,6 +370,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const { toast } = useToast();
   const deckClickTimersRef = useRef<Record<string, number>>({});
   const lastDeckClickAtRef = useRef<Record<string, number>>({});
+  const dragCardIdRef = useRef<string | null>(null);
   const [sets, setSets] = useState<Array<SetOption>>([]);
   const [selectedSetId, setSelectedSetId] = useState('');
   const [cards, setCards] = useState<Array<CatalogCard>>([]);
@@ -419,8 +546,8 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
   const deckEntries = useMemo(() => {
     return Object.values(deck).sort((a, b) => {
-      if (a.category && b.category && a.category !== b.category) {
-        return a.category.localeCompare(b.category);
+      if (typeof a.order === 'number' && typeof b.order === 'number' && a.order !== b.order) {
+        return a.order - b.order;
       }
       return a.name.localeCompare(b.name);
     });
@@ -459,6 +586,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
           imageUrlHiRes: card.imageUrlHiRes,
           imageUrl: card.imageUrl,
           qty: 1,
+          order: getNextDeckOrder(prev),
           category: card.category,
           metadata: card.metadata,
         },
@@ -523,6 +651,39 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     setDeck({});
   }, []);
 
+  const moveDeckCard = useCallback((fromCardId: string, toCardId: string) => {
+    if (!fromCardId || !toCardId || fromCardId === toCardId) {
+      return;
+    }
+
+    setDeck((prev) => {
+      const ordered = Object.values(prev).slice().sort((a, b) => {
+        const aOrder = typeof a.order === 'number' ? a.order : 0;
+        const bOrder = typeof b.order === 'number' ? b.order : 0;
+        return aOrder - bOrder;
+      });
+
+      const fromIndex = ordered.findIndex((entry) => entry.id === fromCardId);
+      const toIndex = ordered.findIndex((entry) => entry.id === toCardId);
+      if (fromIndex === -1 || toIndex === -1) {
+        return prev;
+      }
+
+      const [moved] = ordered.splice(fromIndex, 1);
+      ordered.splice(toIndex, 0, moved);
+
+      const next: Record<string, DeckEntry> = {};
+      ordered.forEach((entry, index) => {
+        next[entry.id] = {
+          ...entry,
+          order: index,
+        };
+      });
+
+      return next;
+    });
+  }, []);
+
   const persistSavedDecks = useCallback((nextSavedDecks: SavedDeck[]) => {
     setSavedDecks(nextSavedDecks);
     localStorage.setItem(SAVED_DECKS_STORAGE_KEY, JSON.stringify(nextSavedDecks));
@@ -533,24 +694,28 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     const now = new Date().toISOString();
     const entries = Object.values(deck);
 
-    const existing = savedDecks.find((savedDeck) => savedDeck.name.toLowerCase() === normalizedName.toLowerCase());
+    const existingById = selectedSavedDeckId
+      ? savedDecks.find((savedDeck) => savedDeck.id === selectedSavedDeckId)
+      : undefined;
+    const nextName = existingById ? normalizedName : getUniqueDeckName(normalizedName, savedDecks);
     const nextDeck: SavedDeck = {
-      id: existing?.id ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      name: normalizedName,
+      id: existingById?.id ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      name: nextName,
       selectedSetId,
       entries,
       savedAt: now,
     };
 
-    const nextSavedDecks = existing
-      ? savedDecks.map((savedDeck) => (savedDeck.id === existing.id ? nextDeck : savedDeck))
+    const nextSavedDecks = existingById
+      ? savedDecks.map((savedDeck) => (savedDeck.id === existingById.id ? nextDeck : savedDeck))
       : [nextDeck, ...savedDecks];
 
     persistSavedDecks(nextSavedDecks);
     setSelectedSavedDeckId(nextDeck.id);
-    setDeckName(normalizedName);
-    toast({ title: `Saved "${normalizedName}"` });
-  }, [deck, deckName, persistSavedDecks, savedDecks, selectedSetId, toast]);
+    setDeckName(nextName);
+    router.replace(`/ptcg/deckbuilder/${nextDeck.id}`);
+    toast({ title: `Saved "${nextName}"` });
+  }, [deck, deckName, persistSavedDecks, router, savedDecks, selectedSavedDeckId, selectedSetId, toast]);
 
   const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
     setSelectedSavedDeckId(savedDeck.id);
@@ -629,9 +794,11 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
           if (existing) {
             existing.qty += 1;
           } else {
+            const nextOrder = getNextDeckOrder(importDeckMap);
             importDeckMap[entry.id] = {
               ...entry,
               qty: 1,
+              order: nextOrder,
             };
           }
         }
@@ -656,6 +823,17 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       setIsImporting(false);
     }
   }, [toast]);
+
+  const exportToClipboard = useCallback(async () => {
+    try {
+      const deckEntries = Object.values(deck);
+      const decklistText = buildDecklistText(deckEntries);
+      await navigator.clipboard.writeText(decklistText);
+      toast({ title: 'Decklist copied to clipboard.' });
+    } catch {
+      toast({ title: 'Unable to copy decklist to clipboard.' });
+    }
+  }, [deck, toast]);
 
   if (view === 'library') {
     return (
@@ -741,7 +919,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     <div className="grid gap-4 lg:grid-cols-8">
       <UICard className="lg:col-span-5">
         <CardContent className="space-y-4 pt-4">
-          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
             <Input
               value={deckName}
               onChange={(event) => setDeckName(event.target.value)}
@@ -750,6 +928,9 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
             <Button onClick={saveDeck}>Save</Button>
             <Button variant="outline" onClick={importFromClipboard} disabled={isImporting}>
               {isImporting ? 'Importing...' : 'Import'}
+            </Button>
+            <Button variant="outline" onClick={exportToClipboard}>
+              Export
             </Button>
             <Button variant="outline" onClick={clearDeck}>
               Clear
@@ -774,6 +955,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                     key={entry.id}
                     role="button"
                     tabIndex={0}
+                    draggable
                     onClick={(event) => {
                       const now = Date.now();
                       const lastClickAt = lastDeckClickAtRef.current[entry.id] ?? 0;
@@ -825,6 +1007,24 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                         event.preventDefault();
                         decrementCard(entry.id);
                       }
+                    }}
+                    onDragStart={() => {
+                      dragCardIdRef.current = entry.id;
+                    }}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const fromCardId = dragCardIdRef.current;
+                      if (!fromCardId) {
+                        return;
+                      }
+                      moveDeckCard(fromCardId, entry.id);
+                      dragCardIdRef.current = null;
+                    }}
+                    onDragEnd={() => {
+                      dragCardIdRef.current = null;
                     }}
                   >
                     <div className="relative overflow-hidden rounded-md bg-muted">
