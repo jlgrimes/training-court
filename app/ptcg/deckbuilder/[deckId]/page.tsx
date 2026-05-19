@@ -31,7 +31,7 @@ export default async function DeckbuilderDeckPage({ params }: DeckbuilderDeckPag
 
   return (
     <>
-      <Header description='Build and plan Pokemon TCG decks'>PTCG Deckbuilder</Header>
+      <Header description='Build Pokemon TCG decks'>PTCG Deckbuilder</Header>
       <DeckbuilderClient initialDeckId={params.deckId} />
     </>
   );

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trash2 } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,22 +82,8 @@ type ImportResponse = {
   code: number;
 };
 
-type SetOption = {
-  id: string;
-  name: string;
-  releaseDate?: string;
-  cardCount: number;
-};
-
-type SetsResponse = {
-  sets: SetOption[];
-  code: number;
-};
-
 type SearchCardsResponse = {
   cards: CatalogCard[];
-  totalInSet: number;
-  totalMatched: number;
   returned: number;
   code: number;
 };
@@ -145,20 +131,10 @@ const normalizeStoredDeck = (parsed: StoredDeck): StoredDeck => {
   };
 };
 
-const readSets = async (): Promise<SetOption[]> => {
-  const response = await fetch('/api/ptcg/cards/sets');
-  if (!response.ok) {
-    throw new Error('Failed to load sets');
-  }
-
-  const payload = (await response.json()) as SetsResponse;
-  return payload.sets ?? [];
-};
-
 const readCardsBySet = async (
   setId: string,
   query: string
-): Promise<{ cards: CatalogCard[]; totalInSet: number; totalMatched: number }> => {
+): Promise<CatalogCard[]> => {
   const normalizedQuery = query.trim();
   const effectiveSetId = setId || ALL_SETS_ID;
   const limit = normalizedQuery ? '2000' : effectiveSetId === ALL_SETS_ID ? '400' : '1200';
@@ -172,11 +148,7 @@ const readCardsBySet = async (
   }
 
   const payload = (await response.json()) as SearchCardsResponse;
-  return {
-    cards: payload.cards ?? [],
-    totalInSet: payload.totalInSet ?? 0,
-    totalMatched: payload.totalMatched ?? 0,
-  };
+  return payload.cards ?? [];
 };
 
 const toDeckMap = (entries: Array<DeckEntry>): Record<string, DeckEntry> => {
@@ -304,62 +276,25 @@ const isBasicEnergy = (card: Pick<CatalogCard, 'category' | 'name' | 'metadata'>
     return true;
   }
 
-  const normalizedCategory = normalizeForMatch(card.category ?? '');
   const normalizedName = normalizeForMatch(card.name ?? '');
 
-  if (normalizedCategory === 'energy') {
-    return true;
-  }
-
   // Strong fallback for catalog entries that omit energy metadata/category.
-  if (
-    /^(basic\s+)?(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy)\s+energy$/.test(
-      normalizedName
-    )
-  ) {
-    return true;
-  }
-
-  // Fallback for inconsistent category metadata: energy cards usually include "Energy" in name.
-  return normalizedName.includes('energy');
-};
-
-const isSpecialEnergy = (card: Pick<CatalogCard, 'category' | 'metadata'>): boolean => {
-  return card.metadata.energyKind === 'Special';
-};
-
-const isStadiumCard = (card: Pick<CatalogCard, 'metadata'>): boolean => {
-  return (card.metadata.subtypes ?? []).some((subtype) => subtype.toLowerCase() === 'stadium');
-};
-
-const isFourCopyTypeRestricted = (card: Pick<CatalogCard, 'category' | 'metadata'>): boolean => {
-  if (card.category === 'Pokemon' || card.category === 'Trainer') {
-    return true;
-  }
-  if (isStadiumCard(card)) {
-    return true;
-  }
-  if (isSpecialEnergy(card)) {
-    return true;
-  }
-  return false;
+  return /^(basic\s+)?(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy)\s+energy$/.test(
+    normalizedName
+  );
 };
 
 const getRuleViolation = (card: CatalogCard, deckState: Record<string, DeckEntry>): string | null => {
-  const existingById = deckState[card.id];
-  const nextIdQty = (existingById?.qty ?? 0) + 1;
-
-  if (isFourCopyTypeRestricted(card) && nextIdQty > 4) {
-    return 'You can only include up to 4 copies of that card.';
+  if (isBasicEnergy(card)) {
+    return null;
   }
 
-  if (!isBasicEnergy(card)) {
-    const sameNameQty = Object.values(deckState)
-      .filter((entry) => entry.name.toLowerCase() === card.name.toLowerCase())
-      .reduce((sum, entry) => sum + entry.qty, 0);
-    if (sameNameQty + 1 > 4) {
-      return 'You can only include up to 4 cards with that name.';
-    }
+  const sameNameQty = Object.values(deckState)
+    .filter((entry) => entry.name.toLowerCase() === card.name.toLowerCase())
+    .reduce((sum, entry) => sum + entry.qty, 0);
+
+  if (sameNameQty + 1 > 4) {
+    return 'You can only include up to 4 cards with that name.';
   }
 
   return null;
@@ -371,18 +306,14 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const deckClickTimersRef = useRef<Record<string, number>>({});
   const lastDeckClickAtRef = useRef<Record<string, number>>({});
   const dragCardIdRef = useRef<string | null>(null);
-  const [sets, setSets] = useState<Array<SetOption>>([]);
-  const [selectedSetId, setSelectedSetId] = useState('');
   const [cards, setCards] = useState<Array<CatalogCard>>([]);
-  const [totalCardsInSelectedSet, setTotalCardsInSelectedSet] = useState(0);
-  const [totalMatchedCards, setTotalMatchedCards] = useState(0);
-  const [isLoadingSets, setIsLoadingSets] = useState(true);
   const [isLoadingCards, setIsLoadingCards] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [deckName, setDeckName] = useState('Untitled Deck');
   const [selectedSavedDeckId, setSelectedSavedDeckId] = useState('');
   const [query, setQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [deck, setDeck] = useState<Record<string, DeckEntry>>({});
   const [isHydrated, setIsHydrated] = useState(false);
   const [savedDecks, setSavedDecks] = useState<SavedDeck[]>([]);
@@ -399,9 +330,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         if (parsed.name) {
           setDeckName(parsed.name);
         }
-        if (parsed.selectedSetId) {
-          setSelectedSetId(parsed.selectedSetId);
-        }
         setDeck(toDeckMap(parsed.entries));
       }
 
@@ -413,7 +341,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
           if (props.initialDeckId === 'new') {
             setSelectedSavedDeckId('');
             setDeckName('Untitled Deck');
-            setSelectedSetId(ALL_SETS_ID);
             setDeck({});
             setView('editor');
           } else if (props.initialDeckId) {
@@ -421,7 +348,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
             if (initialDeck) {
               setSelectedSavedDeckId(initialDeck.id);
               setDeckName(initialDeck.name);
-              setSelectedSetId(initialDeck.selectedSetId || ALL_SETS_ID);
               setDeck(toDeckMap(initialDeck.entries));
               setView('editor');
             } else {
@@ -438,58 +364,9 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   }, [props.initialDeckId]);
 
   useEffect(() => {
-    let isActive = true;
-
-    const loadSets = async () => {
-      setIsLoadingSets(true);
-      setError(null);
-
-      try {
-        const setOptions = await readSets();
-        if (!isActive) {
-          return;
-        }
-
-        const withAllSets: SetOption[] = [
-          {
-            id: ALL_SETS_ID,
-            name: 'All sets',
-            cardCount: setOptions.reduce((sum, set) => sum + set.cardCount, 0),
-          },
-          ...setOptions,
-        ];
-
-        setSets(withAllSets);
-        if (withAllSets.length > 0) {
-          setSelectedSetId((current) => {
-            if (!current) {
-              return ALL_SETS_ID;
-            }
-
-            const currentExists = withAllSets.some((set) => set.id === current);
-            return currentExists ? current : ALL_SETS_ID;
-          });
-        }
-      } catch {
-        if (isActive) {
-          setError('Failed to load sets from the card catalog.');
-        }
-      } finally {
-        if (isActive) {
-          setIsLoadingSets(false);
-        }
-      }
-    };
-
-    void loadSets();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedSetId) {
+    if (!submittedQuery.trim()) {
+      setCards([]);
+      setIsLoadingCards(false);
       return;
     }
 
@@ -500,19 +377,15 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       setError(null);
 
       try {
-        const { cards: cardsForSet, totalInSet, totalMatched } = await readCardsBySet(selectedSetId, query);
+        const cardsForSet = await readCardsBySet(ALL_SETS_ID, submittedQuery);
         if (!isActive) {
           return;
         }
         setCards(cardsForSet);
-        setTotalCardsInSelectedSet(totalInSet);
-        setTotalMatchedCards(totalMatched);
       } catch {
         if (isActive) {
           setError('Failed to load cards for the selected set.');
           setCards([]);
-          setTotalCardsInSelectedSet(0);
-          setTotalMatchedCards(0);
         }
       } finally {
         if (isActive) {
@@ -526,7 +399,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     return () => {
       isActive = false;
     };
-  }, [query, selectedSetId]);
+  }, [submittedQuery]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -535,14 +408,32 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
     const payload: StoredDeck = {
       name: deckName,
-      selectedSetId,
+      selectedSetId: ALL_SETS_ID,
       entries: Object.values(deck),
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [deck, deckName, isHydrated, selectedSetId]);
+  }, [deck, deckName, isHydrated]);
 
   const filteredCards = useMemo(() => cards, [cards]);
+
+  const submitCardSearch = useCallback(() => {
+    const nextQuery = query.trim();
+    if (!nextQuery) {
+      setSubmittedQuery('');
+      setCards([]);
+      return;
+    }
+
+    setSubmittedQuery(nextQuery);
+  }, [query]);
+
+  const handleCardSearchChange = useCallback((value: string) => {
+    setQuery(value);
+    setSubmittedQuery('');
+    setCards([]);
+    setIsLoadingCards(false);
+  }, []);
 
   const deckEntries = useMemo(() => {
     return Object.values(deck).sort((a, b) => {
@@ -694,6 +585,11 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     const now = new Date().toISOString();
     const entries = Object.values(deck);
 
+    if (entries.length === 0) {
+      toast({ title: 'Add at least one card before saving.' });
+      return;
+    }
+
     const existingById = selectedSavedDeckId
       ? savedDecks.find((savedDeck) => savedDeck.id === selectedSavedDeckId)
       : undefined;
@@ -701,7 +597,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     const nextDeck: SavedDeck = {
       id: existingById?.id ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       name: nextName,
-      selectedSetId,
+      selectedSetId: ALL_SETS_ID,
       entries,
       savedAt: now,
     };
@@ -715,12 +611,11 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     setDeckName(nextName);
     router.replace(`/ptcg/deckbuilder/${nextDeck.id}`);
     toast({ title: `Saved "${nextName}"` });
-  }, [deck, deckName, persistSavedDecks, router, savedDecks, selectedSavedDeckId, selectedSetId, toast]);
+  }, [deck, deckName, persistSavedDecks, router, savedDecks, selectedSavedDeckId, toast]);
 
   const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
     setSelectedSavedDeckId(savedDeck.id);
     setDeckName(savedDeck.name);
-    setSelectedSetId(savedDeck.selectedSetId || ALL_SETS_ID);
     setDeck(toDeckMap(savedDeck.entries));
     setView('editor');
     router.push(`/ptcg/deckbuilder/${savedDeck.id}`);
@@ -730,7 +625,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     setSelectedSavedDeckId('');
     setDeckName('Untitled Deck');
     setDeck({});
-    setSelectedSetId(ALL_SETS_ID);
     setView('editor');
     router.push('/ptcg/deckbuilder/new');
   }, [router]);
@@ -925,7 +819,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
               onChange={(event) => setDeckName(event.target.value)}
               placeholder="Deck name"
             />
-            <Button onClick={saveDeck}>Save</Button>
+            <Button onClick={saveDeck} disabled={deckEntries.length === 0}>Save</Button>
             <Button variant="outline" onClick={importFromClipboard} disabled={isImporting}>
               {isImporting ? 'Importing...' : 'Import'}
             </Button>
@@ -1051,60 +945,47 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         </CardContent>
       </UICard>
 
-      <UICard className="lg:col-span-3">
+      <UICard className="flex h-[calc(100vh-9rem)] flex-col lg:sticky lg:top-4 lg:col-span-3">
         <CardHeader>
           <CardTitle className="text-base text-slate-100" />
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2 md:grid-cols-2">
-            <div>
-              <label htmlFor="set-select" className="mb-1 block text-xs text-muted-foreground">
-                Set
-              </label>
-              <select
-                id="set-select"
-                value={selectedSetId}
-                onChange={(event) => setSelectedSetId(event.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                disabled={isLoadingSets}
-              >
-                <option value="" disabled>
-                  {isLoadingSets ? 'Loading sets...' : 'Select a set'}
-                </option>
-                {sets.map((set) => (
-                  <option key={set.id} value={set.id}>
-                    {set.name} ({set.id})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="card-search" className="mb-1 block text-xs text-muted-foreground">
-                Search
-              </label>
+        <CardContent className="flex min-h-0 flex-1 flex-col space-y-4">
+          <div>
+            <label htmlFor="card-search" className="mb-1 block text-xs text-muted-foreground">
+              Search
+            </label>
+            <div className="flex gap-2">
               <Input
                 id="card-search"
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by name, card id, or local id"
+                onChange={(event) => handleCardSearchChange(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    submitCardSearch();
+                  }
+                }}
+                placeholder="Search by name"
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Search cards"
+                onClick={submitCardSearch}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
           {error && <p className="text-sm text-red-400">{error}</p>}
 
-          <p className="text-xs text-muted-foreground">
-            Showing {filteredCards.length} card{filteredCards.length === 1 ? '' : 's'}
-            {query.trim()
-              ? ` from ${totalMatchedCards || filteredCards.length} matches (${totalCardsInSelectedSet || cards.length} total in selected scope).`
-              : ` from ${totalCardsInSelectedSet || cards.length} available in the selected set.`}
-          </p>
-
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">
             {isLoadingCards && <p className="text-sm text-muted-foreground">Loading cards...</p>}
 
             {!isLoadingCards &&
+              submittedQuery.trim() &&
               filteredCards.map((card) => (
                 <div
                   key={card.id}
