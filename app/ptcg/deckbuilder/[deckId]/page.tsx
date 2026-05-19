@@ -32,7 +32,7 @@ export default async function DeckbuilderDeckPage({ params }: DeckbuilderDeckPag
   return (
     <>
       <Header description='Build Pokemon TCG decks'>PTCG Deckbuilder</Header>
-      <DeckbuilderClient initialDeckId={params.deckId} />
+      <DeckbuilderClient initialDeckId={params.deckId} userId={user.id} />
     </>
   );
 }

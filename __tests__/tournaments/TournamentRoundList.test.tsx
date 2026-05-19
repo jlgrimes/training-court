@@ -19,6 +19,7 @@ function createTournament(): Tournament {
     date_from: '2026-01-01',
     date_to: '2026-01-01',
     deck: null,
+    decklist_id: null,
     format: null,
     hat_type: null,
     name: 'Test Tournament',

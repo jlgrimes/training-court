@@ -40,6 +40,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(props.tournament.category as TournamentCategory | null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(props.tournament.placement as TournamentPlacement | null);
   const [tournamentFormat, setTournamentFormat] = useState<string | null>(props.tournament.format);
+  const [tournamentDeck, setTournamentDeck] = useState<string | null>(props.tournament.deck);
+  const [tournamentDecklistId, setTournamentDecklistId] = useState<string | null>(props.tournament.decklist_id ?? null);
   const [hatType, setHatType] = useState<string | null>(props.tournament.hat_type ?? null);
   const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
   const prevLenRef = useRef<number>(props.rounds.length);
@@ -71,12 +73,14 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null, newDeck: string | null, newDecklistId: string | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
     setTournamentPlacement(newPlacement);
     setTournamentFormat(newFormat);
+    setTournamentDeck(newDeck);
+    setTournamentDecklistId(newDecklistId);
   }, []);
 
   const handleHatChange = useCallback(async (nextHat: string | null) => {
@@ -108,6 +112,8 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 tournamentCategory={tournamentCategory}
                 tournamentPlacement={tournamentPlacement}
                 tournamentFormat={tournamentFormat}
+                tournamentDeck={tournamentDeck}
+                tournamentDecklistId={tournamentDecklistId}
                 user={props.user}
                 updateClientTournament={updateClientTournamentDataOnEdit}
                 config={config}
@@ -156,7 +162,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                   {getRecord(rounds)}
                 </h1>
                 <EditableTournamentArchetype
-                  tournament={props.tournament}
+                  tournament={{ ...props.tournament, deck: tournamentDeck, decklist_id: tournamentDecklistId }}
                   tableName={config.tournamentsTable}
                   hatType={hatType}
                   editDisabled={props.tournament.user !== props.user?.id}

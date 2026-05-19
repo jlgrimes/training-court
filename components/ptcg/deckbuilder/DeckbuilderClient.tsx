@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import { Database, Json } from '@/database.types';
+import { createClient } from '@/utils/supabase/client';
 
 const STORAGE_KEY = 'ptcg-deckbuilder-v2';
 const SAVED_DECKS_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
@@ -72,7 +74,9 @@ type DeckbuilderView = 'library' | 'editor';
 
 type DeckbuilderClientProps = {
   initialDeckId?: string;
+  userId: string;
 };
+type DecklistRow = Database['public']['Tables']['decklists']['Row'];
 type ImportResponse = {
   entries: DeckEntry[];
   totalCards: number;
@@ -130,6 +134,26 @@ const normalizeStoredDeck = (parsed: StoredDeck): StoredDeck => {
     entries,
   };
 };
+
+const normalizeDeckEntries = (entries: unknown): DeckEntry[] => {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  return normalizeStoredDeck({
+    name: 'Untitled Deck',
+    selectedSetId: ALL_SETS_ID,
+    entries: entries as DeckEntry[],
+  }).entries;
+};
+
+const toSavedDeck = (row: DecklistRow): SavedDeck => ({
+  id: row.id,
+  name: row.name,
+  selectedSetId: ALL_SETS_ID,
+  entries: normalizeDeckEntries(row.cards),
+  savedAt: row.updated_at ?? row.created_at,
+});
 
 const readCardsBySet = async (
   setId: string,
@@ -321,6 +345,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const [previewCard, setPreviewCard] = useState<CatalogCard | null>(null);
   const [previewSource, setPreviewSource] = useState<PreviewSource>('search');
   const [isImporting, setIsImporting] = useState(false);
+  const [isSavingDeck, setIsSavingDeck] = useState(false);
 
   useEffect(() => {
     try {
@@ -362,6 +387,56 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       setIsHydrated(true);
     }
   }, [props.initialDeckId]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadSavedDecklists = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('decklists')
+        .select('*')
+        .eq('user_id', props.userId)
+        .eq('game', 'pokemon-tcg')
+        .order('updated_at', { ascending: false })
+        .returns<DecklistRow[]>();
+
+      if (!isActive) {
+        return;
+      }
+
+      if (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Unable to load saved decklists.',
+          description: error.message,
+        });
+        return;
+      }
+
+      const nextSavedDecks = (data ?? []).map(toSavedDeck);
+      setSavedDecks(nextSavedDecks);
+      localStorage.setItem(SAVED_DECKS_STORAGE_KEY, JSON.stringify(nextSavedDecks));
+
+      if (props.initialDeckId && props.initialDeckId !== 'new') {
+        const initialDeck = nextSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
+        if (initialDeck) {
+          setSelectedSavedDeckId(initialDeck.id);
+          setDeckName(initialDeck.name);
+          setDeck(toDeckMap(initialDeck.entries));
+          setView('editor');
+        } else {
+          setView('library');
+        }
+      }
+    };
+
+    void loadSavedDecklists();
+
+    return () => {
+      isActive = false;
+    };
+  }, [props.initialDeckId, props.userId, toast]);
 
   useEffect(() => {
     if (!submittedQuery.trim()) {
@@ -580,7 +655,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     localStorage.setItem(SAVED_DECKS_STORAGE_KEY, JSON.stringify(nextSavedDecks));
   }, []);
 
-  const saveDeck = useCallback(() => {
+  const saveDeck = useCallback(async () => {
     const normalizedName = deckName.trim() || 'Untitled Deck';
     const now = new Date().toISOString();
     const entries = Object.values(deck);
@@ -594,14 +669,44 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       ? savedDecks.find((savedDeck) => savedDeck.id === selectedSavedDeckId)
       : undefined;
     const nextName = existingById ? normalizedName : getUniqueDeckName(normalizedName, savedDecks);
-    const nextDeck: SavedDeck = {
-      id: existingById?.id ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+
+    setIsSavingDeck(true);
+    const supabase = createClient();
+    const payload = {
       name: nextName,
-      selectedSetId: ALL_SETS_ID,
-      entries,
-      savedAt: now,
+      user_id: props.userId,
+      game: 'pokemon-tcg',
+      cards: entries as unknown as Json,
+      updated_at: now,
     };
 
+    const request = existingById
+      ? supabase
+          .from('decklists')
+          .update(payload)
+          .eq('id', existingById.id)
+          .eq('user_id', props.userId)
+          .select()
+          .single<DecklistRow>()
+      : supabase
+          .from('decklists')
+          .insert(payload)
+          .select()
+          .single<DecklistRow>();
+
+    const { data, error } = await request;
+    setIsSavingDeck(false);
+
+    if (error || !data) {
+      toast({
+        variant: 'destructive',
+        title: 'Unable to save decklist.',
+        description: error?.message,
+      });
+      return;
+    }
+
+    const nextDeck = toSavedDeck(data);
     const nextSavedDecks = existingById
       ? savedDecks.map((savedDeck) => (savedDeck.id === existingById.id ? nextDeck : savedDeck))
       : [nextDeck, ...savedDecks];
@@ -611,7 +716,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     setDeckName(nextName);
     router.replace(`/ptcg/deckbuilder/${nextDeck.id}`);
     toast({ title: `Saved "${nextName}"` });
-  }, [deck, deckName, persistSavedDecks, router, savedDecks, selectedSavedDeckId, toast]);
+  }, [deck, deckName, persistSavedDecks, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
 
   const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
     setSelectedSavedDeckId(savedDeck.id);
@@ -620,6 +725,31 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     setView('editor');
     router.push(`/ptcg/deckbuilder/${savedDeck.id}`);
   }, [router]);
+
+  const deleteSavedDeck = useCallback(async (savedDeck: SavedDeck) => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('decklists')
+      .delete()
+      .eq('id', savedDeck.id)
+      .eq('user_id', props.userId);
+
+    if (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Unable to delete decklist.',
+        description: error.message,
+      });
+      return;
+    }
+
+    const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
+    persistSavedDecks(nextSavedDecks);
+    if (selectedSavedDeckId === savedDeck.id) {
+      setSelectedSavedDeckId('');
+    }
+    toast({ title: `Deleted "${savedDeck.name}"` });
+  }, [persistSavedDecks, props.userId, savedDecks, selectedSavedDeckId, toast]);
 
   const startNewDeck = useCallback(() => {
     setSelectedSavedDeckId('');
@@ -786,12 +916,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
-                        persistSavedDecks(nextSavedDecks);
-                        if (selectedSavedDeckId === savedDeck.id) {
-                          setSelectedSavedDeckId('');
-                        }
-                        toast({ title: `Deleted "${savedDeck.name}"` });
+                        void deleteSavedDeck(savedDeck);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -819,7 +944,9 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
               onChange={(event) => setDeckName(event.target.value)}
               placeholder="Deck name"
             />
-            <Button onClick={saveDeck} disabled={deckEntries.length === 0}>Save</Button>
+            <Button onClick={saveDeck} disabled={deckEntries.length === 0 || isSavingDeck}>
+              {isSavingDeck ? 'Saving...' : 'Save'}
+            </Button>
             <Button variant="outline" onClick={importFromClipboard} disabled={isImporting}>
               {isImporting ? 'Importing...' : 'Import'}
             </Button>

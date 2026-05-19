@@ -36,6 +36,7 @@ import { TournamentPlacementSelect } from './Placement/TournamentPlacementSelect
 import { tournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
 import { TournamentGameConfig } from './utils/tournament-game-config';
+import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;
@@ -58,6 +59,7 @@ export default function TournamentCreateDialog({
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
   const [format, setFormat] = useState<string | null>(null);
+  const [decklist, setDecklist] = useState<Pick<Database['public']['Tables']['decklists']['Row'], 'archetype' | 'id' | 'name'> | null>(null);
 
   const resetForm = () => {
     setTournamentName('');
@@ -65,6 +67,7 @@ export default function TournamentCreateDialog({
     setTournamentCategory(null);
     setTournamentPlacement(null);
     setFormat(null);
+    setDecklist(null);
   };
 
   const handleAddTournament = useCallback(async () => {
@@ -86,6 +89,12 @@ export default function TournamentCreateDialog({
         category: tournamentCategory,
         placement: tournamentPlacement,
         format: format,
+        ...(config.gameId === 'pokemon-tcg'
+          ? {
+              decklist_id: decklist?.id ?? null,
+              deck: decklist ? decklist.archetype ?? decklist.name : null,
+            }
+          : {}),
       })
       .select()
       .returns<Database['public']['Tables']['tournaments']['Row'][]>();
@@ -104,7 +113,7 @@ export default function TournamentCreateDialog({
     setOpen(false);
     resetForm();
     window.location.href = `${config.basePath}/${data![0].id}`;
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config.basePath, config.tournamentsTable]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config.basePath, config.tournamentsTable, config.gameId, decklist]);
 
   return (
     <Dialog
@@ -185,6 +194,14 @@ export default function TournamentCreateDialog({
               value={tournamentPlacement}
               onChange={(p: TournamentPlacement) => setTournamentPlacement(p)}
             />
+
+            {config.gameId === 'pokemon-tcg' && (
+              <DecklistSelect
+                userId={userId}
+                value={decklist?.id ?? null}
+                onChange={setDecklist}
+              />
+            )}
           </div>
 
           <DialogFooter className="mt-6">
