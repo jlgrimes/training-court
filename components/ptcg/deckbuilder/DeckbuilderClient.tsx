@@ -12,7 +12,6 @@ import { Database, Json } from '@/database.types';
 import { createClient } from '@/utils/supabase/client';
 
 const STORAGE_KEY = 'ptcg-deckbuilder-v2';
-const SAVED_DECKS_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
 const MAX_DECK_SIZE = 60;
 const ALL_SETS_ID = 'all';
 
@@ -358,28 +357,11 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         setDeck(toDeckMap(parsed.entries));
       }
 
-      const rawSavedDecks = localStorage.getItem(SAVED_DECKS_STORAGE_KEY);
-      if (rawSavedDecks) {
-        const parsedSavedDecks = JSON.parse(rawSavedDecks) as SavedDeck[];
-        if (Array.isArray(parsedSavedDecks)) {
-          setSavedDecks(parsedSavedDecks);
-          if (props.initialDeckId === 'new') {
-            setSelectedSavedDeckId('');
-            setDeckName('Untitled Deck');
-            setDeck({});
-            setView('editor');
-          } else if (props.initialDeckId) {
-            const initialDeck = parsedSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
-            if (initialDeck) {
-              setSelectedSavedDeckId(initialDeck.id);
-              setDeckName(initialDeck.name);
-              setDeck(toDeckMap(initialDeck.entries));
-              setView('editor');
-            } else {
-              setView('library');
-            }
-          }
-        }
+      if (props.initialDeckId === 'new') {
+        setSelectedSavedDeckId('');
+        setDeckName('Untitled Deck');
+        setDeck({});
+        setView('editor');
       }
     } catch {
       // Ignore corrupted local deck state and keep defaults.
@@ -416,7 +398,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
       const nextSavedDecks = (data ?? []).map(toSavedDeck);
       setSavedDecks(nextSavedDecks);
-      localStorage.setItem(SAVED_DECKS_STORAGE_KEY, JSON.stringify(nextSavedDecks));
 
       if (props.initialDeckId && props.initialDeckId !== 'new') {
         const initialDeck = nextSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
@@ -650,11 +631,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     });
   }, []);
 
-  const persistSavedDecks = useCallback((nextSavedDecks: SavedDeck[]) => {
-    setSavedDecks(nextSavedDecks);
-    localStorage.setItem(SAVED_DECKS_STORAGE_KEY, JSON.stringify(nextSavedDecks));
-  }, []);
-
   const saveDeck = useCallback(async () => {
     const normalizedName = deckName.trim() || 'Untitled Deck';
     const now = new Date().toISOString();
@@ -711,12 +687,12 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       ? savedDecks.map((savedDeck) => (savedDeck.id === existingById.id ? nextDeck : savedDeck))
       : [nextDeck, ...savedDecks];
 
-    persistSavedDecks(nextSavedDecks);
+    setSavedDecks(nextSavedDecks);
     setSelectedSavedDeckId(nextDeck.id);
     setDeckName(nextName);
     router.replace(`/ptcg/deckbuilder/${nextDeck.id}`);
     toast({ title: `Saved "${nextName}"` });
-  }, [deck, deckName, persistSavedDecks, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
+  }, [deck, deckName, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
 
   const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
     setSelectedSavedDeckId(savedDeck.id);
@@ -744,12 +720,12 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     }
 
     const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
-    persistSavedDecks(nextSavedDecks);
+    setSavedDecks(nextSavedDecks);
     if (selectedSavedDeckId === savedDeck.id) {
       setSelectedSavedDeckId('');
     }
     toast({ title: `Deleted "${savedDeck.name}"` });
-  }, [persistSavedDecks, props.userId, savedDecks, selectedSavedDeckId, toast]);
+  }, [props.userId, savedDecks, selectedSavedDeckId, toast]);
 
   const startNewDeck = useCallback(() => {
     setSelectedSavedDeckId('');
