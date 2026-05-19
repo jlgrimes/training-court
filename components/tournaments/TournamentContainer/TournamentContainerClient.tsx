@@ -73,13 +73,12 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     setRounds(newRounds);
   }, [setRounds, rounds]);
 
-  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null, newDeck: string | null, newDecklistId: string | null) => {
+  const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null, newDecklistId: string | null) => {
     setTournamentDate(newDate);
     setTournamentName(newName);
     setTournamentCategory(newCategory);
     setTournamentPlacement(newPlacement);
     setTournamentFormat(newFormat);
-    setTournamentDeck(newDeck);
     setTournamentDecklistId(newDecklistId);
   }, []);
 

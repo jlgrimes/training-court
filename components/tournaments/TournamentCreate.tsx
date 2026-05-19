@@ -59,7 +59,7 @@ export default function TournamentCreateDialog({
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
   const [format, setFormat] = useState<string | null>(null);
-  const [decklist, setDecklist] = useState<Pick<Database['public']['Tables']['decklists']['Row'], 'archetype' | 'id' | 'name'> | null>(null);
+  const [decklistId, setDecklistId] = useState<string | null>(null);
 
   const resetForm = () => {
     setTournamentName('');
@@ -67,7 +67,7 @@ export default function TournamentCreateDialog({
     setTournamentCategory(null);
     setTournamentPlacement(null);
     setFormat(null);
-    setDecklist(null);
+    setDecklistId(null);
   };
 
   const handleAddTournament = useCallback(async () => {
@@ -91,8 +91,7 @@ export default function TournamentCreateDialog({
         format: format,
         ...(config.gameId === 'pokemon-tcg'
           ? {
-              decklist_id: decklist?.id ?? null,
-              deck: decklist ? decklist.archetype ?? decklist.name : null,
+              decklist_id: decklistId,
             }
           : {}),
       })
@@ -113,7 +112,7 @@ export default function TournamentCreateDialog({
     setOpen(false);
     resetForm();
     window.location.href = `${config.basePath}/${data![0].id}`;
-  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config.basePath, config.tournamentsTable, config.gameId, decklist]);
+  }, [tournamentName, tournamentDate, tournamentCategory, tournamentPlacement, format, userId, toast, config.basePath, config.tournamentsTable, config.gameId, decklistId]);
 
   return (
     <Dialog
@@ -198,8 +197,8 @@ export default function TournamentCreateDialog({
             {config.gameId === 'pokemon-tcg' && (
               <DecklistSelect
                 userId={userId}
-                value={decklist?.id ?? null}
-                onChange={setDecklist}
+                value={decklistId}
+                onChange={(decklist) => setDecklistId(decklist?.id ?? null)}
               />
             )}
           </div>

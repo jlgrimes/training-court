@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Database, Json } from '@/database.types';
 import { createClient } from '@/utils/supabase/client';
+import { MAX_SAVED_DECKLISTS } from './deckbuilder.constants';
 
 const STORAGE_KEY = 'ptcg-deckbuilder-v2';
 const MAX_DECK_SIZE = 60;
@@ -381,6 +382,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         .eq('user_id', props.userId)
         .eq('game', 'pokemon-tcg')
         .order('updated_at', { ascending: false })
+        .limit(MAX_SAVED_DECKLISTS)
         .returns<DecklistRow[]>();
 
       if (!isActive) {
@@ -648,6 +650,35 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
     setIsSavingDeck(true);
     const supabase = createClient();
+
+    if (!existingById) {
+      const { count, error: countError } = await supabase
+        .from('decklists')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', props.userId)
+        .eq('game', 'pokemon-tcg');
+
+      if (countError) {
+        setIsSavingDeck(false);
+        toast({
+          variant: 'destructive',
+          title: 'Unable to save decklist.',
+          description: countError.message,
+        });
+        return;
+      }
+
+      if ((count ?? 0) >= MAX_SAVED_DECKLISTS) {
+        setIsSavingDeck(false);
+        toast({
+          variant: 'destructive',
+          title: 'Decklist limit reached.',
+          description: `Delete a saved decklist before creating a new one. The current limit is ${MAX_SAVED_DECKLISTS}.`,
+        });
+        return;
+      }
+    }
+
     const payload = {
       name: nextName,
       user_id: props.userId,

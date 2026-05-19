@@ -11,7 +11,8 @@ import { ToggleGroup } from "@/components/ui/toggle-group";
 import { ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { tournamentFormats } from "@/components/tournaments/Format/tournament-format.types";
-import { detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom, turnOrderFilterAtom } from "./recoil-matchups/deckMatchupAtom";
+import { DecklistSelect } from "@/components/ptcg/deckbuilder/DecklistSelect";
+import { decklistFilterAtom, detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom, turnOrderFilterAtom } from "./recoil-matchups/deckMatchupAtom";
 import { transformedMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 
@@ -26,6 +27,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
   const [sourceFilter, setSourceFilter] = useRecoilState(sourceFilterAtom);
   const [formatFilter, setFormatFilter] = useRecoilState(formatFilterAtom);
   const [turnOrderFilter, setTurnOrderFilter] = useRecoilState(turnOrderFilterAtom);
+  const [decklistFilter, setDecklistFilter] = useRecoilState(decklistFilterAtom);
   const detailDeck = useRecoilValue(detailDeckAtom);
   const setDetailDeck = useSetRecoilState(detailDeckAtom);
   const transformed = useRecoilValue(transformedMatchupsSelector);
@@ -106,7 +108,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
             Tournaments
           </ToggleGroupItem>
 
-          <Select onValueChange={(val) => setFormatFilter(val)}>
+          <Select value={formatFilter ?? 'All'} onValueChange={(val) => setFormatFilter(val)}>
             <SelectTrigger className="w-[120px] sm:w-[180px]">
               <SelectValue placeholder="All formats" />
             </SelectTrigger>
@@ -120,7 +122,20 @@ export const MatchupsOverview = (props: MatchupProps) => {
             </SelectContent>
           </Select>
         </ToggleGroup>
-        
+
+          {props.userId && (
+            <div className="w-[180px] sm:w-[220px]">
+              <DecklistSelect
+                userId={props.userId}
+                value={decklistFilter}
+                onChange={(decklist) => {
+                  setDecklistFilter(decklist?.id ?? null);
+                  setDetailDeck('');
+                }}
+              />
+            </div>
+          )}
+         
       </div>
       </div>
 
@@ -134,7 +149,11 @@ export const MatchupsOverview = (props: MatchupProps) => {
         </div>
       )}
 
-      {transformed && (
+      {transformed && Object.keys(transformed).length === 0 && !isLoading && (
+        <p className="text-sm text-muted-foreground">No matchup data for this filter.</p>
+      )}
+
+      {transformed && Object.keys(transformed).length > 0 && (
         detailDeck ? (
           <DeckMatchupsDetail
             deckName={detailDeck}

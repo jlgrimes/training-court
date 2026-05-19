@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Database } from '@/database.types';
 import { createClient } from '@/utils/supabase/client';
+import { MAX_SAVED_DECKLISTS } from './deckbuilder.constants';
 
 type DecklistRow = Pick<
   Database['public']['Tables']['decklists']['Row'],
@@ -41,6 +42,7 @@ export function DecklistSelect(props: DecklistSelectProps) {
         .eq('user_id', props.userId)
         .eq('game', 'pokemon-tcg')
         .order('updated_at', { ascending: false })
+        .limit(MAX_SAVED_DECKLISTS)
         .returns<DecklistRow[]>();
 
       if (isActive) {

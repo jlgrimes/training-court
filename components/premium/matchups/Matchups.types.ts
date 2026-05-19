@@ -22,6 +22,7 @@ export interface MatchupProps {
 export type MatchupRow = {
   source: string;
   deck: string;
+  decklist_id?: string | null;
   opp_deck: string;
   result: string;
   match_end_reason: string;
