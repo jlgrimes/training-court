@@ -1,11 +1,11 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { type ComponentProps } from "react";
+import { ReactNode, type ComponentProps } from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
 
 type Props = ButtonProps & {
-  pendingText?: string;
+  pendingText?: ReactNode;
 };
 
 export function SubmitButton({ children, pendingText, ...props }: Props) {

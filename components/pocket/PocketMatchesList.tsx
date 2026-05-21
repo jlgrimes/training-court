@@ -24,6 +24,7 @@ import { useToast } from '../ui/use-toast';
 import { useSWRConfig } from 'swr';
 import { formatDistanceToNowStrict } from 'date-fns';
 import type { PocketGame } from '@/lib/server/home-data';
+import { T, useGT } from 'gt-react';
 
 interface PocketMatchesListProps {
   userId: string | undefined;
@@ -38,6 +39,7 @@ export const PocketMatchesList = ({
   initialGames,
 }: PocketMatchesListProps) => {
   const { toast } = useToast();
+  const gt = useGT();
   const { mutate } = useSWRConfig();
   // Only fetch via SWR if no initial games provided
   const { data: swrGames } = usePocketGames(initialGames ? undefined : userId);
@@ -56,7 +58,7 @@ export const PocketMatchesList = ({
       if (error) {
         toast({
           variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
+          title: gt('Uh oh! Something went wrong.', { $id: 'common.errorTitle' }),
           description: error.message,
         });
       } else {
@@ -70,10 +72,10 @@ export const PocketMatchesList = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead className='pl-4'>My deck</TableHead>
-          <TableHead className='w-[40px] text-center'>Result</TableHead>
-          <TableHead className='pl-3 text-right'>Opponent</TableHead>
+          <TableHead><T id="common.date">Date</T></TableHead>
+          <TableHead className='pl-4'><T id="pocket.matches.myDeck">My deck</T></TableHead>
+          <TableHead className='w-[40px] text-center'><T id="common.result">Result</T></TableHead>
+          <TableHead className='pl-3 text-right'><T id="common.opponent">Opponent</T></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

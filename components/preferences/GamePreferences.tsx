@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/navigation';
+import { T, useGT } from 'gt-react';
 
 interface GamePreferencesProps {
   userId: string;
@@ -29,6 +30,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
   const router = useRouter();
+  const gt = useGT();
 
   const toggleGame = useCallback(
     (gameId: GameId) => {
@@ -54,13 +56,13 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
       router.refresh();
 
       toast({
-        title: 'Preferences saved',
-        description: 'Your game visibility has been updated.',
+        title: gt('Preferences saved', { $id: 'gamePreferences.toast.savedTitle' }),
+        description: gt('Your game visibility has been updated.', { $id: 'gamePreferences.toast.savedDescription' }),
       });
     } catch (error) {
       toast({
-        title: 'Could not save preferences',
-        description: error instanceof Error ? error.message : 'Please try again.',
+        title: gt('Could not save preferences', { $id: 'gamePreferences.toast.errorTitle' }),
+        description: error instanceof Error ? error.message : gt('Please try again.', { $id: 'common.pleaseTryAgain' }),
         variant: 'destructive',
       });
     } finally {
@@ -72,9 +74,9 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
   return (
     <div className='flex flex-col gap-4'>
       <div className='space-y-2'>
-        <h3 className='text-lg font-semibold'>Games</h3>
+        <h3 className='text-lg font-semibold'><T id="gamePreferences.title">Games</T></h3>
         <p className='text-sm text-muted-foreground'>
-          Choose which games you want to show in the application.
+          <T id="gamePreferences.description">Choose which games you want to show in the application.</T>
         </p>
       </div>
       
@@ -92,7 +94,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
                   <p className='text-sm text-muted-foreground'>{game.description}</p>
                 )}
                 {!game.available && (
-                  <p className='text-xs text-muted-foreground mt-1'>Coming soon</p>
+                  <p className='text-xs text-muted-foreground mt-1'><T id="common.comingSoon">Coming soon</T></p>
                 )}
               </div>
               <Switch
@@ -110,7 +112,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
       <div className='flex justify-end'>
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-          Save preferences
+          <T id="gamePreferences.save">Save preferences</T>
         </Button>
       </div>
     </div>

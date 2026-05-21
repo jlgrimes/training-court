@@ -6,6 +6,7 @@ import { PocketMatchesList } from '@/components/pocket/PocketMatchesList';
 import { Header } from '@/components/ui/header';
 import { fetchPreferredGames } from '@/components/user-data.utils';
 import { isGameEnabled } from '@/lib/game-preferences';
+import { TranslatedText } from '@/components/general-translation/TranslatedText';
 
 export default async function PocketGames() {
   const user = await fetchCurrentUser();
@@ -22,10 +23,10 @@ export default async function PocketGames() {
   return (
     <>
       <Header
-        description='Record your games from PTCG Pocket'
+        description={<TranslatedText id="pocket.games.pageDescription">Record your games from PTCG Pocket</TranslatedText>}
         actionButton={<AddPocketMatch userId={user.id} />}
       >
-        Pocket Games
+        <TranslatedText id="pocket.games.header">Pocket Games</TranslatedText>
       </Header>
       <PocketMatchesList userId={user.id} />
     </>

@@ -27,6 +27,7 @@ import { useToast } from "../ui/use-toast";
 import { CardDescription } from "../ui/card";
 import { Bug } from "lucide-react";
 import { SidebarMenuButton } from "../ui/sidebar";
+import { T, useGT } from "gt-react";
 
 const Bugs = {
   BattleLogs: {
@@ -49,6 +50,7 @@ interface ReportBugDialogProps {
 
 export const ReportBugDialog = (props: ReportBugDialogProps) => {
   const { toast } = useToast();
+  const gt = useGT();
   
   const [featureName, setFeatureName] = useState<string | undefined>();
   const [bugType, setBugType] = useState<string | undefined>();
@@ -66,12 +68,12 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: gt("Uh oh! Something went wrong.", { $id: "feedback.error.title" }),
         description: error.message,
       })
     } else {
       toast({
-        title: "Feedback submitted! Thanks for making Training Court better :)",
+        title: gt("Feedback submitted! Thanks for making Training Court better :)", { $id: "feedback.success.title" }),
       });
       setFeatureName(undefined);
       setBugType(undefined);
@@ -84,24 +86,24 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
       <DialogTrigger className="w-full">
         <SidebarMenuButton asChild>
           <span><Bug />
-          <span>Feedback</span></span>
+          <span><T id="feedback.navLabel">Feedback</T></span></span>
         </SidebarMenuButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Submit feedback</DialogTitle>
+          <DialogTitle><T id="feedback.dialog.title">Submit feedback</T></DialogTitle>
         </DialogHeader>
 
         <div>
-          <Label className="mb-2">Feature name</Label>
+          <Label className="mb-2"><T id="feedback.featureName">Feature name</T></Label>
           <Select onValueChange={(value) => setFeatureName(value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Ex. Battle logs" />
+              <SelectValue placeholder={gt("Ex. Battle logs", { $id: "feedback.featurePlaceholder" })} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="battle-logs">Battle logs</SelectItem>
-              <SelectItem value="tournaments">Tournaments</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="battle-logs"><T id="feedback.feature.battleLogs">Battle logs</T></SelectItem>
+              <SelectItem value="tournaments"><T id="feedback.feature.tournaments">Tournaments</T></SelectItem>
+              <SelectItem value="other"><T id="feedback.feature.other">Other</T></SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -109,26 +111,26 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
         {
           featureName && featureName !== 'other' && (
             <div>
-          <Label className="mb-2">Type of bug</Label>
+          <Label className="mb-2"><T id="feedback.bugType">Type of bug</T></Label>
           <Select onValueChange={(value) => setBugType(value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Ex. wrong deck" />
+              <SelectValue placeholder={gt("Ex. wrong deck", { $id: "feedback.bugPlaceholder" })} />
             </SelectTrigger>
             <SelectContent>
               {featureName === 'battle-logs' && (
                 <>
-                  <SelectItem value={Bugs.BattleLogs.MissingDeck}>Missing deck</SelectItem>
-                  <SelectItem value={Bugs.BattleLogs.WrongDeck}>Wrong deck identified</SelectItem>
-                  <SelectItem value={Bugs.BattleLogs.ImportingDeck}>Problem with importing deck</SelectItem>
-                  <SelectItem value={Bugs.BattleLogs.FeatureRequest}>Feature request</SelectItem>
-                  <SelectItem value={Bugs.BattleLogs.Other}>Other</SelectItem>
+                  <SelectItem value={Bugs.BattleLogs.MissingDeck}><T id="feedback.bug.missingDeck">Missing deck</T></SelectItem>
+                  <SelectItem value={Bugs.BattleLogs.WrongDeck}><T id="feedback.bug.wrongDeck">Wrong deck identified</T></SelectItem>
+                  <SelectItem value={Bugs.BattleLogs.ImportingDeck}><T id="feedback.bug.importingDeck">Problem with importing deck</T></SelectItem>
+                  <SelectItem value={Bugs.BattleLogs.FeatureRequest}><T id="feedback.bug.featureRequest">Feature request</T></SelectItem>
+                  <SelectItem value={Bugs.BattleLogs.Other}><T id="feedback.bug.other">Other</T></SelectItem>
                 </>
               )}
               {featureName === 'tournaments' && (
                 <>
-                  <SelectItem value={Bugs.Tournaments.VisualGlitch}>Visual glitch</SelectItem>
-                  <SelectItem value={Bugs.Tournaments.FeatureRequest}>Feature request</SelectItem>
-                  <SelectItem value={Bugs.Tournaments.Other}>Other</SelectItem>
+                  <SelectItem value={Bugs.Tournaments.VisualGlitch}><T id="feedback.bug.visualGlitch">Visual glitch</T></SelectItem>
+                  <SelectItem value={Bugs.Tournaments.FeatureRequest}><T id="feedback.bug.featureRequest">Feature request</T></SelectItem>
+                  <SelectItem value={Bugs.Tournaments.Other}><T id="feedback.bug.other">Other</T></SelectItem>
                 </>
               )}
             </SelectContent>
@@ -137,18 +139,20 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
           )
         }
         {((bugType === Bugs.BattleLogs.WrongDeck) || (bugType === Bugs.BattleLogs.MissingDeck)) && (
-          <CardDescription>To fix this issue yourself, click "Edit logs" on the top of battle logs, click the edit button, and change/add the deck that isn't being recognized correctly. Of course, we would still love feedback!</CardDescription>
+          <T id="feedback.deckFixHelp">
+            <CardDescription>To fix this issue yourself, click "Edit logs" on the top of battle logs, click the edit button, and change/add the deck that isn't being recognized correctly. Of course, we would still love feedback!</CardDescription>
+          </T>
         )}
         {
           (featureName === 'other' || bugType) && (
             <div>
-              <Label className="mb-2">Tell us more</Label>
+              <Label className="mb-2"><T id="feedback.tellUsMore">Tell us more</T></Label>
               <Textarea onChange={(e) => setDescription(e.target.value)} />
             </div>
           )
         }
         <DialogFooter>
-          <Button disabled={!description} onClick={submitFeedback}>Submit</Button>
+          <Button disabled={!description} onClick={submitFeedback}><T id="feedback.submit">Submit</T></Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

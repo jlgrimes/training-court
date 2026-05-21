@@ -3,6 +3,7 @@ import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
 import { parseBattleLog } from "../utils/battle-log.utils";
 import { fetchUserDataServer, fetchBattleLogsServer } from "@/lib/server/home-data";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 interface BattleLogsHomePreviewProps {
   userId: string;
@@ -27,7 +28,7 @@ export async function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewPro
 
   return (
     <div className="flex flex-col gap-4">
-      <Header>PTCG Logs</Header>
+      <Header><TranslatedText id="battleLogs.header">PTCG Logs</TranslatedText></Header>
       <div className="flex flex-col gap-4">
         {userData?.live_screen_name && parsedLogs.length > 0 && (
           <BattleLogsByDayPreview

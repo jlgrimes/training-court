@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { FeedbackCard } from "@/components/admin/FeedbackCard";
 import { Activity, NotebookPen } from "lucide-react";
 import { Users } from "lucide-react";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 export default async function AdminPage() {
   const user = await fetchCurrentUser();
@@ -42,17 +43,17 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col py-4 lg:py-8 px-4 sm:px-6 lg:px-16 gap-4 w-full h-full max-w-full">
-      <CardTitle>Welcome admin!</CardTitle>
+      <CardTitle><TranslatedText id="admin.welcome">Welcome admin!</TranslatedText></CardTitle>
 
       <Tabs defaultValue="feedback" className="w-full max-w-full">
         <TabsList>
-          <TabsTrigger value="feedback">Feedback</TabsTrigger>
-          <TabsTrigger value="avatars">Avatars</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="feedback"><TranslatedText id="admin.tabs.feedback">Feedback</TranslatedText></TabsTrigger>
+          <TabsTrigger value="avatars"><TranslatedText id="admin.tabs.avatars">Avatars</TranslatedText></TabsTrigger>
+          <TabsTrigger value="users"><TranslatedText id="admin.tabs.users">Users</TranslatedText></TabsTrigger>
         </TabsList>
         <TabsContent value="avatars">
           <>
-          <Label>Most commonly used avatars:</Label>
+          <Label><TranslatedText id="admin.avatars.mostUsed">Most commonly used avatars:</TranslatedText></Label>
              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12 gap-2">
               {mostCommonlyUsedAvatars?.map(({ avatar, avatar_count }) => (
                 <div
@@ -68,8 +69,8 @@ export default async function AdminPage() {
                 </div>
               ))}
             </div>
-            <Label>Unused avatars:</Label>
-            {(unusedAvatars.length === 0) && <CardDescription>All avatars are being used!</CardDescription>}
+            <Label><TranslatedText id="admin.avatars.unused">Unused avatars:</TranslatedText></Label>
+            {(unusedAvatars.length === 0) && <CardDescription><TranslatedText id="admin.avatars.allUsed">All avatars are being used!</TranslatedText></CardDescription>}
             {unusedAvatars.map((avatar, index) => <img key={index} className="pixel-image" src={avatar} />)}
             
           </>
@@ -79,10 +80,10 @@ export default async function AdminPage() {
           <Tabs defaultValue="unresolved" className="w-full max-w-full">
             <TabsList className="w-full flex flex-wrap gap-2">
               <TabsTrigger value="unresolved" className="flex-1 sm:flex-none">
-                Unresolved
+                <TranslatedText id="admin.feedback.unresolved">Unresolved</TranslatedText>
               </TabsTrigger>
               <TabsTrigger value="resolved" className="flex-1 sm:flex-none">
-                Resolved
+                <TranslatedText id="admin.feedback.resolved">Resolved</TranslatedText>
               </TabsTrigger>
             </TabsList>
 
@@ -90,7 +91,7 @@ export default async function AdminPage() {
               <div className="space-y-2 w-full max-w-full">
                 <Label>
                   {allFeedback?.filter(({ is_fixed }) => !is_fixed).length} pieces of
-                  unresolved feedback. Get to work!
+                  <TranslatedText id="admin.feedback.unresolvedSuffix">pieces of unresolved feedback. Get to work!</TranslatedText>
                 </Label>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -106,9 +107,9 @@ export default async function AdminPage() {
             <TabsContent value="resolved" className="w-full max-w-full">
               <div className="space-y-2 w-full max-w-full">
                 <Label>
-                  You have fixed{" "}
+                  <TranslatedText id="admin.feedback.fixedPrefix">You have fixed</TranslatedText>{" "}
                   {allFeedback?.filter(({ is_fixed }) => is_fixed).length} customer
-                  feedbacks. Good job!
+                  <TranslatedText id="admin.feedback.fixedSuffix">customer feedbacks. Good job!</TranslatedText>
                 </Label>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -129,7 +130,7 @@ export default async function AdminPage() {
           <Card x-chunk="dashboard-01-chunk-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Users
+                <TranslatedText id="admin.users.totalUsers">Total Users</TranslatedText>
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -144,7 +145,7 @@ export default async function AdminPage() {
           <Card x-chunk="dashboard-01-chunk-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Users Joined in Last Week
+                  <TranslatedText id="admin.users.joinedLastWeek">Users Joined in Last Week</TranslatedText>
               </CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -163,7 +164,7 @@ export default async function AdminPage() {
             <Card x-chunk="dashboard-01-chunk-0">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Logged Games
+                  <TranslatedText id="admin.users.totalLoggedGames">Total Logged Games</TranslatedText>
                 </CardTitle>
                 <NotebookPen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { SubmitButton } from "../forgot-password/submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 export default function Login({
   searchParams,
@@ -46,7 +47,7 @@ export default function Login({
         className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
       >
         <Label className="text-md" htmlFor="password">
-          New Password
+          <TranslatedText id="auth.newPassword">New Password</TranslatedText>
         </Label>
         <Input
           className="rounded-md px-4 py-2 bg-inherit border mb-6"
@@ -62,8 +63,8 @@ export default function Login({
             {searchParams.message}
           </p>
         )}
-        <SubmitButton formAction={submitNewPassword} pendingText="Resetting Password...">
-          Reset Password
+        <SubmitButton formAction={submitNewPassword} pendingText={<TranslatedText id="auth.resettingPassword">Resetting Password...</TranslatedText>}>
+          <TranslatedText id="auth.resetPassword">Reset Password</TranslatedText>
         </SubmitButton>
       </form>
     </div>

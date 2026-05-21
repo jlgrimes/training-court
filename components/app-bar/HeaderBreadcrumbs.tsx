@@ -12,10 +12,33 @@ import { usePathname } from "next/navigation";
 import { Fragment, useMemo } from "react";
 import { useToast } from "../ui/use-toast";
 import Link from "next/link";
+import { T, useGT } from "gt-react";
+
+function BreadcrumbLabel({ label }: { label: string }) {
+  switch (label) {
+    case 'Home':
+      return <T id="breadcrumbs.home">Home</T>;
+    case 'Pocket':
+      return <T id="breadcrumbs.pocket">Pocket</T>;
+    case 'Tournaments':
+      return <T id="breadcrumbs.tournaments">Tournaments</T>;
+    case 'Login':
+      return <T id="breadcrumbs.login">Login</T>;
+    case 'PTCG':
+      return <T id="breadcrumbs.ptcg">PTCG</T>;
+    case 'Logs':
+      return <T id="breadcrumbs.logs">Logs</T>;
+    case 'Stats':
+      return <T id="breadcrumbs.stats">Stats</T>;
+    default:
+      return <>{label}</>;
+  }
+}
 
 export default function HeaderBreadcrumbs() {
   const pathname = usePathname();
   const { toast } = useToast();
+  const gt = useGT();
 
   const breadcrumbs: { path: string, label: string}[] = useMemo(() => {
     const breadcrumbs = [{
@@ -101,14 +124,14 @@ export default function HeaderBreadcrumbs() {
                   ? "max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
                   : undefined
                   }>
-                {label}
+                <BreadcrumbLabel label={label} />
               </Link>
             </BreadcrumbLink>
             {idx === breadcrumbs.length - 1 && /\d/.test(pathname) && (
               <ShareIcon
                 onClick={() => {
                   navigator.clipboard.writeText('https://trainingcourt.app' + pathname);
-                  toast({ title: "Copied sharable link to clipboard!" });
+                  toast({ title: gt("Copied sharable link to clipboard!", { $id: "breadcrumbs.shareCopied" }) });
                 }}
                 className="mr-2 mb-1 h-4 w-4 cursor-pointer hover:stroke-slate-900"
               />

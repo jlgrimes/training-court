@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 export default function ForgotPassword({ searchParams }: { searchParams: { message?: string } }) {
     
@@ -35,7 +36,7 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
     <div className="flex flex-col w-full px-8 py-16 sm:max-w-md">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 mt-6" action={resetPassword}>
         <Label className="text-md" htmlFor="email">
-          Forgot Password?
+          <TranslatedText id="auth.forgotPassword">Forgot Password?</TranslatedText>
         </Label>
         <Input
           className="rounded-md px-4 py-2 bg-inherit border mb-6"
@@ -43,14 +44,14 @@ export default function ForgotPassword({ searchParams }: { searchParams: { messa
           placeholder="Enter your email"
           required
         />
-        <SubmitButton  pendingText="Sending Reset Email...">
-          Reset Password
+        <SubmitButton pendingText={<TranslatedText id="auth.sendingResetEmail">Sending Reset Email...</TranslatedText>}>
+          <TranslatedText id="auth.resetPassword">Reset Password</TranslatedText>
         </SubmitButton>
       </form>
       {searchParams?.message && <p className="text-center">{searchParams.message}</p>}
         <p className="mt-4 text-sm text-center">
           <Link href="/login" className=" underline">
-            Return to login page
+            <TranslatedText id="auth.returnToLogin">Return to login page</TranslatedText>
           </Link>
         </p>
     </div>
