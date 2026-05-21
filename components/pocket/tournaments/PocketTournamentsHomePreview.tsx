@@ -4,6 +4,7 @@ import { MyPocketTournamentPreviews } from "./Preview/MyPocketTournamentPreviews
 import { SeeMoreButton } from "@/components/SeeMoreButton";
 import { fetchPocketTournamentsServer, fetchPocketTournamentRoundsServer } from "@/lib/server/home-data";
 import { fetchCurrentUser } from "@/components/auth.utils";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 /**
  * Self-contained server component widget for Pocket tournaments.
@@ -24,7 +25,7 @@ export async function PocketTournamentsHomePreview() {
       <Header
         actionButton={<PocketTournamentCreate userId={user.id} />}
       >
-        Pocket Tournaments
+        <TranslatedText id="pocket.tournaments.header">Pocket Tournaments</TranslatedText>
       </Header>
       <MyPocketTournamentPreviews
         userId={user.id}

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { SubmitButton } from "../forgot-password/submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 export default function Login({
   searchParams,
@@ -60,7 +61,7 @@ export default function Login({
     <div className="flex-1 flex flex-col w-full px-8 py-16 sm:max-w-md justify-center gap-2">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
         <Label className="text-md" htmlFor="email">
-          Email
+          <TranslatedText id="auth.email">Email</TranslatedText>
         </Label>
         <Input
           className="rounded-md px-4 py-2 bg-inherit border mb-6"
@@ -69,7 +70,7 @@ export default function Login({
           required
         />
         <Label className="text-md" htmlFor="password">
-          Password
+          <TranslatedText id="auth.password">Password</TranslatedText>
         </Label>
         <Input
           className="rounded-md px-4 py-2 bg-inherit border mb-6"
@@ -80,22 +81,22 @@ export default function Login({
         />
         <SubmitButton
           formAction={signIn}
-          pendingText="Signing In..."
+          pendingText={<TranslatedText id="auth.signingIn">Signing In...</TranslatedText>}
         >
-          Sign In
+          <TranslatedText id="auth.signIn">Sign In</TranslatedText>
         </SubmitButton>
         <SubmitButton
           formAction={signUp}
           variant={'secondary'}
-          pendingText="Signing Up..."
+          pendingText={<TranslatedText id="auth.signingUp">Signing Up...</TranslatedText>}
         >
-          Sign Up
+          <TranslatedText id="auth.signUp">Sign Up</TranslatedText>
         </SubmitButton>
 
         <p className="mt-4 text-sm text-center">
-          Forgot your password?{" "}
+          <TranslatedText id="auth.forgotPasswordPrompt">Forgot your password?</TranslatedText>{" "}
           <Link href="/forgot-password" className="text-blue-500 underline">
-            Reset Password
+            <TranslatedText id="auth.resetPassword">Reset Password</TranslatedText>
           </Link>
         </p>
       </form>

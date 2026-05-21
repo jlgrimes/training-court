@@ -6,6 +6,7 @@
     "start": "next start",
     "test": "jest",
     "test:e2e": "playwright test",
+    "translations:check": "node scripts/check-translations.js",
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {

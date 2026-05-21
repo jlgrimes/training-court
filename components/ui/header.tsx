@@ -1,8 +1,8 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 import { Separator } from "./separator";
 
 interface HeaderProps extends PropsWithChildren {
-  description?: string;
+  description?: ReactNode;
   actionButton?: JSX.Element;
 }
 
