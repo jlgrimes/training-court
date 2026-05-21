@@ -128,6 +128,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
               <DecklistSelect
                 userId={props.userId}
                 value={decklistFilter}
+                noneLabel="All matchups"
                 onChange={(decklist) => {
                   setDecklistFilter(decklist?.id ?? null);
                   setDetailDeck('');

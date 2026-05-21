@@ -22,6 +22,7 @@ type DecklistSelectProps = {
   userId: string;
   value: string | null;
   onChange: (decklist: DecklistRow | null) => void;
+  noneLabel?: string;
 };
 
 const NONE_VALUE = 'none';
@@ -29,6 +30,7 @@ const NONE_VALUE = 'none';
 export function DecklistSelect(props: DecklistSelectProps) {
   const [decklists, setDecklists] = useState<DecklistRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const noneLabel = props.noneLabel ?? 'No decklist';
 
   useEffect(() => {
     let isActive = true;
@@ -75,7 +77,7 @@ export function DecklistSelect(props: DecklistSelectProps) {
         <SelectValue placeholder={isLoading ? 'Loading decklists...' : 'Select decklist'} />
       </SelectTrigger>
       <SelectContent className="max-h-[300px]">
-        <SelectItem value={NONE_VALUE}>No decklist</SelectItem>
+        <SelectItem value={NONE_VALUE}>{noneLabel}</SelectItem>
         {decklists.map((decklist) => (
           <SelectItem key={decklist.id} value={decklist.id}>
             {decklist.name}
