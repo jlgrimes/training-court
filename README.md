@@ -51,6 +51,7 @@ A battle log and tournament tracking application for Pokemon TCG and Pokemon Poc
    NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
 4. Run the development server:
@@ -59,6 +60,20 @@ A battle log and tournament tracking application for Pokemon TCG and Pokemon Poc
    ```
 
 5. Open [http://localhost:3000](http://localhost:3000)
+
+### Test Password Reset Locally
+
+Password recovery uses a Supabase email token confirmation route at `/auth/confirm`. To exercise the flow while running the app locally:
+
+1. Keep `.env.local` pointed at the Supabase project you want to test, and set:
+   ```bash
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   ```
+2. In that Supabase project's Auth URL configuration, allow `http://localhost:3000/auth/callback`.
+3. Start the app with `npm run dev`, request a reset from `/forgot-password`, and open the delivered email.
+4. Enter and confirm a new password. The app signs out the recovery session and returns to login so the new password can be verified immediately.
+
+For cross-device reset links, set the Supabase recovery email template link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`. For production, set `NEXT_PUBLIC_SITE_URL=https://trainingcourt.app` in the deployed app and configure the matching Supabase site URL and redirect URLs.
 
 ## Project Structure
 

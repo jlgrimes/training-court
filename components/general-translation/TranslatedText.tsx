@@ -30,7 +30,13 @@ export function TranslatedText({ id, children }: TranslatedTextProps) {
     case "admin.users.joinedLastWeek": return <T id="admin.users.joinedLastWeek">Users Joined in Last Week</T>;
     case "admin.users.totalLoggedGames": return <T id="admin.users.totalLoggedGames">Total Logged Games</T>;
     case "auth.email": return <T id="auth.email">Email</T>;
+    case "auth.authenticationFailed": return <T id="auth.authenticationFailed">Could not authenticate user.</T>;
+    case "auth.confirmPassword": return <T id="auth.confirmPassword">Confirm New Password</T>;
     case "auth.password": return <T id="auth.password">Password</T>;
+    case "auth.passwordResetSuccess": return <T id="auth.passwordResetSuccess">Password reset successful. Sign in with your new password.</T>;
+    case "auth.passwordsDoNotMatch": return <T id="auth.passwordsDoNotMatch">Passwords do not match.</T>;
+    case "auth.passwordUpdateFailed": return <T id="auth.passwordUpdateFailed">Failed to update password. Please try again.</T>;
+    case "auth.weakPassword": return <T id="auth.weakPassword">Please choose a stronger password.</T>;
     case "auth.signingIn": return <T id="auth.signingIn">Signing In...</T>;
     case "auth.signIn": return <T id="auth.signIn">Sign In</T>;
     case "auth.signingUp": return <T id="auth.signingUp">Signing Up...</T>;
@@ -40,7 +46,11 @@ export function TranslatedText({ id, children }: TranslatedTextProps) {
     case "auth.newPassword": return <T id="auth.newPassword">New Password</T>;
     case "auth.resettingPassword": return <T id="auth.resettingPassword">Resetting Password...</T>;
     case "auth.forgotPassword": return <T id="auth.forgotPassword">Forgot Password?</T>;
+    case "auth.invalidResetLink": return <T id="auth.invalidResetLink">This password reset link is invalid or has expired.</T>;
+    case "auth.resetEmailFailed": return <T id="auth.resetEmailFailed">Failed to send reset email.</T>;
+    case "auth.resetEmailSent": return <T id="auth.resetEmailSent">Password reset email sent. Check your inbox.</T>;
     case "auth.sendingResetEmail": return <T id="auth.sendingResetEmail">Sending Reset Email...</T>;
+    case "auth.signUpFailed": return <T id="auth.signUpFailed">Could not create account.</T>;
     case "auth.returnToLogin": return <T id="auth.returnToLogin">Return to login page</T>;
     case "battleLogs.description": return <T id="battleLogs.description">Record your PTCG Live battle logs</T>;
     case "battleLogs.header": return <T id="battleLogs.header">PTCG Logs</T>;

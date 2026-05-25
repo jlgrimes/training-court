@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { track } from '@vercel/analytics/server';
 import { redirect } from "next/navigation";
 import { SubmitButton } from "../forgot-password/submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { getSiteUrl, logAuthError } from "@/utils/auth";
+import { AuthMessage } from "@/components/general-translation/AuthMessage";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 export default function Login({
@@ -27,7 +28,8 @@ export default function Login({
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      logAuthError("password sign-in", error);
+      return redirect("/login?message=authentication-failed");
     }
 
     track('User logged in');
@@ -38,7 +40,6 @@ export default function Login({
     "use server";
 
     const supabase = createClient();
-    const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
@@ -46,12 +47,13 @@ export default function Login({
       email,
       password,
       options: {
-        emailRedirectTo: `trainingcourt.app/auth/callback`,
+        emailRedirectTo: `${getSiteUrl()}/auth/callback`,
       },
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      logAuthError("email sign-up", error);
+      return redirect("/login?message=signup-failed");
     }
 
     return redirect("/home");
@@ -100,7 +102,7 @@ export default function Login({
           </Link>
         </p>
       </form>
-      {searchParams?.message && <p className="text-center">{searchParams.message}</p>}
+      {searchParams?.message && <p className="text-center"><AuthMessage message={searchParams.message} /></p>}
     </div>
   );
 }
