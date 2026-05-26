@@ -1083,11 +1083,8 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         <CardHeader>
           <CardTitle className="text-base text-slate-100" />
         </CardHeader>
-        <CardContent className="flex min-h-0 flex-1 flex-col space-y-4">
+        <CardContent className="flex min-h-0 flex-1 flex-col space-y-2">
           <div>
-            <label htmlFor="card-search" className="mb-1 block text-xs text-muted-foreground">
-              Search
-            </label>
             <div className="flex gap-2">
               <Input
                 id="card-search"
@@ -1099,7 +1096,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                     submitCardSearch();
                   }
                 }}
-                placeholder="Search by name"
+                placeholder="Search by card name"
               />
               <Button
                 type="button"
