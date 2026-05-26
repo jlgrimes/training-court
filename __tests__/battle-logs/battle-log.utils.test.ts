@@ -2,6 +2,7 @@ import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "
 import { battleLogBrazilianPortuguese } from "@/components/battle-logs/utils/testing-files/battleLogBrazilianPortuguese";
 import { battleLogGerman } from "@/components/battle-logs/utils/testing-files/battleLogGerman";
 import { battleLogItalian } from "@/components/battle-logs/utils/testing-files/battleLogItalian";
+import { battleLogKorean } from "@/components/battle-logs/utils/testing-files/battleLogKorean";
 import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-files/battleLogNoPlayer2Turn";
 import { battleLogSpanish } from "@/components/battle-logs/utils/testing-files/battleLogSpanish";
 
@@ -107,6 +108,19 @@ describe('battle log utils', () => {
       expect(parsedLog.players[0].name).toBe('jugador1');
       expect(parsedLog.players[1].name).toBe('jugador2');
       expect(parsedLog.sections).toHaveLength(9); // Full game
+    })
+  })
+
+  describe('parseBattleLog', () => {
+    it('should correctly parse a detailed battle log in Korean', () => {
+      const parsedLog = parseBattleLog(battleLogKorean, 'logId', '2024-01-01', null, null, null);
+
+      expect(parsedLog.winner).toBe('KPlayer2');
+      expect(parsedLog.players).toHaveLength(2);
+      expect(parsedLog.players[0].name).toBe('KPlayer1');
+      expect(parsedLog.players[1].name).toBe('KPlayer2');
+      expect(parsedLog.language).toBe('ko');
+      expect(parsedLog.sections).toHaveLength(3); // Setup + 2 turns
     })
   })
 });

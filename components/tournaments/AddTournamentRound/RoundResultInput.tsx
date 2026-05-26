@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { useUiTranslations } from '@/hooks/useUiTranslations';
 
 interface RoundResultInputProps {
   result: string[];
@@ -12,6 +13,7 @@ interface RoundResultInputProps {
 }
 
 export const RoundResultInput = (props: RoundResultInputProps) => {
+  const { t } = useUiTranslations();
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [canScroll, setCanScroll] = useState(false);
@@ -68,7 +70,7 @@ export const RoundResultInput = (props: RoundResultInputProps) => {
             getIsToggleDisabled(gameNum) ? 'opacity-0 -translate-x-4' : 'opacity-100 translate-x-0',
             'transition ease-in-out'
           )} key={`game-${gameNum}-toggle`}>
-            <Label className="text-center">Game {gameNum + 1}</Label>
+            <Label className="text-center">{t('tournament.game_number', { gameNumber: gameNum + 1 })}</Label>
             <div className="flex flex-col gap-1 items-center">
               <ToggleGroup
                 type='single'
@@ -87,8 +89,8 @@ export const RoundResultInput = (props: RoundResultInputProps) => {
                 value={props.turnOrder.at(gameNum) ?? ''}
                 onValueChange={(val) => handleTurnOrderToggle(gameNum, val)}
               >
-                <ToggleGroupItem value='1' className='text-muted-foreground'>1st</ToggleGroupItem>
-                <ToggleGroupItem value='2' className='text-muted-foreground'>2nd</ToggleGroupItem>
+                <ToggleGroupItem value='1' className='text-muted-foreground'>{t('tournament.first')}</ToggleGroupItem>
+                <ToggleGroupItem value='2' className='text-muted-foreground'>{t('tournament.second')}</ToggleGroupItem>
               </ToggleGroup>
             </div>
           </div>

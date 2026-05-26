@@ -15,9 +15,11 @@ import { DecklistSelect } from "@/components/ptcg/deckbuilder/DecklistSelect";
 import { decklistFilterAtom, detailDeckAtom, formatFilterAtom, rawMatchupsAtom, sourceFilterAtom, turnOrderFilterAtom } from "./recoil-matchups/deckMatchupAtom";
 import { transformedMatchupsSelector } from "./recoil-matchups/deckMatchupSelector";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useUiTranslations } from "@/hooks/useUiTranslations";
 
 export const MatchupsOverview = (props: MatchupProps) => {
   const { data, isLoading } = useMatchups(props.userId);
+  const { t } = useUiTranslations();
 
   const setRaw = useSetRecoilState(rawMatchupsAtom);
   useEffect(() => {
@@ -35,7 +37,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl tracking-wide font-semibold">Matchups</h1>
+        <h1 className="text-xl tracking-wide font-semibold">{t('matchups.title')}</h1>
           <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
 
         <ToggleGroup
@@ -52,7 +54,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
         >
           <ToggleGroupItem 
             value="1" 
-            aria-label="First" 
+            aria-label={t('tournament.first')}
             className="
             font-medium rounded-lg
             border border-transparent
@@ -61,11 +63,11 @@ export const MatchupsOverview = (props: MatchupProps) => {
             hover:bg-transparent hover:no-underline
             h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm
           ">
-            1st
+            {t('tournament.first')}
           </ToggleGroupItem>
           <ToggleGroupItem 
             value="2" 
-            aria-label="Second" 
+            aria-label={t('tournament.second')}
             className="
             font-medium rounded-lg
             border border-transparent
@@ -74,14 +76,14 @@ export const MatchupsOverview = (props: MatchupProps) => {
             hover:bg-transparent hover:no-underline
             h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm
           ">
-            2nd
+            {t('tournament.second')}
           </ToggleGroupItem>
         </ToggleGroup>
 
           {/* <ToggleGroupItem value="all" aria-label="All Sources">All</ToggleGroupItem> */}
           <ToggleGroupItem
             value="Battle Logs"
-            aria-label="Battle Logs"
+            aria-label={t('matchups.logs')}
             className="
             font-medium rounded-lg
             border border-transparent
@@ -91,12 +93,12 @@ export const MatchupsOverview = (props: MatchupProps) => {
             hover:bg-transparent hover:no-underline
             h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm
           ">
-            Logs
+            {t('matchups.logs')}
           </ToggleGroupItem>
 
           <ToggleGroupItem 
             value="Tournament Rounds" 
-            aria-label="Tournament Rounds" 
+            aria-label={t('matchups.tournaments')} 
             className="
             font-medium rounded-lg
             border border-transparent
@@ -105,15 +107,15 @@ export const MatchupsOverview = (props: MatchupProps) => {
             hover:bg-transparent hover:no-underline
             h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm
           ">
-            Tournaments
+            {t('matchups.tournaments')}
           </ToggleGroupItem>
 
           <Select value={formatFilter ?? 'All'} onValueChange={(val) => setFormatFilter(val)}>
             <SelectTrigger className="w-[120px] sm:w-[180px]">
-              <SelectValue placeholder="All formats" />
+              <SelectValue placeholder={t('matchups.all_formats')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={"All"}>All formats</SelectItem>
+              <SelectItem value={"All"}>{t('matchups.all_formats')}</SelectItem>
               {tournamentFormats.map((format) => (
                 <SelectItem key={format} value={format}>
                   {format}
@@ -151,7 +153,7 @@ export const MatchupsOverview = (props: MatchupProps) => {
       )}
 
       {transformed && Object.keys(transformed).length === 0 && !isLoading && (
-        <p className="text-sm text-muted-foreground">No matchup data for this filter.</p>
+        <p className="text-sm text-muted-foreground">{t('matchups.no_data')}</p>
       )}
 
       {transformed && Object.keys(transformed).length > 0 && (

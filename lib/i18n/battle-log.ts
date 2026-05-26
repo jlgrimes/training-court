@@ -1,20 +1,48 @@
 
 
-export type Language = 'en' | 'de' | 'es' | 'fr' | 'it' | 'pt-br';
-const AllSupportedLanguages: Language[] = ['en', 'de', 'es', 'fr', 'it', 'pt-br'];
+export type Language = 'en' | 'de' | 'es' | 'fr' | 'it' | 'pt-br' | 'ko';
+const AllSupportedLanguages: Language[] = ['en', 'de', 'es', 'fr', 'it', 'pt-br', 'ko'];
+
+const looksLikeMojibake = (text: string) => /(?:\u00C3|\u00C2|\u00E2|\uFFFD)/.test(text);
+
+const fixMojibake = (text: string) => {
+  try {
+    const bytes = Uint8Array.from(text, (ch) => ch.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch {
+    return text;
+  }
+};
+
+const toMojibake = (text: string) => {
+  try {
+    const bytes = new TextEncoder().encode(text);
+    let out = '';
+    for (const byte of bytes) out += String.fromCharCode(byte);
+    return out;
+  } catch {
+    return text;
+  }
+};
+
+const stringVariants = (text: string) => {
+  const variants = new Set<string>([text]);
+
+  if (looksLikeMojibake(text)) {
+    variants.add(fixMojibake(text));
+  } else if (/[^\x00-\x7F]/.test(text)) {
+    variants.add(toMojibake(text));
+  }
+
+  return [...variants];
+};
 
 export const detectBattleLogLanguage = (log: string): Language | null => {
   for (const language of AllSupportedLanguages) {
-    if (log.includes(BattleLogDetectedStrings[language].setup)) {
-
+    for (const setupString of stringVariants(BattleLogDetectedStrings[language].setup)) {
+      if (setupString && log.includes(setupString)) return language;
     }
   }
-  if (log.includes('Setup')) return 'en';
-  if (log.includes('Vorbereitung')) return 'de';
-  if (log.includes('Preparación')) return 'es';
-  if (log.includes('Préparation')) return 'fr';
-  if (log.includes('Allestimento')) return 'it';
-  if (log.includes('Preparação')) return 'pt-br';
   return null;
 }
 
@@ -76,6 +104,15 @@ export const BattleLogDetectedStrings: Record<Language, Record<BattleLogParseKey
     took: 'pegou',
     turn_indicator: 'Turno de'
   },
+  ko: {
+    a_single: '\u0031\uC7A5',
+    benched: '\uBCA4\uCE58',
+    prize_card: '\uD504\uB77C\uC774\uC988',
+    setup: '\uC900\uBE44',
+    shuffled: '\uB371',
+    took: '\uAC00\uC838',
+    turn_indicator: '\uC758 \uD134'
+  },
 };
 
 export const getPlayerNameFromSetup = (line: string, language: Language): string | null => {
@@ -108,6 +145,18 @@ export const getPlayerNameFromSetup = (line: string, language: Language): string
    if (language === 'pt-br') {
     const drawMatch = /(.*) comprou 7 cartas para a mão inicial/g.exec(line);
     if (drawMatch) return drawMatch[1];
+  }
+
+  if (language === 'ko') {
+    const patterns = [
+      /(.*?)(?:\uAC00|\uC774)?\s*\uC2DC\uC791.*\uC190.*\uCE74\uB4DC\s*7.*(\uBF51|\uAC00\uC838)/,
+      /(.*?)(?:\uAC00|\uC774)?\s*\uC2DC\uC791.*7.*\uC7A5.*(\uBF51|\uAC00\uC838)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = pattern.exec(line);
+      if (match?.[1]) return match[1].trim();
+    }
   }
 
   return null;
@@ -143,6 +192,10 @@ export const getPlayerNameFromTurnLine = (line: string, language: Language) => {
     return /^Turno de (.*)$/i.exec(normalizedLine)?.[1];
   }
 
+  if (language === 'ko') {
+    return /^(.*?)(?:\uC758)?\s*(?:\uD134|\uCC28\uB840)$/i.exec(normalizedLine)?.[1]?.trim();
+  }
+
   return null;
 }
 
@@ -160,6 +213,13 @@ export const determineWinnerFromLine = (line: string, language: Language) => {
       return /\. (.*) ha vinto\./.exec(line)?.[1];
     case 'pt-br':
       return /\. (.*) venceu\./.exec(line)?.[1];
+    case 'ko': {
+      return (
+        /\. (.*) wins\./.exec(line)?.[1]
+        ?? /(?:^|\. )(.*) \uC2B9\uB9AC(?:\uD588\uC2B5\uB2C8\uB2E4|\uD558\uC600\uC2B5\uB2C8\uB2E4)?\./.exec(line)?.[1]
+        ?? /(?:^|\. )(.*) \uC774\uACBC(?:\uC2B5\uB2C8\uB2E4)?\./.exec(line)?.[1]
+      );
+    }
     default:
       return null;
   }
@@ -185,6 +245,12 @@ export const getPrizesTakenFromLine = (line: string, language: Language) => {
     case 'pt-br':
       if (line.includes('pegou uma carta de Prêmio')) return 1;
       return parseInt(line.match(/pegou ([0-9])/g)?.[0].split(' ')[1] ?? '0');
+    case 'ko': {
+      const match = /([0-9]+)\s*\uC7A5/.exec(line);
+      if (match?.[1]) return parseInt(match[1], 10);
+      if (line.includes('\u0031\uC7A5')) return 1;
+      return 0;
+    }
     default:
       return 0;
   }
@@ -208,6 +274,8 @@ export const getIfLineCouldContainArchetype = (line: string, playerName: string,
       return (
         (line.includes(`${playerName} jogou`) && line.includes(BattleLogDetectedStrings['pt-br'].benched)) || line.includes(`${playerName} evoluiu`) || (line.includes(`${playerName} usou`) && !line.includes('dano')) || (line.includes(`${playerName} de `) && line.includes('foi Nocauteado'))
       );
+    case 'ko':
+      return line.includes(playerName);
     default:
       return false;
   }

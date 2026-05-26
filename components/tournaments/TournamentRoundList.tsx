@@ -3,6 +3,7 @@
 import { Database } from "@/database.types";
 import { TournamentRound } from "./TournamentRound";
 import { useCallback, useLayoutEffect, useRef, useState, useEffect } from "react";
+import { useUiTranslations } from "@/hooks/useUiTranslations";
 
 interface TournamentRoundListProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -31,6 +32,7 @@ export const computeRoundListLayout = (availableHeight: number, contentHeight: n
 };
 
 export default function TournamentRoundList(props: TournamentRoundListProps) {
+  const { t } = useUiTranslations();
   const [editingRoundIdx, setEditingRoundIdx] = useState<number | null>(null);
   const handleEditingRoundToggle = useCallback((roundIdx: number) => {
     setEditingRoundIdx(prev => (roundIdx === prev ? null : roundIdx));
@@ -113,12 +115,12 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
       }}
       className="origin-top-left"
     >
-      <div ref={contentRef}>
+        <div ref={contentRef}>
         <div className="grid grid-cols-8">
           <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">
-            <span className="col-span-2">Round</span>
-            <span className="col-span-5">Deck</span>
-            <span className="col-span-1 text-right">Result</span>
+            <span className="col-span-2">{t('common.round')}</span>
+            <span className="col-span-5">{t('common.deck')}</span>
+            <span className="col-span-1 text-right">{t('common.result')}</span>
           </div>
 
           {rounds.map((round, idx) => (

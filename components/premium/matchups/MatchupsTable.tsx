@@ -10,6 +10,7 @@ import { getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatc
 import { sortMatchupResults } from "./sort/sort.utils";
 import { MatchupResult } from "./Matchups.types";
 import { convertBattleLogDateIntoDay } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils";
+import { useUiTranslations } from "@/hooks/useUiTranslations";
 
 interface MatchupsTableProps {
   matchups: [string, MatchupResult][];
@@ -17,6 +18,7 @@ interface MatchupsTableProps {
 }
 
 export const MatchupsTable = (props: MatchupsTableProps) => {
+  const { t } = useUiTranslations();
   const [sort, setSort] = useState<MatchupsSortState>({
     by: 'amount-played',
     type: 'desc'
@@ -44,13 +46,13 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
     <Table className="-mx-2">
       <TableHeader>
         <TableRow>
-          <TableHead className="px-8">Deck</TableHead>
+          <TableHead className="px-8">{t('common.deck')}</TableHead>
           <TableHead className="px-0 hidden sm:table-cell">
             <SortColHeader
               direction={getSortDirection('last-played')}
               onClick={() => handleHeaderClick('last-played')}
             >
-              Last played
+              {t('matchups.last_played')}
             </SortColHeader>
           </TableHead>
           <TableHead className="px-0 text-end">
@@ -58,7 +60,7 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
               direction={getSortDirection('amount-played')}
               onClick={() => handleHeaderClick('amount-played')}
             >
-              Record
+              {t('common.record')}
             </SortColHeader>
           </TableHead>
           <TableHead className="px-0 text-end">
@@ -66,7 +68,7 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
               direction={getSortDirection('win-rate')}
               onClick={() => handleHeaderClick('win-rate')}
             >
-              Win rate
+              {t('common.win_rate')}
             </SortColHeader>
           </TableHead>
         </TableRow>

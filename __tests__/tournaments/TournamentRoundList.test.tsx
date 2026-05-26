@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import TournamentRoundList, { computeRoundListLayout } from '../../components/tournaments/TournamentRoundList';
 import { Database } from '../../database.types';
+import { RecoilRoot } from 'recoil';
 
 jest.mock('../../components/tournaments/TournamentRound', () => ({
   TournamentRound: ({ round }: { round: Database['public']['Tables']['tournament rounds']['Row'] }) => (
@@ -76,12 +77,14 @@ describe('computeRoundListLayout', () => {
 describe('TournamentRoundList', () => {
   it('renders all rows while preserving single-screen fit behavior', () => {
     const { container } = render(
-      <TournamentRoundList
-        tournament={createTournament()}
-        userId="user-1"
-        rounds={createRounds(25)}
-        updateClientRoundsOnEdit={jest.fn()}
-      />
+      <RecoilRoot>
+        <TournamentRoundList
+          tournament={createTournament()}
+          userId="user-1"
+          rounds={createRounds(25)}
+          updateClientRoundsOnEdit={jest.fn()}
+        />
+      </RecoilRoot>
     );
 
     expect(screen.getAllByTestId('round-row')).toHaveLength(25);

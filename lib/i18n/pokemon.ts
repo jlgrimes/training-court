@@ -56,6 +56,15 @@ export const PokemonStrings: Record<Language, Record<PokemonStringsKey, string>>
     palkia_origin: "Palkia Forma Origem",
     raging_bolt: "Raio Furioso",
     snorlax: "snorlax"
+  },
+  ko: {
+    charizard: "\uB9AC\uC790\uBABD",
+    chien_pao: "\uD30C\uC624\uC820",
+    dialga_origin: "\uC624\uB9AC\uC9C4\uD3FC \uB514\uC544\uB8E8\uAC00",
+    dragapult: "\uB4DC\uB798\uD384\uD2B8",
+    palkia_origin: "\uC624\uB9AC\uC9C4\uD3FC \uD384\uAE30\uC544",
+    raging_bolt: "\uB0A0\uB6F0\uB294\uC6B0\uB808",
+    snorlax: "\uC7A0\uB9CC\uBCF4"
   }
 };
 
@@ -84,7 +93,7 @@ export function getPokemonToFind(language: Language) {
     PokemonStrings[language].snorlax,
     'roaring moon',
     'banette',
-    'raging bolt',
+    PokemonStrings[language].raging_bolt,
     'lugia', // same in every language
     PokemonStrings[language].chien_pao,
     'gardevoir',

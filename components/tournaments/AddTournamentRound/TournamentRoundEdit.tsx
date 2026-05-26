@@ -12,6 +12,7 @@ import { Database } from "@/database.types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ImmediateMatchEndScenarios, MATCH_END_REASONS } from "../TournamentConstants/constants";
 import { Label } from "@/components/ui/label";
+import { useUiTranslations } from "@/hooks/useUiTranslations";
 
 export interface TournamentRoundEditProps {
   editing: boolean;
@@ -27,6 +28,7 @@ export interface TournamentRoundEditProps {
 
 export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
   const { toast } = useToast();
+  const { t } = useUiTranslations();
   const roundsTable = props.roundsTableName ?? 'tournament rounds';
 
   const [deck, setDeck] = useState<string | undefined>(undefined);
@@ -128,18 +130,18 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
     <Card>
       <CardHeader>
         <CardTitle className="my-2 flex justify-between items-center dark:text-gray-400">
-          <Label>Round {props.editedRoundNumber}</Label>
+          <Label>{t('tournament.round_number', { roundNumber: props.editedRoundNumber })}</Label>
         </CardTitle>
         <div className="flex flex-col w-full gap-4">
           <div className="flex flex-col w-full gap-2">
-            <Label>Opponent's deck</Label>
+            <Label>{t('tournament.opponent_deck')}</Label>
             <AddArchetype archetype={deck} setArchetype={setDeck} isDisabled={immediateMatchEnd !== null} />
           </div>
           <div className="flex flex-col w-full gap-2">
             <RoundResultInput result={result} setResult={setResult} isMatchImmediatelyEnded={!!immediateMatchEnd} turnOrder={turnOrders} setTurnOrder={setTurnOrders} />
           </div>
           <div className="flex flex-col w-full gap-2">
-            <Label>Other outcome</Label>
+            <Label>{t('tournament.other_outcome')}</Label>
             <ToggleGroup className="justify-start" type='single' variant='outline' value={immediateMatchEnd ?? undefined} onValueChange={(value) => {
                 if (value === '') return setImmediateMatchEnd(null);
                 setImmediateMatchEnd(value as ImmediateMatchEndScenarios);
@@ -160,8 +162,8 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
           </div>
           <div className="grid grid-cols-3 gap-2">
             <Button className='col-span-2' onClick={handleRoundEdit} type="submit" disabled={loading || (!ifChangesWereMade || ((immediateMatchEnd === null) && (!deck || (result.length === 0))))}>
-              {loading ? (<><Loader2 className="animate-spin mr-2 h-4 w-4 text-white" /> Saving...</>) : props.existingRound ? 'Update round' : 'Add round'}</Button>
-            <Button variant='secondary' onClick={() => props.setEditing(false)}>Cancel</Button>
+              {loading ? (<><Loader2 className="animate-spin mr-2 h-4 w-4 text-white" /> {t('common.saving')}</>) : props.existingRound ? t('tournament.update_round') : t('tournament.add_round')}</Button>
+            <Button variant='secondary' onClick={() => props.setEditing(false)}>{t('common.cancel')}</Button>
           </div>
       </div>
       </CardHeader>
@@ -170,8 +172,8 @@ export default function TournamentRoundEdit(props: TournamentRoundEditProps) {
 
   return (
     <Button size='sm' variant={'outline'} onClick={() => props.setEditing(true)}>
-      {props.existingRound && <><Upload className="mr-2 h-4 w-4" />Update round</>}
-      {!props.existingRound && <><Plus className="mr-2 h-4 w-4" />Add round</>}
+      {props.existingRound && <><Upload className="mr-2 h-4 w-4" />{t('tournament.update_round')}</>}
+      {!props.existingRound && <><Plus className="mr-2 h-4 w-4" />{t('tournament.add_round')}</>}
     </Button>
   )
 }
