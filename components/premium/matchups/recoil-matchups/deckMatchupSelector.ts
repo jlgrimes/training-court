@@ -48,7 +48,7 @@ export const filteredRowsSelector = selector<MatchupRow[] | null>({
 			// format filter
 			if (!(fmt === null || fmt === "All" || r.format === fmt)) return false;
 
-			// exact saved-decklist filter. Battle log rows do not currently carry decklist_id.
+			// exact saved-decklist filter.
 			if (decklistId && r.decklist_id !== decklistId) return false;
 
 			// turn order filter

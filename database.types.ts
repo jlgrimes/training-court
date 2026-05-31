@@ -140,6 +140,7 @@ export type Database = {
         Row: {
           archetype: string | null
           created_at: string
+          decklist_id: string | null
           id: string
           log: string
           notes: string | null
@@ -152,6 +153,7 @@ export type Database = {
         Insert: {
           archetype?: string | null
           created_at?: string
+          decklist_id?: string | null
           id?: string
           log: string
           notes?: string | null
@@ -164,6 +166,7 @@ export type Database = {
         Update: {
           archetype?: string | null
           created_at?: string
+          decklist_id?: string | null
           id?: string
           log?: string
           notes?: string | null
@@ -266,6 +269,7 @@ export type Database = {
         Row: {
           archetype: string | null
           cards: Json
+          content_hash: string | null
           created_at: string
           format: string | null
           game: string
@@ -277,6 +281,7 @@ export type Database = {
         Insert: {
           archetype?: string | null
           cards: Json
+          content_hash?: string | null
           created_at?: string
           format?: string | null
           game?: string
@@ -288,6 +293,7 @@ export type Database = {
         Update: {
           archetype?: string | null
           cards?: Json
+          content_hash?: string | null
           created_at?: string
           format?: string | null
           game?: string

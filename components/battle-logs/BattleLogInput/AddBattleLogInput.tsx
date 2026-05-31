@@ -24,6 +24,7 @@ import { LogFormats, logFormats } from '@/components/tournaments/Format/tourname
 import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
 import type { BattleLog } from '@/lib/server/home-data';
+import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -43,6 +44,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   } | null>(null);
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
+  const [decklistId, setDecklistId] = useState<string | null>(null);
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
 
@@ -74,6 +76,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const handleClear = () => {
     setLog('');
     setParsedLogDetails(null);
+    setDecklistId(null);
     setShowDialog(false);
   };
 
@@ -98,6 +101,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       user: props.userData?.id ?? null,
       archetype,
       opp_archetype: oppArchetype,
+      decklist_id: decklistId,
       log,
       turn_order,
       result,
@@ -120,6 +124,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     setLog('');
     setParsedLogDetails(null);
+    setDecklistId(null);
     setShowDialog(false);
     if (format) Cookies.set("format", format, { expires: 30 });
   };
@@ -193,7 +198,24 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             <>
                 <Label>{username}'s deck</Label>
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
-                
+
+                {props.userData?.id && (
+                  <>
+                    <Label>Decklist</Label>
+                    <DecklistSelect
+                      userId={props.userData.id}
+                      value={decklistId}
+                      noneLabel="No decklist"
+                      onChange={(decklist) => {
+                        setDecklistId(decklist?.id ?? null);
+                        if (decklist) {
+                          setArchetype(decklist.archetype || decklist.name);
+                        }
+                      }}
+                    />
+                  </>
+                )}
+                 
                 <Label>Opponent's Deck</Label>
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
 

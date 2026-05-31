@@ -6,13 +6,24 @@ import { Search, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { Database, Json } from '@/database.types';
 import { createClient } from '@/utils/supabase/client';
 import { MAX_SAVED_DECKLISTS } from './deckbuilder.constants';
 
 const STORAGE_KEY = 'ptcg-deckbuilder-v2';
+const SAVED_DECKS_BREADCRUMB_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
+const SAVED_DECKS_BREADCRUMB_EVENT = 'ptcg-deckbuilder-saved-decks-updated';
 const MAX_DECK_SIZE = 60;
 const ALL_SETS_ID = 'all';
 
@@ -69,6 +80,7 @@ type StoredDeck = {
 type SavedDeck = StoredDeck & {
   id: string;
   savedAt: string;
+  contentHash: string | null;
 };
 type DeckbuilderView = 'library' | 'editor';
 
@@ -153,6 +165,7 @@ const toSavedDeck = (row: DecklistRow): SavedDeck => ({
   selectedSetId: ALL_SETS_ID,
   entries: normalizeDeckEntries(row.cards),
   savedAt: row.updated_at ?? row.created_at,
+  contentHash: row.content_hash ?? null,
 });
 
 const readCardsBySet = async (
@@ -219,8 +232,11 @@ const getUniqueDeckName = (requestedName: string, existingDecks: SavedDeck[]): s
   return `${baseName} ${maxSuffix + 1}`;
 };
 
+const normalizeDeckNameForComparison = (name: string): string =>
+  name.trim().replace(/\s+/g, ' ').toLowerCase();
+
 const formatDecklistName = (name: string): string => {
-  return name.replace(/^Pokemon\b/i, 'Pokémon');
+  return name.replace(/^Pokemon\b/i, 'Pokemon');
 };
 
 const normalizeForMatch = (value: string): string =>
@@ -229,6 +245,71 @@ const normalizeForMatch = (value: string): string =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
+
+// Content hashes identify the normalized 60-card list, not a specific saved decklist
+// record or card printing. Hash input intentionally uses count + card name + card text
+// so alternate arts/sets can still compare as the same list for exact-list statistics.
+// Keep this canonicalization stable; changing it will change historical hash meaning.
+const normalizeHashText = (value: string): string =>
+  normalizeForMatch(value).replace(/\s+/g, ' ');
+
+const canonicalizeDeckForHash = (entries: DeckEntry[]): string => {
+  const groupedEntries = entries.reduce<Record<string, { name: string; qty: number; text: string }>>((acc, entry) => {
+    const hashEntry = {
+      name: normalizeHashText(entry.name),
+      qty: entry.qty,
+      text: (entry.metadata?.cardText ?? []).map(normalizeHashText).filter(Boolean).join('|'),
+    };
+    const key = `${hashEntry.name}\u001f${hashEntry.text}`;
+    acc[key] = {
+      ...hashEntry,
+      qty: (acc[key]?.qty ?? 0) + hashEntry.qty,
+    };
+    return acc;
+  }, {});
+
+  return Object.values(groupedEntries)
+    .sort((left, right) => {
+      const nameCompare = left.name.localeCompare(right.name);
+      if (nameCompare !== 0) {
+        return nameCompare;
+      }
+
+      return left.text.localeCompare(right.text);
+    })
+    .map((entry) => `${entry.qty} ${entry.name} ${entry.text}`)
+    .join('\n');
+};
+
+const fallbackHash = (value: string): string => {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+};
+
+const buildDeckContentHash = async (entries: DeckEntry[]): Promise<string> => {
+  const canonicalDeck = canonicalizeDeckForHash(entries);
+  if (!globalThis.crypto?.subtle) {
+    return fallbackHash(canonicalDeck);
+  }
+
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(canonicalDeck));
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+};
+
+const writeBreadcrumbDeckPreviews = (decks: SavedDeck[]) => {
+  const previews = decks.map((deck) => ({
+    id: deck.id,
+    name: deck.name,
+  }));
+  localStorage.setItem(SAVED_DECKS_BREADCRUMB_STORAGE_KEY, JSON.stringify(previews));
+  window.dispatchEvent(new Event(SAVED_DECKS_BREADCRUMB_EVENT));
+};
 
 const getDecklistSection = (entry: DeckEntry): 'pokemon' | 'trainer' | 'energy' | 'other' => {
   const normalizedSupertype = normalizeForMatch(entry.metadata?.supertype ?? '');
@@ -278,7 +359,7 @@ const buildDecklistText = (entries: DeckEntry[]): string => {
   };
 
   return [
-    `Pokémon: ${pokemon.reduce((sum, entry) => sum + entry.qty, 0)}`,
+    `Pokemon: ${pokemon.reduce((sum, entry) => sum + entry.qty, 0)}`,
     '',
     ...pokemon.map(formatLine),
     '',
@@ -300,7 +381,35 @@ const isBasicEnergy = (card: Pick<CatalogCard, 'category' | 'name' | 'metadata'>
     return true;
   }
 
-  const normalizedName = normalizeForMatch(card.name ?? '');
+  const normalizedSubtypes = (card.metadata.subtypes ?? []).map(normalizeForMatch);
+  if (normalizedSubtypes.includes('special')) {
+    return false;
+  }
+
+  if (normalizedSubtypes.includes('basic')) {
+    return true;
+  }
+
+  const normalizedName = normalizeForMatch(card.name ?? '')
+    .replace(/\{g\}/g, 'grass')
+    .replace(/\{r\}/g, 'fire')
+    .replace(/\{w\}/g, 'water')
+    .replace(/\{l\}/g, 'lightning')
+    .replace(/\{p\}/g, 'psychic')
+    .replace(/\{f\}/g, 'fighting')
+    .replace(/\{d\}/g, 'darkness')
+    .replace(/\{m\}/g, 'metal')
+    .replace(/\s+/g, ' ');
+  const normalizedCategory = normalizeForMatch(card.category ?? '');
+  const normalizedSupertype = normalizeForMatch(card.metadata.supertype ?? '');
+
+  if (
+    (normalizedCategory === 'energy' || normalizedSupertype === 'energy')
+    && !/\bspecial\b/.test(normalizedName)
+    && /^(basic\s+)?(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy)\s+energy$/.test(normalizedName)
+  ) {
+    return true;
+  }
 
   // Strong fallback for catalog entries that omit energy metadata/category.
   return /^(basic\s+)?(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy)\s+energy$/.test(
@@ -341,24 +450,37 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const [deck, setDeck] = useState<Record<string, DeckEntry>>({});
   const [isHydrated, setIsHydrated] = useState(false);
   const [savedDecks, setSavedDecks] = useState<SavedDeck[]>([]);
-  const [view, setView] = useState<DeckbuilderView>('library');
+  const [view, setView] = useState<DeckbuilderView>(props.initialDeckId ? 'editor' : 'library');
+  const [isLoadingInitialDeck, setIsLoadingInitialDeck] = useState(Boolean(props.initialDeckId && props.initialDeckId !== 'new'));
   const [previewCard, setPreviewCard] = useState<CatalogCard | null>(null);
   const [previewSource, setPreviewSource] = useState<PreviewSource>('search');
   const [isImporting, setIsImporting] = useState(false);
   const [isSavingDeck, setIsSavingDeck] = useState(false);
+  const [pendingLinkedSave, setPendingLinkedSave] = useState<{
+    tournamentCount: number;
+    logCount: number;
+  } | null>(null);
+  const [pendingDeleteDeck, setPendingDeleteDeck] = useState<{
+    deck: SavedDeck;
+    tournamentCount: number;
+    logCount: number;
+  } | null>(null);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = normalizeStoredDeck(JSON.parse(raw) as StoredDeck);
-        if (parsed.name) {
-          setDeckName(parsed.name);
+      if (!props.initialDeckId) {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = normalizeStoredDeck(JSON.parse(raw) as StoredDeck);
+          if (parsed.name) {
+            setDeckName(parsed.name);
+          }
+          setDeck(toDeckMap(parsed.entries));
         }
-        setDeck(toDeckMap(parsed.entries));
       }
 
       if (props.initialDeckId === 'new') {
+        setIsLoadingInitialDeck(false);
         setSelectedSavedDeckId('');
         setDeckName('Untitled Deck');
         setDeck({});
@@ -390,6 +512,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       }
 
       if (error) {
+        setIsLoadingInitialDeck(false);
         toast({
           variant: 'destructive',
           title: 'Unable to load saved decklists.',
@@ -404,13 +527,17 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       if (props.initialDeckId && props.initialDeckId !== 'new') {
         const initialDeck = nextSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
         if (initialDeck) {
+          setIsLoadingInitialDeck(false);
           setSelectedSavedDeckId(initialDeck.id);
           setDeckName(initialDeck.name);
           setDeck(toDeckMap(initialDeck.entries));
           setView('editor');
         } else {
+          setIsLoadingInitialDeck(false);
           setView('library');
         }
+      } else {
+        setIsLoadingInitialDeck(false);
       }
     };
 
@@ -458,6 +585,10 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       isActive = false;
     };
   }, [submittedQuery]);
+
+  useEffect(() => {
+    writeBreadcrumbDeckPreviews(savedDecks);
+  }, [savedDecks]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -633,23 +764,79 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     });
   }, []);
 
-  const saveDeck = useCallback(async () => {
+  const getLinkedUsageCounts = useCallback(async (decklistId: string) => {
+    const supabase = createClient();
+    const [tournamentResult, logResult] = await Promise.all([
+      supabase
+        .from('tournaments')
+        .select('id', { count: 'exact', head: true })
+        .eq('user', props.userId)
+        .eq('decklist_id', decklistId),
+      supabase
+        .from('logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('user', props.userId)
+        .eq('decklist_id', decklistId),
+    ]);
+
+    return {
+      tournamentCount: tournamentResult.count ?? 0,
+      logCount: logResult.error ? 0 : logResult.count ?? 0,
+    };
+  }, [props.userId]);
+
+  const saveDeck = useCallback(async (options?: { acceptLinkedWarning?: boolean; saveAsNew?: boolean }) => {
     const normalizedName = deckName.trim() || 'Untitled Deck';
     const now = new Date().toISOString();
     const entries = Object.values(deck);
+    const shouldSaveAsNew = Boolean(options?.saveAsNew);
 
     if (entries.length === 0) {
       toast({ title: 'Add at least one card before saving.' });
       return;
     }
 
-    const existingById = selectedSavedDeckId
+    const existingById = selectedSavedDeckId && !shouldSaveAsNew
       ? savedDecks.find((savedDeck) => savedDeck.id === selectedSavedDeckId)
       : undefined;
-    const nextName = existingById ? normalizedName : getUniqueDeckName(normalizedName, savedDecks);
+    const nextName = shouldSaveAsNew
+      ? getUniqueDeckName(`${normalizedName} Copy`, savedDecks)
+      : normalizedName;
+    const duplicateName = savedDecks.find((savedDeck) => (
+      savedDeck.id !== existingById?.id
+      && normalizeDeckNameForComparison(savedDeck.name) === normalizeDeckNameForComparison(nextName)
+    ));
+
+    if (duplicateName) {
+      toast({
+        variant: 'destructive',
+        title: 'Decklist name already exists.',
+        description: 'Choose a unique name before saving this decklist.',
+      });
+      return;
+    }
+
+    const nextContentHash = await buildDeckContentHash(entries);
+    const existingContentHash = existingById
+      ? existingById.contentHash ?? await buildDeckContentHash(existingById.entries)
+      : null;
+    const didDeckContentChange = Boolean(existingById && existingContentHash !== nextContentHash);
 
     setIsSavingDeck(true);
     const supabase = createClient();
+
+    const linkedUsage = existingById && didDeckContentChange
+      ? await getLinkedUsageCounts(existingById.id)
+      : null;
+    const tournamentCount = linkedUsage?.tournamentCount ?? 0;
+    const logCount = linkedUsage?.logCount ?? 0;
+    const hasLinkedStats = tournamentCount + logCount > 0;
+
+    if (existingById && didDeckContentChange && hasLinkedStats && !options?.acceptLinkedWarning) {
+      setIsSavingDeck(false);
+      setPendingLinkedSave({ tournamentCount, logCount });
+      return;
+    }
 
     if (!existingById) {
       const { count, error: countError } = await supabase
@@ -684,6 +871,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       user_id: props.userId,
       game: 'pokemon-tcg',
       cards: entries as unknown as Json,
+      content_hash: nextContentHash,
       updated_at: now,
     };
 
@@ -702,6 +890,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
           .single<DecklistRow>();
 
     const { data, error } = await request;
+
     setIsSavingDeck(false);
 
     if (error || !data) {
@@ -715,26 +904,61 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
     const nextDeck = toSavedDeck(data);
     const nextSavedDecks = existingById
-      ? savedDecks.map((savedDeck) => (savedDeck.id === existingById.id ? nextDeck : savedDeck))
+      ? [nextDeck, ...savedDecks.filter((savedDeck) => savedDeck.id !== existingById.id && savedDeck.id !== nextDeck.id)]
       : [nextDeck, ...savedDecks];
 
+    setPendingLinkedSave(null);
     setSavedDecks(nextSavedDecks);
     setSelectedSavedDeckId(nextDeck.id);
     setDeckName(nextName);
     router.replace(`/ptcg/deckbuilder/${nextDeck.id}`);
     toast({ title: `Saved "${nextName}"` });
-  }, [deck, deckName, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
+  }, [deck, deckName, getLinkedUsageCounts, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
 
   const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
-    setSelectedSavedDeckId(savedDeck.id);
-    setDeckName(savedDeck.name);
-    setDeck(toDeckMap(savedDeck.entries));
-    setView('editor');
+    setPendingLinkedSave(null);
     router.push(`/ptcg/deckbuilder/${savedDeck.id}`);
   }, [router]);
 
-  const deleteSavedDeck = useCallback(async (savedDeck: SavedDeck) => {
+  const deleteSavedDeck = useCallback(async (savedDeck: SavedDeck, options?: { acceptLinkedWarning?: boolean }) => {
+    const usage = await getLinkedUsageCounts(savedDeck.id);
+    const hasLinkedStats = usage.tournamentCount + usage.logCount > 0;
+    if (hasLinkedStats && !options?.acceptLinkedWarning) {
+      setPendingDeleteDeck({
+        deck: savedDeck,
+        tournamentCount: usage.tournamentCount,
+        logCount: usage.logCount,
+      });
+      return;
+    }
+
     const supabase = createClient();
+
+    if (hasLinkedStats) {
+      const [tournamentUnlinkResult, logUnlinkResult] = await Promise.all([
+        supabase
+          .from('tournaments')
+          .update({ decklist_id: null })
+          .eq('user', props.userId)
+          .eq('decklist_id', savedDeck.id),
+        supabase
+          .from('logs')
+          .update({ decklist_id: null })
+          .eq('user', props.userId)
+          .eq('decklist_id', savedDeck.id),
+      ]);
+      const unlinkError = tournamentUnlinkResult.error ?? logUnlinkResult.error;
+
+      if (unlinkError) {
+        toast({
+          variant: 'destructive',
+          title: 'Unable to remove decklist associations.',
+          description: unlinkError.message,
+        });
+        return;
+      }
+    }
+
     const { error } = await supabase
       .from('decklists')
       .delete()
@@ -756,7 +980,8 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       setSelectedSavedDeckId('');
     }
     toast({ title: `Deleted "${savedDeck.name}"` });
-  }, [props.userId, savedDecks, selectedSavedDeckId, toast]);
+    setPendingDeleteDeck(null);
+  }, [getLinkedUsageCounts, props.userId, savedDecks, selectedSavedDeckId, toast]);
 
   const startNewDeck = useCallback(() => {
     setSelectedSavedDeckId('');
@@ -769,15 +994,23 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const isOverLimit = totalCards > MAX_DECK_SIZE;
 
   const importFromClipboard = useCallback(async () => {
+    let clipboardText = '';
+
     try {
-      const clipboardText = await navigator.clipboard.readText();
-      if (!clipboardText.trim()) {
-        toast({ title: 'Clipboard is empty.' });
-        return;
-      }
+      clipboardText = await navigator.clipboard.readText();
+    } catch {
+      toast({ title: 'Clipboard access blocked.' });
+      return;
+    }
 
-      setIsImporting(true);
+    if (!clipboardText.trim()) {
+      toast({ title: 'Clipboard is empty.' });
+      return;
+    }
 
+    setIsImporting(true);
+
+    try {
       const response = await fetch('/api/ptcg/cards/import', {
         method: 'POST',
         headers: {
@@ -788,7 +1021,12 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
       const payload = (await response.json()) as ImportResponse;
       if (!response.ok) {
-        throw new Error((payload as { message?: string }).message ?? 'Import failed');
+        toast({
+          variant: 'destructive',
+          title: 'Unable to import decklist.',
+          description: (payload as { message?: string }).message ?? 'Check the decklist format and try again.',
+        });
+        return;
       }
 
       const importEntries = payload.entries ?? [];
@@ -848,8 +1086,12 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         const importedCount = Object.values(importDeckMap).reduce((sum, deckEntry) => sum + deckEntry.qty, 0);
         toast({ title: `Imported ${importedCount} cards.` });
       }
-    } catch {
-      toast({ title: 'Clipboard access blocked.' });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Unable to import decklist.',
+        description: error instanceof Error ? error.message : 'Check the decklist format and try again.',
+      });
     } finally {
       setIsImporting(false);
     }
@@ -868,76 +1110,136 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
   if (view === 'library') {
     return (
-      <UICard>
-        <CardContent className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <button
-              type="button"
-              onClick={startNewDeck}
-              className="rounded-md bg-muted/20 p-3 text-left transition-colors hover:bg-muted/40"
-            >
-              <div className="mb-2 grid aspect-[8/5] place-items-center rounded bg-muted">
-                <span className="text-4xl font-semibold text-muted-foreground">+</span>
-              </div>
-              <p className="truncate text-sm font-semibold">New Deck</p>
-              <p className="text-xs text-muted-foreground">Create from scratch</p>
-            </button>
+      <>
+        <UICard>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <button
+                type="button"
+                onClick={startNewDeck}
+                className="rounded-md bg-muted/20 p-3 text-left transition-colors hover:bg-muted/40"
+              >
+                <div className="mb-2 grid aspect-[8/5] place-items-center rounded bg-muted">
+                  <span className="text-4xl font-semibold text-muted-foreground">+</span>
+                </div>
+                <p className="truncate text-sm font-semibold">New Deck</p>
+                <p className="text-xs text-muted-foreground">Create from scratch</p>
+              </button>
 
-            {savedDecks.map((savedDeck) => (
-              <div key={savedDeck.id} className="rounded-md p-3">
-                <button
-                  type="button"
-                  onClick={() => openSavedDeck(savedDeck)}
-                  className="w-full text-left"
-                >
-                  <div className="mb-2 grid aspect-[8/5] grid-cols-8 grid-rows-5 gap-px overflow-hidden rounded bg-muted p-0.5">
-                    {savedDeck.entries.slice(0, 40).map((entry) => (
-                      <div key={entry.id} className="overflow-hidden rounded-[2px] bg-muted/40">
-                        {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
-                          <img
-                            src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
-                            alt={entry.name}
-                            className="h-full w-full object-contain"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-muted" />
-                        )}
-                      </div>
-                    ))}
-                    {Array.from({ length: Math.max(0, 40 - savedDeck.entries.length) }).map((_, index) => (
-                      <div key={`empty-${savedDeck.id}-${index}`} className="rounded-[2px] bg-muted/30" />
-                    ))}
-                  </div>
+              {savedDecks.map((savedDeck) => (
+                <div key={savedDeck.id} className="rounded-md p-3">
+                  <button
+                    type="button"
+                    onClick={() => openSavedDeck(savedDeck)}
+                    className="w-full text-left"
+                  >
+                    <div className="mb-2 grid aspect-[8/5] grid-cols-8 grid-rows-5 gap-px overflow-hidden rounded bg-muted p-0.5">
+                      {savedDeck.entries.slice(0, 40).map((entry) => (
+                        <div key={entry.id} className="overflow-hidden rounded-[2px] bg-muted/40">
+                          {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
+                            <img
+                              src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
+                              alt={entry.name}
+                              className="h-full w-full object-contain"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-muted" />
+                          )}
+                        </div>
+                      ))}
+                      {Array.from({ length: Math.max(0, 40 - savedDeck.entries.length) }).map((_, index) => (
+                        <div key={`empty-${savedDeck.id}-${index}`} className="rounded-[2px] bg-muted/30" />
+                      ))}
+                    </div>
+                  </button>
                   <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => openSavedDeck(savedDeck)}
+                      className="min-w-0 text-left"
+                    >
                       <p className="truncate text-sm font-semibold">{savedDeck.name}</p>
                       <p className="text-xs text-muted-foreground">
                         Last Saved {new Date(savedDeck.savedAt).toLocaleString()}
                       </p>
-                    </div>
+                    </button>
                     <button
                       type="button"
                       aria-label={`Delete ${savedDeck.name}`}
                       className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
+                      onClick={() => {
                         void deleteSavedDeck(savedDeck);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                </button>
-              </div>
-            ))}
-          </div>
-          {savedDecks.length === 0 && (
-            <p className="text-sm text-muted-foreground">No saved decks yet. Use New Deck to get started.</p>
-          )}
-        </CardContent>
-      </UICard>
+                </div>
+              ))}
+            </div>
+            {savedDecks.length === 0 && (
+              <p className="text-sm text-muted-foreground">No saved decks yet. Use New Deck to get started.</p>
+            )}
+          </CardContent>
+        </UICard>
+
+        <Dialog open={Boolean(pendingDeleteDeck)} onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteDeck(null);
+          }
+        }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete linked decklist?</DialogTitle>
+              <DialogDescription>
+                This decklist is tied to {pendingDeleteDeck?.tournamentCount ?? 0} tournament(s)
+                {pendingDeleteDeck?.logCount ? ` and ${pendingDeleteDeck.logCount} log(s)` : ''}. Deleting it will remove the saved
+                list and remove its decklist association from existing logs and tournaments.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPendingDeleteDeck(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (pendingDeleteDeck) {
+                    void deleteSavedDeck(pendingDeleteDeck.deck, { acceptLinkedWarning: true });
+                  }
+                }}
+              >
+                Delete anyway
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  if (isLoadingInitialDeck) {
+    return (
+      <div className="grid gap-4 lg:grid-cols-8" aria-busy="true" aria-label="Loading decklist">
+        <UICard className="lg:col-span-5">
+          <CardContent className="space-y-4 pt-4">
+            <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-20" />
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-20" />
+            </div>
+            <Skeleton className="h-5 w-28" />
+            <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-6 xl:grid-cols-8">
+              {Array.from({ length: 24 }).map((_, index) => (
+                <Skeleton key={index} className="aspect-[5/7] w-full rounded-md" />
+              ))}
+            </div>
+          </CardContent>
+        </UICard>
+      </div>
     );
   }
 
@@ -951,7 +1253,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
               onChange={(event) => setDeckName(event.target.value)}
               placeholder="Deck name"
             />
-            <Button onClick={saveDeck} disabled={deckEntries.length === 0 || isSavingDeck}>
+            <Button onClick={() => void saveDeck()} disabled={deckEntries.length === 0 || isSavingDeck}>
               {isSavingDeck ? 'Saving...' : 'Save'}
             </Button>
             <Button variant="outline" onClick={importFromClipboard} disabled={isImporting}>
@@ -1085,9 +1387,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         </CardHeader>
         <CardContent className="flex min-h-0 flex-1 flex-col space-y-4">
           <div>
-            <label htmlFor="card-search" className="mb-1 block text-xs text-muted-foreground">
-              Search
-            </label>
             <div className="flex gap-2">
               <Input
                 id="card-search"
@@ -1159,6 +1458,70 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
           </div>
         </CardContent>
       </UICard>
+
+      <Dialog open={Boolean(pendingLinkedSave)} onOpenChange={(open) => {
+        if (!open) {
+          setPendingLinkedSave(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save linked decklist?</DialogTitle>
+            <DialogDescription>
+              This list is already tied to {pendingLinkedSave?.tournamentCount ?? 0} tournament(s)
+              {pendingLinkedSave?.logCount ? ` and ${pendingLinkedSave.logCount} log(s)` : ''}. Saving card changes will update
+              this same decklist, so those existing stats will now point at the edited list.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingLinkedSave(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => void saveDeck({ saveAsNew: true })}
+              disabled={isSavingDeck}
+            >
+              {isSavingDeck ? 'Saving...' : 'Create as new deck'}
+            </Button>
+            <Button onClick={() => void saveDeck({ acceptLinkedWarning: true })} disabled={isSavingDeck}>
+              {isSavingDeck ? 'Saving...' : 'Save anyway'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(pendingDeleteDeck)} onOpenChange={(open) => {
+        if (!open) {
+          setPendingDeleteDeck(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete linked decklist?</DialogTitle>
+            <DialogDescription>
+              This decklist is tied to {pendingDeleteDeck?.tournamentCount ?? 0} tournament(s)
+              {pendingDeleteDeck?.logCount ? ` and ${pendingDeleteDeck.logCount} log(s)` : ''}. Deleting it will remove the saved
+              list and remove its decklist association from existing logs and tournaments.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingDeleteDeck(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (pendingDeleteDeck) {
+                  void deleteSavedDeck(pendingDeleteDeck.deck, { acceptLinkedWarning: true });
+                }
+              }}
+            >
+              Delete anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {previewCard && (
         <div

@@ -33,6 +33,10 @@ export const EditableTournamentArchetype = ({ tournament, editDisabled, tableNam
     setClientDeck(getCookie(getLocalDeckCookieKey(tournament.id)));
   }, [tournament.id]);
 
+  useEffect(() => {
+    setServerDeck(tournament.deck);
+  }, [tournament.deck]);
+
   const setArchetype = useCallback(async (deck: string) => {
     if (shouldLocalizeDeckInput) {
       setCookie(getLocalDeckCookieKey(tournament.id), deck, { expires: 70 });

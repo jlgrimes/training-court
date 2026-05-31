@@ -9,61 +9,13 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ShareIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useMemo } from "react";
 import { useToast } from "../ui/use-toast";
 import Link from "next/link";
-
-const SAVED_DECKS_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
-
-type SavedDeckPreview = {
-  id: string;
-  name: string;
-};
 
 export default function HeaderBreadcrumbs() {
   const pathname = usePathname();
   const { toast } = useToast();
-  const [deckBreadcrumbLabel, setDeckBreadcrumbLabel] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!pathname.includes('/ptcg/deckbuilder/')) {
-      setDeckBreadcrumbLabel(null);
-      return;
-    }
-
-    const pathParts = pathname.split('/').filter(Boolean);
-    const deckId = pathParts[2];
-    if (!deckId || deckId === 'new') {
-      setDeckBreadcrumbLabel(deckId === 'new' ? 'New' : null);
-      return;
-    }
-
-    try {
-      const raw = localStorage.getItem(SAVED_DECKS_STORAGE_KEY);
-      if (!raw) {
-        setDeckBreadcrumbLabel(deckId);
-        return;
-      }
-
-      const parsed = JSON.parse(raw) as SavedDeckPreview[];
-      if (!Array.isArray(parsed)) {
-        setDeckBreadcrumbLabel(deckId);
-        return;
-      }
-
-      const exactMatches = parsed.filter((deck) => deck.id === deckId);
-      if (exactMatches.length === 0) {
-        setDeckBreadcrumbLabel(deckId);
-        return;
-      }
-
-      const target = exactMatches[0];
-      const sameNameCount = parsed.filter((deck) => deck.name?.trim().toLowerCase() === target.name?.trim().toLowerCase()).length;
-      setDeckBreadcrumbLabel(sameNameCount === 1 ? target.name : deckId);
-    } catch {
-      setDeckBreadcrumbLabel(deckId);
-    }
-  }, [pathname]);
 
   const breadcrumbs: { path: string, label: string}[] = useMemo(() => {
     const breadcrumbs = [{
@@ -106,7 +58,7 @@ export default function HeaderBreadcrumbs() {
         if (maybeDeckId) {
           breadcrumbs.push({
             path: `/ptcg/deckbuilder/${maybeDeckId}`,
-            label: maybeDeckId === 'new' ? 'New' : (deckBreadcrumbLabel ?? maybeDeckId),
+            label: maybeDeckId === 'new' ? 'New' : maybeDeckId,
           });
         }
       }
@@ -147,7 +99,7 @@ export default function HeaderBreadcrumbs() {
     }
 
     return breadcrumbs;
-  }, [deckBreadcrumbLabel, pathname]);
+  }, [pathname]);
 
   if (pathname === '/') return null;
 
