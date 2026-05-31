@@ -7,6 +7,7 @@ import { Header } from "@/components/ui/header";
 import TournamentCreateDialog from "../TournamentCreate";
 import { fetchTournamentsServer, fetchTournamentRoundsServer } from "@/lib/server/home-data";
 import { fetchCurrentUser } from "@/components/auth.utils";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
 
 /**
  * Self-contained server component widget for tournaments.
@@ -27,11 +28,11 @@ export async function TournamentsHomePreview() {
       <div className="flex flex-col gap-4">
         <Header
           actionButton={<TournamentCreateDialog userId={user.id} config={PTCG_TOURNAMENT_CONFIG} />}
-        >PTCG Tournaments</Header>
+        ><TranslatedText id="tournaments.ptcgHeader">PTCG Tournaments</TranslatedText></Header>
         <Card className="border-none">
           <CardHeader className="px-2">
-            <CardDescription>You can add tournaments from the past, present, or future.</CardDescription>
-            <CardDescription>Click New Tournament to get started!</CardDescription>
+            <CardDescription><TranslatedText id="tournaments.empty.description">You can add tournaments from the past, present, or future.</TranslatedText></CardDescription>
+            <CardDescription><TranslatedText id="tournaments.empty.cta">Click New Tournament to get started!</TranslatedText></CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -43,7 +44,7 @@ export async function TournamentsHomePreview() {
       <div className="flex flex-col gap-6">
         <Header
           actionButton={<TournamentCreateDialog userId={user.id} config={PTCG_TOURNAMENT_CONFIG} />}
-        >PTCG Tournaments</Header>
+        ><TranslatedText id="tournaments.ptcgHeader">PTCG Tournaments</TranslatedText></Header>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             {tournaments.slice(0, 5).map((tournament) => (

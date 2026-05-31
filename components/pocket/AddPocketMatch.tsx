@@ -10,9 +10,11 @@ import { Label } from "../ui/label";
 import { createClient } from "@/utils/supabase/client";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { useToast } from "../ui/use-toast";
+import { T, useGT } from "gt-react";
 
 export const AddPocketMatch = ({ userId }: { userId: string}) => {
   const { toast } = useToast();
+  const gt = useGT();
   const { mutate } = useSWRConfig();
   const [myDeck, setMyDeck] = useState<string | undefined>();
   const [opponentDeck, setOpponentDeck] = useState<string | undefined>();
@@ -30,7 +32,7 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: gt("Uh oh! Something went wrong.", { $id: "common.errorTitle" }),
         description: error.message,
       })
     }
@@ -46,21 +48,21 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
 
   return (
     <Dialog>
-      <DialogTrigger className="text-sm"><Button size='sm'><PlusIcon className="size-4 mr-1" />Add match</Button></DialogTrigger>
+      <DialogTrigger className="text-sm"><Button size='sm'><PlusIcon className="size-4 mr-1" /><T id="pocket.addMatch.button">Add match</T></Button></DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Pocket match</DialogTitle>
+          <DialogTitle><T id="pocket.addMatch.title">Add Pocket match</T></DialogTitle>
         </DialogHeader>
         <div>
-          <Label>My deck</Label>
+          <Label><T id="pocket.addMatch.myDeck">My deck</T></Label>
           <AddArchetype archetype={myDeck} setArchetype={setMyDeck} />
         </div>
         <div>
-          <Label>{`Opponent's deck`}</Label>
+          <Label><T id="pocket.addMatch.opponentsDeck">Opponent&apos;s deck</T></Label>
           <AddArchetype archetype={opponentDeck} setArchetype={setOpponentDeck} />
         </div>
         <div>
-          <Label>Result</Label>
+          <Label><T id="pocket.addMatch.result">Result</T></Label>
           <ToggleGroup
             type='single'
             value={result}
@@ -72,7 +74,7 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
         </div>
         <DialogFooter>
           <DialogClose asChild disabled={!myDeck || !opponentDeck || !result} onClick={handlePocketGameAdd}>
-            <Button>Add</Button>
+            <Button><T id="common.add">Add</T></Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

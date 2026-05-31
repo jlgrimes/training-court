@@ -37,6 +37,7 @@ import { tournamentFormats } from './Format/tournament-format.types';
 import { Database } from '@/database.types';
 import { TournamentGameConfig } from './utils/tournament-game-config';
 import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
+import { T, useGT } from 'gt-react';
 
 function toUtcNoon(date: Date | null | undefined): Date | null {
   if (!date) return null;
@@ -51,6 +52,7 @@ export default function TournamentCreateDialog({
   config,
 }: { userId: string; config: TournamentGameConfig }) {
   const { toast } = useToast();
+  const gt = useGT();
   const [open, setOpen] = useState(false);
 
   const [isCreating, setIsCreating] = useState(false);
@@ -103,7 +105,7 @@ export default function TournamentCreateDialog({
     if (error) {
       toast({
         variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
+        title: gt('Uh oh! Something went wrong.', { $id: 'common.errorTitle' }),
         description: error.message,
       });
       return;
@@ -125,7 +127,7 @@ export default function TournamentCreateDialog({
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          New Tournament
+          <T id="tournaments.newTournament">New Tournament</T>
         </Button>
       </DialogTrigger>
 
@@ -139,13 +141,13 @@ export default function TournamentCreateDialog({
       >
         <div className="p-4 sm:p-6">
           <DialogHeader className="pb-2">
-            <DialogTitle>Create tournament</DialogTitle>
+            <DialogTitle><T id="tournaments.create.title">Create tournament</T></DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <Input
               className="w-full"
-              placeholder="Tournament name"
+              placeholder={gt("Tournament name", { $id: "tournaments.create.namePlaceholder" })}
               value={tournamentName}
               onChange={(e) => setTournamentName(e.target.value)}
             />
@@ -159,7 +161,7 @@ export default function TournamentCreateDialog({
               onValueChange={(val) => setTournamentCategory(val as TournamentCategory)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select tournament category" />
+                <SelectValue placeholder={gt("Select tournament category", { $id: "tournaments.create.categoryPlaceholder" })} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
                 {allTournamentCategories.map((cat) => (
@@ -178,7 +180,7 @@ export default function TournamentCreateDialog({
               onValueChange={(val) => setFormat(val)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select format" />
+                <SelectValue placeholder={gt("Select format", { $id: "common.selectFormat" })} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
                 {(config.formats?.length ? config.formats : tournamentFormats).map((fmt) => (
@@ -206,14 +208,14 @@ export default function TournamentCreateDialog({
           <DialogFooter className="mt-6">
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isCreating}>
-                Cancel
+                <T id="common.cancel">Cancel</T>
               </Button>
             </DialogClose>
             <Button
               onClick={handleAddTournament}
               disabled={isCreating || !tournamentName || !tournamentDate?.from}
             >
-              {isCreating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Add tournament'}
+              {isCreating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <T id="tournaments.create.add">Add tournament</T>}
             </Button>
           </DialogFooter>
         </div>

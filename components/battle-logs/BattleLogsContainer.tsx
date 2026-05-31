@@ -17,12 +17,24 @@ import { parseBattleLog } from "./utils/battle-log.utils";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
 import { Database } from "@/database.types";
+import { T } from "gt-react";
 
 interface BattleLogsContainerProps {
   userId?: string;
   allowPagination?: boolean;
   initialLogs?: BattleLogRecord[];
   initialUserData?: Database['public']['Tables']['user data']['Row'] | null;
+}
+
+function BattleLogSortLabel({ sortBy }: { sortBy: BattleLogSortBy }) {
+  switch (sortBy) {
+    case "Day":
+      return <T id="battleLogs.sort.day">Day</T>;
+    case "Deck":
+      return <T id="battleLogs.sort.deck">Deck</T>;
+    case "All":
+      return <T id="battleLogs.sort.all">All</T>;
+  }
 }
 
 export function BattleLogsContainer({
@@ -188,7 +200,7 @@ export function BattleLogsContainer({
               <TabsList>
                 {availableSortBys.map((s) => (
                   <TabsTrigger key={s} value={s} disabled={!userData?.live_screen_name}>
-                    {s}
+                    <BattleLogSortLabel sortBy={s} />
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -197,7 +209,7 @@ export function BattleLogsContainer({
 
           <ToggleGroup type="multiple" className="justify-start" size="sm">
             <ToggleGroupItem value="edit" onClick={() => setIsEditing(!isEditing)}>
-              <EditIcon className="h-4 w-4 mr-2" /> Edit logs
+              <EditIcon className="h-4 w-4 mr-2" /> <T id="battleLogs.editLogs">Edit logs</T>
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
@@ -229,10 +241,10 @@ export function BattleLogsContainer({
                   disabled={!canLoadMore}
                 >
                   {hasReachedEnd
-                    ? "No more logs"
+                    ? <T id="battleLogs.noMoreLogs">No more logs</T>
                     : isLoading && battleLogs.length === 0
                     ? <Loader2 className='mr-2 h-6 w-6 animate-spin'/>
-                    : "Load older logs"}
+                    : <T id="battleLogs.loadOlderLogs">Load older logs</T>}
                 </Button>
               </div>
             )}

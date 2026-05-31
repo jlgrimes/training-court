@@ -25,6 +25,7 @@ import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
 import type { BattleLog } from '@/lib/server/home-data';
 import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
+import { T, useGT } from 'gt-react';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -47,6 +48,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [decklistId, setDecklistId] = useState<string | null>(null);
   const username = props.userData?.live_screen_name;
   const { toast } = useToast();
+  const gt = useGT();
 
   useEffect(() => {
     if (parsedLogDetails) {
@@ -67,7 +69,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Your battle log was unable to be parsed.",
+        title: gt("Your battle log was unable to be parsed.", { $id: "battleLogs.input.parseError" }),
         description: `${error}`
       });
     }
@@ -88,7 +90,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       setLog('');
       return toast({
         variant: "destructive",
-        title: "Your battle log was unable to be parsed.",
+        title: gt("Your battle log was unable to be parsed.", { $id: "battleLogs.input.parseError" }),
         description: `${error}`
       })
     }
@@ -111,7 +113,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     if (error || !data) {
       return toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: gt("Uh oh! Something went wrong.", { $id: "common.errorTitle" }),
         description: error?.message ?? 'Insert failed',
       });
     }
@@ -120,7 +122,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     props.onLogAdded?.(saved);
 
     track('Import battle log');
-    toast({ title: "Battle log successfully imported!" });
+    toast({ title: gt("Battle log successfully imported!", { $id: "battleLogs.input.importSuccess" }) });
 
     setLog('');
     setParsedLogDetails(null);
@@ -136,7 +138,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       <Textarea
         className="resize-none"
         disabled={!props.userData?.live_screen_name}
-        placeholder="Paste PTCGL log here"
+        placeholder={gt("Paste PTCGL log here", { $id: "battleLogs.input.placeholder" })}
         value={log}
         onPaste={handlePaste}
         onChange={(e) => setLog(e.target.value)}
@@ -151,8 +153,8 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             if (!text) {
               return toast({
                 variant: "destructive",
-                title: "Clipboard is empty",
-                description: "Please copy a battle log first."
+                title: gt("Clipboard is empty", { $id: "battleLogs.input.clipboardEmpty" }),
+                description: gt("Please copy a battle log first.", { $id: "battleLogs.input.copyFirst" })
               });
             }
 
@@ -164,14 +166,14 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
           } catch (error) {
             toast({
               variant: "destructive",
-              title: "Failed to parse clipboard contents",
+              title: gt("Failed to parse clipboard contents", { $id: "battleLogs.input.clipboardParseFailed" }),
               description: `${error}`,
             });
           }
         }}
         >
       <ClipboardPaste className="mr-2 h-4 w-4" />
-        Add Log
+        <T id="battleLogs.input.addLog">Add Log</T>
       </Button>
       }
 
@@ -189,23 +191,23 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Review Battle Log</DialogTitle>
+            <DialogTitle><T id="battleLogs.input.reviewTitle">Review Battle Log</T></DialogTitle>
             <DialogDescription>
-              Below is the parsed information from your battle log. Confirm to add this result to your logs.
+              <T id="battleLogs.input.reviewDescription">Below is the parsed information from your battle log. Confirm to add this result to your logs.</T>
             </DialogDescription>
           </DialogHeader>
           {(parsedLogDetails && (
             <>
-                <Label>{username}'s deck</Label>
+                <Label><T id="battleLogs.input.yourDeck">Your deck</T></Label>
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
 
                 {props.userData?.id && (
                   <>
-                    <Label>Decklist</Label>
+                    <Label><T id="battleLogs.input.decklist">Decklist</T></Label>
                     <DecklistSelect
                       userId={props.userData.id}
                       value={decklistId}
-                      noneLabel="No decklist"
+                      noneLabel={gt("No decklist", { $id: "deckbuilder.noDecklist" })}
                       onChange={(decklist) => {
                         setDecklistId(decklist?.id ?? null);
                         if (decklist) {
@@ -216,13 +218,13 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                   </>
                 )}
                  
-                <Label>Opponent's Deck</Label>
+                <Label><T id="battleLogs.input.opponentsDeck">Opponent&apos;s Deck</T></Label>
                 <AddArchetype archetype={oppArchetype} setArchetype={setOppArchetype} />
 
-                <Label>Format</Label>
+                <Label><T id="battleLogs.input.format">Format</T></Label>
                   <Select value={format} onValueChange={(value) => setFormat(value as LogFormats)}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select format" />
+                    <SelectValue placeholder={gt("Select format", { $id: "common.selectFormat" })} />
                   </SelectTrigger>
                   <SelectContent>
                     {logFormats.map((option) => (
@@ -234,13 +236,13 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                 </Select>
 
               {/* @TODO: Should we be able to toggle who won or lost? How much should a user be able to adjust against our parsing algo? */}
-              <Label>{username}'s Result: {parsedLogDetails.result}</Label>
+              <Label><T id="battleLogs.input.result">Result:</T> {parsedLogDetails.result}</Label>
             </>
             )
           )}
           <DialogFooter className="mt-4">
-            <Button variant="secondary" onClick={() => setShowDialog(false)}>Close</Button>
-            <Button onClick={handleAddButtonClick}>Confirm</Button>
+            <Button variant="secondary" onClick={() => setShowDialog(false)}><T id="common.close">Close</T></Button>
+            <Button onClick={handleAddButtonClick}><T id="common.confirm">Confirm</T></Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -25,9 +25,11 @@ import { DarkModeToggle } from "../theme/DarkModeToggle";
 import { isPremiumUser } from "../premium/premium.utils";
 import { fetchUserData } from "../user-data.utils";
 import { normalizePreferredGames } from "@/lib/game-preferences";
+import { TranslatedText } from "@/components/general-translation/TranslatedText";
  
 const items = [
   {
+    id: "about",
     title: "About",
     url: "/about",
     icon: Info,
@@ -36,21 +38,25 @@ const items = [
 
 const tcgItems = [
   {
+    id: "battleLogs",
     title: "Battle Logs",
     url: "/ptcg/logs",
     icon: ScrollText,
   },
   {
+    id: "tournaments",
     title: "Tournaments",
     url: "/ptcg/tournaments",
     icon: Trophy,
   },
   {
+    id: "stats",
     title: "Stats",
     url: "/ptcg/stats",
     icon: ChartBarDecreasing,
   },
   {
+    id: "deckbuilder",
     title: "Deckbuilder",
     url: "/ptcg/deckbuilder",
     icon: Hammer,
@@ -59,16 +65,37 @@ const tcgItems = [
 
 const pocketItems = [
   {
+    id: "games",
     title: "Games",
     url: "/pocket",
     icon: WalletMinimal,
   },
   {
+    id: "tournaments",
     title: "Tournaments",
     url: "/pocket/tournaments",
     icon: Trophy,
   }
 ]
+
+function SidebarItemLabel({ id }: { id: string }) {
+  switch (id) {
+    case "about":
+      return <TranslatedText id="sidebar.about">About</TranslatedText>;
+    case "battleLogs":
+      return <TranslatedText id="sidebar.tcg.battleLogs">Battle Logs</TranslatedText>;
+    case "tournaments":
+      return <TranslatedText id="sidebar.tournaments">Tournaments</TranslatedText>;
+    case "stats":
+      return <TranslatedText id="sidebar.tcg.stats">Stats</TranslatedText>;
+    case "deckbuilder":
+      return <TranslatedText id="sidebar.tcg.deckbuilder">Deckbuilder</TranslatedText>;
+    case "games":
+      return <TranslatedText id="sidebar.pocket.games">Games</TranslatedText>;
+    default:
+      return null;
+  }
+}
 
 export async function AppSidebar() {
   const user = await fetchCurrentUser();
@@ -100,7 +127,9 @@ export async function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span>
+                        <SidebarItemLabel id={item.id} />
+                      </span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -116,7 +145,7 @@ export async function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <a href='/login'>
                     <LogIn />
-                    <span>Log In</span>
+                    <span><TranslatedText id="sidebar.logIn">Log In</TranslatedText></span>
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -136,7 +165,9 @@ export async function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <a href={item.url}>
                         <item.icon />
-                        <span>{item.title}</span>
+                        <span>
+                          <SidebarItemLabel id={item.id} />
+                        </span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -155,7 +186,9 @@ export async function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <a href={item.url}>
                         <item.icon />
-                        <span>{item.title}</span>
+                        <span>
+                          <SidebarItemLabel id={item.id} />
+                        </span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -166,14 +199,14 @@ export async function AppSidebar() {
           )}
           {isUserAnAdmin(user.id) && (
             <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupLabel><TranslatedText id="sidebar.admin">Admin</TranslatedText></SidebarGroupLabel>
             <SidebarGroupContent>
             <SidebarMenu>
             <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <a href='/admin'>
                       <Atom />
-                      <span>admin stuff</span>
+                      <span><TranslatedText id="sidebar.adminStuff">admin stuff</TranslatedText></span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -200,7 +233,7 @@ export async function AppSidebar() {
                 >
                   <DropdownMenuItem asChild>
                     <a href='/preferences'>
-                      Preferences
+                      <TranslatedText id="sidebar.preferences">Preferences</TranslatedText>
                     </a>
                   </DropdownMenuItem>
                   <LogOutButton />

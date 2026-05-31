@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { TournamentFormats } from "./tournament-format.types";
 
 interface TournamentFormatBadgeProps {
   format: string;

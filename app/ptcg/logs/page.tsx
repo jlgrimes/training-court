@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { fetchPreferredGames, fetchUserData } from '@/components/user-data.utils';
 import { isGameEnabled } from '@/lib/game-preferences';
 import { fetchBattleLogsServer } from '@/lib/server/home-data';
+import { TranslatedText } from '@/components/general-translation/TranslatedText';
 
 export const metadata: Metadata = {
   title: 'Logs',
@@ -31,7 +32,9 @@ export default async function LogsPage() {
 
   return (
     <>
-      <Header description='Record your PTCG Live battle logs'>PTCG Logs</Header>
+      <Header description={<TranslatedText id="battleLogs.description">Record your PTCG Live battle logs</TranslatedText>}>
+        <TranslatedText id="battleLogs.header">PTCG Logs</TranslatedText>
+      </Header>
       <BattleLogsContainer
         userId={currentUser.id}
         allowPagination={true}

@@ -3,6 +3,7 @@
 import { track } from '@vercel/analytics';
 import { createClient } from "@/utils/supabase/client";
 import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { T } from 'gt-react';
 
 export const LogOutButton = () => {
   const handleLogOutClick =  async () => {
@@ -19,7 +20,7 @@ export const LogOutButton = () => {
 
   return (
     <DropdownMenuItem onClick={handleLogOutClick}>
-      Log out
+      <T id="auth.logOut">Log out</T>
     </DropdownMenuItem> 
   )
 };
