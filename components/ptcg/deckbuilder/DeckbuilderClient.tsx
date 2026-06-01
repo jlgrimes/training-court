@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Trash2 } from 'lucide-react';
+import { Download, Save, Search, Trash2, Upload, XCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/components/ui/use-toast';
 import { Database, Json } from '@/database.types';
 import { createClient } from '@/utils/supabase/client';
@@ -1247,25 +1248,73 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     <div className="grid gap-4 lg:grid-cols-8">
       <UICard className="lg:col-span-5">
         <CardContent className="space-y-4 pt-4">
-          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
-            <Input
-              value={deckName}
-              onChange={(event) => setDeckName(event.target.value)}
-              placeholder="Deck name"
-            />
-            <Button onClick={() => void saveDeck()} disabled={deckEntries.length === 0 || isSavingDeck}>
-              {isSavingDeck ? 'Saving...' : 'Save'}
-            </Button>
-            <Button variant="outline" onClick={importFromClipboard} disabled={isImporting}>
-              {isImporting ? 'Importing...' : 'Import'}
-            </Button>
-            <Button variant="outline" onClick={exportToClipboard}>
-              Export
-            </Button>
-            <Button variant="outline" onClick={clearDeck}>
-              Clear
-            </Button>
-          </div>
+          <TooltipProvider delayDuration={250}>
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
+              <Input
+                className="col-span-4 sm:col-span-1"
+                value={deckName}
+                onChange={(event) => setDeckName(event.target.value)}
+                placeholder="Deck name"
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label="Save"
+                    className="w-full gap-2 px-0 sm:w-auto sm:px-4"
+                    onClick={() => void saveDeck()}
+                    disabled={deckEntries.length === 0 || isSavingDeck}
+                  >
+                    <Save className="h-4 w-4" />
+                    <span className="hidden sm:inline">{isSavingDeck ? 'Saving...' : 'Save'}</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Save deck</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label="Import"
+                    className="w-full gap-2 px-0 sm:w-auto sm:px-4"
+                    variant="outline"
+                    onClick={importFromClipboard}
+                    disabled={isImporting}
+                  >
+                    <Upload className="h-4 w-4" />
+                    <span className="hidden sm:inline">{isImporting ? 'Importing...' : 'Import'}</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Import decklist</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label="Export"
+                    className="w-full gap-2 px-0 sm:w-auto sm:px-4"
+                    variant="outline"
+                    onClick={exportToClipboard}
+                  >
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">Export</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Export decklist</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label="Clear"
+                    className="w-full gap-2 px-0 sm:w-auto sm:px-4"
+                    variant="outline"
+                    onClick={clearDeck}
+                  >
+                    <XCircle className="h-4 w-4" />
+                    <span className="hidden sm:inline">Clear</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear deck</TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
 
           <div className="text-sm text-muted-foreground">
             <div className={isOverLimit ? 'text-red-400 font-semibold' : undefined}>
@@ -1368,7 +1417,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       ) : (
                         <div className="w-full aspect-[5/7] bg-muted" />
                       )}
-                      <div className="absolute bottom-[7%] left-1/2 flex min-h-12 min-w-12 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 px-3 text-2xl font-extrabold text-white shadow">
+                      <div className="absolute bottom-[7%] left-1/2 flex h-7 min-w-7 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 px-1.5 text-sm font-extrabold leading-none text-white shadow sm:h-9 sm:min-w-9 sm:px-2 sm:text-lg lg:h-12 lg:min-w-12 lg:px-3 lg:text-2xl">
                         {entry.qty}
                       </div>
                     </div>

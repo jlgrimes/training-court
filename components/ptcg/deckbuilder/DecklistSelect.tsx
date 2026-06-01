@@ -23,6 +23,7 @@ type DecklistSelectProps = {
   value: string | null;
   onChange: (decklist: DecklistRow | null) => void;
   noneLabel?: string;
+  ariaLabel?: string;
 };
 
 const NONE_VALUE = 'none';
@@ -73,7 +74,7 @@ export function DecklistSelect(props: DecklistSelectProps) {
       }}
       disabled={isLoading}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger aria-label={props.ariaLabel ?? 'Decklist'} className="w-full">
         <SelectValue placeholder={isLoading ? 'Loading decklists...' : 'Select decklist'} />
       </SelectTrigger>
       <SelectContent className="max-h-[300px]">

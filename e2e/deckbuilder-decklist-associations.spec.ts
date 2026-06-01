@@ -58,6 +58,18 @@ async function mockDecklistReads(page: Page) {
   });
 }
 
+async function selectDecklist(page: Page, decklistName: string) {
+  await page.getByRole('combobox', { name: 'Decklist' }).click();
+  await page.getByRole('option', { name: decklistName }).click();
+}
+
+async function pickFirstDateRange(page: Page) {
+  const dayButtons = page.locator('button.tc-calendar-day:not([disabled])');
+  await expect(dayButtons.first()).toBeVisible();
+  await dayButtons.first().click();
+  await dayButtons.nth(1).click();
+}
+
 test.describe('Decklist associations', () => {
   test.beforeEach(async ({ page }) => {
     await mockDecklistReads(page);
@@ -137,8 +149,7 @@ test.describe('Decklist associations', () => {
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    await dialog.getByText('Select decklist').click();
-    await page.getByRole('option', { name: decklist.name }).click();
+    await selectDecklist(page, decklist.name);
     await dialog.getByRole('button', { name: 'Confirm' }).click();
 
     await expect.poll(() => logPayload?.decklist_id).toBe(decklist.id);
@@ -167,12 +178,9 @@ test.describe('Decklist associations', () => {
     await dialog.getByPlaceholder('Tournament name').fill('E2E Tournament');
 
     await dialog.getByRole('button', { name: /Pick a date/i }).click();
-    const dayButtons = page.getByRole('gridcell').locator('button:not([disabled])');
-    await dayButtons.first().click();
-    await dayButtons.nth(1).click();
+    await pickFirstDateRange(page);
 
-    await dialog.getByText('Select decklist').click();
-    await page.getByRole('option', { name: decklist.name }).click();
+    await selectDecklist(page, decklist.name);
     await dialog.getByRole('button', { name: 'Add tournament' }).click();
 
     await expect.poll(() => tournamentPayload?.decklist_id).toBe(decklist.id);
