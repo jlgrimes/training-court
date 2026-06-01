@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSWRConfig } from "swr";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { EditIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -75,6 +76,25 @@ export function BattleLogsContainer({
 
   const setBattleLogs = useSetRecoilState(battleLogsAtom);
   const rawRows = useRecoilValue(battleLogsAtom);
+
+  const { mutate } = useSWRConfig();
+
+  // When a new log is submitted, update the UI client-side so it appears
+  // without a manual page refresh. We deliberately avoid server-side
+  // revalidatePath here: that triggers a full router refresh that re-renders
+  // the input dialog mid-flow and breaks deck detection.
+  const handleLogAdded = useCallback(
+    (saved: BattleLogRecord) => {
+      // Optimistically show the new log immediately.
+      setBattleLogs((prev) =>
+        prev.some((r) => r.id === saved.id) ? prev : [saved, ...prev]
+      );
+      // Revalidate every SWR cache scoped to this user (Day / Deck / All views)
+      // so the optimistic row reconciles with authoritative server data.
+      mutate((key) => Array.isArray(key) && key[1] === userId);
+    },
+    [mutate, setBattleLogs, userId]
+  );
 
   const viewKey = `${userId ?? "anon"}|${sortBy}`;
   const prevViewKeyRef = useRef<string | undefined>();
@@ -184,7 +204,9 @@ export function BattleLogsContainer({
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
-        {userData?.live_screen_name && <AddBattleLogInput userData={userData} />}
+        {userData?.live_screen_name && (
+          <AddBattleLogInput userData={userData} onLogAdded={handleLogAdded} />
+        )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
