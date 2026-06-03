@@ -35,6 +35,7 @@ import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementSelect } from "../Placement/TournamentPlacementSelect";
 import { tournamentFormats } from "../Format/tournament-format.types";
 import { PTCG_TOURNAMENT_CONFIG, TournamentGameConfig } from "../utils/tournament-game-config";
+import { DecklistSelect } from "@/components/ptcg/deckbuilder/DecklistSelect";
 
 /** Normalize to 12:00:00Z to avoid TZ/DST off-by-one */
 function toUtcNoon(date: Date | null | undefined): Date | null {
@@ -52,13 +53,16 @@ interface TournamentEditDialogProps {
   tournamentPlacement: TournamentPlacement | null;
   tournamentDateRange: DateRange;
   tournamentFormat: string | null;
+  tournamentDeck: string | null;
+  tournamentDecklistId: string | null;
   user: User | null;
   updateClientTournament: (
     newName: string,
     newDateRange: DateRange,
     newCategory: TournamentCategory | null,
     newPlacement: TournamentPlacement | null,
-    newFormat: string | null
+    newFormat: string | null,
+    newDecklistId: string | null
   ) => void;
   config?: TournamentGameConfig;
   formats?: string[];
@@ -76,6 +80,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   const [tournamentCategory, setTournamentCategory] = useState<TournamentCategory | null>(null);
   const [tournamentPlacement, setTournamentPlacement] = useState<TournamentPlacement | null>(null);
   const [tournamentFormat, setTournamentFormat] = useState<string | null>(null);
+  const [decklistId, setDecklistId] = useState<string | null>(null);
 
   // seed local state when dialog opens or props change
   useEffect(() => setTournamentName(props.tournamentName), [props.tournamentName]);
@@ -83,6 +88,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
   useEffect(() => setTournamentCategory(props.tournamentCategory), [props.tournamentCategory]);
   useEffect(() => setTournamentPlacement(props.tournamentPlacement), [props.tournamentPlacement]);
   useEffect(() => setTournamentFormat(props.tournamentFormat), [props.tournamentFormat]);
+  useEffect(() => setDecklistId(props.tournamentDecklistId), [props.tournamentDecklistId]);
 
   const handleUpdateTournament = useCallback(async () => {
     if (!tournamentDate?.from) return;
@@ -94,13 +100,16 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
       category: props.tournamentCategory,
       placement: props.tournamentPlacement,
       format: props.tournamentFormat,
+      deck: props.tournamentDeck,
+      decklistId: props.tournamentDecklistId,
     };
     props.updateClientTournament(
       tournamentName,
       tournamentDate as DateRange,
       tournamentCategory,
       tournamentPlacement,
-      tournamentFormat
+      tournamentFormat,
+      decklistId
     );
 
     setSaving(true);
@@ -118,6 +127,11 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         category: tournamentCategory,
         placement: tournamentPlacement,
         format: tournamentFormat,
+        ...(config.gameId === 'pokemon-tcg'
+          ? {
+              decklist_id: decklistId,
+            }
+          : {}),
       })
       .eq('id', props.tournamentId);
 
@@ -130,7 +144,8 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
         prev.date,
         prev.category,
         prev.placement,
-        prev.format
+        prev.format,
+        prev.decklistId
       );
       toast({
         variant: "destructive",
@@ -148,6 +163,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     tournamentCategory,
     tournamentPlacement,
     tournamentFormat,
+    decklistId,
     props.tournamentId,
     props.updateClientTournament,
     props.tournamentName,
@@ -155,8 +171,11 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     props.tournamentCategory,
     props.tournamentPlacement,
     props.tournamentFormat,
+    props.tournamentDeck,
+    props.tournamentDecklistId,
     toast,
     config.tournamentsTable,
+    config.gameId,
   ]);
 
   const resetLocal = () => {
@@ -165,6 +184,7 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
     setTournamentCategory(props.tournamentCategory);
     setTournamentPlacement(props.tournamentPlacement);
     setTournamentFormat(props.tournamentFormat);
+    setDecklistId(props.tournamentDecklistId);
   };
 
   return (
@@ -245,6 +265,14 @@ export const TournamentEditDialog = (props: TournamentEditDialogProps) => {
               value={tournamentPlacement}
               onChange={(p: TournamentPlacement) => setTournamentPlacement(p)}
             />
+
+            {config.gameId === 'pokemon-tcg' && props.user?.id && (
+              <DecklistSelect
+                userId={props.user.id}
+                value={decklistId}
+                onChange={(decklist) => setDecklistId(decklist?.id ?? null)}
+              />
+            )}
           </div>
 
           <DialogFooter className="mt-6">

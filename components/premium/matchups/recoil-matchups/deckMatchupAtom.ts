@@ -21,6 +21,11 @@ export const formatFilterAtom = atom<string | null>({
 	default: "All",
 });
 
+export const decklistFilterAtom = atom<string | null>({
+	key: "decklistFilterAtom",
+	default: null,
+});
+
 // turn_order field represents 1 (first) and 2 (second).
 // Both are selected representing all games.
 export const turnOrderFilterAtom = atom<string[]>({

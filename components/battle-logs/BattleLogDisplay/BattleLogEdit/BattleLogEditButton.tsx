@@ -22,10 +22,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LogFormats, logFormats } from "@/components/tournaments/Format/tournament-format.types";
 import { useSetRecoilState } from "recoil";
 import { battleLogsAtom } from "@/app/recoil/atoms/battle-logs";
+import { DecklistSelect } from "@/components/ptcg/deckbuilder/DecklistSelect";
 
 interface BattleLogEditButtonProps {
   isEditing: boolean;
   log: BattleLog;
+  userId: string;
   currentPlayer: BattleLogPlayer;
   shouldDisable: boolean;
 }
@@ -33,6 +35,7 @@ interface BattleLogEditButtonProps {
 export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   const [newArchetype, setNewArchetype] = useState('');
   const [newOppArchetype, setNewOppArchetype] = useState('');
+  const [newDecklistId, setNewDecklistId] = useState<string | null>(null);
   const [newFormat, setNewFormat] = useState<LogFormats | undefined>(undefined);
   const { toast } = useToast();
   const setBattleLogs = useSetRecoilState(battleLogsAtom);
@@ -40,14 +43,16 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   useEffect(() => {
     setNewArchetype(props.currentPlayer.deck || '');
     setNewOppArchetype(props.currentPlayer.oppDeck || '');
+    setNewDecklistId(props.log.decklist_id ?? null);
     setNewFormat((props.log.format as LogFormats | null) ?? undefined);
-  }, [props.currentPlayer.deck, props.currentPlayer.oppDeck, props.log.format]);
+  }, [props.currentPlayer.deck, props.currentPlayer.oppDeck, props.log.decklist_id, props.log.format]);
   
   const handleEditLog = useCallback(async () => {
     const supabase = createClient();
     const { error } = await supabase.from('logs').update({
       archetype: newArchetype,
       opp_archetype: newOppArchetype,
+      decklist_id: newDecklistId,
       format: newFormat ?? props.log.format ?? ''
     }).eq('id', props.log.id);
 
@@ -65,6 +70,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
                 ...row,
                 archetype: newArchetype,
                 opp_archetype: newOppArchetype,
+                decklist_id: newDecklistId,
                 format: newFormat ?? row.format,
               }
             : row
@@ -74,11 +80,11 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
         title: "Log updated",
       });
     }
-  }, [toast, newArchetype, newOppArchetype, newFormat, props.log.id, setBattleLogs]);
+  }, [toast, newArchetype, newOppArchetype, newDecklistId, newFormat, props.log.format, props.log.id, setBattleLogs]);
 
   return (
     <Dialog>
-      <DialogTrigger disabled={!props.isEditing} className={
+      <DialogTrigger disabled={!props.isEditing || props.shouldDisable} className={
         cn(
           "absolute right-10 transition-opacity ease-in duration-75",
           !props.isEditing && 'hidden',
@@ -93,6 +99,19 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
 
           <Label>My deck</Label>
           <AddArchetype archetype={newArchetype} setArchetype={setNewArchetype} />
+
+          <Label>Decklist</Label>
+          <DecklistSelect
+            userId={props.userId}
+            value={newDecklistId}
+            noneLabel="No decklist"
+            onChange={(decklist) => {
+              setNewDecklistId(decklist?.id ?? null);
+              if (decklist) {
+                setNewArchetype(decklist.archetype || decklist.name);
+              }
+            }}
+          />
 
           <Label>Opponent's deck</Label>
           <AddArchetype archetype={newOppArchetype} setArchetype={setNewOppArchetype} />

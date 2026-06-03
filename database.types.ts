@@ -140,6 +140,7 @@ export type Database = {
         Row: {
           archetype: string | null
           created_at: string
+          decklist_id: string | null
           id: string
           log: string
           notes: string | null
@@ -152,6 +153,7 @@ export type Database = {
         Insert: {
           archetype?: string | null
           created_at?: string
+          decklist_id?: string | null
           id?: string
           log: string
           notes?: string | null
@@ -164,6 +166,7 @@ export type Database = {
         Update: {
           archetype?: string | null
           created_at?: string
+          decklist_id?: string | null
           id?: string
           log?: string
           notes?: string | null
@@ -262,6 +265,45 @@ export type Database = {
           },
         ]
       }
+      decklists: {
+        Row: {
+          archetype: string | null
+          cards: Json
+          content_hash: string | null
+          created_at: string
+          format: string | null
+          game: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archetype?: string | null
+          cards: Json
+          content_hash?: string | null
+          created_at?: string
+          format?: string | null
+          game?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archetype?: string | null
+          cards?: Json
+          content_hash?: string | null
+          created_at?: string
+          format?: string | null
+          game?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tournaments: {
         Row: {
           category: string | null
@@ -269,6 +311,7 @@ export type Database = {
           date_from: string
           date_to: string
           deck: string | null
+          decklist_id: string | null
           format: string | null
           id: string
           name: string
@@ -283,6 +326,7 @@ export type Database = {
           date_from: string
           date_to: string
           deck?: string | null
+          decklist_id?: string | null
           format?: string | null
           id?: string
           name: string
@@ -297,6 +341,7 @@ export type Database = {
           date_from?: string
           date_to?: string
           deck?: string | null
+          decklist_id?: string | null
           format?: string | null
           id?: string
           name?: string
@@ -524,6 +569,22 @@ export type Database = {
         Returns: {
           source: string
           deck: string
+          opp_deck: string
+          result: string
+          match_end_reason: string
+          turn_order: string
+          date: string,
+          format: string
+        }[]
+      }
+      get_user_tournament_and_battle_logs_v5: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          source: string
+          deck: string
+          decklist_id: string | null
           opp_deck: string
           result: string
           match_end_reason: string

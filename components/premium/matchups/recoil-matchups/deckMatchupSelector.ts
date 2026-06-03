@@ -2,6 +2,7 @@ import { selector } from "recoil";
 import { MatchupResult, MatchupRow, Matchups } from "../Matchups.types";
 import { flattenMatchupsToDeckSummary, getTotalDeckMatchupResult } from "../Matchups.utils";
 import {
+	decklistFilterAtom,
 	formatFilterAtom,
 	rawMatchupsAtom,
 	sourceFilterAtom,
@@ -32,6 +33,7 @@ export const filteredRowsSelector = selector<MatchupRow[] | null>({
 		const rows = get(rawMatchupsAtom);
 		const sources = get(sourceFilterAtom);
 		const fmt = get(formatFilterAtom);
+		const decklistId = get(decklistFilterAtom);
 		const selectedStartingTurn = get(turnOrderFilterAtom);
 
 		if (!rows) return null;
@@ -45,6 +47,9 @@ export const filteredRowsSelector = selector<MatchupRow[] | null>({
 
 			// format filter
 			if (!(fmt === null || fmt === "All" || r.format === fmt)) return false;
+
+			// exact saved-decklist filter.
+			if (decklistId && r.decklist_id !== decklistId) return false;
 
 			// turn order filter
 			const to = Number(r.turn_order);

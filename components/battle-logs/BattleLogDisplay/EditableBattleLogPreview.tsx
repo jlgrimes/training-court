@@ -8,6 +8,7 @@ import { BattleLogEditButton } from "./BattleLogEdit/BattleLogEditButton";
 
 interface EditableBattleLogPreviewProps extends BattleLogPreviewProps {
   isEditing: boolean;
+  userId: string;
 }
 
 export const EditableBattleLogPreview = (props: EditableBattleLogPreviewProps) => {
@@ -24,7 +25,7 @@ export const EditableBattleLogPreview = (props: EditableBattleLogPreviewProps) =
       )}>
         <BattleLogPreview battleLog={props.battleLog} currentUserScreenName={props.currentUserScreenName} />
       </div>
-      <BattleLogEditButton isEditing={props.isEditing} log={props.battleLog} currentPlayer={(props.battleLog.players[0].name.toLowerCase() === props.currentUserScreenName?.toLowerCase()) ? props.battleLog.players[0] : props.battleLog.players[1]}
+      <BattleLogEditButton isEditing={props.isEditing} log={props.battleLog} userId={props.userId} currentPlayer={(props.battleLog.players[0].name.toLowerCase() === props.currentUserScreenName?.toLowerCase()) ? props.battleLog.players[0] : props.battleLog.players[1]}
         shouldDisable={userIsNotInTheBattleLog} />
       <BattleLogDeleteButton isEditing={props.isEditing} logId={props.battleLog.id} />
     </div>

@@ -22,6 +22,7 @@ const createMockBattleLog = (overrides: Partial<BattleLogRecord> = {}): BattleLo
   user: 'test-user',
   log: 'Test battle log content',
   archetype: 'Charizard',
+  decklist_id: null,
   opp_archetype: 'Pikachu',
   format: 'Standard',
   result: 'W',

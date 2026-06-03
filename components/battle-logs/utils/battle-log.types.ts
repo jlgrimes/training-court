@@ -30,6 +30,7 @@ export interface BattleLogAction {
 export interface BattleLog {
   language: Language;
   id: string;
+  decklist_id?: string | null;
   format?: string | null;
   players: BattleLogPlayer[];
   // When the battle took place
