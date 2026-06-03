@@ -40,6 +40,4 @@ next-env.d.ts
 
 # local settings
 settings.local.json
-
-# local planning notes
 docs/TODO.md
