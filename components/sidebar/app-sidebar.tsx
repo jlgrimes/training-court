@@ -12,7 +12,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Atom, ChevronUp, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
+import { Atom, ChevronUp, Hammer, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
 import Image from "next/image"
 import { fetchCurrentUser } from "../auth.utils";
 import { ReportBugDialog } from "../app-bar/ReportBugDialog";
@@ -55,6 +55,12 @@ const tcgItems = [
     url: "/ptcg/stats",
     icon: ChartBarDecreasing,
   },
+  {
+    id: "deckbuilder",
+    title: "Deckbuilder",
+    url: "/ptcg/deckbuilder",
+    icon: Hammer,
+  },
 ]
 
 const pocketItems = [
@@ -82,6 +88,8 @@ function SidebarItemLabel({ id }: { id: string }) {
       return <TranslatedText id="sidebar.tournaments">Tournaments</TranslatedText>;
     case "stats":
       return <TranslatedText id="sidebar.tcg.stats">Stats</TranslatedText>;
+    case "deckbuilder":
+      return <TranslatedText id="sidebar.tcg.deckbuilder">Deckbuilder</TranslatedText>;
     case "games":
       return <TranslatedText id="sidebar.pocket.games">Games</TranslatedText>;
     default:

@@ -178,7 +178,8 @@ export function BattleLogsContainer({
           l.archetype,
           l.opp_archetype,
           userData?.live_screen_name ?? "",
-          l.format
+          l.format,
+          l.decklist_id
         )
       ),
     [effectiveRows, userData?.live_screen_name]

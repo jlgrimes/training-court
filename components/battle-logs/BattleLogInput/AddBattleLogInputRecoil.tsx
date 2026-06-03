@@ -26,6 +26,7 @@ import { useBattleLogs } from '@/app/recoil/hooks/useBattleLogs';
 import { useUI } from '@/app/recoil/hooks/useUI';
 import { usePreferences } from '@/app/recoil/hooks/usePreferences';
 import { BattleLog } from '@/app/recoil/atoms/battle-logs';
+import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
 
 interface AddBattleLogInputRecoilProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -47,6 +48,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
   } | null>(null);
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
+  const [decklistId, setDecklistId] = useState<string | null>(null);
   const [activeDeck, setActiveDeck] = useState<{ name: string } | null>(null);
   const username = userData?.live_screen_name;
 
@@ -138,6 +140,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
           log,
           archetype: archetype ?? logMetadata.archetype,
           opp_archetype: oppArchetype ?? logMetadata.opp_archetype,
+          decklist_id: decklistId,
           format: format || 'Standard',
           turn_order: logMetadata.turn_order,
           result: logMetadata.result,
@@ -162,6 +165,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
         setLog('');
         setArchetype('');
         setOppArchetype('');
+        setDecklistId(null);
         setShowDialog(false);
       }
     } catch (error) {
@@ -283,7 +287,28 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
                 </div>
               </div>
             </div>
-            
+
+            {userData?.id && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">
+                  Decklist
+                </Label>
+                <div className="col-span-3">
+                  <DecklistSelect
+                    userId={userData.id}
+                    value={decklistId}
+                    noneLabel="No decklist"
+                    onChange={(decklist) => {
+                      setDecklistId(decklist?.id ?? null);
+                      if (decklist) {
+                        setArchetype(decklist.archetype || decklist.name);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+             
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="oppArchetype" className="text-right">
                 Opponent's Deck

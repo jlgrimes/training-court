@@ -71,6 +71,20 @@ export default function HeaderBreadcrumbs() {
         path: '/ptcg/logs',
         label: 'PTCG'
       });
+      if (pathname.includes('/ptcg/deckbuilder')) {
+        breadcrumbs.push({
+          path: '/ptcg/deckbuilder',
+          label: 'Deckbuilder',
+        });
+        const deckbuilderPathParts = pathname.split('/').filter(Boolean);
+        const maybeDeckId = deckbuilderPathParts[2];
+        if (maybeDeckId) {
+          breadcrumbs.push({
+            path: `/ptcg/deckbuilder/${maybeDeckId}`,
+            label: maybeDeckId === 'new' ? 'New' : maybeDeckId,
+          });
+        }
+      }
       if (pathname.includes('/ptcg/logs')) {
         breadcrumbs.push({
           path: '/ptcg/logs',
