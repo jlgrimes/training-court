@@ -140,6 +140,7 @@ export type Database = {
         Row: {
           archetype: string | null
           created_at: string
+          decklist_id: string | null
           id: string
           log: string
           notes: string | null
@@ -152,6 +153,7 @@ export type Database = {
         Insert: {
           archetype?: string | null
           created_at?: string
+          decklist_id?: string | null
           id?: string
           log: string
           notes?: string | null
@@ -164,6 +166,7 @@ export type Database = {
         Update: {
           archetype?: string | null
           created_at?: string
+          decklist_id?: string | null
           id?: string
           log?: string
           notes?: string | null

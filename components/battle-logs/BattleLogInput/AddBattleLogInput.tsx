@@ -24,6 +24,7 @@ import { LogFormats, logFormats } from '@/components/tournaments/Format/tourname
 import Cookies from 'js-cookie';
 import { ClipboardPaste, X } from 'lucide-react';
 import type { BattleLog } from '@/lib/server/home-data';
+import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -35,6 +36,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [format, setFormat] = useState<LogFormats | undefined>(Cookies.get("format") as LogFormats | undefined);
+  const [decklistId, setDecklistId] = useState<string | null>(null);
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
@@ -98,6 +100,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       user: props.userData?.id ?? null,
       archetype,
       opp_archetype: oppArchetype,
+      decklist_id: decklistId,
       log,
       turn_order,
       result,
@@ -121,6 +124,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     setLog('');
     setParsedLogDetails(null);
     setShowDialog(false);
+    setDecklistId(null);
     if (format) Cookies.set("format", format, { expires: 30 });
   };
 
@@ -192,6 +196,17 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
           {(parsedLogDetails && (
             <>
                 <Label>{username}'s deck</Label>
+                {!!props.userData?.id && (
+                  <>
+                    <Label>Decklist</Label>
+                    <DecklistSelect
+                      userId={props.userData.id}
+                      value={decklistId}
+                      noneLabel="No decklist"
+                      onChange={(decklist) => setDecklistId(decklist?.id ?? null)}
+                    />
+                  </>
+                )}
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
                 
                 <Label>Opponent's Deck</Label>

@@ -26,6 +26,7 @@ import { useBattleLogs } from '@/app/recoil/hooks/useBattleLogs';
 import { useUI } from '@/app/recoil/hooks/useUI';
 import { usePreferences } from '@/app/recoil/hooks/usePreferences';
 import { BattleLog } from '@/app/recoil/atoms/battle-logs';
+import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
 
 interface AddBattleLogInputRecoilProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -39,6 +40,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [format, setFormat] = useState(preferences.gameplay.defaultFormat || '');
+  const [decklistId, setDecklistId] = useState<string | null>(null);
   const [parsedLogDetails, setParsedLogDetails] = useState<{
     archetype: string | null;
     opp_archetype: string | null;
@@ -141,6 +143,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
           format: format || 'Standard',
           turn_order: logMetadata.turn_order,
           result: logMetadata.result,
+          decklist_id: decklistId,
         })
         .select()
         .single();
@@ -162,6 +165,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
         setLog('');
         setArchetype('');
         setOppArchetype('');
+        setDecklistId(null);
         setShowDialog(false);
       }
     } catch (error) {
@@ -266,6 +270,17 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
               </Label>
               <div className="col-span-3">
                 <div className="space-y-2">
+                  {!!userData?.id && (
+                    <div className="space-y-2">
+                      <Label className="text-sm">Decklist</Label>
+                      <DecklistSelect
+                        userId={userData.id}
+                        value={decklistId}
+                        noneLabel="No decklist"
+                        onChange={(decklist) => setDecklistId(decklist?.id ?? null)}
+                      />
+                    </div>
+                  )}
                   <AddArchetype
                     archetype={archetype}
                     setArchetype={setArchetype}
