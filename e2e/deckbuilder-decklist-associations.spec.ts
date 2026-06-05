@@ -59,8 +59,13 @@ async function mockDecklistReads(page: Page) {
 }
 
 async function selectDecklist(page: Page, decklistName: string) {
-  await page.getByRole('combobox', { name: 'Decklist' }).click();
-  await page.getByRole('option', { name: decklistName }).click();
+  const decklistSelect = page.getByRole('combobox', { name: 'Decklist' });
+  await expect(decklistSelect).toBeEnabled();
+  await decklistSelect.click();
+
+  const option = page.getByRole('option', { name: decklistName, exact: true });
+  await expect(option).toBeVisible();
+  await option.click();
 }
 
 async function pickFirstDateRange(page: Page) {
