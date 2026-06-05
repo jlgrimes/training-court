@@ -1,6 +1,6 @@
 import { MatchupResult, MatchupRow, Matchups } from "../Matchups.types";
 import { isAfter, parseISO } from "date-fns";
-import { EMPTY_MATCHUP_RESULT } from "../Matchups.utils";
+import { EMPTY_MATCHUP_RESULT, isImmediateMatchEndReason } from "../Matchups.utils";
 
 const appendMatchToMatchupResult = (match: MatchupRow, existingResult: MatchupResult): MatchupResult => {
   let newTotal: [number, number, number] = [...existingResult.total];
@@ -9,8 +9,10 @@ const appendMatchToMatchupResult = (match: MatchupRow, existingResult: MatchupRe
 
   if (match.result === 'W') {
     targetIdx = 0;
-  } else {
+  } else if (match.result === 'L') {
     targetIdx = 1;
+  } else {
+    targetIdx = 2;
   }
 
   newTotal[targetIdx]++;
@@ -38,6 +40,7 @@ export const convertRpcRetToMatchups = (rpcRet: MatchupRow[]) => {
     const oppDeck = curr.opp_deck;
 
     if (!myDeck) return acc;
+    if (isImmediateMatchEndReason(curr.match_end_reason)) return acc;
 
     if (!acc[myDeck]) {
       return {

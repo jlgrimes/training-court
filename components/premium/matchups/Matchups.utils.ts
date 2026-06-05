@@ -11,6 +11,12 @@ export const EMPTY_MATCHUP_RESULT: MatchupResult = {
   lastPlayed: new Date(100)
 }
 
+const IMMEDIATE_MATCH_END_REASONS = new Set(["ID", "No show", "Bye"]);
+
+export const isImmediateMatchEndReason = (reason: string | null | undefined) => {
+  return !!reason && IMMEDIATE_MATCH_END_REASONS.has(reason);
+}
+
 export const appendLogToMatchupResult = (log: BattleLog, existingResult: MatchupResult): MatchupResult => {
   let newTotal: [number, number, number] = [...existingResult.total];
   // The target idx (0 for win, 1 for loss, 2 for tie) that we want to modify the result arrays with
@@ -46,6 +52,10 @@ export const appendTournamentRoundToMatchupResult = (
   existingResult: MatchupResult,
   tournamentDate: Date
 ): MatchupResult => {
+  if (isImmediateMatchEndReason(round.match_end_reason)) {
+    return existingResult;
+  }
+
   let newTotal: [number, number, number] = [...existingResult.total];
   let newGoingFirst: [number, number, number] = [...existingResult.goingFirst];
   let newGoingSecond: [number, number, number] = [...existingResult.goingSecond];
@@ -131,6 +141,7 @@ export const convertTournamentsToMatchups = (
     const oppDeck = curr.deck;
 
     if (!myDeck || !oppDeck) return acc;
+    if (isImmediateMatchEndReason(curr.match_end_reason)) return acc;
 
     return {
       ...acc,

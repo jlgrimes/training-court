@@ -59,8 +59,13 @@ async function mockDecklistReads(page: Page) {
 }
 
 async function selectDecklist(page: Page, decklistName: string) {
-  await page.getByRole('combobox', { name: 'Decklist' }).click();
-  await page.getByRole('option', { name: decklistName }).click();
+  const decklistSelect = page.getByRole('combobox', { name: 'Decklist' });
+  await expect(decklistSelect).toBeEnabled();
+  await decklistSelect.click();
+
+  const option = page.getByRole('option', { name: decklistName, exact: true });
+  await expect(option).toBeVisible();
+  await option.click();
 }
 
 async function pickFirstDateRange(page: Page) {
@@ -222,12 +227,12 @@ test.describe('Decklist associations', () => {
     await expect(page.getByText(/Terapagos/i)).toBeVisible();
     await expect(page.getByText(/Gardevoir/i)).toBeVisible();
 
-    await page.getByText('All matchups').click();
-    await page.getByRole('option', { name: decklist.name }).click();
+    await selectDecklist(page, decklist.name);
 
-    await expect(page.getByText(/Terapagos/i)).toBeVisible();
+    const terapagosRow = page.getByRole('row').filter({ hasText: /Terapagos/i });
+    await expect(terapagosRow).toBeVisible();
     await expect(page.getByText(/Gardevoir/i)).not.toBeVisible();
-    await expect(page.getByText('1-0')).toBeVisible();
-    await expect(page.getByText('100.00%')).toBeVisible();
+    await expect(terapagosRow.getByRole('cell').nth(2)).toContainText('1-0');
+    await expect(terapagosRow.getByRole('cell').nth(3)).toContainText('100.00%');
   });
 });
