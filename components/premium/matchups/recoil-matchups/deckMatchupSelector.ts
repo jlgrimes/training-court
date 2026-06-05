@@ -6,7 +6,6 @@ import {
 	formatFilterAtom,
 	rawMatchupsAtom,
 	sourceFilterAtom,
-	turnOrderFilterAtom,
 } from "./deckMatchupAtom";
 import { convertRpcRetToMatchups } from "../CombinedMatchups/CombinedMatchups.utils";
 
@@ -34,12 +33,9 @@ export const filteredRowsSelector = selector<MatchupRow[] | null>({
 		const sources = get(sourceFilterAtom);
 		const fmt = get(formatFilterAtom);
 		const decklistId = get(decklistFilterAtom);
-		const selectedStartingTurn = get(turnOrderFilterAtom);
 
 		if (!rows) return null;
 		if (sources.length === 0) return [];
-
-		const filterByTurn = !(selectedStartingTurn.length === 0 || selectedStartingTurn.length === 2);
 
 		return rows.filter((r) => {
 			// source filter
@@ -51,16 +47,6 @@ export const filteredRowsSelector = selector<MatchupRow[] | null>({
 			// exact saved-decklist filter.
 			if (decklistId && r.decklist_id !== decklistId) return false;
 
-			// turn order filter
-			const to = Number(r.turn_order);
-
-			if (filterByTurn) {
-				// only filter if one option is selected
-				if (!(to === 1 || to === 2)) return false; // invalid turn order gets excluded
-				if (!selectedStartingTurn.includes(String(to))) return false;
-			}
-
-			// if both or none selected, include everything (even missing turn_order)
 			return true;
 			});
 	},

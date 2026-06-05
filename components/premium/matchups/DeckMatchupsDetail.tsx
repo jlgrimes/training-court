@@ -22,7 +22,7 @@ export const DeckMatchupsDetail = (props: DeckMatchupDetailProps) => {
       <Card>
         <div className="pl-4 pt-2">
           <Button variant='ghost' className="text-muted-foreground" onClick={props.handleExitDetailView}>
-            <ChevronLeft className="h-4 w-4 mr-2" /> All matchups
+            <ChevronLeft className="h-4 w-4 mr-2" /> All decks
           </Button>
         </div>
         <CardHeader className="items-start">

@@ -6,14 +6,63 @@ import { useCallback, useState } from "react";
 import { MatchupsSortBy, MatchupsSortState } from "./sort/sort.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
 import { capitalizeName } from "@/components/battle-logs/utils/battle-log.utils";
-import { getMatchupRecord, getMatchupWinRate, getResultsLength, getTotalDeckMatchupResult, getTotalWinRate } from "./Matchups.utils";
+import { getMatchupRecord, getMatchupWinRate, getResultsLength } from "./Matchups.utils";
 import { sortMatchupResults } from "./sort/sort.utils";
 import { MatchupResult } from "./Matchups.types";
 import { convertBattleLogDateIntoDay } from "@/components/battle-logs/BattleLogGroups/battle-log-groups.utils";
+import { ChevronDown, ChevronUp, ChevronsDown, ChevronsUp } from "lucide-react";
 
 interface MatchupsTableProps {
   matchups: [string, MatchupResult][];
   onRowClick?: (deck: string) => void;
+}
+
+const getWinRateFavorability = (winRate: number) => {
+  if (winRate >= 0.7) return "highly-favorable";
+  if (winRate >= 0.55) return "favorable";
+  if (winRate <= 0.3) return "highly-unfavorable";
+  if (winRate <= 0.45) return "unfavorable";
+  return "even";
+}
+
+const MatchupTrendIcon = ({ winRate }: { winRate: number }) => {
+  const favorability = getWinRateFavorability(winRate);
+
+  if (favorability === "even") return null;
+
+  const isFavorable = favorability === "favorable" || favorability === "highly-favorable";
+  const isHigh = favorability === "highly-favorable" || favorability === "highly-unfavorable";
+  const Icon = isFavorable
+    ? isHigh ? ChevronsUp : ChevronUp
+    : isHigh ? ChevronsDown : ChevronDown;
+
+  return (
+    <span
+      className={`inline-flex items-center ${isFavorable ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+      aria-hidden="true"
+    >
+      <Icon className="h-3 w-3 stroke-[2.5]" />
+    </span>
+  );
+}
+
+const MatchupWinRateCell = ({ result }: { result: [number, number, number] }) => {
+  const gamesPlayed = getResultsLength(result);
+
+  if (gamesPlayed === 0) {
+    return <span className="text-muted-foreground">-</span>;
+  }
+
+  const winRate = getMatchupWinRate(result);
+
+  return (
+    <span className="inline-flex items-center justify-end gap-1 tabular-nums">
+      {(winRate * 100).toFixed(2)}%
+      <span className="inline-flex w-3 shrink-0 justify-center">
+        <MatchupTrendIcon winRate={winRate} />
+      </span>
+    </span>
+  );
 }
 
 export const MatchupsTable = (props: MatchupsTableProps) => {
@@ -69,12 +118,12 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
               Win rate
             </SortColHeader>
           </TableHead>
+          <TableHead className="px-2 text-center whitespace-nowrap">1st</TableHead>
+          <TableHead className="px-2 text-center whitespace-nowrap">2nd</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
       {props.matchups.slice().sort(sortMatchupResults(sort.by, sort.type)).map(([deck, result]) => {
-         const winRateAgainstDeck = getMatchupWinRate(result.total);
-
         return (
           <TableRow key={`matchup-root-${deck}`} className="cursor-pointer" onClick={() => props.onRowClick?.(deck)}>
             <TableCell className="flex items-center gap-4 min-w-[64px]">
@@ -85,7 +134,15 @@ export const MatchupsTable = (props: MatchupsTableProps) => {
               {convertBattleLogDateIntoDay(result.lastPlayed)}
             </TableCell>
             <TableCell className="text-right font-mono">{getMatchupRecord(result.total)}</TableCell>
-            <TableCell className="text-right font-mono">{(winRateAgainstDeck * 100).toFixed(2)}%</TableCell>
+            <TableCell className="text-right font-mono">
+              <MatchupWinRateCell result={result.total} />
+            </TableCell>
+            <TableCell className="px-2 text-center font-mono">
+              <MatchupWinRateCell result={result.goingFirst} />
+            </TableCell>
+            <TableCell className="px-2 text-center font-mono">
+              <MatchupWinRateCell result={result.goingSecond} />
+            </TableCell>
           </TableRow>
         )
       })}
