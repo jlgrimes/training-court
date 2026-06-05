@@ -222,8 +222,7 @@ test.describe('Decklist associations', () => {
     await expect(page.getByText(/Terapagos/i)).toBeVisible();
     await expect(page.getByText(/Gardevoir/i)).toBeVisible();
 
-    await page.getByText('All matchups').click();
-    await page.getByRole('option', { name: decklist.name }).click();
+    await selectDecklist(page, decklist.name);
 
     await expect(page.getByText(/Terapagos/i)).toBeVisible();
     await expect(page.getByText(/Gardevoir/i)).not.toBeVisible();
