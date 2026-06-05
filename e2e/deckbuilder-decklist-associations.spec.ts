@@ -229,9 +229,10 @@ test.describe('Decklist associations', () => {
 
     await selectDecklist(page, decklist.name);
 
-    await expect(page.getByText(/Terapagos/i)).toBeVisible();
+    const terapagosRow = page.getByRole('row').filter({ hasText: /Terapagos/i });
+    await expect(terapagosRow).toBeVisible();
     await expect(page.getByText(/Gardevoir/i)).not.toBeVisible();
-    await expect(page.getByText('1-0')).toBeVisible();
-    await expect(page.getByText('100.00%')).toBeVisible();
+    await expect(terapagosRow.getByRole('cell').nth(2)).toContainText('1-0');
+    await expect(terapagosRow.getByRole('cell').nth(3)).toContainText('100.00%');
   });
 });
