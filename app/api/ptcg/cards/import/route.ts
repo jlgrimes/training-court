@@ -18,6 +18,18 @@ type ImportDeckEntry = {
   metadata: DeckbuilderCatalogCard['metadata'];
 };
 
+const basicEnergyNames = new Set([
+  'grass',
+  'fire',
+  'water',
+  'lightning',
+  'psychic',
+  'fighting',
+  'darkness',
+  'metal',
+  'fairy',
+]);
+
 const normalize = (value: string): string =>
   value
     .trim()
@@ -25,7 +37,24 @@ const normalize = (value: string): string =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[’']/g, "'")
+    .replace(/\s+prism star\b/g, ' {*} ')
+    .replace(/\bprism star\b/g, '{*}')
+    .replace(/\s*-\s*(gx|ex|v|vmax|vstar)\b/g, ' $1')
     .replace(/\s+/g, ' ');
+
+const normalizeCardNumber = (value: string): string => {
+  const trimmed = value.trim().toLowerCase();
+  const match = trimmed.match(/^0*(\d+)([a-z]*)$/);
+  return match ? `${match[1]}${match[2]}` : trimmed;
+};
+
+const decodeHtmlEntities = (value: string): string =>
+  value
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>');
 
 const buildIndex = (cards: DeckbuilderCatalogCard[]) => {
   const bySetNumber = new Map<string, DeckbuilderCatalogCard>();
@@ -35,7 +64,7 @@ const buildIndex = (cards: DeckbuilderCatalogCard[]) => {
   cards.forEach((card) => {
     const setId = card.metadata.setId?.toLowerCase();
     const setCode = card.metadata.setCode?.toLowerCase();
-    const number = card.metadata.number?.toLowerCase();
+    const number = card.metadata.number ? normalizeCardNumber(card.metadata.number) : undefined;
     if (setId && number) {
       bySetNumber.set(`${setId}|${number}`, card);
     }
@@ -67,9 +96,14 @@ const parseDecklist = (text: string): ImportCardLine[] => {
     }
 
     const qty = Number(match[1]);
-    const name = match[2]?.trim() ?? '';
-    const setCode = match[3]?.trim();
+    let name = decodeHtmlEntities(match[2]?.trim() ?? '');
+    let setCode: string | undefined = match[3]?.trim();
     const number = match[4]?.trim();
+
+    if (setCode?.toLowerCase() === 'energy' && basicEnergyNames.has(name.toLowerCase())) {
+      name = `${name} Energy`;
+      setCode = undefined;
+    }
 
     if (!qty || !name) {
       continue;
@@ -86,7 +120,7 @@ const resolveCard = (
   index: ReturnType<typeof buildIndex>
 ): DeckbuilderCatalogCard | null => {
   const setCode = line.setCode?.toLowerCase();
-  const number = line.number?.toLowerCase();
+  const number = line.number ? normalizeCardNumber(line.number) : undefined;
 
   if (setCode && number) {
     const direct = index.bySetNumber.get(`${setCode}|${number}`);

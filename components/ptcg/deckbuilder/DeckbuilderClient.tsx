@@ -16,11 +16,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/components/ui/use-toast';
 import { Database, Json } from '@/database.types';
 import { createClient } from '@/utils/supabase/client';
 import { MAX_SAVED_DECKLISTS } from './deckbuilder.constants';
+import { T, useGT } from 'gt-react';
 
 const STORAGE_KEY = 'ptcg-deckbuilder-v2';
 const SAVED_DECKS_BREADCRUMB_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
@@ -437,6 +439,7 @@ const getRuleViolation = (card: CatalogCard, deckState: Record<string, DeckEntry
 export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const gt = useGT();
   const deckClickTimersRef = useRef<Record<string, number>>({});
   const lastDeckClickAtRef = useRef<Record<string, number>>({});
   const dragCardIdRef = useRef<string | null>(null);
@@ -456,6 +459,8 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const [previewCard, setPreviewCard] = useState<CatalogCard | null>(null);
   const [previewSource, setPreviewSource] = useState<PreviewSource>('search');
   const [isImporting, setIsImporting] = useState(false);
+  const [isManualImportOpen, setIsManualImportOpen] = useState(false);
+  const [manualImportText, setManualImportText] = useState('');
   const [isSavingDeck, setIsSavingDeck] = useState(false);
   const [pendingLinkedSave, setPendingLinkedSave] = useState<{
     tournamentCount: number;
@@ -994,19 +999,11 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
 
   const isOverLimit = totalCards > MAX_DECK_SIZE;
 
-  const importFromClipboard = useCallback(async () => {
-    let clipboardText = '';
-
-    try {
-      clipboardText = await navigator.clipboard.readText();
-    } catch {
-      toast({ title: 'Clipboard access blocked.' });
-      return;
-    }
-
-    if (!clipboardText.trim()) {
+  const importDecklistText = useCallback(async (decklistText: string) => {
+    const trimmedDecklistText = decklistText.trim();
+    if (!trimmedDecklistText) {
       toast({ title: 'Clipboard is empty.' });
-      return;
+      return false;
     }
 
     setIsImporting(true);
@@ -1017,7 +1014,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ decklist: clipboardText }),
+        body: JSON.stringify({ decklist: trimmedDecklistText }),
       });
 
       const payload = (await response.json()) as ImportResponse;
@@ -1027,7 +1024,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
           title: 'Unable to import decklist.',
           description: (payload as { message?: string }).message ?? 'Check the decklist format and try again.',
         });
-        return;
+        return false;
       }
 
       const importEntries = payload.entries ?? [];
@@ -1087,16 +1084,40 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
         const importedCount = Object.values(importDeckMap).reduce((sum, deckEntry) => sum + deckEntry.qty, 0);
         toast({ title: `Imported ${importedCount} cards.` });
       }
+      return true;
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Unable to import decklist.',
         description: error instanceof Error ? error.message : 'Check the decklist format and try again.',
       });
+      return false;
     } finally {
       setIsImporting(false);
     }
   }, [toast]);
+
+  const importFromClipboard = useCallback(async () => {
+    let clipboardText = '';
+
+    try {
+      clipboardText = await navigator.clipboard.readText();
+    } catch {
+      setManualImportText('');
+      setIsManualImportOpen(true);
+      return;
+    }
+
+    await importDecklistText(clipboardText);
+  }, [importDecklistText]);
+
+  const submitManualImport = useCallback(async () => {
+    const didImport = await importDecklistText(manualImportText);
+    if (didImport) {
+      setIsManualImportOpen(false);
+      setManualImportText('');
+    }
+  }, [importDecklistText, manualImportText]);
 
   const exportToClipboard = useCallback(async () => {
     try {
@@ -1535,6 +1556,36 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
             </Button>
             <Button onClick={() => void saveDeck({ acceptLinkedWarning: true })} disabled={isSavingDeck}>
               {isSavingDeck ? 'Saving...' : 'Save anyway'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isManualImportOpen} onOpenChange={setIsManualImportOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              <T id="deckbuilder.import.manual.title">Paste decklist</T>
+            </DialogTitle>
+            <DialogDescription>
+              <T id="deckbuilder.import.manual.description">
+                Clipboard access is blocked on this device. Paste your decklist here to import it.
+              </T>
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={manualImportText}
+            onChange={(event) => setManualImportText(event.target.value)}
+            className="min-h-64"
+            placeholder={gt('Paste decklist text', { $id: 'deckbuilder.import.manual.placeholder' })}
+            aria-label={gt('Decklist text', { $id: 'deckbuilder.import.manual.textareaLabel' })}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsManualImportOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void submitManualImport()} disabled={isImporting}>
+              <T id="deckbuilder.import.manual.submit">Import decklist</T>
             </Button>
           </DialogFooter>
         </DialogContent>
