@@ -210,6 +210,11 @@ jest.doMock('@/components/ui/use-toast', () => ({
   useToast: () => ({ toast }),
 }), { virtual: true });
 
+jest.doMock('gt-react', () => ({
+  T: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useGT: () => (text: string) => text,
+}));
+
 jest.doMock('@/utils/supabase/client', () => ({
   createClient: () => ({
     from: (table: string) => createQueryBuilder(table),
@@ -275,6 +280,33 @@ async function openNewDeckAndImport() {
 }
 
 describe('DeckbuilderClient', () => {
+  it('falls back to manual paste import when clipboard text is blocked', async () => {
+    (navigator.clipboard.readText as jest.Mock).mockRejectedValueOnce(new Error('NotAllowedError'));
+
+    render(<DeckbuilderClient userId="user-1" />);
+    await screen.findByText('New Deck');
+    fireEvent.click(screen.getByText('New Deck'));
+    await screen.findByPlaceholderText('Deck name');
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Import' }));
+    });
+
+    expect(await screen.findByText('Paste decklist')).toBeVisible();
+    fireEvent.change(screen.getByLabelText('Decklist text'), {
+      target: { value: '4 Buddy-Buddy Poffin SV1 001' },
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Import decklist' }));
+    });
+
+    await screen.findByText('Cards: 4/60');
+    expect(global.fetch).toHaveBeenCalledWith('/api/ptcg/cards/import', expect.objectContaining({
+      body: JSON.stringify({ decklist: '4 Buddy-Buddy Poffin SV1 001' }),
+    }));
+  });
+
   it('saves a decklist with cards and a normalized content hash', async () => {
     await openNewDeckAndImport();
 
