@@ -108,7 +108,7 @@ export async function AppSidebar() {
   <Sidebar>
     <SidebarHeader>
       <div className="flex items-center justify-between w-full px-2 py-1">
-        <Link href={user ? '/home' : '/'}>
+        <Link href="/home">
           <Image
             src={'/logo.png'}
             alt='logo'
