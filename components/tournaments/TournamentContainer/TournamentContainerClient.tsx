@@ -23,6 +23,7 @@ import { TournamentNotesDialog } from "./TournamentNotesDialog";
 import { TournamentGameConfig } from "../utils/tournament-game-config";
 import { isPremiumUser } from "@/components/premium/premium.utils";
 import { HatEditDialog } from "@/components/hats/HatEditDialog";
+import { nextRoundNumber, normalizeTournamentRounds, upsertRound } from "../utils/tournament-rounds.utils";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -33,7 +34,7 @@ interface TournamentContainerClientProps {
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const config = props.config;
-  const [rounds, setRounds] = useState(props.rounds);
+  const [rounds, setRounds] = useState(() => normalizeTournamentRounds(props.rounds));
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed
   const [tournamentDate, setTournamentDate] = useState<DateRange>({ from: parseISO( props.tournament.date_from), to: parseISO(props.tournament.date_to + "T00:00:00Z") });
@@ -44,7 +45,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   const [tournamentDecklistId, setTournamentDecklistId] = useState<string | null>(props.tournament.decklist_id ?? null);
   const [hatType, setHatType] = useState<string | null>(props.tournament.hat_type ?? null);
   const [tournamentNotes, setTournamentNotes] = useState(props.tournament.notes);
-  const prevLenRef = useRef<number>(props.rounds.length);
+  const prevLenRef = useRef<number>(rounds.length);
 
   useEffect(() => {
     const prev = prevLenRef.current;
@@ -63,15 +64,12 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   }, []);
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
-    setRounds([...rounds, newRound]);
-  }, [setRounds, rounds]);
+    setRounds((currRounds) => upsertRound(currRounds, newRound));
+  }, [setRounds]);
 
-  const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
-    let newRounds = [...rounds];
-    newRounds[pos] = newRound;
-    
-    setRounds(newRounds);
-  }, [setRounds, rounds]);
+  const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
+    setRounds((currRounds) => upsertRound(currRounds, newRound));
+  }, [setRounds]);
 
   const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null, newDecklistId: string | null) => {
     setTournamentDate(newDate);
@@ -185,7 +183,7 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
                 <AddTournamentRound
                   tournamentId={props.tournament.id}
                   userId={props.user.id}
-                  editedRoundNumber={rounds.length + 1}
+                  editedRoundNumber={nextRoundNumber(rounds)}
                   updateClientRounds={updateClientRoundsOnAdd}
                   roundsTableName={config.roundsTable}
                 />
@@ -197,7 +195,6 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
     </div>
   );  
 }
-
 
 
 
