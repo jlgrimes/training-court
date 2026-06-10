@@ -11,13 +11,9 @@ import {
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
 import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
-import { AuthHydration } from './recoil/providers/AuthHydration';
-import { UserDataHydration } from './recoil/providers/UserDataHydration';
+import { ClientAuthProvider } from './recoil/providers/ClientAuthProvider';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
-import { cookies } from 'next/headers';
-import { fetchCurrentUser } from '@/components/auth.utils';
-import { fetchUserData } from '@/components/user-data.utils';
 import GTProviderClient from './general-translation/GTProviderClient';
 
 const defaultUrl = process.env.VERCEL_URL
@@ -33,27 +29,17 @@ export const metadata = {
   description: 'Your favorite PTCG testing companion.',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, user] = await Promise.all([
-    Promise.resolve(cookies().get("theme")?.value ?? "light"),
-    fetchCurrentUser(),
-  ]);
-  const isDark = theme === "dark";
-
-  // Fetch user data only if user is logged in
-  const userData = user ? await fetchUserData(user.id) : null;
-
   return (
-     <html lang="en" className={`${GeistSans.className} ${isDark ? "dark" : ""}`} suppressHydrationWarning>
+     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
       <body className='bg-background text-foreground'>
         <GTProviderClient>
           <RecoilProvider>
-            <AuthHydration user={user} />
-            <UserDataHydration userData={userData} />
+            <ClientAuthProvider />
             <RealtimeProvider>
               <DarkModeHydrationGuard>
                 <DarkModeProvider />

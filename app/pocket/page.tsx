@@ -1,24 +1,15 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-import { fetchCurrentUser } from '@/components/auth.utils';
 import { AddPocketMatch } from '@/components/pocket/AddPocketMatch';
 import { PocketMatchesList } from '@/components/pocket/PocketMatchesList';
 import { Header } from '@/components/ui/header';
-import { fetchPreferredGames } from '@/components/user-data.utils';
-import { isGameEnabled } from '@/lib/game-preferences';
 import { TranslatedText } from '@/components/general-translation/TranslatedText';
+import { useGameGuard } from '@/hooks/useGameGuard';
 
-export default async function PocketGames() {
-  const user = await fetchCurrentUser();
+export default function PocketGames() {
+  const { user, loading } = useGameGuard('pokemon-pocket');
 
-  if (!user) {
-    return redirect('/');
-  }
-
-  const preferredGames = await fetchPreferredGames(user.id);
-  if (!isGameEnabled(preferredGames, 'pokemon-pocket')) {
-    return redirect('/preferences');
-  }
+  if (loading || !user) return null;
 
   return (
     <>

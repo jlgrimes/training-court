@@ -1,23 +1,26 @@
+'use client';
+
 import { AddPocketMatch } from '@/components/pocket/AddPocketMatch';
 import { Header } from '@/components/ui/header';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { SeeMoreButton } from '../SeeMoreButton';
 import { PocketMatchesList } from './PocketMatchesList';
-import { fetchPocketGamesServer } from '@/lib/server/home-data';
 import { TranslatedText } from '../general-translation/TranslatedText';
+import { usePocketGames } from '@/hooks/pocket/usePocketGames';
 
 interface PocketHomePreviewProps {
   userId: string;
 }
 
 /**
- * Self-contained server component widget for Pocket games.
- * Fetches its own data - can be placed on any page.
+ * Self-contained client widget for Pocket games - can be placed on any page.
  */
-export async function PocketHomePreview({ userId }: PocketHomePreviewProps) {
-  const games = await fetchPocketGamesServer(userId);
+export function PocketHomePreview({ userId }: PocketHomePreviewProps) {
+  const { data: games, isLoading } = usePocketGames(userId);
 
-  if (games.length === 0) {
+  if (isLoading) return null;
+
+  if (!games || games.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <Header
@@ -42,7 +45,7 @@ export async function PocketHomePreview({ userId }: PocketHomePreviewProps) {
       >
         <TranslatedText id="pocket.games.header">Pocket Games</TranslatedText>
       </Header>
-      <PocketMatchesList userId={userId} limit={5} initialGames={games} />
+      <PocketMatchesList userId={userId} limit={5} />
       <SeeMoreButton href="/pocket" />
     </div>
   );

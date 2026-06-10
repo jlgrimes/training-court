@@ -1,46 +1,10 @@
-import { fetchCurrentUser } from '@/components/auth.utils';
-import { BattleLogsContainer } from '@/components/battle-logs/BattleLogsContainer';
-import { Header } from '@/components/ui/header';
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { fetchPreferredGames, fetchUserData } from '@/components/user-data.utils';
-import { isGameEnabled } from '@/lib/game-preferences';
-import { fetchBattleLogsServer } from '@/lib/server/home-data';
-import { TranslatedText } from '@/components/general-translation/TranslatedText';
+import { LogsPageClient } from './LogsPageClient';
 
 export const metadata: Metadata = {
   title: 'Logs',
 };
 
-export default async function LogsPage() {
-  const currentUser = await fetchCurrentUser();
-
-  if (!currentUser) {
-    redirect('/');
-  }
-
-  // Fetch all data in parallel
-  const [preferredGames, userData, initialLogs] = await Promise.all([
-    fetchPreferredGames(currentUser.id),
-    fetchUserData(currentUser.id),
-    fetchBattleLogsServer(currentUser.id, 0, 5),
-  ]);
-
-  if (!isGameEnabled(preferredGames, 'pokemon-tcg')) {
-    redirect('/preferences');
-  }
-
-  return (
-    <>
-      <Header description={<TranslatedText id="battleLogs.description">Record your PTCG Live battle logs</TranslatedText>}>
-        <TranslatedText id="battleLogs.header">PTCG Logs</TranslatedText>
-      </Header>
-      <BattleLogsContainer
-        userId={currentUser.id}
-        allowPagination={true}
-        initialLogs={initialLogs}
-        initialUserData={userData}
-      />
-    </>
-  );
+export default function LogsPage() {
+  return <LogsPageClient />;
 }
