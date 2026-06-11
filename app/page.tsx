@@ -1,5 +1,5 @@
 import { EditableTournamentArchetype } from "@/components/archetype/AddArchetype/AddTournamentArchetype";
-import { fetchCurrentUser } from "@/components/auth.utils";
+import { RedirectIfAuthed } from "@/components/auth/RedirectIfAuthed";
 import { BattleLogPreview } from "@/components/battle-logs/BattleLogDisplay/BattleLogPreview";
 import LandingHeroTranslations from "@/components/general-translation/LandingHeroTranslations";
 import {
@@ -11,7 +11,6 @@ import TournamentRoundList from "@/components/tournaments/TournamentRoundList";
 import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/ui/card";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 
 const mockJWToronto = {
   id: 'toronto',
@@ -29,15 +28,10 @@ const mockJWToronto = {
   notes: null
 }
 
-export default async function Index() {
-  const currentUser = await fetchCurrentUser();
-
-  if (currentUser) {
-    redirect('/home');
-  }
-
+export default function Index() {
   return (
     <div className="flex-1 w-full flex flex-col gap-24 items-center p-8 sm:p-12 max-w-6xl">
+      <RedirectIfAuthed to='/home' />
       <div className="flex flex-col items-center gap-6 max-w-md py-8">
         <Image src={'/logo.png'} alt='logo' width={240} height={30} />
         <LandingHeroTranslations />

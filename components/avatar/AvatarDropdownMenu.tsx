@@ -12,6 +12,7 @@ import { getAvatarSrc, getMainSelectableAvatars } from './avatar.utils';
 import { track } from '@vercel/analytics';
 import { Button } from '../ui/button';
 import { useUserData } from '@/hooks/user-data/useUserData';
+import { useRefreshUserData } from '@/hooks/user-data/useRefreshUserData';
 
 interface AvatarDropdownMenuProps {
   images: string[];
@@ -23,6 +24,7 @@ interface AvatarDropdownMenuProps {
 export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
   const [selectedImage, setSelectedImage] = useState<string | undefined>(props.initialAvatar ? getAvatarSrc(props.initialAvatar) : undefined);
   const { data: userData } = useUserData(props.userId);
+  const refreshUserData = useRefreshUserData();
 
   useEffect(() => {
     userData?.avatar && setSelectedImage(getAvatarSrc(userData.avatar))
@@ -38,7 +40,8 @@ export const AvatarDropdownMenu = (props: AvatarDropdownMenuProps) => {
     const supabase = createClient();
     await supabase.from('user data').upsert({ id: props.userId, avatar: filename });
     track('Avatar changed', { avatar: filename });
-  }, [createClient]);
+    await refreshUserData(props.userId);
+  }, [props.userId, refreshUserData]);
 
   useEffect(() => {
     const fileName = selectedImage?.split('/').reverse()[0];

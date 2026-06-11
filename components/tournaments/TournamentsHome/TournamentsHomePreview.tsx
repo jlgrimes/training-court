@@ -1,3 +1,5 @@
+'use client';
+
 import TournamentPreview from "../Preview/TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
@@ -5,25 +7,23 @@ import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { PTCG_TOURNAMENT_CONFIG } from "../utils/tournament-game-config";
 import { Header } from "@/components/ui/header";
 import TournamentCreateDialog from "../TournamentCreate";
-import { fetchTournamentsServer, fetchTournamentRoundsServer } from "@/lib/server/home-data";
-import { fetchCurrentUser } from "@/components/auth.utils";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "@/app/recoil/atoms/user";
+import { useTournaments } from "@/hooks/tournaments/useTournaments";
+import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 
 /**
- * Self-contained server component widget for tournaments.
- * Fetches its own user and data - can be placed on any page.
+ * Self-contained client widget for tournaments - can be placed on any page.
  */
-export async function TournamentsHomePreview() {
-  const user = await fetchCurrentUser();
-  if (!user) return null;
+export function TournamentsHomePreview() {
+  const user = useRecoilValue(userAtom);
+  const { data: tournaments, isLoading: tournamentsLoading } = useTournaments(user?.id);
+  const { data: rounds } = useTournamentRounds(user?.id);
 
-  // Fetch data server-side in parallel
-  const [tournaments, rounds] = await Promise.all([
-    fetchTournamentsServer(user.id),
-    fetchTournamentRoundsServer(user.id),
-  ]);
+  if (!user || tournamentsLoading) return null;
 
-  if (tournaments.length === 0) {
+  if (!tournaments || tournaments.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <Header
@@ -51,7 +51,7 @@ export async function TournamentsHomePreview() {
               <TournamentPreview
                 tournament={tournament}
                 key={tournament.id}
-                rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                rounds={getTournamentRoundsFromUserRounds(rounds ?? [], tournament)}
                 basePath={PTCG_TOURNAMENT_CONFIG.basePath}
               />
             ))}

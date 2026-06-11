@@ -20,6 +20,8 @@ export function AuthMessage({ message }: { message?: string }) {
       return <TranslatedText id="auth.passwordUpdateFailed">Failed to update password. Please try again.</TranslatedText>;
     case "password-reset-success":
       return <TranslatedText id="auth.passwordResetSuccess">Password reset successful. Sign in with your new password.</TranslatedText>;
+    case "confirmation-email-sent":
+      return <TranslatedText id="auth.confirmationEmailSent">Account created. Check your inbox to confirm your email.</TranslatedText>;
     default:
       return message ? <>{message}</> : null;
   }

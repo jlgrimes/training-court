@@ -1,19 +1,22 @@
-import { fetchUserData } from "./user-data.utils";
-import { fetchAvatarImages } from "./avatar/avatar.server.utils";
-import { TrainingCourtWelcomeClient } from "./TrainingCourtWelcomeClient";
+'use client';
+
+import { useRecoilValue } from 'recoil';
+import { userDataAtom, userDataLoadingAtom } from '@/app/recoil/atoms/user';
+import { AVATAR_IMAGES } from '@/lib/avatar-images';
+import { TrainingCourtWelcomeClient } from './TrainingCourtWelcomeClient';
 
 interface TrainingCourtWelcomeProps {
   userId: string | undefined;
 }
 
-export const TrainingCourtWelcome = async ({ userId }: TrainingCourtWelcomeProps) => {
-  if (!userId) return null;
+export const TrainingCourtWelcome = ({ userId }: TrainingCourtWelcomeProps) => {
+  const userData = useRecoilValue(userDataAtom);
+  const userDataLoading = useRecoilValue(userDataLoadingAtom);
 
-  const userData = await fetchUserData(userId);
+  if (!userId || userDataLoading) return null;
 
   // If user has screen name, don't render welcome
   if (userData?.live_screen_name) return null;
 
-  const avatarImages = fetchAvatarImages();
-  return <TrainingCourtWelcomeClient userId={userId} avatarImages={avatarImages} />
-}
+  return <TrainingCourtWelcomeClient userId={userId} avatarImages={AVATAR_IMAGES} />;
+};

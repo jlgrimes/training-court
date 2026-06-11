@@ -1,21 +1,12 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-import { fetchCurrentUser } from '@/components/auth.utils';
 import { MatchupsOverview } from '@/components/premium/matchups/MatchupsOverview';
-import { fetchPreferredGames } from '@/components/user-data.utils';
-import { isGameEnabled } from '@/lib/game-preferences';
+import { useGameGuard } from '@/hooks/useGameGuard';
 
-export default async function Stats() {
-  const user = await fetchCurrentUser();
+export default function Stats() {
+  const { user, loading } = useGameGuard('pokemon-tcg');
 
-  if (!user) {
-    return redirect('/');
-  }
-
-  const preferredGames = await fetchPreferredGames(user.id);
-  if (!isGameEnabled(preferredGames, 'pokemon-tcg')) {
-    return redirect('/preferences');
-  }
+  if (loading || !user) return null;
 
   return (
     <MatchupsOverview userId={user.id} shouldDisableDrillDown />

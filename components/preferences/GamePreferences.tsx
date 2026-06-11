@@ -9,8 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useSWRConfig } from 'swr';
-import { useRouter } from 'next/navigation';
+import { useRefreshUserData } from '@/hooks/user-data/useRefreshUserData';
 import { T, useGT } from 'gt-react';
 
 interface GamePreferencesProps {
@@ -28,8 +27,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
   const [isSaving, setIsSaving] = useState(false);
 
   const { toast } = useToast();
-  const { mutate } = useSWRConfig();
-  const router = useRouter();
+  const refreshUserData = useRefreshUserData();
   const gt = useGT();
 
   const toggleGame = useCallback(
@@ -52,8 +50,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
         .upsert({ id: userId, preferred_games: selectedGames ?? [] })
         .throwOnError();
 
-      await mutate(['user-data', userId]);
-      router.refresh();
+      await refreshUserData(userId);
 
       toast({
         title: gt('Preferences saved', { $id: 'gamePreferences.toast.savedTitle' }),
@@ -68,7 +65,7 @@ export function GamePreferences({ userId, initialPreferredGames }: GamePreferenc
     } finally {
       setIsSaving(false);
     }
-  }, [mutate, router, selectedGames, toast, userId]);
+  }, [refreshUserData, selectedGames, toast, userId, gt]);
 
 
   return (
