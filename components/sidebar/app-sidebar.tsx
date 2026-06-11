@@ -126,12 +126,12 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>
                         <SidebarItemLabel id={item.id} />
                       </span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -144,10 +144,10 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href='/login'>
+                  <Link href='/login'>
                     <LogIn />
                     <span><TranslatedText id="sidebar.logIn">Log In</TranslatedText></span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -164,12 +164,12 @@ export function AppSidebar() {
               {tcgItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>
                           <SidebarItemLabel id={item.id} />
                         </span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -185,12 +185,12 @@ export function AppSidebar() {
               {pocketItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>
                           <SidebarItemLabel id={item.id} />
                         </span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -205,10 +205,10 @@ export function AppSidebar() {
             <SidebarMenu>
             <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href='/admin'>
+                    <Link href='/admin'>
                       <Atom />
                       <span><TranslatedText id="sidebar.adminStuff">admin stuff</TranslatedText></span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
@@ -233,9 +233,9 @@ export function AppSidebar() {
                   className="w-[--radix-popper-anchor-width]"
                 >
                   <DropdownMenuItem asChild>
-                    <a href='/preferences'>
+                    <Link href='/preferences'>
                       <TranslatedText id="sidebar.preferences">Preferences</TranslatedText>
-                    </a>
+                    </Link>
                   </DropdownMenuItem>
                   <LogOutButton />
                 </DropdownMenuContent>
