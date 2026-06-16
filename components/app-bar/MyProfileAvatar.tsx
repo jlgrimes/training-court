@@ -10,12 +10,16 @@ interface MyProfileAvatarProps {
 }
 
 export function MyProfileAvatar (props: MyProfileAvatarProps) {
-  const { data: userData } = useUserData(props.user?.id);
+  const { data: userData, isLoading } = useUserData(props.user?.id);
+
+  // While user data is loading (or the avatar image is still decoding),
+  // show an empty circle instead of flashing the generic initials.
+  const showInitials = !isLoading && !userData?.avatar;
 
   return (
     <Avatar>
       {userData?.avatar && <AvatarImage className="pixel-image" src={getAvatarSrc(userData.avatar)} />}
-      <AvatarFallback>{props.user?.email?.slice(0, 2).toUpperCase()}</AvatarFallback>
+      <AvatarFallback>{showInitials ? props.user?.email?.slice(0, 2).toUpperCase() : null}</AvatarFallback>
     </Avatar>
   )
 }

@@ -1,28 +1,28 @@
+'use client';
+
 import { Header } from "@/components/ui/header";
 import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
 import { parseBattleLog } from "../utils/battle-log.utils";
-import { fetchUserDataServer, fetchBattleLogsServer } from "@/lib/server/home-data";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
+import { useRecoilValue } from "recoil";
+import { userDataAtom } from "@/app/recoil/atoms/user";
+import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 
 interface BattleLogsHomePreviewProps {
   userId: string;
 }
 
 /**
- * Self-contained server component widget for battle logs.
- * Fetches its own data - can be placed on any page.
+ * Self-contained client widget for battle logs - can be placed on any page.
  */
-export async function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
+export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
+  const userData = useRecoilValue(userDataAtom);
+  const { data: battleLogs } = usePaginatedLogsByDay(userId, 0, 4);
+
   if (!userId) return null;
 
-  // Fetch data server-side in parallel
-  const [userData, battleLogs] = await Promise.all([
-    fetchUserDataServer(userId),
-    fetchBattleLogsServer(userId, 0, 4),
-  ]);
-
-  const parsedLogs = battleLogs.map(log => (
+  const parsedLogs = (battleLogs ?? []).map(log => (
     parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData?.live_screen_name ?? null, log.format, log.decklist_id)
   ));
 

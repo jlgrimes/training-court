@@ -1,5 +1,5 @@
 import { Database } from "@/database.types";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import { getAvatarSrc } from "../avatar/avatar.utils";
 
 export async function fetchCommonlyUsedAvatars() {

@@ -9,7 +9,7 @@ interface PocketTournamentsHomePageProps {
   userId: string;
 }
 
-export const PocketTournamentsHomePage = async (props: PocketTournamentsHomePageProps) => {
+export const PocketTournamentsHomePage = (props: PocketTournamentsHomePageProps) => {
   return (
     <div className="flex flex-col gap-4">
       <Header

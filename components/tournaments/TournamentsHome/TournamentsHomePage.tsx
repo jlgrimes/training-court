@@ -8,7 +8,7 @@ interface TournamentsHomePageProps {
   user: User;
 }
 
-export const TournamentsHomePage = async (props: TournamentsHomePageProps) => {
+export const TournamentsHomePage = (props: TournamentsHomePageProps) => {
   return (
     <div className="flex flex-col gap-4">
       <Header

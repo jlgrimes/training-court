@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +16,9 @@ import {
 
 import { Atom, ChevronUp, Hammer, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
 import Image from "next/image"
-import { fetchCurrentUser } from "../auth.utils";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "@/app/recoil/atoms/user";
+import { usePreferredGames } from "@/hooks/useGameGuard";
 import { ReportBugDialog } from "../app-bar/ReportBugDialog";
 import Link from "next/link";
 import { MyProfileAvatar } from "../app-bar/MyProfileAvatar";
@@ -23,8 +27,6 @@ import { LogOutButton } from "../app-bar/LogOutButton";
 import { isUserAnAdmin } from "../admin/admin.utils";
 import { DarkModeToggle } from "../theme/DarkModeToggle";
 import { isPremiumUser } from "../premium/premium.utils";
-import { fetchUserData } from "../user-data.utils";
-import { normalizePreferredGames } from "@/lib/game-preferences";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
  
 const items = [
@@ -97,12 +99,11 @@ function SidebarItemLabel({ id }: { id: string }) {
   }
 }
 
-export async function AppSidebar() {
-  const user = await fetchCurrentUser();
-  const userData = user ? await fetchUserData(user.id) : null;
-  const preferredGames = user ? normalizePreferredGames(userData?.preferred_games) : [];
-  const showTcg = preferredGames.includes('pokemon-tcg');
-  const showPocket = preferredGames.includes('pokemon-pocket');
+export function AppSidebar() {
+  const user = useRecoilValue(userAtom);
+  const { preferredGames } = usePreferredGames();
+  const showTcg = !!user && preferredGames.includes('pokemon-tcg');
+  const showPocket = !!user && preferredGames.includes('pokemon-pocket');
 
   return (
   <Sidebar>
@@ -125,12 +126,12 @@ export async function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>
                         <SidebarItemLabel id={item.id} />
                       </span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -143,10 +144,10 @@ export async function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href='/login'>
+                  <Link href='/login'>
                     <LogIn />
                     <span><TranslatedText id="sidebar.logIn">Log In</TranslatedText></span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -163,12 +164,12 @@ export async function AppSidebar() {
               {tcgItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>
                           <SidebarItemLabel id={item.id} />
                         </span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -184,12 +185,12 @@ export async function AppSidebar() {
               {pocketItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>
                           <SidebarItemLabel id={item.id} />
                         </span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -204,10 +205,10 @@ export async function AppSidebar() {
             <SidebarMenu>
             <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href='/admin'>
+                    <Link href='/admin'>
                       <Atom />
                       <span><TranslatedText id="sidebar.adminStuff">admin stuff</TranslatedText></span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
@@ -232,9 +233,9 @@ export async function AppSidebar() {
                   className="w-[--radix-popper-anchor-width]"
                 >
                   <DropdownMenuItem asChild>
-                    <a href='/preferences'>
+                    <Link href='/preferences'>
                       <TranslatedText id="sidebar.preferences">Preferences</TranslatedText>
-                    </a>
+                    </Link>
                   </DropdownMenuItem>
                   <LogOutButton />
                 </DropdownMenuContent>

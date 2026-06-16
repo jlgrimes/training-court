@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
-import PocketTournamentContainer from "@/components/pocket/tournaments/PocketTournamentContainer";
+import { TournamentPageClient } from "@/components/tournaments/TournamentContainer/TournamentPageClient";
 import { fetchPocketTournament } from "@/components/pocket/tournaments/utils/pocket-tournaments.server.utils";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -11,14 +10,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default async function PocketTournamentPage({ params }: { params: { id: string } }) {
-  const tournamentData = await fetchPocketTournament(params.id);
-
-  if (!tournamentData) {
-    return redirect("/pocket/tournaments");
-  }
-
-  return (
-    <PocketTournamentContainer tournamentId={params.id} />
-  );
+export default function PocketTournamentPage({ params }: { params: { id: string } }) {
+  return <TournamentPageClient tournamentId={params.id} game='pocket' redirectTo='/pocket/tournaments' />;
 }

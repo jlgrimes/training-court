@@ -1,24 +1,22 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-import { fetchCurrentUser } from '@/components/auth.utils';
 import { BattleLogsHomePreview } from '@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview';
 import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome/TournamentsHomePreview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
-import { fetchPreferredGames } from '@/components/user-data.utils';
 import { GamePreferences } from '@/components/preferences/GamePreferences';
 import { isGameEnabled } from '@/lib/game-preferences';
 import { PocketHomePreview } from '@/components/pocket/PocketHomePreview';
 import { PocketTournamentsHomePreview } from '@/components/pocket/tournaments/PocketTournamentsHomePreview';
 import { Separator } from '@/components/ui/separator';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { usePreferredGames } from '@/hooks/useGameGuard';
 
-export default async function Home() {
-  const user = await fetchCurrentUser();
+export default function Home() {
+  const { user, loading } = useAuthGuard();
+  const { preferredGames, loading: prefsLoading } = usePreferredGames();
 
-  if (!user) {
-    return redirect('/');
-  }
+  if (loading || !user || prefsLoading) return null;
 
-  const preferredGames = await fetchPreferredGames(user.id);
   const hasPreferredGames = preferredGames.length > 0;
   const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');
   const showPokemonPocket = isGameEnabled(preferredGames, 'pokemon-pocket');
