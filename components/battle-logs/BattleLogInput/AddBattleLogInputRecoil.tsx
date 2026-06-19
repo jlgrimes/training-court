@@ -27,6 +27,7 @@ import { useUI } from '@/app/recoil/hooks/useUI';
 import { usePreferences } from '@/app/recoil/hooks/usePreferences';
 import { BattleLog } from '@/app/recoil/atoms/battle-logs';
 import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
+import { getStoredBattleLogDecklistId, storeBattleLogDecklistId } from './BattleLogDecklistStorage';
 
 interface AddBattleLogInputRecoilProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -75,6 +76,10 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
     };
     
     fetchActiveDeck();
+  }, [userData?.id]);
+
+  useEffect(() => {
+    setDecklistId(getStoredBattleLogDecklistId(userData?.id));
   }, [userData?.id]);
 
   useEffect(() => {
@@ -165,7 +170,6 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
         setLog('');
         setArchetype('');
         setOppArchetype('');
-        setDecklistId(null);
         setShowDialog(false);
       }
     } catch (error) {
@@ -299,10 +303,9 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
                     value={decklistId}
                     noneLabel="No decklist"
                     onChange={(decklist) => {
-                      setDecklistId(decklist?.id ?? null);
-                      if (decklist) {
-                        setArchetype(decklist.archetype || decklist.name);
-                      }
+                      const nextDecklistId = decklist?.id ?? null;
+                      setDecklistId(nextDecklistId);
+                      storeBattleLogDecklistId(userData?.id, nextDecklistId);
                     }}
                   />
                 </div>

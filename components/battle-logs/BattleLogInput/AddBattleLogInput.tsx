@@ -26,6 +26,7 @@ import { ClipboardPaste, X } from 'lucide-react';
 import type { BattleLog } from '@/lib/server/home-data';
 import { DecklistSelect } from '@/components/ptcg/deckbuilder/DecklistSelect';
 import { T, useGT } from 'gt-react';
+import { getStoredBattleLogDecklistId, storeBattleLogDecklistId } from './BattleLogDecklistStorage';
 
 interface AddBattleLogInputProps {
   userData: Database['public']['Tables']['user data']['Row'] | null;
@@ -57,6 +58,10 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     }
   }, [parsedLogDetails]);
 
+  useEffect(() => {
+    setDecklistId(getStoredBattleLogDecklistId(props.userData?.id));
+  }, [props.userData?.id]);
+
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = event.clipboardData.getData('Text');
     setLog(pastedText);
@@ -78,7 +83,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const handleClear = () => {
     setLog('');
     setParsedLogDetails(null);
-    setDecklistId(null);
     setShowDialog(false);
   };
 
@@ -126,7 +130,6 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     setLog('');
     setParsedLogDetails(null);
-    setDecklistId(null);
     setShowDialog(false);
     if (format) Cookies.set("format", format, { expires: 30 });
   };
@@ -209,10 +212,9 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                       value={decklistId}
                       noneLabel={gt("No decklist", { $id: "deckbuilder.noDecklist" })}
                       onChange={(decklist) => {
-                        setDecklistId(decklist?.id ?? null);
-                        if (decklist) {
-                          setArchetype(decklist.archetype || decklist.name);
-                        }
+                        const nextDecklistId = decklist?.id ?? null;
+                        setDecklistId(nextDecklistId);
+                        storeBattleLogDecklistId(props.userData?.id, nextDecklistId);
                       }}
                     />
                   </>

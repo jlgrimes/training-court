@@ -8,6 +8,11 @@
  */
 
 import Cookies from 'js-cookie';
+import {
+  getLastBattleLogDecklistStorageKey,
+  getStoredBattleLogDecklistId,
+  storeBattleLogDecklistId,
+} from '@/components/battle-logs/BattleLogInput/BattleLogDecklistStorage';
 
 // Mock js-cookie before any imports
 jest.mock('js-cookie', () => ({
@@ -92,5 +97,26 @@ describe('AddBattleLogInput format cookie handling', () => {
 
       expect(mockCookiesSet).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('battle log decklist local storage', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('stores the last selected battle-log decklist by user', () => {
+    storeBattleLogDecklistId('user-1', 'decklist-1');
+
+    expect(window.localStorage.getItem(getLastBattleLogDecklistStorageKey('user-1'))).toBe('decklist-1');
+    expect(getStoredBattleLogDecklistId('user-1')).toBe('decklist-1');
+    expect(getStoredBattleLogDecklistId('user-2')).toBeNull();
+  });
+
+  it('removes the stored battle-log decklist when no decklist is selected', () => {
+    storeBattleLogDecklistId('user-1', 'decklist-1');
+    storeBattleLogDecklistId('user-1', null);
+
+    expect(getStoredBattleLogDecklistId('user-1')).toBeNull();
   });
 });
