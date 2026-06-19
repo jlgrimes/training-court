@@ -20,6 +20,7 @@
   "admin.users.totalUsers": "Benutzer gesamt",
   "admin.welcome": "Willkommen, Admin.",
   "auth.authenticationFailed": "Benutzer konnte nicht angemeldet werden.",
+  "auth.confirmationEmailSent": "Konto erstellt. Bitte prufe deinen Posteingang, um deine E-Mail zu bestatigen.",
   "auth.confirmPassword": "Neues Passwort bestatigen",
   "auth.email": "E-Mail",
   "auth.forgotPassword": "Passwort vergessen?",

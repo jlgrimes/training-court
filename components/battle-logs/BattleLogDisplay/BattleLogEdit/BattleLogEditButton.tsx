@@ -107,9 +107,6 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
             noneLabel="No decklist"
             onChange={(decklist) => {
               setNewDecklistId(decklist?.id ?? null);
-              if (decklist) {
-                setNewArchetype(decklist.archetype || decklist.name);
-              }
             }}
           />
 
