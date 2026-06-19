@@ -20,6 +20,7 @@
   "admin.users.totalUsers": "Utilisateurs totaux",
   "admin.welcome": "Bienvenue admin.",
   "auth.authenticationFailed": "Impossible d'authentifier l'utilisateur.",
+  "auth.confirmationEmailSent": "Compte cree. Consultez votre boite de reception pour confirmer votre e-mail.",
   "auth.confirmPassword": "Confirmer le nouveau mot de passe",
   "auth.email": "E-mail",
   "auth.forgotPassword": "Mot de passe oublie ?",

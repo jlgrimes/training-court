@@ -20,6 +20,7 @@
   "admin.users.totalUsers": "総ユーザー数",
   "admin.welcome": "管理者さん、ようこそ！",
   "auth.authenticationFailed": "ユーザーを認証できませんでした。",
+  "auth.confirmationEmailSent": "アカウントを作成しました。メールを確認してメールアドレスを認証してください。",
   "auth.confirmPassword": "新しいパスワードを確認",
   "auth.email": "メール",
   "auth.forgotPassword": "パスワードをお忘れですか？",

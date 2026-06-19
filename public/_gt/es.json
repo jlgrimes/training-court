@@ -20,6 +20,7 @@
   "admin.users.totalUsers": "Usuarios totales",
   "admin.welcome": "Bienvenido, admin.",
   "auth.authenticationFailed": "No se pudo autenticar al usuario.",
+  "auth.confirmationEmailSent": "Cuenta creada. Revisa tu bandeja de entrada para confirmar tu correo.",
   "auth.confirmPassword": "Confirmar nueva contrasena",
   "auth.email": "Correo",
   "auth.forgotPassword": "Olvidaste tu contrasena?",
