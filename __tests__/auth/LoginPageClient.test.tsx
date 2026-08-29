@@ -1,8 +1,8 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import { LoginPageClient } from '@/app/login/LoginPageClient';
-import { createClient } from '@/utils/supabase/client';
+import { LoginPageClient } from '../../app/login/LoginPageClient';
+import { createClient } from '../../utils/supabase/client';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -19,11 +19,11 @@ jest.mock('@vercel/analytics', () => ({
   track: jest.fn(),
 }));
 
-jest.mock('@/utils/supabase/client', () => ({
+jest.mock('../../utils/supabase/client', () => ({
   createClient: jest.fn(),
 }));
 
-jest.mock('@/utils/auth', () => ({
+jest.mock('../../utils/auth', () => ({
   getSiteUrl: () => 'http://localhost:3000',
   logAuthError: jest.fn(),
 }));
@@ -32,11 +32,11 @@ jest.mock('gt-react', () => ({
   T: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/components/general-translation/TranslatedText', () => ({
+jest.mock('../../components/general-translation/TranslatedText', () => ({
   TranslatedText: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/components/general-translation/AuthMessage', () => ({
+jest.mock('../../components/general-translation/AuthMessage', () => ({
   AuthMessage: ({ message }: { message?: string }) => {
     switch (message) {
       case 'authentication-failed':
