@@ -23,8 +23,46 @@ jest.mock('@/utils/supabase/client', () => ({
   createClient: jest.fn(),
 }));
 
+// Real TranslatedText wraps copy in gt-react <T>. Without GTProvider that throws.
+jest.mock('gt-react', () => ({
+  T: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+// next/jest/SWC often treats the @ alias and AuthMessage's relative ./TranslatedText
+// import as different modules, so mock both paths.
 jest.mock('@/components/general-translation/TranslatedText', () => ({
   TranslatedText: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock('../../components/general-translation/TranslatedText', () => ({
+  TranslatedText: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+// Alias import used by LoginPageClient — guaranteed to apply even if relative
+// TranslatedText mocking does not.
+jest.mock('@/components/general-translation/AuthMessage', () => ({
+  AuthMessage: ({ message }: { message?: string }) => {
+    switch (message) {
+      case 'authentication-failed':
+        return <>Could not authenticate user.</>;
+      case 'signup-failed':
+        return <>Could not create account.</>;
+      case 'weak-password':
+        return <>Please choose a stronger password.</>;
+      case 'confirmation-email-sent':
+        return <>Account created. Check your inbox to confirm your email.</>;
+      case 'invalid-credentials':
+        return <>Invalid email or password. If you don&apos;t have an account, use Sign Up. Forgot it? Reset Password.</>;
+      case 'email-not-confirmed':
+        return <>Confirm your email before signing in. Check your inbox and spam folder.</>;
+      case 'user-already-registered':
+        return <>An account with this email already exists. Sign in, or reset your password if you forgot it.</>;
+      case 'confirmation-resent':
+        return <>Confirmation email sent. Check your inbox and spam folder.</>;
+      default:
+        return message ? <>{message}</> : null;
+    }
+  },
 }));
 
 const mockPush = jest.fn();
@@ -55,6 +93,12 @@ describe('LoginPageClient', () => {
     mockPush.mockReset();
     mockedCreateClient.mockReset();
     mockedUseRouter.mockReturnValue({ push: mockPush } as ReturnType<typeof useRouter>);
+    // Sign Up is type=button and calls reportValidity(); JSDOM type=email can reject.
+    jest.spyOn(HTMLFormElement.prototype, 'reportValidity').mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('shows a recoverable invalid-credentials error instead of a dead-end message', async () => {
