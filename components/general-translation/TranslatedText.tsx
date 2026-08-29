@@ -52,6 +52,16 @@ export function TranslatedText({ id, children }: TranslatedTextProps) {
     case "auth.sendingResetEmail": return <T id="auth.sendingResetEmail">Sending Reset Email...</T>;
     case "auth.signUpFailed": return <T id="auth.signUpFailed">Could not create account.</T>;
     case "auth.returnToLogin": return <T id="auth.returnToLogin">Return to login page</T>;
+    case "auth.confirmationEmailSent": return <T id="auth.confirmationEmailSent">Account created. Check your inbox to confirm your email.</T>;
+    case "auth.confirmationResent": return <T id="auth.confirmationResent">Confirmation email sent. Check your inbox and spam folder.</T>;
+    case "auth.confirmationResendFailed": return <T id="auth.confirmationResendFailed">Could not resend confirmation email. Please try again in a minute.</T>;
+    case "auth.emailNotConfirmed": return <T id="auth.emailNotConfirmed">Confirm your email before signing in. Check your inbox and spam folder.</T>;
+    case "auth.invalidCredentials": return <T id="auth.invalidCredentials">Invalid email or password. If you don&apos;t have an account, use Sign Up. Forgot it? Reset Password.</T>;
+    case "auth.invalidEmail": return <T id="auth.invalidEmail">Please enter a valid email address.</T>;
+    case "auth.rateLimited": return <T id="auth.rateLimited">Too many attempts. Please wait a minute and try again.</T>;
+    case "auth.resendConfirmation": return <T id="auth.resendConfirmation">Resend confirmation email</T>;
+    case "auth.resendingConfirmation": return <T id="auth.resendingConfirmation">Sending confirmation email...</T>;
+    case "auth.userAlreadyRegistered": return <T id="auth.userAlreadyRegistered">An account with this email already exists. Sign in, or reset your password if you forgot it.</T>;
     case "battleLogs.description": return <T id="battleLogs.description">Record your PTCG Live battle logs</T>;
     case "battleLogs.header": return <T id="battleLogs.header">PTCG Logs</T>;
     case "common.seeMore": return <T id="common.seeMore">See more</T>;
@@ -79,4 +89,3 @@ export function TranslatedText({ id, children }: TranslatedTextProps) {
 
   return <>{children}</>;
 }
-
