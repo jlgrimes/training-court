@@ -22,6 +22,20 @@ export function AuthMessage({ message }: { message?: string }) {
       return <TranslatedText id="auth.passwordResetSuccess">Password reset successful. Sign in with your new password.</TranslatedText>;
     case "confirmation-email-sent":
       return <TranslatedText id="auth.confirmationEmailSent">Account created. Check your inbox to confirm your email.</TranslatedText>;
+    case "invalid-credentials":
+      return <TranslatedText id="auth.invalidCredentials">Invalid email or password. If you don&apos;t have an account, use Sign Up. Forgot it? Reset Password.</TranslatedText>;
+    case "email-not-confirmed":
+      return <TranslatedText id="auth.emailNotConfirmed">Confirm your email before signing in. Check your inbox and spam folder.</TranslatedText>;
+    case "user-already-registered":
+      return <TranslatedText id="auth.userAlreadyRegistered">An account with this email already exists. Sign in, or reset your password if you forgot it.</TranslatedText>;
+    case "invalid-email":
+      return <TranslatedText id="auth.invalidEmail">Please enter a valid email address.</TranslatedText>;
+    case "rate-limited":
+      return <TranslatedText id="auth.rateLimited">Too many attempts. Please wait a minute and try again.</TranslatedText>;
+    case "confirmation-resent":
+      return <TranslatedText id="auth.confirmationResent">Confirmation email sent. Check your inbox and spam folder.</TranslatedText>;
+    case "confirmation-resend-failed":
+      return <TranslatedText id="auth.confirmationResendFailed">Could not resend confirmation email. Please try again in a minute.</TranslatedText>;
     default:
       return message ? <>{message}</> : null;
   }

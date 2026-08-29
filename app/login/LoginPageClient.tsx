@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
@@ -9,19 +9,30 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { getSiteUrl, logAuthError } from '@/utils/auth';
+import {
+  AUTH_SUCCESS_MESSAGES,
+  getResendConfirmationMessageFromError,
+  getSignInMessageFromError,
+  getSignUpResultMessage,
+  shouldOfferResendConfirmation,
+} from '@/utils/auth-errors';
 import { AuthMessage } from '@/components/general-translation/AuthMessage';
 import { TranslatedText } from '@/components/general-translation/TranslatedText';
 
 export function LoginPageClient({ initialMessage }: { initialMessage?: string }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState(initialMessage);
-  const [pending, setPending] = useState<'sign-in' | 'sign-up' | null>(null);
+  const [pending, setPending] = useState<'sign-in' | 'sign-up' | 'resend' | null>(null);
+  const [lastEmail, setLastEmail] = useState('');
+
+  const confirmationRedirectTo = `${getSiteUrl()}/auth/callback`;
 
   const readForm = (form: HTMLFormElement) => {
     const formData = new FormData(form);
     return {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
+      email: String(formData.get('email') ?? '').trim(),
+      password: String(formData.get('password') ?? ''),
     };
   };
 
@@ -31,12 +42,13 @@ export function LoginPageClient({ initialMessage }: { initialMessage?: string })
     setMessage(undefined);
 
     const { email, password } = readForm(e.currentTarget);
+    setLastEmail(email);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       logAuthError('password sign-in', error);
-      setMessage('authentication-failed');
+      setMessage(getSignInMessageFromError(error));
       setPending(null);
       return;
     }
@@ -46,39 +58,73 @@ export function LoginPageClient({ initialMessage }: { initialMessage?: string })
   };
 
   const handleSignUp = async (form: HTMLFormElement) => {
+    if (!form.reportValidity()) {
+      return;
+    }
+
     setPending('sign-up');
     setMessage(undefined);
 
     const { email, password } = readForm(form);
+    setLastEmail(email);
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+        emailRedirectTo: confirmationRedirectTo,
       },
     });
 
     if (error) {
       logAuthError('email sign-up', error);
-      setMessage('signup-failed');
-      setPending(null);
-      return;
     }
 
-    if (data.session) {
+    const resultMessage = getSignUpResultMessage({
+      error,
+      session: data?.session ?? null,
+      user: data?.user ?? null,
+    });
+
+    if (resultMessage === 'signed-in') {
       router.push('/home');
       return;
     }
 
-    // Email confirmation required: no session until the link is clicked
-    setMessage('confirmation-email-sent');
+    setMessage(resultMessage);
+    setPending(null);
+  };
+
+  const handleResendConfirmation = async () => {
+    const email = lastEmail || (formRef.current ? readForm(formRef.current).email : '');
+    if (!email) {
+      setMessage('confirmation-resend-failed');
+      return;
+    }
+
+    setPending('resend');
+    setLastEmail(email);
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: confirmationRedirectTo,
+      },
+    });
+
+    if (error) {
+      logAuthError('resend confirmation email', error);
+    }
+
+    setMessage(getResendConfirmationMessageFromError(error));
     setPending(null);
   };
 
   return (
     <div className="flex-1 flex flex-col w-full px-8 py-16 sm:max-w-md justify-center gap-2">
       <form
+        ref={formRef}
         className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
         onSubmit={handleSignIn}
       >
@@ -86,8 +132,14 @@ export function LoginPageClient({ initialMessage }: { initialMessage?: string })
           <TranslatedText id="auth.email">Email</TranslatedText>
         </Label>
         <Input
+          id="email"
           className="rounded-md px-4 py-2 bg-inherit border mb-6"
           name="email"
+          type="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           placeholder="you@example.com"
           required
         />
@@ -95,9 +147,11 @@ export function LoginPageClient({ initialMessage }: { initialMessage?: string })
           <TranslatedText id="auth.password">Password</TranslatedText>
         </Label>
         <Input
+          id="password"
           className="rounded-md px-4 py-2 bg-inherit border mb-6"
           type="password"
           name="password"
+          autoComplete="current-password"
           placeholder="••••••••"
           required
         />
@@ -124,7 +178,29 @@ export function LoginPageClient({ initialMessage }: { initialMessage?: string })
           </Link>
         </p>
       </form>
-      {message && <p className="text-center"><AuthMessage message={message} /></p>}
+      {message && (
+        <p
+          className={
+            AUTH_SUCCESS_MESSAGES.has(message)
+              ? "text-center text-sm"
+              : "text-center text-sm text-red-500"
+          }
+        >
+          <AuthMessage message={message} />
+        </p>
+      )}
+      {shouldOfferResendConfirmation(message) && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending !== null}
+          onClick={handleResendConfirmation}
+        >
+          {pending === 'resend'
+            ? <TranslatedText id="auth.resendingConfirmation">Sending confirmation email...</TranslatedText>
+            : <TranslatedText id="auth.resendConfirmation">Resend confirmation email</TranslatedText>}
+        </Button>
+      )}
     </div>
   );
 }
