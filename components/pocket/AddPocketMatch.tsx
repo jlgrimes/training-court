@@ -17,7 +17,7 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
   const { toast } = useToast();
   const gt = useGT();
   const { mutate } = useSWRConfig();
-  const { data: pocketGames } = usePocketGames(userId);
+  const { data: pocketGames } = usePocketGames(userId, { limit: 1 });
   const [open, setOpen] = useState(false);
   const [myDeck, setMyDeck] = useState<string | undefined>();
   const [opponentDeck, setOpponentDeck] = useState<string | undefined>();
@@ -54,7 +54,7 @@ export const AddPocketMatch = ({ userId }: { userId: string}) => {
     }
 
     if (data) {
-      mutate(['pocket-games', userId], data);
+      mutate((key) => Array.isArray(key) && key[0] === 'pocket-games' && key[1] === userId);
 
       setMyDeck(undefined);
       setOpponentDeck(undefined);

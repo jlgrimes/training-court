@@ -12,16 +12,26 @@ export type PocketTournamentRoundRow = {
   match_end_reason: string | null;
 };
 
-export async function fetchPocketTournamentRounds(userId: string | undefined) {
+interface FetchPocketTournamentRoundsOptions {
+  tournamentIds?: string[];
+}
+
+export async function fetchPocketTournamentRounds(userId: string | undefined, options: FetchPocketTournamentRoundsOptions = {}) {
   if (!userId) return null;
+  if (options.tournamentIds && options.tournamentIds.length === 0) return [];
 
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('pocket_tournament_rounds')
     .select('*')
     .eq('user', userId)
-    .order('round_num', { ascending: true })
-    .returns<PocketTournamentRoundRow[]>();
+    .order('round_num', { ascending: true });
+
+  if (options.tournamentIds) {
+    query = query.in('tournament', options.tournamentIds);
+  }
+
+  const { data, error } = await query.returns<PocketTournamentRoundRow[]>();
 
   if (error) throw error;
 

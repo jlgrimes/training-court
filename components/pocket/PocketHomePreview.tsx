@@ -16,7 +16,7 @@ interface PocketHomePreviewProps {
  * Self-contained client widget for Pocket games - can be placed on any page.
  */
 export function PocketHomePreview({ userId }: PocketHomePreviewProps) {
-  const { data: games, isLoading } = usePocketGames(userId);
+  const { data: games, isLoading } = usePocketGames(userId, { limit: 1 });
 
   if (isLoading) return null;
 

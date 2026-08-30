@@ -13,8 +13,7 @@ import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
 import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
 import { battleLogsAtom, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
-import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
-import { parseBattleLog } from "./utils/battle-log.utils";
+import type { BattleLogSortBy } from "./utils/battle-log.types";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
 import { Database } from "@/database.types";
@@ -62,13 +61,13 @@ export function BattleLogsContainer({
   const effectivePage = allowPagination ? page : 0;
 
   const { data: logsDay,  isLoading: loadingDay  } =
-    usePaginatedLogsByDay(userId, effectivePage, daysPerPage);
+    usePaginatedLogsByDay(isSortByDay ? userId : undefined, effectivePage, daysPerPage);
 
   const { data: logsDeck, isLoading: loadingDeck } =
-    useLiveLogs(userId);
+    useLiveLogs(isSortByDeck ? userId : undefined);
 
   const { data: logsAll,  isLoading: loadingAll  } =
-    usePaginatedLiveLogs(userId, effectivePage, pageSize);
+    usePaginatedLiveLogs(isSortByAll ? userId : undefined, effectivePage, pageSize);
 
   const isLoading = isSortByDay ? loadingDay : isSortByDeck ? loadingDeck : loadingAll;
   const incoming: BattleLogRecord[] =
@@ -168,23 +167,6 @@ export function BattleLogsContainer({
   // This prevents the loading spinner from showing
   const effectiveRows = rawRows.length > 0 ? rawRows : (isSortByDay && effectivePage === 0 && initialLogs ? initialLogs : []);
 
-  const battleLogs: BattleLog[] = useMemo(
-    () =>
-      effectiveRows.map((l) =>
-        parseBattleLog(
-          l.log,
-          l.id,
-          l.created_at,
-          l.archetype,
-          l.opp_archetype,
-          userData?.live_screen_name ?? "",
-          l.format,
-          l.decklist_id
-        )
-      ),
-    [effectiveRows, userData?.live_screen_name]
-  );
-
   useEffect(() => {
     setIsEditing(false);
   }, [sortBy]);
@@ -240,10 +222,10 @@ export function BattleLogsContainer({
           <>
             <MyBattleLogPreviews
               userData={userData}
-              battleLogs={battleLogs}
+              battleLogs={effectiveRows}
               sortBy={sortBy}
               isEditing={isEditing}
-              isLoading={isLoading && battleLogs.length === 0}
+              isLoading={isLoading && effectiveRows.length === 0}
             />
 
             {showPagination && (
@@ -264,7 +246,7 @@ export function BattleLogsContainer({
                 >
                   {hasReachedEnd
                     ? <T id="battleLogs.noMoreLogs">No more logs</T>
-                    : isLoading && battleLogs.length === 0
+                    : isLoading && effectiveRows.length === 0
                     ? <Loader2 className='mr-2 h-6 w-6 animate-spin'/>
                     : <T id="battleLogs.loadOlderLogs">Load older logs</T>}
                 </Button>

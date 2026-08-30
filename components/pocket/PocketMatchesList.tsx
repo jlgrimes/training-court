@@ -42,7 +42,7 @@ export const PocketMatchesList = ({
   const gt = useGT();
   const { mutate } = useSWRConfig();
   // Only fetch via SWR if no initial games provided
-  const { data: swrGames } = usePocketGames(initialGames ? undefined : userId);
+  const { data: swrGames } = usePocketGames(initialGames ? undefined : userId, { limit });
 
   const games = initialGames ?? swrGames;
 
@@ -62,7 +62,7 @@ export const PocketMatchesList = ({
           description: error.message,
         });
       } else {
-        mutate(['pocket-games', userId], data);
+        mutate((key) => Array.isArray(key) && key[0] === 'pocket-games' && key[1] === userId);
       }
     },
     [userId, toast, mutate]

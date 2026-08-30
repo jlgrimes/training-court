@@ -9,7 +9,7 @@ import { Sprite } from "@/components/archetype/sprites/Sprite";
 
 interface TournamentPreviewProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
-  rounds: Database['public']['Tables']['tournament rounds']['Row'][];
+  rounds: { result: string[] }[];
   shouldHideCategoryBadge?: boolean;
   basePath?: string;
   hatType?: string | null;

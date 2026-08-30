@@ -41,39 +41,23 @@ export default function Index() {
           <div className="flex flex-col gap-2">
             <BattleLogPreview battleLog={{
               id: '',
-              players: [{
-                name: 'jgrimesey',
-                deck: 'chien-pao',
-                oppDeck: 'charizard',
-                result: 'W'
-              }, {
-                name: 'flexdaddy',
-                deck: 'charizard',
-                oppDeck: 'chien-pao',
-                result: 'L'
-              }],
-              date: '2024-09-06 21:12:35.529016+00',
-              winner: 'jgrimesey',
-              sections: [],
-              language: 'en'
+              created_at: '2024-09-06 21:12:35.529016+00',
+              archetype: 'chien-pao',
+              opp_archetype: 'charizard',
+              result: 'W',
+              turn_order: '1',
+              format: '',
+              decklist_id: null,
             }} currentUserScreenName='jgrimesey' />
             <BattleLogPreview battleLog={{
               id: '',
-              players: [{
-                name: 'jgrimesey',
-                deck: 'chien-pao',
-                oppDeck: 'regidrago',
-                result: 'L'
-              }, {
-                name: 'flexdaddy',
-                deck: 'regidrago',
-                oppDeck: 'chien-pao',
-                result: 'W'
-              }],
-              date: '2024-09-06 21:12:35.529016+00',
-              winner: 'flexdaddy',
-              sections: [],
-              language: 'en'
+              created_at: '2024-09-06 21:12:35.529016+00',
+              archetype: 'chien-pao',
+              opp_archetype: 'regidrago',
+              result: 'L',
+              turn_order: '2',
+              format: '',
+              decklist_id: null,
             }} currentUserScreenName='jgrimesey' />
           </div>
         </div>

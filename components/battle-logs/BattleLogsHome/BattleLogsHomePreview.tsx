@@ -5,7 +5,6 @@ import { useSWRConfig } from "swr";
 import { Header } from "@/components/ui/header";
 import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
-import { parseBattleLog } from "../utils/battle-log.utils";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userDataAtom } from "@/app/recoil/atoms/user";
@@ -67,18 +66,14 @@ export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
 
   if (!userId) return null;
 
-  const parsedLogs = recentBattleLogs.map(log => (
-    parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData?.live_screen_name ?? null, log.format, log.decklist_id)
-  ));
-
   return (
     <div className="flex flex-col gap-4">
       <Header><TranslatedText id="battleLogs.header">PTCG Logs</TranslatedText></Header>
       <div className="flex flex-col gap-4">
-        {userData?.live_screen_name && parsedLogs.length > 0 && (
+        {userData?.live_screen_name && recentBattleLogs.length > 0 && (
           <BattleLogsByDayPreview
             userData={userData}
-            battleLogs={parsedLogs}
+            battleLogs={recentBattleLogs}
           />
         )}
         <AddBattleLogInput userData={userData ?? null} onLogAdded={handleLogAdded} />

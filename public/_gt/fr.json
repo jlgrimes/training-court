@@ -233,5 +233,6 @@
   "tournaments.empty.description": "Vous pouvez ajouter des tournois passes, presents ou futurs.",
   "tournaments.header": "Tournois",
   "tournaments.newTournament": "Nouveau tournoi",
-  "tournaments.ptcgHeader": "Tournois PTCG"
+  "tournaments.ptcgHeader": "Tournois PTCG",
+  "tournaments.loadMore": "Charger plus de tournois"
 }

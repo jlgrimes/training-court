@@ -27,10 +27,13 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
   const { initialTournaments, initialRounds } = props;
 
   // Only fetch via SWR if no initial data provided
-  const { data: swrTournaments } = usePocketTournaments(initialTournaments ? undefined : props.userId);
-  const { data: swrRounds } = usePocketTournamentRounds(initialRounds ? undefined : props.userId);
+  const { data: swrTournaments } = usePocketTournaments(initialTournaments ? undefined : props.userId, { limit: props.limit });
 
   const tournaments = initialTournaments ?? swrTournaments;
+  const tournamentIds = tournaments?.map((tournament) => tournament.id) ?? [];
+  const { data: swrRounds } = usePocketTournamentRounds(initialRounds ? undefined : props.userId, {
+    tournamentIds: props.limit ? tournamentIds : undefined,
+  });
   const rounds = initialRounds ?? swrRounds;
 
   const [isInteractionBlocked, ] = useState(false);

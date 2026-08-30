@@ -1,15 +1,16 @@
 'use client';
 
 import { Database } from "@/database.types";
-import { BattleLog, BattleLogSortBy } from "../utils/battle-log.types";
+import { BattleLogSortBy } from "../utils/battle-log.types";
 import { BattleLogsByDay } from "../BattleLogGroups/BattleLogsByDay";
 import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
 import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
+import { BattleLogPreviewRecord } from "../utils/battle-log-preview.utils";
 
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
-  battleLogs: BattleLog[];
+  battleLogs: BattleLogPreviewRecord[];
   sortBy: BattleLogSortBy
   isEditing: boolean;
   isLoading?: boolean;

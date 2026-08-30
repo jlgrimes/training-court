@@ -5,23 +5,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { BattleLog } from "../utils/battle-log.types"
-import { groupBattleLogIntoDecks } from "./battle-log-groups.utils";
 import { Database } from "@/database.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
-import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { capitalizeName } from "../utils/battle-log.utils";
 import { CardDescription } from "@/components/ui/card";
 import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
+import {
+  BattleLogPreviewRecord,
+  getRecordFromBattleLogPreviewRecords,
+  groupBattleLogPreviewRecordsIntoDecks,
+} from "../utils/battle-log-preview.utils";
 
 interface BattleLogsByDeckProps {
-  battleLogs: BattleLog[];
+  battleLogs: BattleLogPreviewRecord[];
   userData: Database['public']['Tables']['user data']['Row'];
   isEditing: boolean;
 }
 
 export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
-  const battleLogsByDeck = useMemo(() => groupBattleLogIntoDecks(props.battleLogs), [props.battleLogs]);
+  const battleLogsByDeck = useMemo(() => groupBattleLogPreviewRecordsIntoDecks(props.battleLogs), [props.battleLogs]);
 
   return (
     <Accordion type="single" collapsible className="flex flex-col">
@@ -35,7 +37,7 @@ export const BattleLogsByDeck = (props: BattleLogsByDeckProps) => {
               </div>
               <div className="text-right mr-2">
                 <h4 className="leading-5">
-                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+                  {getRecordFromBattleLogPreviewRecords(logs)}
                 </h4>
                 <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
               </div>

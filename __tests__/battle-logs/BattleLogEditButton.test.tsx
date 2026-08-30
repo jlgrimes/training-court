@@ -72,23 +72,16 @@ describe('BattleLogEditButton', () => {
     render(
       <BattleLogEditButton
         isEditing
-        shouldDisable={false}
         userId="user-1"
-        currentPlayer={{
-          name: 'Player',
-          deck: 'dragapult,pidgeot',
-          oppDeck: 'gardevoir',
-          result: 'W',
-        }}
         log={{
           id: 'log-1',
           decklist_id: null,
           format: 'Standard',
-          language: 'en',
-          players: [],
-          date: '2026-01-01T00:00:00.000Z',
-          winner: 'Player',
-          sections: [],
+          created_at: '2026-01-01T00:00:00.000Z',
+          archetype: 'dragapult,pidgeot',
+          opp_archetype: 'gardevoir',
+          result: 'W',
+          turn_order: '1',
         }}
       />
     );

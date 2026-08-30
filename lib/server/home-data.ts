@@ -2,12 +2,15 @@ import { createClient } from '@/utils/supabase/server';
 import { Database } from '@/database.types';
 import { normalizePreferredGames } from '@/lib/game-preferences';
 import { startOfDay, endOfDay } from 'date-fns';
+import { BATTLE_LOG_PREVIEW_COLUMNS, BattleLogPreviewRecord } from '@/components/battle-logs/utils/battle-log-preview.utils';
+
+const LOG_DAY_TIMESTAMP_CHUNK_SIZE = 250;
 
 export type UserData = Database['public']['Tables']['user data']['Row'] & {
   preferred_games: string[];
 };
 
-export type BattleLog = Database['public']['Tables']['logs']['Row'];
+export type BattleLog = BattleLogPreviewRecord;
 export type Tournament = Database['public']['Tables']['tournaments']['Row'];
 export type TournamentRound = Database['public']['Tables']['tournament rounds']['Row'];
 export type PocketGame = Database['public']['Tables']['pocket_games']['Row'];
@@ -68,31 +71,39 @@ export async function fetchBattleLogsServer(
 ): Promise<BattleLog[]> {
   const supabase = createClient();
 
-  // Step 1: Get all timestamps (cheap, select only created_at)
-  const { data: timestamps, error: tsError } = await supabase
-    .from('logs')
-    .select('created_at')
-    .eq('user', userId)
-    .order('created_at', { ascending: false });
-
-  if (tsError || !timestamps) {
-    console.error('Error fetching timestamps:', tsError);
-    return [];
-  }
-
-  // Step 2: Derive distinct day strings
   const allDays: string[] = [];
   const seenDays = new Set<string>();
+  const targetDayCount = (page + 1) * daysPerPage;
+  let chunk = 0;
+  let hasMoreTimestamps = true;
 
-  for (const { created_at } of timestamps) {
-    const day = startOfDay(new Date(created_at)).toISOString();
-    if (!seenDays.has(day)) {
-      seenDays.add(day);
-      allDays.push(day);
+  while (allDays.length < targetDayCount && hasMoreTimestamps) {
+    const from = chunk * LOG_DAY_TIMESTAMP_CHUNK_SIZE;
+    const to = from + LOG_DAY_TIMESTAMP_CHUNK_SIZE - 1;
+    const { data: timestamps, error: tsError } = await supabase
+      .from('logs')
+      .select('created_at')
+      .eq('user', userId)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (tsError || !timestamps) {
+      console.error('Error fetching timestamps:', tsError);
+      return [];
+    }
+
+    hasMoreTimestamps = timestamps.length === LOG_DAY_TIMESTAMP_CHUNK_SIZE;
+    chunk += 1;
+
+    for (const { created_at } of timestamps) {
+      const day = startOfDay(new Date(created_at)).toISOString();
+      if (!seenDays.has(day)) {
+        seenDays.add(day);
+        allDays.push(day);
+      }
     }
   }
 
-  // Step 3: Paginate distinct days
   const start = page * daysPerPage;
   const end = start + daysPerPage;
   const pagedDays = allDays.slice(start, end);
@@ -105,11 +116,12 @@ export async function fetchBattleLogsServer(
   for (const day of pagedDays) {
     const { data: dayLogs } = await supabase
       .from('logs')
-      .select('*')
+      .select(BATTLE_LOG_PREVIEW_COLUMNS)
       .eq('user', userId)
       .gte('created_at', startOfDay(new Date(day)).toISOString())
       .lt('created_at', endOfDay(new Date(day)).toISOString())
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .returns<BattleLogPreviewRecord[]>();
 
     if (dayLogs) {
       allLogs.push(...dayLogs);
@@ -122,13 +134,19 @@ export async function fetchBattleLogsServer(
 /**
  * Fetch tournaments server-side
  */
-export async function fetchTournamentsServer(userId: string): Promise<Tournament[]> {
+export async function fetchTournamentsServer(userId: string, limit?: number): Promise<Tournament[]> {
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('tournaments')
     .select()
     .eq('user', userId)
     .order('date_from', { ascending: false });
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching tournaments:', error);
@@ -141,12 +159,20 @@ export async function fetchTournamentsServer(userId: string): Promise<Tournament
 /**
  * Fetch tournament rounds server-side
  */
-export async function fetchTournamentRoundsServer(userId: string): Promise<TournamentRound[]> {
+export async function fetchTournamentRoundsServer(userId: string, tournamentIds?: string[]): Promise<TournamentRound[]> {
+  if (tournamentIds && tournamentIds.length === 0) return [];
+
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('tournament rounds')
     .select()
     .eq('user', userId);
+
+  if (tournamentIds) {
+    query = query.in('tournament', tournamentIds);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching tournament rounds:', error);
@@ -223,10 +249,13 @@ export async function fetchHomeDataServer(userId: string, options: {
   const promises: Promise<any>[] = [fetchUserDataServer(userId)];
 
   if (options.includePtcg) {
+    const tournamentsPromise = fetchTournamentsServer(userId, 5);
     promises.push(
       fetchBattleLogsServer(userId, 0, 4),
-      fetchTournamentsServer(userId),
-      fetchTournamentRoundsServer(userId)
+      tournamentsPromise,
+      tournamentsPromise.then((tournaments) =>
+        fetchTournamentRoundsServer(userId, tournaments.map((tournament) => tournament.id))
+      )
     );
   }
 

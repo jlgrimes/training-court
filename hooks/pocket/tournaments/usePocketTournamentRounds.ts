@@ -3,9 +3,17 @@
 import useSWR from 'swr';
 import { fetchPocketTournamentRounds } from './usePocketTournamentRounds.utils';
 
-export function usePocketTournamentRounds(userId: string | undefined) {
-  const { data, isLoading, error } = useSWR(['pocket-tournament-rounds', userId], () =>
-    fetchPocketTournamentRounds(userId)
+interface UsePocketTournamentRoundsOptions {
+  tournamentIds?: string[];
+}
+
+export function usePocketTournamentRounds(userId: string | undefined, options: UsePocketTournamentRoundsOptions = {}) {
+  const { tournamentIds } = options;
+  const tournamentIdsKey = tournamentIds?.join('|') ?? 'all';
+  const shouldFetch = !!userId && (!tournamentIds || tournamentIds.length > 0);
+  const { data, isLoading, error } = useSWR(
+    shouldFetch ? ['pocket-tournament-rounds', userId, tournamentIdsKey] : null,
+    () => fetchPocketTournamentRounds(userId, { tournamentIds })
   );
 
   return {

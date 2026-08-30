@@ -5,17 +5,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { BattleLog } from "../utils/battle-log.types"
-import { convertBattleLogDateIntoDay, getBattleLogsByDayList, groupBattleLogIntoDays } from "./battle-log-groups.utils";
 import { Database } from "@/database.types";
 import { SpriteLayer } from "@/components/archetype/sprites/SpriteLayer";
-import { getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { EditableBattleLogPreview } from "../BattleLogDisplay/EditableBattleLogPreview";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BattleLogPreviewRecord,
+  convertBattleLogPreviewDateIntoDay,
+  getBattleLogPreviewDayList,
+  getBattleLogPreviewDeck,
+  getRecordFromBattleLogPreviewRecords,
+  groupBattleLogPreviewRecordsIntoDays,
+} from "../utils/battle-log-preview.utils";
 
 interface BattleLogsByDayProps {
-  battleLogs: BattleLog[];
+  battleLogs: BattleLogPreviewRecord[];
   userData: Database['public']['Tables']['user data']['Row'];
   isEditing: boolean;
   isLoading?: boolean;
@@ -23,15 +28,15 @@ interface BattleLogsByDayProps {
 
 export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
   const battleLogsByDay = useMemo(() => {
-    const logsByDay = groupBattleLogIntoDays(props.battleLogs);
-    const today = convertBattleLogDateIntoDay(new Date());
+    const logsByDay = groupBattleLogPreviewRecordsIntoDays(props.battleLogs);
+    const today = convertBattleLogPreviewDateIntoDay(new Date());
     if (!logsByDay[today]) {
       logsByDay[today] = [];
     }
     return logsByDay;
   }, [props.battleLogs]);
 
-  const battleLogsByDayList = useMemo(() => getBattleLogsByDayList(battleLogsByDay), [battleLogsByDay])
+  const battleLogsByDayList = useMemo(() => getBattleLogPreviewDayList(battleLogsByDay), [battleLogsByDay])
 
 
   if (props.isLoading) {
@@ -54,10 +59,10 @@ export const BattleLogsByDay = (props: BattleLogsByDayProps) => {
               <div className="col-span-2 text-left">
                 {day}
               </div>
-              <SpriteLayer decks={Array.from(new Set(logs.map((log) => log.players[0].deck ?? ''))).slice(0, 3)} />
+              <SpriteLayer decks={Array.from(new Set(logs.map(getBattleLogPreviewDeck))).slice(0, 3)} />
               <div className="text-right mr-2">
                 <h4 className="leading-5">
-                  {getRecord(logs.map((log) => ({ result: [log.players[0].result] })))}
+                  {getRecordFromBattleLogPreviewRecords(logs)}
                 </h4>
                 <CardDescription className="leading-5 font-normal">{logs.length} total</CardDescription>
               </div>

@@ -1,12 +1,12 @@
 'use client';
 
 import { atom } from 'recoil';
-import type { Database } from '@/database.types';
+import type { BattleLogPreviewRecord } from '@/components/battle-logs/utils/battle-log-preview.utils';
 
 /**
  * Battle log record type - matches the database schema
  */
-export type BattleLogRecord = Database['public']['Tables']['logs']['Row'];
+export type BattleLogRecord = BattleLogPreviewRecord;
 
 // Export alias for backwards compatibility
 export type BattleLog = BattleLogRecord;

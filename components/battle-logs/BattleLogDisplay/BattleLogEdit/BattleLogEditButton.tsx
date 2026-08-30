@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { PencilIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { BattleLog, BattleLogPlayer } from "../../utils/battle-log.types";
 import { AddArchetype } from "@/components/archetype/AddArchetype/AddArchetype";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,13 +22,12 @@ import { LogFormats, logFormats } from "@/components/tournaments/Format/tourname
 import { useSetRecoilState } from "recoil";
 import { battleLogsAtom } from "@/app/recoil/atoms/battle-logs";
 import { DecklistSelect } from "@/components/ptcg/deckbuilder/DecklistSelect";
+import { BattleLogPreviewRecord } from "../../utils/battle-log-preview.utils";
 
 interface BattleLogEditButtonProps {
   isEditing: boolean;
-  log: BattleLog;
+  log: BattleLogPreviewRecord;
   userId: string;
-  currentPlayer: BattleLogPlayer;
-  shouldDisable: boolean;
 }
 
 export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
@@ -41,11 +39,11 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
   const setBattleLogs = useSetRecoilState(battleLogsAtom);
 
   useEffect(() => {
-    setNewArchetype(props.currentPlayer.deck || '');
-    setNewOppArchetype(props.currentPlayer.oppDeck || '');
+    setNewArchetype(props.log.archetype || '');
+    setNewOppArchetype(props.log.opp_archetype || '');
     setNewDecklistId(props.log.decklist_id ?? null);
     setNewFormat((props.log.format as LogFormats | null) ?? undefined);
-  }, [props.currentPlayer.deck, props.currentPlayer.oppDeck, props.log.decklist_id, props.log.format]);
+  }, [props.log.archetype, props.log.opp_archetype, props.log.decklist_id, props.log.format]);
   
   const handleEditLog = useCallback(async () => {
     const supabase = createClient();
@@ -84,7 +82,7 @@ export const BattleLogEditButton = (props: BattleLogEditButtonProps) => {
 
   return (
     <Dialog>
-      <DialogTrigger disabled={!props.isEditing || props.shouldDisable} className={
+      <DialogTrigger disabled={!props.isEditing} className={
         cn(
           "absolute right-10 transition-opacity ease-in duration-75",
           !props.isEditing && 'hidden',

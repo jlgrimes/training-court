@@ -15,16 +15,25 @@ export type PocketTournamentRow = {
   hat_type: string | null;
 };
 
-export async function fetchPocketTournaments(userId: string | undefined) {
+interface FetchPocketTournamentsOptions {
+  limit?: number;
+}
+
+export async function fetchPocketTournaments(userId: string | undefined, options: FetchPocketTournamentsOptions = {}) {
   if (!userId) return null;
 
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('pocket_tournaments')
     .select('*')
     .eq('user', userId)
-    .order('date_from', { ascending: false })
-    .returns<PocketTournamentRow[]>();
+    .order('date_from', { ascending: false });
+
+  if (options.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query.returns<PocketTournamentRow[]>();
 
   if (error) throw error;
 

@@ -18,8 +18,9 @@ import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
  */
 export function TournamentsHomePreview() {
   const user = useRecoilValue(userAtom);
-  const { data: tournaments, isLoading: tournamentsLoading } = useTournaments(user?.id);
-  const { data: rounds } = useTournamentRounds(user?.id);
+  const { data: tournaments, isLoading: tournamentsLoading } = useTournaments(user?.id, { limit: 5 });
+  const tournamentIds = tournaments?.map((tournament) => tournament.id) ?? [];
+  const { data: rounds } = useTournamentRounds(user?.id, { tournamentIds, previewOnly: true });
 
   if (!user || tournamentsLoading) return null;
 
