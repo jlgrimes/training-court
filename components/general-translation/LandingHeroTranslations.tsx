@@ -4,8 +4,12 @@ import { T } from 'gt-react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useUiRefresh } from '@/hooks/useUiRefresh';
+import { cn } from '@/lib/utils';
 
 export default function LandingHeroTranslations() {
+  const { enabled: uiRefresh } = useUiRefresh();
+
   return (
     <>
       <T id="landing.tagline">
@@ -15,8 +19,8 @@ export default function LandingHeroTranslations() {
           back.
         </p>
       </T>
-      <Link href="login">
-        <Button size="lg">
+      <Link href="/login">
+        <Button size="lg" className={cn(uiRefresh && 'rounded-full')}>
           <T id="landing.getStarted">Get started</T>
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>

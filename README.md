@@ -52,7 +52,13 @@ A battle log and tournament tracking application for Pokemon TCG and Pokemon Poc
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
    NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   NEXT_PUBLIC_POSTHOG_KEY=your-posthog-project-api-key
+   NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
    ```
+
+   The UI refresh is gated by a PostHog boolean feature flag named `ui-refresh`.
+   Production stays on the current look until that flag is on. If `NEXT_PUBLIC_POSTHOG_KEY`
+   is missing, the flag is treated as off.
 
 4. Run the development server:
    ```bash

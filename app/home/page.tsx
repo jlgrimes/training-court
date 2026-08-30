@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRecoilValue } from 'recoil';
 import { BattleLogsHomePreview } from '@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview';
 import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome/TournamentsHomePreview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
@@ -8,14 +11,35 @@ import { isGameEnabled } from '@/lib/game-preferences';
 import { PocketHomePreview } from '@/components/pocket/PocketHomePreview';
 import { PocketTournamentsHomePreview } from '@/components/pocket/tournaments/PocketTournamentsHomePreview';
 import { Separator } from '@/components/ui/separator';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { usePreferredGames } from '@/hooks/useGameGuard';
+import { useUiRefresh } from '@/hooks/useUiRefresh';
+import { getLoggedOutHomeState } from '@/lib/ui-refresh';
+import { authLoadingAtom, userAtom } from '@/app/recoil/atoms/user';
+import { LandingPageContent } from '@/components/landing/LandingPageContent';
 
 export default function Home() {
-  const { user, loading } = useAuthGuard();
+  const user = useRecoilValue(userAtom);
+  const authLoading = useRecoilValue(authLoadingAtom);
+  const { enabled: uiRefreshEnabled, ready: uiRefreshReady } = useUiRefresh();
+  const router = useRouter();
   const { preferredGames, loading: prefsLoading } = usePreferredGames();
 
-  if (loading || !user || prefsLoading) return null;
+  const homeState = getLoggedOutHomeState({
+    authLoading,
+    isLoggedIn: Boolean(user),
+    uiRefreshReady,
+    uiRefreshEnabled,
+  });
+
+  useEffect(() => {
+    if (homeState === 'redirect') {
+      router.push('/login');
+    }
+  }, [homeState, router]);
+
+  if (homeState === 'wait' || homeState === 'redirect') return null;
+  if (homeState === 'landing') return <LandingPageContent />;
+  if (!user || prefsLoading) return null;
 
   const hasPreferredGames = preferredGames.length > 0;
   const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');

@@ -23,6 +23,8 @@ import { TournamentNotesDialog } from "./TournamentNotesDialog";
 import { TournamentGameConfig } from "../utils/tournament-game-config";
 import { isPremiumUser } from "@/components/premium/premium.utils";
 import { HatEditDialog } from "@/components/hats/HatEditDialog";
+import { useUiRefresh } from "@/hooks/useUiRefresh";
+import { cn } from "@/lib/utils";
 
 interface TournamentContainerClientProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -33,6 +35,7 @@ interface TournamentContainerClientProps {
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const config = props.config;
+  const { enabled: uiRefresh } = useUiRefresh();
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed
@@ -173,14 +176,16 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
   
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4">
-              <TournamentRoundList
-                tournament={props.tournament}
-                userId={props.user?.id}
-                rounds={rounds}
-                updateClientRoundsOnEdit={updateClientRoundsOnEdit}
-                roundsTableName={config.roundsTable}
-                hatType={hatType}
-              />
+              <div className={cn(uiRefresh && "rounded-xl border bg-card/80 overflow-hidden")}>
+                <TournamentRoundList
+                  tournament={props.tournament}
+                  userId={props.user?.id}
+                  rounds={rounds}
+                  updateClientRoundsOnEdit={updateClientRoundsOnEdit}
+                  roundsTableName={config.roundsTable}
+                  hatType={hatType}
+                />
+              </div>
               {props.user?.id === props.tournament.user && (
                 <AddTournamentRound
                   tournamentId={props.tournament.id}

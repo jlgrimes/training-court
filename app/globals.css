@@ -92,3 +92,59 @@
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
 }
+/* UI refresh tokens, gated by the PostHog `ui-refresh` flag via <html class="ui-refresh"> */
+html.ui-refresh {
+  --background: 40 36% 95%; /* #F7F4EE cream canvas */
+  --foreground: 222 43% 19%; /* navy text */
+  --card: 40 40% 97%;
+  --card-foreground: 222 43% 19%;
+  --popover: 40 40% 97%;
+  --popover-foreground: 222 43% 19%;
+  --primary: 222 43% 19%; /* #1B2744 navy */
+  --primary-foreground: 40 36% 95%;
+  --secondary: 40 24% 90%;
+  --secondary-foreground: 222 43% 19%;
+  --muted: 40 20% 90%;
+  --muted-foreground: 222 16% 40%;
+  --accent: 40 24% 90%;
+  --accent-foreground: 222 43% 19%;
+  --border: 36 20% 84%;
+  --input: 36 20% 84%;
+  --ring: 222 43% 19%;
+  --sidebar-background: 40 32% 91%; /* #EFEAE0 warmer chrome */
+  --sidebar-foreground: 222 43% 19%;
+  --sidebar-primary: 222 43% 19%;
+  --sidebar-primary-foreground: 40 36% 95%;
+  --sidebar-accent: 40 28% 86%;
+  --sidebar-accent-foreground: 222 43% 19%;
+  --sidebar-border: 36 20% 82%;
+  --sidebar-ring: 222 43% 19%;
+}
+
+html.ui-refresh.dark {
+  --background: 214 28% 10%; /* #121820 */
+  --foreground: 40 20% 92%;
+  --card: 214 24% 13%;
+  --card-foreground: 40 20% 92%;
+  --popover: 214 24% 13%;
+  --popover-foreground: 40 20% 92%;
+  --primary: 40 30% 90%;
+  --primary-foreground: 214 28% 10%;
+  --secondary: 214 18% 16%;
+  --secondary-foreground: 40 20% 92%;
+  --muted: 214 16% 16%;
+  --muted-foreground: 214 12% 65%;
+  --accent: 214 18% 16%;
+  --accent-foreground: 40 20% 92%;
+  --border: 214 16% 18%;
+  --input: 214 16% 18%;
+  --ring: 40 20% 80%;
+  --sidebar-background: 214 22% 13%;
+  --sidebar-foreground: 40 20% 92%;
+  --sidebar-primary: 40 30% 90%;
+  --sidebar-primary-foreground: 214 28% 10%;
+  --sidebar-accent: 214 18% 18%;
+  --sidebar-accent-foreground: 40 20% 92%;
+  --sidebar-border: 214 16% 18%;
+  --sidebar-ring: 40 20% 80%;
+}

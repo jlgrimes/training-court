@@ -13,6 +13,17 @@ import { Fragment, useMemo } from "react";
 import { useToast } from "../ui/use-toast";
 import Link from "next/link";
 import { T, useGT } from "gt-react";
+import useSWR from "swr";
+import { createClient } from "@/utils/supabase/client";
+import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { useUiRefresh } from "@/hooks/useUiRefresh";
+import {
+  formatPlayerVsLabel,
+  matchShareableRoute,
+  resolveNamedCrumbLabel,
+  shouldShowShareIcon,
+} from "./header-breadcrumbs.utils";
+import { Database } from "@/database.types";
 
 function BreadcrumbLabel({ label }: { label: string }) {
   switch (label) {
@@ -39,6 +50,57 @@ export default function HeaderBreadcrumbs() {
   const pathname = usePathname();
   const { toast } = useToast();
   const gt = useGT();
+  const { enabled: uiRefresh } = useUiRefresh();
+  const shareable = useMemo(() => matchShareableRoute(pathname), [pathname]);
+
+  const { data: tournament } = useSWR(
+    uiRefresh && shareable?.type === 'tournament'
+      ? [shareable.table, shareable.id]
+      : null,
+    async () => {
+      if (!shareable || shareable.type !== 'tournament') return null;
+      const supabase = createClient();
+      const { data } = await supabase
+        .from(shareable.table)
+        .select('*')
+        .eq('id', shareable.id)
+        .maybeSingle();
+      return (data as Database['public']['Tables']['tournaments']['Row'] | null) ?? null;
+    }
+  );
+
+  const { data: logData } = useSWR(
+    uiRefresh && shareable?.type === 'log' ? ['log', shareable.id] : null,
+    async () => {
+      if (!shareable || shareable.type !== 'log') return null;
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('logs')
+        .select()
+        .eq('id', shareable.id)
+        .returns<Database['public']['Tables']['logs']['Row'][]>()
+        .maybeSingle();
+      return data ?? null;
+    }
+  );
+
+  const playerVs = useMemo(() => {
+    if (!logData) return null;
+    try {
+      const battleLog = parseBattleLog(
+        logData.log,
+        logData.id,
+        logData.created_at,
+        logData.archetype,
+        logData.opp_archetype,
+        null,
+        logData.format
+      );
+      return formatPlayerVsLabel(battleLog.players[0]?.name, battleLog.players[1]?.name);
+    } catch {
+      return null;
+    }
+  }, [logData]);
 
   const breadcrumbs: { path: string, label: string}[] = useMemo(() => {
     const breadcrumbs = [{
@@ -96,7 +158,11 @@ export default function HeaderBreadcrumbs() {
     if (pathname.includes('logs/')) {
       breadcrumbs.push({
         path: pathname,
-        label: pathname.split('/')[pathname.split('/').length - 1]
+        label: resolveNamedCrumbLabel({
+          uiRefresh,
+          rawLabel: pathname.split('/')[pathname.split('/').length - 1],
+          playerVs,
+        })
       });
     }
 
@@ -110,7 +176,11 @@ export default function HeaderBreadcrumbs() {
     if (pathname.includes('tournaments/')) {
       breadcrumbs.push({
         path: pathname,
-        label: pathname.split('/')[pathname.split('/').length - 1]
+        label: resolveNamedCrumbLabel({
+          uiRefresh,
+          rawLabel: pathname.split('/')[pathname.split('/').length - 1],
+          tournamentName: tournament?.name,
+        })
       });
     }
 
@@ -121,8 +191,8 @@ export default function HeaderBreadcrumbs() {
       });
     }
 
-    return breadcrumbs;
-  }, [pathname]);
+    return breadcrumbs.filter((crumb) => crumb.label);
+  }, [pathname, playerVs, tournament?.name, uiRefresh]);
 
   if (pathname === '/') return null;
 
@@ -130,18 +200,24 @@ export default function HeaderBreadcrumbs() {
     <Breadcrumb className="hidden sm:block">
     <BreadcrumbList>
       {breadcrumbs.map(({ path, label }, idx) => (
-        <Fragment key={path} >
+        <Fragment key={`${path}-${label}`} >
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href={path} className={
                 idx === breadcrumbs.length - 1
-                  ? "max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                  ? "max-w-[220px] overflow-hidden text-ellipsis whitespace-nowrap"
                   : undefined
                   }>
                 <BreadcrumbLabel label={label} />
               </Link>
             </BreadcrumbLink>
-            {idx === breadcrumbs.length - 1 && /\d/.test(pathname) && (
+            {shouldShowShareIcon({
+              uiRefresh,
+              pathname,
+              isLastCrumb: idx === breadcrumbs.length - 1,
+              crumbPath: path,
+              crumbLabel: label,
+            }) && (
               <ShareIcon
                 onClick={() => {
                   navigator.clipboard.writeText('https://trainingcourt.app' + pathname);

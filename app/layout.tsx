@@ -1,12 +1,10 @@
 import { GeistSans } from 'geist/font/sans';
-import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
-import HeaderBreadcrumbs from '@/components/app-bar/HeaderBreadcrumbs';
+import { AppHeader } from '@/components/app-bar/AppHeader';
 import {
   SidebarProvider,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { RecoilProvider } from './recoil/recoil-provider';
@@ -14,6 +12,8 @@ import { RealtimeProvider } from './recoil/providers/RealtimeProvider';
 import { ClientAuthProvider } from './recoil/providers/ClientAuthProvider';
 import { DarkModeProvider } from '@/components/theme/DarkModeProvider';
 import { DarkModeHydrationGuard } from '@/components/theme/DarkModeHydrationGuard';
+import { PostHogProvider } from '@/components/posthog/PostHogProvider';
+import { UiRefreshClass } from '@/components/theme/UiRefreshClass';
 import GTProviderClient from './general-translation/GTProviderClient';
 
 const defaultUrl = process.env.VERCEL_URL
@@ -39,32 +39,30 @@ export default function RootLayout({
       <body className='bg-background text-foreground'>
         <GTProviderClient>
           <RecoilProvider>
-            <ClientAuthProvider />
-            <RealtimeProvider>
-              <DarkModeHydrationGuard>
-                <DarkModeProvider />
+            <PostHogProvider>
+              <ClientAuthProvider />
+              <RealtimeProvider>
+                <DarkModeHydrationGuard>
+                  <DarkModeProvider />
+                  <UiRefreshClass />
 
-                <SidebarProvider>
-                <AppSidebar />
-                <main className='min-h-screen h-full w-full'>
-                  <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
-                    <div className='flex px-4 py-4 gap-4 items-center'>
-                      <SidebarTrigger />
-                      <HeaderBreadcrumbs />
+                  <SidebarProvider>
+                  <AppSidebar />
+                  <main className='min-h-screen h-full w-full'>
+                    <AppHeader />
+                    <div className='flex flex-col items-center h-full pt-[52px]'>
+                      <div className='flex flex-col p-4 gap-6 w-full h-full'>
+                        {children}
+                      </div>
                     </div>
-                  </header>
-                  <div className='flex flex-col items-center h-full pt-[52px]'>
-                    <div className='flex flex-col p-4 gap-6 w-full h-full'>
-                      {children}
-                    </div>
-                  </div>
-                  <Toaster />
-                  <Analytics />
-                </main>
-              </SidebarProvider>
+                    <Toaster />
+                    <Analytics />
+                  </main>
+                </SidebarProvider>
 
-              </DarkModeHydrationGuard>
-            </RealtimeProvider>
+                </DarkModeHydrationGuard>
+              </RealtimeProvider>
+            </PostHogProvider>
           </RecoilProvider>
         </GTProviderClient>
       </body>
