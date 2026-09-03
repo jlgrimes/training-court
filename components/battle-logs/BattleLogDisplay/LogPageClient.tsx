@@ -12,6 +12,9 @@ import { Sprite } from '@/components/archetype/sprites/Sprite';
 import { BattleLogCarousel } from './BattleLogCarousel';
 import { Notes } from '@/components/battle-logs/Notes/Notes';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
+import { BattleLogReplayViewer } from '@/components/battle-logs/Replay/BattleLogReplayViewer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { T } from 'gt-react';
 
 type LogRow = Database['public']['Tables']['logs']['Row'];
 
@@ -68,7 +71,7 @@ export function LogPageClient({ logId, requireAuth = false }: LogPageClientProps
   );
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2 p-4">
+    <div className="flex-1 flex flex-col w-full h-full max-w-6xl justify-between gap-2 p-4">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center justify-evenly w-full">
@@ -89,7 +92,25 @@ export function LogPageClient({ logId, requireAuth = false }: LogPageClientProps
           <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
         )}
         <div className="mt-6">
-          <BattleLogCarousel battleLog={battleLog} />
+          <Tabs defaultValue="replay" className="w-full">
+            <TabsList>
+              <TabsTrigger value="replay">
+                <T id="battleLogs.replay.title">Replay</T>
+              </TabsTrigger>
+              <TabsTrigger value="log">
+                <T id="battleLogs.replay.logView">Log</T>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="replay">
+              <BattleLogReplayViewer
+                battleLog={battleLog}
+                perspectivePlayerName={userData?.live_screen_name ?? battleLog.players[0].name}
+              />
+            </TabsContent>
+            <TabsContent value="log">
+              <BattleLogCarousel battleLog={battleLog} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
