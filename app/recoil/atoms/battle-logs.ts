@@ -8,6 +8,9 @@ import type { Database } from '@/database.types';
  */
 export type BattleLogRecord = Database['public']['Tables']['logs']['Row'];
 
+/** Normalized fields used by history views without the raw replay body. */
+export type BattleLogListRecord = Omit<BattleLogRecord, 'log'>;
+
 // Export alias for backwards compatibility
 export type BattleLog = BattleLogRecord;
 
@@ -28,7 +31,7 @@ export interface BattleLogsSortOptions {
   direction: 'asc' | 'desc';
 }
 
-export const battleLogsAtom = atom<BattleLogRecord[]>({
+export const battleLogsAtom = atom<BattleLogListRecord[]>({
   key: 'battleLogsState',
   default: [],
 });

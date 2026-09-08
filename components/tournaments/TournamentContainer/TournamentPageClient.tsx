@@ -12,6 +12,7 @@ import {
   POCKET_TOURNAMENT_CONFIG,
   PTCG_TOURNAMENT_CONFIG,
 } from '@/components/tournaments/utils/tournament-game-config';
+import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 type TournamentRow = Database['public']['Tables']['tournaments']['Row'];
 type RoundRow = Database['public']['Tables']['tournament rounds']['Row'];
@@ -52,7 +53,8 @@ export function TournamentPageClient({
         .eq('id', tournamentId)
         .maybeSingle();
       return (data as TournamentRow | null) ?? null;
-    }
+    },
+    HISTORICAL_SWR_OPTIONS
   );
 
   const { data: rounds, isLoading: roundsLoading } = useSWR(
@@ -65,7 +67,8 @@ export function TournamentPageClient({
         .eq('tournament', tournamentId)
         .order('round_num', { ascending: true });
       return ((data ?? []) as RoundRow[]);
-    }
+    },
+    HISTORICAL_SWR_OPTIONS
   );
 
   useEffect(() => {

@@ -12,6 +12,7 @@ import { Sprite } from '@/components/archetype/sprites/Sprite';
 import { BattleLogCarousel } from './BattleLogCarousel';
 import { Notes } from '@/components/battle-logs/Notes/Notes';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
+import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 type LogRow = Database['public']['Tables']['logs']['Row'];
 
@@ -31,16 +32,20 @@ export function LogPageClient({ logId, requireAuth = false }: LogPageClientProps
   const userData = useRecoilValue(userDataAtom);
   const router = useRouter();
 
-  const { data: logData, isLoading } = useSWR(['log', logId], async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('logs')
-      .select()
-      .eq('id', logId)
-      .returns<LogRow[]>()
-      .maybeSingle();
-    return data ?? null;
-  });
+  const { data: logData, isLoading } = useSWR(
+    ['log', logId],
+    async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('logs')
+        .select()
+        .eq('id', logId)
+        .returns<LogRow[]>()
+        .maybeSingle();
+      return data ?? null;
+    },
+    HISTORICAL_SWR_OPTIONS
+  );
 
   useEffect(() => {
     if (requireAuth && !authLoading && !user) {

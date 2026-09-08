@@ -37,6 +37,8 @@ export interface BattleLog {
   date: string;
   // The winner of the match
   winner: string;
+  /** Normalized database value used by lightweight history rows. */
+  turnOrder?: string | null;
   // log separated by turn
   sections: BattleLogTurn[];
 }
