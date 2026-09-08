@@ -48,11 +48,17 @@ describe('GET /api/stats/user-matchups', () => {
           deck: 'gardevoir',
           decklist_id: null,
           opp_deck: 'charizard',
-          result: 'W',
-          match_end_reason: '',
-          turn_order: '1',
-          date: '2026-01-01T00:00:00.000Z',
           format: 'Standard',
+          wins: 1,
+          losses: 0,
+          ties: 0,
+          going_first_wins: 1,
+          going_first_losses: 0,
+          going_first_ties: 0,
+          going_second_wins: 0,
+          going_second_losses: 0,
+          going_second_ties: 0,
+          last_played: '2026-01-01T00:00:00.000Z',
         },
       ],
       error: null,
@@ -61,9 +67,7 @@ describe('GET /api/stats/user-matchups', () => {
     const response = await GET();
     const payload = await response.json();
 
-    expect(rpc).toHaveBeenCalledWith('get_user_tournament_and_battle_logs_v5', {
-      user_id: 'authenticated-user',
-    });
+    expect(rpc).toHaveBeenCalledWith('get_authenticated_user_matchup_aggregates_v1');
     expect(payload.data).toHaveLength(1);
     expect(payload.data[0]).toMatchObject({
       deck: 'gardevoir',

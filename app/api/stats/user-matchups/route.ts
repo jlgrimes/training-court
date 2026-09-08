@@ -1,6 +1,4 @@
 import { Database } from "@/database.types";
-import { aggregateMatchupRows } from "@/components/premium/matchups/CombinedMatchups/CombinedMatchups.utils";
-import type { MatchupRow } from "@/components/premium/matchups/Matchups.types";
 import { createClient } from "@/utils/supabase/server";
 
 export async function GET() {
@@ -13,12 +11,12 @@ export async function GET() {
     }
 
     const { data, error } = await supabase
-      .rpc('get_user_tournament_and_battle_logs_v5', { user_id: authData.user.id })
-      .returns<Database['public']['Functions']['get_user_tournament_and_battle_logs_v5']['Returns']>();
+      .rpc('get_authenticated_user_matchup_aggregates_v1')
+      .returns<Database['public']['Functions']['get_authenticated_user_matchup_aggregates_v1']['Returns']>();
     if (error) throw error;
 
     return Response.json(
-      { data: aggregateMatchupRows((data ?? []) as MatchupRow[]) },
+      { data: data ?? [] },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } }
     );
   } catch (error) {
