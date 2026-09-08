@@ -192,34 +192,46 @@ test.describe('Decklist associations', () => {
   });
 
   test('filters stats by selected decklist', async ({ page }) => {
-    await page.route('**/rest/v1/rpc/get_user_tournament_and_battle_logs_v5', async (route) => {
+    await page.route('**/api/stats/user-matchups', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([
+        body: JSON.stringify({ data: [
           {
             source: 'Battle Logs',
             deck: 'terapagos',
             decklist_id: decklist.id,
             opp_deck: 'charizard',
-            result: 'W',
-            match_end_reason: '',
-            turn_order: '1',
-            date: '2026-01-01T00:00:00.000Z',
             format: 'Standard',
+            wins: 1,
+            losses: 0,
+            ties: 0,
+            going_first_wins: 1,
+            going_first_losses: 0,
+            going_first_ties: 0,
+            going_second_wins: 0,
+            going_second_losses: 0,
+            going_second_ties: 0,
+            last_played: '2026-01-01T00:00:00.000Z',
           },
           {
             source: 'Battle Logs',
             deck: 'gardevoir',
             decklist_id: 'other-deck',
             opp_deck: 'dragapult',
-            result: 'L',
-            match_end_reason: '',
-            turn_order: '2',
-            date: '2026-01-01T00:00:00.000Z',
             format: 'Standard',
+            wins: 0,
+            losses: 1,
+            ties: 0,
+            going_first_wins: 0,
+            going_first_losses: 0,
+            going_first_ties: 0,
+            going_second_wins: 0,
+            going_second_losses: 1,
+            going_second_ties: 0,
+            last_played: '2026-01-01T00:00:00.000Z',
           },
-        ]),
+        ] }),
       });
     });
 

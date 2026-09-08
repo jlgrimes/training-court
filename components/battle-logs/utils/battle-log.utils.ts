@@ -1,6 +1,7 @@
 import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromSetup, getPlayerNameFromTurnLine, getPrizesTakenFromLine, Language } from "@/lib/i18n/battle-log";
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
+import type { BattleLogListRecord } from "@/app/recoil/atoms/battle-logs";
 
 export function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
@@ -103,10 +104,52 @@ function inferPlayerFromTurnBody(turnLines: string[], playerNames: string[]) {
 }
 
 export function getTurnOrderOfPlayer(battleLog: BattleLog, playerName: string) {
+  if (battleLog.turnOrder === '1') return '1st';
+  if (battleLog.turnOrder === '2') return '2nd';
+
   const foundTurnIdx = battleLog.sections.findIndex((turn) => turn.player === playerName);
 
   if (foundTurnIdx === 1) return '1st';
   return '2nd';
+}
+
+/**
+ * Builds the data required by history cards from normalized columns, avoiding
+ * retrieval and parsing of the raw replay body for list screens.
+ */
+export function battleLogListRecordToPreview(
+  row: BattleLogListRecord,
+  currentUserScreenName: string | null | undefined
+): BattleLog {
+  const currentPlayerName = currentUserScreenName || 'You';
+  const opponentName = 'Opponent';
+  const currentResult = row.result === 'L' || row.result === 'T' ? row.result : 'W';
+  const opponentResult = currentResult === 'W' ? 'L' : currentResult === 'L' ? 'W' : 'T';
+
+  return {
+    id: row.id,
+    decklist_id: row.decklist_id,
+    format: row.format,
+    language: 'en',
+    players: [
+      {
+        name: currentPlayerName,
+        deck: row.archetype ?? undefined,
+        oppDeck: row.opp_archetype ?? undefined,
+        result: currentResult,
+      },
+      {
+        name: opponentName,
+        deck: row.opp_archetype ?? undefined,
+        oppDeck: row.archetype ?? undefined,
+        result: opponentResult,
+      },
+    ],
+    date: row.created_at,
+    winner: currentResult === 'W' ? currentPlayerName : currentResult === 'L' ? opponentName : '',
+    turnOrder: row.turn_order,
+    sections: [],
+  };
 }
 
 export function divideBattleLogIntoSections(cleanedLog: string[], language: Language): BattleLogTurn[] {

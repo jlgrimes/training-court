@@ -1,4 +1,4 @@
-import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { battleLogListRecordToPreview, determineWinner, getPlayerNames, getTurnOrderOfPlayer, parseBattleLog, trimBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { battleLogBrazilianPortuguese } from "@/components/battle-logs/utils/testing-files/battleLogBrazilianPortuguese";
 import { battleLogGerman } from "@/components/battle-logs/utils/testing-files/battleLogGerman";
 import { battleLogItalian } from "@/components/battle-logs/utils/testing-files/battleLogItalian";
@@ -6,6 +6,30 @@ import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-f
 import { battleLogSpanish } from "@/components/battle-logs/utils/testing-files/battleLogSpanish";
 
 describe('battle log utils', () => {
+  it('builds list previews without the raw replay body', () => {
+    const preview = battleLogListRecordToPreview({
+      id: 'log-id',
+      created_at: '2026-01-01T00:00:00.000Z',
+      user: 'user-id',
+      archetype: 'gardevoir',
+      opp_archetype: 'charizard',
+      result: 'W',
+      turn_order: '1',
+      format: 'Standard',
+      decklist_id: null,
+      notes: null,
+    }, 'Player One');
+
+    expect(preview.sections).toEqual([]);
+    expect(preview.players[0]).toMatchObject({
+      name: 'Player One',
+      deck: 'gardevoir',
+      oppDeck: 'charizard',
+      result: 'W',
+    });
+    expect(getTurnOrderOfPlayer(preview, 'Player One')).toBe('1st');
+  });
+
   it('should correctly extract player names', () => {
     const mockLog = [
       `Bassoonboy135 drew 7 cards for the opening hand. - 7 drawn cards.`,

@@ -1,6 +1,10 @@
 import { getMatchupWinRate } from "../Matchups.utils";
 import { MatchupRow } from "../Matchups.types";
-import { convertRpcRetToMatchups } from "./CombinedMatchups.utils";
+import {
+  aggregateMatchupRows,
+  convertAggregatesToMatchups,
+  convertRpcRetToMatchups,
+} from "./CombinedMatchups.utils";
 
 const buildTournamentRow = (
   overrides: Partial<MatchupRow>
@@ -63,5 +67,22 @@ describe("convertRpcRetToMatchups", () => {
     expect(result.goingFirst).toEqual([1, 0, 0]);
     expect(result.goingSecond).toEqual([0, 1, 0]);
     expect(getMatchupWinRate(result.total)).toBeCloseTo(4 / 9);
+  });
+
+  it("preserves matchup totals when raw rows are aggregated for transport", () => {
+    const rows = [
+      buildTournamentRow({ result: "W", turn_order: "1", date: "2026-01-01T00:00:00.000Z" }),
+      buildTournamentRow({ result: "L", turn_order: "2", date: "2026-01-03T00:00:00.000Z" }),
+      buildTournamentRow({ result: "T", turn_order: "", date: "2026-01-02T00:00:00.000Z" }),
+      buildTournamentRow({ result: "W", match_end_reason: "Bye", date: "2026-01-04T00:00:00.000Z" }),
+    ];
+
+    const matchups = convertAggregatesToMatchups(aggregateMatchupRows(rows));
+    const result = matchups["Gardevoir ex"]["Charizard ex"];
+
+    expect(result.total).toEqual([1, 1, 1]);
+    expect(result.goingFirst).toEqual([1, 0, 0]);
+    expect(result.goingSecond).toEqual([0, 1, 0]);
+    expect(result.lastPlayed).toEqual(new Date("2026-01-03T00:00:00.000Z"));
   });
 });
