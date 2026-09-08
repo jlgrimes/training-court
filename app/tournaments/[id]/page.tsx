@@ -1,5 +1,5 @@
 import { TournamentPageClient } from "@/components/tournaments/TournamentContainer/TournamentPageClient";
-import { fetchTournament } from "@/components/tournaments/utils/tournaments.server.utils";
+import { fetchRounds, fetchTournament } from "@/components/tournaments/utils/tournaments.server.utils";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -10,6 +10,19 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default function TournamentPage({ params }: { params: { id: string } }) {
-  return <TournamentPageClient tournamentId={params.id} game='ptcg' redirectTo='/' />;
+export default async function TournamentPage({ params }: { params: { id: string } }) {
+  const [tournament, rounds] = await Promise.all([
+    fetchTournament(params.id),
+    fetchRounds(params.id),
+  ]);
+
+  return (
+    <TournamentPageClient
+      tournamentId={params.id}
+      game='ptcg'
+      redirectTo='/'
+      initialTournament={tournament}
+      initialRounds={rounds ?? []}
+    />
+  );
 }

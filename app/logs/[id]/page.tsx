@@ -5,7 +5,7 @@ import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
 import { Metadata } from "next";
 
-// Server-side fetch for link-preview metadata only; the page body loads client-side
+// Shared by metadata and the page body so one request performs one database read.
 const fetchLog = cache(async (logId: string) => {
   const supabase = createClient();
   const { data } = await supabase.from('logs').select().eq('id', logId).returns<Database['public']['Tables']['logs']['Row'][]>().maybeSingle();
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default function LiveLog({ params }: { params: { id: string } }) {
-  return <LogPageClient logId={params.id} requireAuth />;
+export default async function LiveLog({ params }: { params: { id: string } }) {
+  const log = await fetchLog(params.id);
+  return <LogPageClient logId={params.id} requireAuth initialLog={log} />;
 }

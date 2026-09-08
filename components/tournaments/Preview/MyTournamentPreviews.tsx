@@ -13,6 +13,10 @@ import { useTournaments } from "@/hooks/tournaments/useTournaments";
 import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { TournamentFormatsTab } from "../Format/tournament-format.types";
 import MultiSelect from "@/components/ui/multi-select";
+import { Button } from "@/components/ui/button";
+import { T } from "gt-react";
+
+const TOURNAMENT_PAGE_SIZE = 25;
 
 interface MyTournamentPreviewsProps {
   user: User | null;
@@ -20,8 +24,12 @@ interface MyTournamentPreviewsProps {
 }
 
 export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
-  const { data: tournaments } = useTournaments(props.user?.id);
-  const { data: rounds } = useTournamentRounds(props.user?.id);
+  const [visibleLimit, setVisibleLimit] = useState(TOURNAMENT_PAGE_SIZE);
+  const { data: tournamentPage } = useTournaments(props.user?.id, visibleLimit + 1);
+  const hasMore = (tournamentPage?.length ?? 0) > visibleLimit;
+  const tournaments = tournamentPage?.slice(0, visibleLimit);
+  const tournamentIds = (tournaments ?? []).map((tournament) => tournament.id);
+  const { data: rounds } = useTournamentRounds(props.user?.id, tournamentIds);
   const basePath = props.basePath ?? '/tournaments';
 
   const [isInteractionBlocked, ] = useState(false);
@@ -136,6 +144,18 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
           </ScrollArea>
         )}
       </div>
+      {hasMore && (
+        <div className="flex justify-center pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setVisibleLimit((current) => current + TOURNAMENT_PAGE_SIZE)}
+          >
+            <T id="common.loadMore">Load more</T>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

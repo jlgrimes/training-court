@@ -20,13 +20,14 @@ interface LogPageClientProps {
   logId: string;
   /** When true, unauthenticated visitors are sent to /login (legacy /logs/[id] behavior) */
   requireAuth?: boolean;
+  initialLog?: LogRow | null;
 }
 
 /**
  * Client-side body shared by the battle log share pages. The page files keep
  * a server-side generateMetadata for link previews; everything else loads here.
  */
-export function LogPageClient({ logId, requireAuth = false }: LogPageClientProps) {
+export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPageClientProps) {
   const user = useRecoilValue(userAtom);
   const authLoading = useRecoilValue(authLoadingAtom);
   const userData = useRecoilValue(userDataAtom);
@@ -44,7 +45,9 @@ export function LogPageClient({ logId, requireAuth = false }: LogPageClientProps
         .maybeSingle();
       return data ?? null;
     },
-    HISTORICAL_SWR_OPTIONS
+    initialLog !== undefined
+      ? { ...HISTORICAL_SWR_OPTIONS, fallbackData: initialLog, revalidateOnMount: false }
+      : HISTORICAL_SWR_OPTIONS
   );
 
   useEffect(() => {

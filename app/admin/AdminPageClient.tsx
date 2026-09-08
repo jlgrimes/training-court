@@ -15,6 +15,7 @@ import { Activity, NotebookPen } from "lucide-react";
 import { Users } from "lucide-react";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 export function AdminPageClient({ allAvatarImages }: { allAvatarImages: string[] }) {
   const { user, loading } = useAuthGuard('/');
@@ -27,12 +28,12 @@ export function AdminPageClient({ allAvatarImages }: { allAvatarImages: string[]
     }
   }, [loading, user, isAdmin, router]);
 
-  const { data: mostCommonlyUsedAvatars } = useSWR(isAdmin ? 'admin-avatars' : null, () => fetchCommonlyUsedAvatars());
-  const { data: allFeedback } = useSWR(isAdmin ? 'admin-feedback' : null, () => fetchAllFeedback());
-  const { data: totalUsers } = useSWR(isAdmin ? 'admin-total-users' : null, () => countAllUsers());
-  const { data: totalLogs } = useSWR(isAdmin ? 'admin-total-logs' : null, () => countAllLogs());
-  const { data: lastSevenDaysUsersRaw } = useSWR(isAdmin ? 'admin-users-last-7' : null, () => countUsersInLastXDays(0, 7));
-  const { data: previousSevenDaysUsersRaw } = useSWR(isAdmin ? 'admin-users-prev-7' : null, () => countUsersInLastXDays(7, 14));
+  const { data: mostCommonlyUsedAvatars } = useSWR(isAdmin ? 'admin-avatars' : null, () => fetchCommonlyUsedAvatars(), HISTORICAL_SWR_OPTIONS);
+  const { data: allFeedback } = useSWR(isAdmin ? 'admin-feedback' : null, () => fetchAllFeedback(), HISTORICAL_SWR_OPTIONS);
+  const { data: totalUsers } = useSWR(isAdmin ? 'admin-total-users' : null, () => countAllUsers(), HISTORICAL_SWR_OPTIONS);
+  const { data: totalLogs } = useSWR(isAdmin ? 'admin-total-logs' : null, () => countAllLogs(), HISTORICAL_SWR_OPTIONS);
+  const { data: lastSevenDaysUsersRaw } = useSWR(isAdmin ? 'admin-users-last-7' : null, () => countUsersInLastXDays(0, 7), HISTORICAL_SWR_OPTIONS);
+  const { data: previousSevenDaysUsersRaw } = useSWR(isAdmin ? 'admin-users-prev-7' : null, () => countUsersInLastXDays(7, 14), HISTORICAL_SWR_OPTIONS);
 
   if (loading || !user || !isAdmin) return null;
 

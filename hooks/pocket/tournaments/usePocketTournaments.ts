@@ -4,10 +4,10 @@ import useSWR from 'swr';
 import { fetchPocketTournaments } from './usePocketTournaments.utils';
 import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
-export function usePocketTournaments(userId: string | undefined) {
+export function usePocketTournaments(userId: string | undefined, limit?: number) {
   const { data, isLoading, error } = useSWR(
-    userId ? ['pocket-tournaments', userId] : null,
-    () => fetchPocketTournaments(userId),
+    userId ? ['pocket-tournaments', userId, limit ?? 'all'] : null,
+    () => fetchPocketTournaments(userId, limit),
     HISTORICAL_SWR_OPTIONS
   );
 

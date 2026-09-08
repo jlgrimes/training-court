@@ -27,6 +27,8 @@ interface TournamentPageClientProps {
   game?: 'ptcg' | 'pocket';
   /** Where to send the visitor if the tournament doesn't exist */
   redirectTo?: string;
+  initialTournament?: TournamentRow | null;
+  initialRounds?: RoundRow[];
 }
 
 /**
@@ -37,6 +39,8 @@ export function TournamentPageClient({
   tournamentId,
   game = 'ptcg',
   redirectTo = '/',
+  initialTournament,
+  initialRounds,
 }: TournamentPageClientProps) {
   const user = useRecoilValue(userAtom);
   const router = useRouter();
@@ -54,7 +58,9 @@ export function TournamentPageClient({
         .maybeSingle();
       return (data as TournamentRow | null) ?? null;
     },
-    HISTORICAL_SWR_OPTIONS
+    initialTournament !== undefined
+      ? { ...HISTORICAL_SWR_OPTIONS, fallbackData: initialTournament, revalidateOnMount: false }
+      : HISTORICAL_SWR_OPTIONS
   );
 
   const { data: rounds, isLoading: roundsLoading } = useSWR(
@@ -68,7 +74,9 @@ export function TournamentPageClient({
         .order('round_num', { ascending: true });
       return ((data ?? []) as RoundRow[]);
     },
-    HISTORICAL_SWR_OPTIONS
+    initialRounds !== undefined
+      ? { ...HISTORICAL_SWR_OPTIONS, fallbackData: initialRounds, revalidateOnMount: false }
+      : HISTORICAL_SWR_OPTIONS
   );
 
   useEffect(() => {
