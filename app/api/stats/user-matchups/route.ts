@@ -1,5 +1,8 @@
 import { Database } from "@/database.types";
+import { getCachedMatchups } from "@/lib/server/matchup-cache";
 import { createClient } from "@/utils/supabase/server";
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -10,14 +13,17 @@ export async function GET() {
       return Response.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await supabase
-      .rpc('get_authenticated_user_matchup_aggregates_v1')
-      .returns<Database['public']['Functions']['get_authenticated_user_matchup_aggregates_v1']['Returns']>();
-    if (error) throw error;
+    const matchups = await getCachedMatchups(authData.user.id, async () => {
+      const { data, error } = await supabase
+        .rpc('get_authenticated_user_matchup_aggregates_v1')
+        .returns<Database['public']['Functions']['get_authenticated_user_matchup_aggregates_v1']['Returns']>();
+      if (error) throw error;
+      return data ?? [];
+    });
 
     return Response.json(
-      { data: data ?? [] },
-      { status: 200, headers: { 'Cache-Control': 'private, no-store' } }
+      { data: matchups },
+      { status: 200, headers: { 'Cache-Control': 'private, max-age=30' } }
     );
   } catch (error) {
     console.error(error);

@@ -12,6 +12,10 @@ import MultiSelect from "@/components/ui/multi-select";
 import { usePocketTournaments } from "@/hooks/pocket/tournaments/usePocketTournaments";
 import { usePocketTournamentRounds } from "@/hooks/pocket/tournaments/usePocketTournamentRounds";
 import type { PocketTournament, PocketTournamentRound } from "@/lib/server/home-data";
+import { Button } from "@/components/ui/button";
+import { T } from "gt-react";
+
+const TOURNAMENT_PAGE_SIZE = 25;
 
 interface MyPocketTournamentPreviewsProps {
   userId?: string;
@@ -25,12 +29,25 @@ interface MyPocketTournamentPreviewsProps {
 
 export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProps) {
   const { initialTournaments, initialRounds } = props;
+  const initialLimit = props.limit ?? TOURNAMENT_PAGE_SIZE;
+  const [visibleLimit, setVisibleLimit] = useState(initialLimit);
 
   // Only fetch via SWR if no initial data provided
-  const { data: swrTournaments } = usePocketTournaments(initialTournaments ? undefined : props.userId);
-  const { data: swrRounds } = usePocketTournamentRounds(initialRounds ? undefined : props.userId);
+  const { data: swrTournamentPage } = usePocketTournaments(
+    initialTournaments ? undefined : props.userId,
+    props.limit ?? visibleLimit + 1
+  );
 
-  const tournaments = initialTournaments ?? swrTournaments;
+  const tournamentPage = initialTournaments ?? swrTournamentPage;
+  const hasMore = !props.limit && (tournamentPage?.length ?? 0) > visibleLimit;
+  const tournaments = props.limit
+    ? tournamentPage?.slice(0, props.limit)
+    : tournamentPage?.slice(0, visibleLimit);
+  const tournamentIds = (tournaments ?? []).map((tournament) => tournament.id);
+  const { data: swrRounds } = usePocketTournamentRounds(
+    initialRounds ? undefined : props.userId,
+    tournamentIds
+  );
   const rounds = initialRounds ?? swrRounds;
 
   const [isInteractionBlocked, ] = useState(false);
@@ -60,7 +77,6 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
     (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
     && (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
-  const limitedTournaments = props.limit ? filteredTournaments?.slice(0, props.limit) : filteredTournaments;
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -116,7 +132,7 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
 
         {selectedCats.length === 0 ? (
           <div className="flex flex-col gap-2">
-            {limitedTournaments?.map((tournament) =>
+            {filteredTournaments?.map((tournament) =>
               rounds ? (
                 <PocketTournamentPreview
                   key={tournament.id}
@@ -130,7 +146,7 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
         ) : (
             <ScrollArea className="h-[36rem]">
               <div className="flex flex-col gap-2">
-              {limitedTournaments?.map((tournament) =>
+              {filteredTournaments?.map((tournament) =>
                 rounds ? (
                   <PocketTournamentPreview
                   key={tournament.id}
@@ -144,6 +160,18 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
           </ScrollArea>
         )}
       </div>
+      {hasMore && (
+        <div className="flex justify-center pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setVisibleLimit((current) => current + TOURNAMENT_PAGE_SIZE)}
+          >
+            <T id="common.loadMore">Load more</T>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

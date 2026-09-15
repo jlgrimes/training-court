@@ -6,15 +6,19 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Refresh sessions only where server-side authorization or RLS-backed data is
+  // used. Public marketing pages and framework/static requests skip Supabase.
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    '/admin/:path*',
+    '/api/:path*',
+    '/auth/:path*',
+    '/friend-request/:path*',
+    '/home/:path*',
+    '/logs/:path*',
+    '/pocket/:path*',
+    '/preferences/:path*',
+    '/ptcg/:path*',
+    '/stats/:path*',
+    '/tournaments/:path*',
   ],
 };
