@@ -8,10 +8,7 @@ interface TournamentRoundListProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
   userId: string | undefined;
   rounds: Database['public']['Tables']['tournament rounds']['Row'][];
-  updateClientRoundsOnEdit: (
-    newRound: Database['public']['Tables']['tournament rounds']['Row'],
-    pos: number
-  ) => void;
+  updateClientRoundsOnEdit: (newRound: Database['public']['Tables']['tournament rounds']['Row']) => void;
   roundsTableName?: string;
   hatType?: string | null;
 }
