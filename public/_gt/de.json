@@ -1,4 +1,6 @@
 {
+  "preferences.avatar.select": "Avatar auswählen",
+  "preferences.avatar.saveError": "Avatar konnte nicht gespeichert werden",
   "about.header": "Uber",
   "about.paragraph1": "Training Court wurde erstellt, um deine Turniere und Trainingsrunden fur das Pokemon Trading Card Game an einem Ort zu sammeln. Die App soll moglichst einfach, zuganglich und spielerorientiert sein.",
   "about.paragraph2": "Du kannst Logs aus PTCG Live importieren und die Zuge in einem deutlich besseren Format sehen als im Textblock des Kampflogs. Diese Darstellung hilft dir, Fehler im Training zu verstehen und dich auf kunftige Matches vorzubereiten. Analysefunktionen sind fur die Zukunft geplant.",
