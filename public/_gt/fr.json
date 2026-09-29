@@ -1,4 +1,6 @@
 {
+  "preferences.avatar.select": "Choisir un avatar",
+  "preferences.avatar.saveError": "Impossible d’enregistrer l’avatar",
   "about.header": "A propos",
   "about.paragraph1": "Training Court a ete cree pour regrouper tous vos tournois et manches d'entrainement du Pokemon Trading Card Game. L'application se veut simple, accessible, et centree sur les joueurs.",
   "about.paragraph2": "Vous pouvez importer des journaux PTCG Live et voir les tours dans un format bien plus clair que le mur de texte du journal de combat. Cette visualisation aide a comprendre les erreurs faites en entrainement et a progresser pour les matchs futurs. Des fonctions d'analyse sont prevues.",
