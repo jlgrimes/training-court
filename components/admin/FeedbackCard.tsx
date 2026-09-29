@@ -1,6 +1,7 @@
 'use client';
 
-import { Database } from "@/database.types";
+import type { AdminFeedback } from "./feedback.types";
+import { T } from "gt-react";
 import {
   Card,
   CardContent,
@@ -16,7 +17,7 @@ import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 
 interface FeedbackCardProps {
-  feedback: Database["public"]["Tables"]["feedback"]["Row"];
+  feedback: AdminFeedback;
 }
 
 export const FeedbackCard = (props: FeedbackCardProps) => {
@@ -66,6 +67,19 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
           {formatDistanceToNowStrict(props.feedback.created_at, {
             addSuffix: true,
           })}
+        </CardDescription>
+        <CardDescription className="break-words">
+          <T id="admin.feedback.email">Email</T>{": "}
+          {props.feedback.email ? (
+            <a
+              href={`mailto:${encodeURIComponent(props.feedback.email)}`}
+              className="break-all text-primary underline underline-offset-4"
+            >
+              {props.feedback.email}
+            </a>
+          ) : (
+            <T id="admin.feedback.emailUnavailable">Email unavailable</T>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

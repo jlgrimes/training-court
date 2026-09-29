@@ -1,6 +1,7 @@
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
 import { getAvatarSrc } from "../avatar/avatar.utils";
+import type { AdminFeedback } from "./feedback.types";
 
 export async function fetchCommonlyUsedAvatars() {
   const supabase = createClient();
@@ -9,9 +10,10 @@ export async function fetchCommonlyUsedAvatars() {
   return data?.filter(({ avatar }) => avatar).map(({ avatar, avatar_count }) => ({ avatar: getAvatarSrc(avatar), avatar_count }));
 }
 
-export async function fetchAllFeedback() {
-  const supabase = createClient();
-  const { data, error } = await supabase.from('feedback').select('*').order('created_at', { ascending: false }).returns<Database['public']['Tables']['feedback']['Row'][]>();
+export async function fetchAllFeedback(): Promise<AdminFeedback[]> {
+  const response = await fetch('/api/admin/feedback', { cache: 'no-store' });
+  if (!response.ok) throw new Error('Could not load feedback.');
+  const { data } = await response.json();
   return data;
 }
 

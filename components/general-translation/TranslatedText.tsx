@@ -23,6 +23,7 @@ export function TranslatedText({ id, children }: TranslatedTextProps) {
     case "admin.avatars.allUsed": return <T id="admin.avatars.allUsed">All avatars are being used!</T>;
     case "admin.feedback.unresolved": return <T id="admin.feedback.unresolved">Unresolved</T>;
     case "admin.feedback.resolved": return <T id="admin.feedback.resolved">Resolved</T>;
+    case "admin.feedback.loadError": return <T id="admin.feedback.loadError">Could not load feedback. Please try again.</T>;
     case "admin.feedback.unresolvedSuffix": return <T id="admin.feedback.unresolvedSuffix">pieces of unresolved feedback. Get to work!</T>;
     case "admin.feedback.fixedPrefix": return <T id="admin.feedback.fixedPrefix">You have fixed</T>;
     case "admin.feedback.fixedSuffix": return <T id="admin.feedback.fixedSuffix">customer feedbacks. Good job!</T>;

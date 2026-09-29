@@ -75,6 +75,18 @@ Password recovery uses a Supabase email token confirmation route at `/auth/confi
 
 For cross-device reset links, set the Supabase recovery email template link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`. For production, set `NEXT_PUBLIC_SITE_URL=https://trainingcourt.app` in the deployed app and configure the matching Supabase site URL and redirect URLs.
 
+### Feedback email migration
+
+Before deploying the feedback email changes, run
+[`supabase/migrations/20260928000000_feedback_email.sql`](supabase/migrations/20260928000000_feedback_email.sql)
+in the Supabase SQL editor (or through your migration process). It adds the saved
+email column, backfills existing feedback from active accounts, and installs
+triggers to capture emails on submission and clear them on account deletion.
+
+Feedback keeps the email used at submission time even if the account email later
+changes. The admin page reads it with the feedback query; it no longer uses the
+Supabase Auth admin API or requires a service role key to look up submitters.
+
 ## Project Structure
 
 ```
