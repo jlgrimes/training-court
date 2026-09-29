@@ -12,7 +12,7 @@ export function trimBattleLog(log: string): string[] {
 
 export function getPlayerNames(log: string[], language: Language): string[] {
   const playerNames = log.reduce((acc: string[], curr: string) => {
-    const playerName = getPlayerNameFromSetup(curr, language);
+    const playerName = getPlayerNameFromSetup(curr, language)?.trim();
     
     if (playerName && !acc.includes(playerName)) {
       return [...acc, playerName];
