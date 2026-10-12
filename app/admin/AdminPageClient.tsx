@@ -29,7 +29,7 @@ export function AdminPageClient({ allAvatarImages }: { allAvatarImages: string[]
   }, [loading, user, isAdmin, router]);
 
   const { data: mostCommonlyUsedAvatars } = useSWR(isAdmin ? 'admin-avatars' : null, () => fetchCommonlyUsedAvatars(), HISTORICAL_SWR_OPTIONS);
-  const { data: allFeedback } = useSWR(isAdmin ? 'admin-feedback' : null, () => fetchAllFeedback(), HISTORICAL_SWR_OPTIONS);
+  const { data: allFeedback, error: feedbackError } = useSWR(isAdmin ? 'admin-feedback' : null, () => fetchAllFeedback(), HISTORICAL_SWR_OPTIONS);
   const { data: totalUsers } = useSWR(isAdmin ? 'admin-total-users' : null, () => countAllUsers(), HISTORICAL_SWR_OPTIONS);
   const { data: totalLogs } = useSWR(isAdmin ? 'admin-total-logs' : null, () => countAllLogs(), HISTORICAL_SWR_OPTIONS);
   const { data: lastSevenDaysUsersRaw } = useSWR(isAdmin ? 'admin-users-last-7' : null, () => countUsersInLastXDays(0, 7), HISTORICAL_SWR_OPTIONS);
@@ -81,6 +81,11 @@ export function AdminPageClient({ allAvatarImages }: { allAvatarImages: string[]
         </TabsContent>
 
         <TabsContent value="feedback" className="w-full max-w-full">
+          {feedbackError && (
+            <p role="alert" className="mb-4 text-destructive">
+              <TranslatedText id="admin.feedback.loadError">Could not load feedback. Please try again.</TranslatedText>
+            </p>
+          )}
           <Tabs defaultValue="unresolved" className="w-full max-w-full">
             <TabsList className="w-full flex flex-wrap gap-2">
               <TabsTrigger value="unresolved" className="flex-1 sm:flex-none">

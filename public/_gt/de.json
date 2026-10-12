@@ -1,4 +1,7 @@
 {
+  "admin.feedback.email": "E-Mail",
+  "admin.feedback.emailUnavailable": "E-Mail nicht verfügbar",
+  "admin.feedback.loadError": "Feedback konnte nicht geladen werden. Bitte versuche es erneut.",
   "preferences.avatar.select": "Avatar auswählen",
   "preferences.avatar.saveError": "Avatar konnte nicht gespeichert werden",
   "about.header": "Uber",

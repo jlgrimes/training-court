@@ -1,4 +1,7 @@
 {
+  "admin.feedback.email": "メールアドレス",
+  "admin.feedback.emailUnavailable": "メールアドレスを取得できません",
+  "admin.feedback.loadError": "フィードバックを読み込めませんでした。もう一度お試しください。",
   "preferences.avatar.select": "アバターを選択",
   "preferences.avatar.saveError": "アバターを保存できませんでした",
   "about.header": "概要",

@@ -15,6 +15,7 @@ export type Database = {
           created_at: string
           description: string | null
           dev_notes: string | null
+          email: string | null
           feature_name: string
           id: number
           is_fixed: boolean | null
@@ -25,6 +26,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           dev_notes?: string | null
+          email?: string | null
           feature_name: string
           id?: number
           is_fixed?: boolean | null
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           dev_notes?: string | null
+          email?: string | null
           feature_name?: string
           id?: number
           is_fixed?: boolean | null

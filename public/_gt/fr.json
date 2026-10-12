@@ -1,4 +1,7 @@
 {
+  "admin.feedback.email": "E-mail",
+  "admin.feedback.emailUnavailable": "E-mail indisponible",
+  "admin.feedback.loadError": "Impossible de charger les retours. Veuillez réessayer.",
   "preferences.avatar.select": "Choisir un avatar",
   "preferences.avatar.saveError": "Impossible d’enregistrer l’avatar",
   "about.header": "A propos",
