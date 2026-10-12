@@ -1,4 +1,5 @@
 import PocketTournamentCreate from "./PocketTournamentCreate";
+import PocketTournamentImport from "./PocketTournamentImport";
 import { MyPocketTournamentPreviews } from "./Preview/MyPocketTournamentPreviews";
 import { Header } from "@/components/ui/header";
 import { POCKET_TOURNAMENT_CONFIG } from "@/components/tournaments/utils/tournament-game-config";
@@ -17,7 +18,10 @@ export const PocketTournamentsHomePage = (props: PocketTournamentsHomePageProps)
       >
         <TranslatedText id="pocket.tournaments.header">Pocket Tournaments</TranslatedText>
       </Header>
-      <TournamentCreateDialog userId={props.userId} config={POCKET_TOURNAMENT_CONFIG} />
+      <div className="flex flex-wrap items-center gap-2">
+        <TournamentCreateDialog userId={props.userId} config={POCKET_TOURNAMENT_CONFIG} />
+        <PocketTournamentImport userId={props.userId} />
+      </div>
       <MyPocketTournamentPreviews userId={props.userId} />
     </div>
   );
