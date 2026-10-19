@@ -1,3 +1,4 @@
+import { DeckRule, matchesCard } from './deck-rules';
 import { getIfLineCouldContainArchetype, Language } from "@/lib/i18n/battle-log";
 import { getEnglishPokemon, getPokemonToFind } from "@/lib/i18n/pokemon";
 
@@ -78,7 +79,7 @@ const isCardsMilled = (log: string[], currentIdx: number, playerName: string) =>
   return log[currentIdx - 1].includes(`${playerName} moved ${playerName}'s`) && log[currentIdx - 1].includes('cards to the discard pile') && log[currentIdx].includes('•');
 }
 
-export const determineArchetype = (log: string[], playerName: string, language: Language): string | undefined => {
+export const determineArchetype = (log: string[], playerName: string, language: Language, rules?: DeckRule[]): string | undefined => {
   const drawnCardsLines = log.filter((line, idx) => {
     return getIfLineCouldContainArchetype(line, playerName, language);
   });
@@ -86,7 +87,16 @@ export const determineArchetype = (log: string[], playerName: string, language: 
   const pokemonToFind = getPokemonToFind(language);
   let archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
 
-  const associatedArchetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
+  const additionalAssociations = (rules ?? []).map(rule => ({
+    association: rule.card, secondAssociation: rule.second_card, deck: rule.archetype,
+  }));
+  const matches = (target: { association: string }) => matchesCard(drawnCardsLines, target.association, language);
+  const variant = additionalAssociations.find(target => target.secondAssociation && matches(target)
+    && matchesCard(drawnCardsLines, target.secondAssociation, language));
+  const associatedArchetype = variant?.deck ?? [
+    ...associatedPokemon,
+    ...additionalAssociations.filter(target => !target.secondAssociation),
+  ].find(matches)?.deck;
   if (associatedArchetype) archetype = associatedArchetype;
 
   const foundMapTypeIdx = archetype ? Object.keys(pngMap).findIndex(key => (key === archetype?.toLowerCase())) : -1;

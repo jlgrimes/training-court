@@ -7,6 +7,8 @@ import { BattleLogsByDeck } from "../BattleLogGroups/BattleLogsByDeck";
 import { Label } from "@/components/ui/label";
 import { EditableBattleLogPreview } from "./EditableBattleLogPreview";
 
+import { DataLoadingSkeleton } from "@/components/ui/data-loading-skeleton";
+
 interface MyBattleLogPreviewsProps {
   userData: Database['public']['Tables']['user data']['Row'];
   battleLogs: BattleLog[];
@@ -16,6 +18,8 @@ interface MyBattleLogPreviewsProps {
 }
 
 export function MyBattleLogPreviews (props: MyBattleLogPreviewsProps) {
+  if (props.isLoading && props.battleLogs.length === 0) return <DataLoadingSkeleton />;
+
   if (props.sortBy === 'Day') {
     return <BattleLogsByDay battleLogs={props.battleLogs} userData={props.userData} isEditing={props.isEditing} isLoading={props.isLoading}/>;
   }

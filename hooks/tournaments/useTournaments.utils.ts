@@ -1,20 +1,14 @@
 import { Database } from "@/database.types";
-import { createClient } from "@/utils/supabase/client"
+import { createClient } from "@/utils/supabase/client";
+import { TournamentRecord } from "@/components/tournaments/utils/tournament-record";
 
-export async function fetchTournaments(userId: string | undefined, limit?: number) {
+export type TournamentPreviewData = Database['public']['Tables']['tournaments']['Row'] & TournamentRecord;
+
+export async function fetchTournaments(userId: string | undefined, limit = 26) {
   if (!userId) return null;
-
-  const supabase = createClient();
-  let query = supabase
-    .from('tournaments')
-    .select('id,created_at,user,name,date_from,date_to,deck,decklist_id,hat_type,category,placement,format,notes')
-    .eq('user', userId)
-    .order('date_from', { ascending: false });
-
-  if (limit) query = query.limit(limit);
-
-  const { data, error } = await query.returns<Database['public']['Tables']['tournaments']['Row'][]>()
+  const { data, error } = await createClient().rpc('get_tournament_previews_v1', {
+    game: 'ptcg', preview_limit: limit,
+  });
   if (error) throw error;
-
-  return data;
+  return data as TournamentPreviewData[];
 }

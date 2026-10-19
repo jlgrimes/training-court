@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 import { useSWRConfig } from "swr";
+import { DataLoadingSkeleton } from "@/components/ui/data-loading-skeleton";
 import { Header } from "@/components/ui/header";
 import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
@@ -22,7 +23,7 @@ interface BattleLogsHomePreviewProps {
  */
 export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
   const userData = useRecoilValue(userDataAtom);
-  const { data: fetchedBattleLogs } = usePaginatedLiveLogs(userId, 0, 50);
+  const { data: fetchedBattleLogs, isLoading } = usePaginatedLiveLogs(userId, 0, 50);
   const battleLogRows = useRecoilValue(battleLogsAtom);
   const setBattleLogs = useSetRecoilState(battleLogsAtom);
   const { mutate } = useSWRConfig();
@@ -83,6 +84,7 @@ export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
     <div className="flex flex-col gap-4">
       <Header><TranslatedText id="battleLogs.header">PTCG Logs</TranslatedText></Header>
       <div className="flex flex-col gap-4">
+        {isLoading && parsedLogs.length === 0 && <DataLoadingSkeleton />}
         {userData?.live_screen_name && parsedLogs.length > 0 && (
           <BattleLogsByDayPreview
             userData={userData}

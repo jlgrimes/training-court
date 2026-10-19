@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
-import { parseBattleLog } from "../utils/battle-log.utils";
+import { parseBattleLogWithRules } from '@/components/archetype/utils/deck-rules.client';
 import { getBattleLogMetadataFromLog } from './BattleLogInput.utils';
 import {
   Dialog,
@@ -127,7 +127,13 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
     const supabase = createClient();
     
     // Parse the log first
-    const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+    let parsedLog;
+    try {
+      parsedLog = await parseBattleLogWithRules(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+    } catch {
+      showErrorToast('Unable to parse battle log. Please check the format.');
+      return;
+    }
     const logMetadata = getBattleLogMetadataFromLog(parsedLog, username ?? '');
     
     if (!logMetadata) {
@@ -194,14 +200,14 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
     return data && data.length > 0;
   };
 
-  const handleReviewLog = () => {
+  const handleReviewLog = async () => {
     if (!log) {
       showErrorToast("Please enter a valid battle log");
       return;
     }
 
     try {
-      const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+      const parsedLog = await parseBattleLogWithRules(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
       const logMetadata = getBattleLogMetadataFromLog(parsedLog, username ?? '');
       if (logMetadata) {
         setParsedLogDetails(logMetadata);

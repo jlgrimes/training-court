@@ -68,7 +68,9 @@ describe.each(concessionLogs)('concession imports: $language', ({ log, winner, l
   beforeEach(() => {
     jest.clearAllMocks();
     window.localStorage.clear();
-    mockFrom.mockReturnValue({ insert: mockInsert });
+    mockFrom.mockImplementation((table: string) => table === 'deck_identification_rules'
+      ? { select: () => ({ order: () => Promise.resolve({ data: [{ id: 1, card: 'dreepy', second_card: null, archetype: 'dragapult' }], error: null }) }) }
+      : { insert: mockInsert });
     mockInsert.mockImplementation((payload) => ({
       select: () => ({
         returns: () => Promise.resolve({

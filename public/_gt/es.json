@@ -239,5 +239,17 @@
   "tournaments.empty.description": "Puedes agregar torneos del pasado, presente o futuro.",
   "tournaments.header": "Torneos",
   "tournaments.newTournament": "Nuevo torneo",
-  "tournaments.ptcgHeader": "Torneos PTCG"
+  "tournaments.ptcgHeader": "Torneos PTCG",
+  "admin.deckRules.tab": "Identificación de mazos",
+  "admin.deckRules.help": "Elige la carta que se debe reconocer y uno o dos sprites para la etiqueta del mazo. Puedes requerir una segunda carta para identificar una variante.",
+  "admin.deckRules.error": "No se pudieron cargar o guardar las reglas. Revisa los campos e inténtalo de nuevo.",
+  "admin.deckRules.loading": "Cargando reglas…",
+  "admin.deckRules.result": "Etiqueta del mazo",
+  "admin.deckRules.save": "Guardar regla",
+  "admin.deckRules.new": "Nueva regla",
+  "admin.deckRules.edit": "Editar",
+  "admin.deckRules.delete": "Eliminar",
+  "admin.deckRules.card": "Carta",
+  "admin.deckRules.secondCard": "Segunda carta (opcional)",
+  "admin.deckRules.retry": "Reintentar"
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { DataLoadingSkeleton } from '@/components/ui/data-loading-skeleton';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
@@ -85,7 +86,8 @@ export function TournamentPageClient({
     }
   }, [tournamentLoading, tournament, redirectTo, router]);
 
-  if (tournamentLoading || roundsLoading || !tournament) return null;
+  if (tournamentLoading || roundsLoading) return <DataLoadingSkeleton />;
+  if (!tournament) return null;
 
   return (
     <TournamentContainerClient

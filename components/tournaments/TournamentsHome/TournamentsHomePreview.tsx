@@ -1,9 +1,12 @@
 'use client';
 
+import { DataLoadError } from '@/components/ui/data-load-error';
+
+import { DataLoadingSkeleton } from "@/components/ui/data-loading-skeleton";
+
 import TournamentPreview from "../Preview/TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { SeeMoreButton } from "@/components/SeeMoreButton";
-import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { PTCG_TOURNAMENT_CONFIG } from "../utils/tournament-game-config";
 import { Header } from "@/components/ui/header";
 import TournamentCreateDialog from "../TournamentCreate";
@@ -11,18 +14,16 @@ import { TranslatedText } from "@/components/general-translation/TranslatedText"
 import { useRecoilValue } from "recoil";
 import { userAtom } from "@/app/recoil/atoms/user";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
-import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 
 /**
  * Self-contained client widget for tournaments - can be placed on any page.
  */
 export function TournamentsHomePreview() {
   const user = useRecoilValue(userAtom);
-  const { data: tournaments, isLoading: tournamentsLoading } = useTournaments(user?.id, 5);
-  const tournamentIds = (tournaments ?? []).map((tournament) => tournament.id);
-  const { data: rounds } = useTournamentRounds(user?.id, tournamentIds);
+  const { data: tournaments, isLoading: tournamentsLoading, error } = useTournaments(user?.id, 5);
 
-  if (!user || tournamentsLoading) return null;
+  if (error && !tournaments) return <DataLoadError />;
+  if (!user || (tournamentsLoading && !tournaments)) return <DataLoadingSkeleton />;
 
   if (!tournaments || tournaments.length === 0) {
     return (
@@ -52,7 +53,7 @@ export function TournamentsHomePreview() {
               <TournamentPreview
                 tournament={tournament}
                 key={tournament.id}
-                rounds={getTournamentRoundsFromUserRounds(rounds ?? [], tournament)}
+                record={tournament}
                 basePath={PTCG_TOURNAMENT_CONFIG.basePath}
               />
             ))}

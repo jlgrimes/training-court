@@ -1,4 +1,5 @@
 'use client';
+import { DeckRulesEditor } from '@/components/admin/DeckRulesEditor';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -51,10 +52,12 @@ export function AdminPageClient({ allAvatarImages }: { allAvatarImages: string[]
 
       <Tabs defaultValue="feedback" className="w-full max-w-full">
         <TabsList>
+          <TabsTrigger value="deck-rules"><TranslatedText id="admin.deckRules.tab">Deck ID</TranslatedText></TabsTrigger>
           <TabsTrigger value="feedback"><TranslatedText id="admin.tabs.feedback">Feedback</TranslatedText></TabsTrigger>
           <TabsTrigger value="avatars"><TranslatedText id="admin.tabs.avatars">Avatars</TranslatedText></TabsTrigger>
           <TabsTrigger value="users"><TranslatedText id="admin.tabs.users">Users</TranslatedText></TabsTrigger>
         </TabsList>
+        <TabsContent value="deck-rules"><DeckRulesEditor /></TabsContent>
         <TabsContent value="avatars">
           <>
           <Label><TranslatedText id="admin.avatars.mostUsed">Most commonly used avatars:</TranslatedText></Label>

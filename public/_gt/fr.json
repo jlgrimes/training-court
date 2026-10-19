@@ -239,5 +239,17 @@
   "tournaments.empty.description": "Vous pouvez ajouter des tournois passes, presents ou futurs.",
   "tournaments.header": "Tournois",
   "tournaments.newTournament": "Nouveau tournoi",
-  "tournaments.ptcgHeader": "Tournois PTCG"
+  "tournaments.ptcgHeader": "Tournois PTCG",
+  "admin.deckRules.tab": "Identification des decks",
+  "admin.deckRules.help": "Choisissez la carte à reconnaître et un ou deux sprites pour le nom du deck. Une deuxième carte peut être requise pour identifier une variante.",
+  "admin.deckRules.error": "Impossible de charger ou enregistrer les règles. Vérifiez les champs et réessayez.",
+  "admin.deckRules.loading": "Chargement des règles…",
+  "admin.deckRules.result": "Nom du deck",
+  "admin.deckRules.save": "Enregistrer la règle",
+  "admin.deckRules.new": "Nouvelle règle",
+  "admin.deckRules.edit": "Modifier",
+  "admin.deckRules.delete": "Supprimer",
+  "admin.deckRules.card": "Carte",
+  "admin.deckRules.secondCard": "Deuxième carte (facultatif)",
+  "admin.deckRules.retry": "Réessayer"
 }

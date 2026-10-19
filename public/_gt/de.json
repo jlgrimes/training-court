@@ -239,5 +239,17 @@
   "tournaments.empty.description": "Du kannst vergangene, aktuelle oder kunftige Turniere hinzufugen.",
   "tournaments.header": "Turniere",
   "tournaments.newTournament": "Neues Turnier",
-  "tournaments.ptcgHeader": "PTCG-Turniere"
+  "tournaments.ptcgHeader": "PTCG-Turniere",
+  "admin.deckRules.tab": "Deckerkennung",
+  "admin.deckRules.help": "Wähle die zu erkennende Karte und ein oder zwei Sprites für die Deckbezeichnung. Optional kann eine zweite Karte für eine Variante erforderlich sein.",
+  "admin.deckRules.error": "Regeln konnten nicht geladen oder gespeichert werden. Prüfe die Felder und versuche es erneut.",
+  "admin.deckRules.loading": "Regeln werden geladen…",
+  "admin.deckRules.result": "Deckbezeichnung",
+  "admin.deckRules.save": "Regel speichern",
+  "admin.deckRules.new": "Neue Regel",
+  "admin.deckRules.edit": "Bearbeiten",
+  "admin.deckRules.delete": "Löschen",
+  "admin.deckRules.card": "Karte",
+  "admin.deckRules.secondCard": "Zweite Karte (optional)",
+  "admin.deckRules.retry": "Erneut versuchen"
 }

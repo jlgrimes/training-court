@@ -1,3 +1,4 @@
+import type { DeckRule, DeckRuleInput } from './components/archetype/utils/deck-rules';
 export type Json =
   | string
   | number
@@ -9,6 +10,12 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      deck_identification_rules: {
+        Row: DeckRule
+        Insert: DeckRuleInput & { id?: number }
+        Update: Partial<DeckRuleInput>
+        Relationships: []
+      }
       feedback: {
         Row: {
           bug_type: string | null

@@ -1,5 +1,6 @@
 'use client';
 
+import { usePageDataPreload } from './usePageDataPreload';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
@@ -13,6 +14,7 @@ export function useAuthGuard(redirectTo: string = '/login') {
   const user = useRecoilValue(userAtom);
   const authLoading = useRecoilValue(authLoadingAtom);
   const router = useRouter();
+  usePageDataPreload(user?.id);
 
   useEffect(() => {
     if (!authLoading && !user) {

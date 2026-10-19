@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/ui/card";
-import { displayTournamentDate, getRecord } from "@/components/tournaments/utils/tournaments.utils";
+import { displayTournamentDate } from "@/components/tournaments/utils/tournaments.utils";
 import { renderTournamentPlacement, TournamentPlacement } from "@/components/tournaments/Placement/tournament-placement.types";
 import { Sprite } from "@/components/archetype/sprites/Sprite";
-import { PocketTournament, PocketTournamentRound } from "../pocket-tournaments.types";
+import { PocketTournament } from "../pocket-tournaments.types";
+
+import { formatTournamentRecord, TournamentRecord } from "@/components/tournaments/utils/tournament-record";
 
 interface PocketTournamentPreviewProps {
   tournament: PocketTournament;
-  rounds: PocketTournamentRound[];
+  record: TournamentRecord;
   hatType?: string | null;
 }
 
-export default function PocketTournamentPreview({ tournament, rounds, hatType }: PocketTournamentPreviewProps) {
+export default function PocketTournamentPreview({ tournament, record, hatType }: PocketTournamentPreviewProps) {
   return (
     <Link href={`/pocket/tournaments/${tournament.id}`}>
       <Card clickable>
@@ -27,7 +29,7 @@ export default function PocketTournamentPreview({ tournament, rounds, hatType }:
               </CardDescription>
             </div>
             <div className="flex flex-col items-end">
-              <CardTitle className="text-right whitespace-nowrap dark:text-white">{rounds && getRecord(rounds)}</CardTitle>
+              <CardTitle className="text-right whitespace-nowrap dark:text-white">{formatTournamentRecord(record)}</CardTitle>
               {tournament.placement && <CardDescription>{renderTournamentPlacement(tournament.placement as TournamentPlacement)}</CardDescription>}
             </div>
           </div>

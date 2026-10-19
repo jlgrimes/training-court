@@ -1,3 +1,4 @@
+import { TournamentRecord } from "@/components/tournaments/utils/tournament-record";
 import { createClient } from "@/utils/supabase/client";
 
 export type PocketTournamentRow = {
@@ -15,21 +16,13 @@ export type PocketTournamentRow = {
   hat_type: string | null;
 };
 
-export async function fetchPocketTournaments(userId: string | undefined, limit?: number) {
+export type PocketTournamentPreviewData = PocketTournamentRow & TournamentRecord;
+
+export async function fetchPocketTournaments(userId: string | undefined, limit = 26) {
   if (!userId) return null;
-
-  const supabase = createClient();
-  let query = supabase
-    .from('pocket_tournaments')
-    .select('id,created_at,user,name,date_from,date_to,category,format,deck,placement,notes,hat_type')
-    .eq('user', userId)
-    .order('date_from', { ascending: false });
-
-  if (limit) query = query.limit(limit);
-
-  const { data, error } = await query.returns<PocketTournamentRow[]>();
-
+  const { data, error } = await createClient().rpc('get_tournament_previews_v1', {
+    game: 'pocket', preview_limit: limit,
+  });
   if (error) throw error;
-
-  return data;
+  return data as PocketTournamentPreviewData[];
 }

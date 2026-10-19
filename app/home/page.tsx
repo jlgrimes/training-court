@@ -1,5 +1,7 @@
 'use client';
 
+import { DataLoadingSkeleton } from '@/components/ui/data-loading-skeleton';
+
 import { BattleLogsHomePreview } from '@/components/battle-logs/BattleLogsHome/BattleLogsHomePreview';
 import { TournamentsHomePreview } from '@/components/tournaments/TournamentsHome/TournamentsHomePreview';
 import { TrainingCourtWelcome } from '@/components/TrainingCourtWelcome';
@@ -15,7 +17,8 @@ export default function Home() {
   const { user, loading } = useAuthGuard();
   const { preferredGames, loading: prefsLoading } = usePreferredGames();
 
-  if (loading || !user || prefsLoading) return null;
+  if (loading || prefsLoading) return <DataLoadingSkeleton />;
+  if (!user) return null;
 
   const hasPreferredGames = preferredGames.length > 0;
   const showPokemonTcg = isGameEnabled(preferredGames, 'pokemon-tcg');

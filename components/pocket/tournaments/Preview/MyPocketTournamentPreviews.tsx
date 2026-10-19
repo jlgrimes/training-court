@@ -1,5 +1,7 @@
 'use client';
 
+import { DataLoadError } from '@/components/ui/data-load-error';
+
 import PocketTournamentPreview from "./PocketTournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,8 +12,8 @@ import { useMemo, useState } from "react";
 import { TournamentFormatsTab } from "@/components/tournaments/Format/tournament-format.types";
 import MultiSelect from "@/components/ui/multi-select";
 import { usePocketTournaments } from "@/hooks/pocket/tournaments/usePocketTournaments";
-import { usePocketTournamentRounds } from "@/hooks/pocket/tournaments/usePocketTournamentRounds";
-import type { PocketTournament, PocketTournamentRound } from "@/lib/server/home-data";
+import type { PocketTournamentPreviewData } from "@/hooks/pocket/tournaments/usePocketTournaments.utils";
+import { DataLoadingSkeleton } from "@/components/ui/data-loading-skeleton";
 import { Button } from "@/components/ui/button";
 import { T } from "gt-react";
 
@@ -22,18 +24,16 @@ interface MyPocketTournamentPreviewsProps {
   showFilters?: boolean;
   limit?: number;
   /** Optional pre-fetched tournaments - if provided, skips SWR fetch */
-  initialTournaments?: PocketTournament[];
-  /** Optional pre-fetched rounds - if provided, skips SWR fetch */
-  initialRounds?: PocketTournamentRound[];
+  initialTournaments?: PocketTournamentPreviewData[];
 }
 
 export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProps) {
-  const { initialTournaments, initialRounds } = props;
+  const { initialTournaments } = props;
   const initialLimit = props.limit ?? TOURNAMENT_PAGE_SIZE;
   const [visibleLimit, setVisibleLimit] = useState(initialLimit);
 
   // Only fetch via SWR if no initial data provided
-  const { data: swrTournamentPage } = usePocketTournaments(
+  const { data: swrTournamentPage, error } = usePocketTournaments(
     initialTournaments ? undefined : props.userId,
     props.limit ?? visibleLimit + 1
   );
@@ -43,13 +43,6 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
   const tournaments = props.limit
     ? tournamentPage?.slice(0, props.limit)
     : tournamentPage?.slice(0, visibleLimit);
-  const tournamentIds = (tournaments ?? []).map((tournament) => tournament.id);
-  const { data: swrRounds } = usePocketTournamentRounds(
-    initialRounds ? undefined : props.userId,
-    tournamentIds
-  );
-  const rounds = initialRounds ?? swrRounds;
-
   const [isInteractionBlocked, ] = useState(false);
   const [selectedCats, setSelectedCats] = useState<TournamentCategoryTab[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<TournamentFormatsTab>('All');
@@ -77,6 +70,9 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
     (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
     && (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
+
+  if (error && !tournaments) return <DataLoadError />;
+  if (!tournaments) return <DataLoadingSkeleton />;
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -132,29 +128,27 @@ export function MyPocketTournamentPreviews(props: MyPocketTournamentPreviewsProp
 
         {selectedCats.length === 0 ? (
           <div className="flex flex-col gap-2">
-            {filteredTournaments?.map((tournament) =>
-              rounds ? (
+            {filteredTournaments?.map((tournament) => (
                 <PocketTournamentPreview
                   key={tournament.id}
                   tournament={tournament}
-                  rounds={rounds.filter((round) => round.tournament === tournament.id)}
+                  record={tournament}
                   hatType={tournament.hat_type}
                 />
-              ) : null
+              )
             )}
           </div>
         ) : (
             <ScrollArea className="h-[36rem]">
               <div className="flex flex-col gap-2">
-              {filteredTournaments?.map((tournament) =>
-                rounds ? (
+              {filteredTournaments?.map((tournament) => (
                   <PocketTournamentPreview
                   key={tournament.id}
                   tournament={tournament}
-                  rounds={rounds.filter((round) => round.tournament === tournament.id)}
+                  record={tournament}
                   hatType={tournament.hat_type}
                   />
-                ) : null
+                )
               )}
             </div>
           </ScrollArea>

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
-import { parseBattleLog } from "../utils/battle-log.utils";
+import { parseBattleLogWithRules } from '@/components/archetype/utils/deck-rules.client';
 import { getBattleLogMetadataFromLog } from './BattleLogInput.utils';
 import {
   Dialog,
@@ -62,12 +62,12 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     setDecklistId(getStoredBattleLogDecklistId(props.userData?.id));
   }, [props.userData?.id]);
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+  const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = event.clipboardData.getData('Text');
     setLog(pastedText);
 
     try {
-      const parsedLog = parseBattleLog(pastedText, '', '', '', '', null);
+      const parsedLog = await parseBattleLogWithRules(pastedText, '', '', '', '', null);
       const details = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
       setParsedLogDetails(details);
       setShowDialog(true);
@@ -89,7 +89,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const handleAddButtonClick = async () => {
     let parsedLog;
     try {
-      parsedLog = parseBattleLog(log, '', '', '', '', null);
+      parsedLog = await parseBattleLogWithRules(log, '', '', '', '', null);
     } catch(error) {
       setLog('');
       return toast({
@@ -101,12 +101,12 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const supabase = createClient();
 
-    const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
+    const { turn_order, result, archetype: inferredArchetype, opp_archetype: inferredOpponent } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
 
     const { data, error } = await supabase.from('logs').insert({
       user: props.userData?.id ?? null,
-      archetype,
-      opp_archetype: oppArchetype,
+      archetype: archetype ?? inferredArchetype,
+      opp_archetype: oppArchetype ?? inferredOpponent,
       decklist_id: decklistId,
       log,
       turn_order,
@@ -162,7 +162,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             }
 
             setLog(text);
-            const parsed = parseBattleLog(text, '', '', '', '', null);
+            const parsed = await parseBattleLogWithRules(text, '', '', '', '', null);
             const details = getBattleLogMetadataFromLog(parsed, props.userData?.live_screen_name);
             setParsedLogDetails(details);
             setShowDialog(true);

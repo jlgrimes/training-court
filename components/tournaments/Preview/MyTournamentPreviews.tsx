@@ -1,16 +1,18 @@
 'use client';
 
+import { DataLoadError } from '@/components/ui/data-load-error';
+
+import { DataLoadingSkeleton } from "@/components/ui/data-loading-skeleton";
+
 import { User } from "@supabase/supabase-js";
 import TournamentPreview from "./TournamentPreview";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TournamentCategory, TournamentCategoryTab, allTournamentCategoryTabs, displayTournamentCategoryTab } from "../Category/tournament-category.types";
 import { TournamentCategoryIcon } from "../Category/TournamentCategoryIcon";
-import { getTournamentRoundsFromUserRounds } from "../utils/tournaments.utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMemo, useState } from "react";
 import { useTournaments } from "@/hooks/tournaments/useTournaments";
-import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
 import { TournamentFormatsTab } from "../Format/tournament-format.types";
 import MultiSelect from "@/components/ui/multi-select";
 import { Button } from "@/components/ui/button";
@@ -25,11 +27,9 @@ interface MyTournamentPreviewsProps {
 
 export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
   const [visibleLimit, setVisibleLimit] = useState(TOURNAMENT_PAGE_SIZE);
-  const { data: tournamentPage } = useTournaments(props.user?.id, visibleLimit + 1);
+  const { data: tournamentPage, error } = useTournaments(props.user?.id, visibleLimit + 1);
   const hasMore = (tournamentPage?.length ?? 0) > visibleLimit;
   const tournaments = tournamentPage?.slice(0, visibleLimit);
-  const tournamentIds = (tournaments ?? []).map((tournament) => tournament.id);
-  const { data: rounds } = useTournamentRounds(props.user?.id, tournamentIds);
   const basePath = props.basePath ?? '/tournaments';
 
   const [isInteractionBlocked, ] = useState(false);
@@ -59,6 +59,9 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
     (selectedCats.length === 0 || selectedCats.includes(tournament.category as TournamentCategoryTab))
     && (selectedFormat === 'All' || tournament.format === selectedFormat)
   );
+
+  if (error && !tournaments) return <DataLoadError />;
+  if (!tournaments) return <DataLoadingSkeleton />;
 
   if (tournaments && tournaments?.length === 0) {
     return (
@@ -113,32 +116,30 @@ export function MyTournamentPreviews (props: MyTournamentPreviewsProps) {
 
         {selectedCats.length === 0 ? (
           <div className="flex flex-col gap-2">
-            {filteredTournaments?.map((tournament) =>
-              rounds ? (
+            {filteredTournaments?.map((tournament) => (
                 <TournamentPreview
                   key={tournament.id}
                   tournament={tournament}
-                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  record={tournament}
                   basePath={basePath}
                   hatType={tournament.hat_type}
                 />
-              ) : null
+              )
             )}
           </div>
         ) : (
           <ScrollArea className="h-[36rem]">
             <div className="flex flex-col gap-2">
-              {filteredTournaments?.map((tournament) =>
-                rounds ? (
+              {filteredTournaments?.map((tournament) => (
                   <TournamentPreview
                   key={tournament.id}
                   tournament={tournament}
-                  rounds={getTournamentRoundsFromUserRounds(rounds, tournament)}
+                  record={tournament}
                   shouldHideCategoryBadge
                   basePath={basePath}
                   hatType={tournament.hat_type}
                   />
-                ) : null
+                )
               )}
             </div>
           </ScrollArea>

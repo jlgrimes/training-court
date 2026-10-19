@@ -15,7 +15,7 @@ import { TournamentCategoryBadge } from "../Category/TournamentCategoryBadge";
 import { TournamentCategory } from "../Category/tournament-category.types";
 import { TournamentPlacement } from "../Placement/tournament-placement.types";
 import { TournamentPlacementBadge } from "../Placement/TournamentPlacementBadge";
-import { preload } from "swr";
+import { preload, useSWRConfig } from "swr";
 import { USE_LIMITLESS_SPRITES_KEY } from "@/components/archetype/sprites/sprites.constants";
 import { fetchLimitlessSprites } from "@/components/archetype/sprites/sprites.utils";
 import { TournamentFormatBadge } from "../Format/tournamentFormatBadge";
@@ -33,6 +33,12 @@ interface TournamentContainerClientProps {
 
 export const TournamentContainerClient = (props: TournamentContainerClientProps) => {
   const config = props.config;
+  const { mutate } = useSWRConfig();
+  const invalidatePreviews = useCallback(() => {
+    const prefix = config.gameId === 'pokemon-pocket' ? 'pocket-tournaments' : 'tournaments';
+    void mutate(key => Array.isArray(key) && key[0] === prefix && key[1] === props.tournament.user,
+      undefined, { revalidate: false });
+  }, [mutate, config.gameId, props.tournament.user]);
   const [rounds, setRounds] = useState(props.rounds);
   const [tournamentName, setTournamentName] = useState(props.tournament.name);
   // @TODO: Date is still shifting for some people. When they save, the date adjusts to an unexpected date. This needs to be fixed
@@ -64,14 +70,16 @@ export const TournamentContainerClient = (props: TournamentContainerClientProps)
 
   const updateClientRoundsOnAdd = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row']) => {
     setRounds([...rounds, newRound]);
-  }, [setRounds, rounds]);
+    invalidatePreviews();
+  }, [setRounds, rounds, invalidatePreviews]);
 
   const updateClientRoundsOnEdit = useCallback((newRound: Database['public']['Tables']['tournament rounds']['Row'], pos: number) => {
     let newRounds = [...rounds];
     newRounds[pos] = newRound;
     
     setRounds(newRounds);
-  }, [setRounds, rounds]);
+    invalidatePreviews();
+  }, [setRounds, rounds, invalidatePreviews]);
 
   const updateClientTournamentDataOnEdit = useCallback((newName: string, newDate: DateRange, newCategory: TournamentCategory | null, newPlacement: TournamentPlacement | null, newFormat: string | null, newDecklistId: string | null) => {
     setTournamentDate(newDate);

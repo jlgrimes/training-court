@@ -239,5 +239,17 @@
   "tournaments.empty.description": "過去、現在、未来の大会を追加できます。",
   "tournaments.header": "大会",
   "tournaments.newTournament": "新しい大会",
-  "tournaments.ptcgHeader": "PTCG大会"
+  "tournaments.ptcgHeader": "PTCG大会",
+  "admin.deckRules.tab": "デッキ判定",
+  "admin.deckRules.help": "判定するカードと、デッキ名に表示する1つまたは2つのスプライトを選んでください。バリエーションの判定には、任意で2枚目のカードを指定できます。",
+  "admin.deckRules.error": "ルールを読み込みまたは保存できませんでした。入力内容を確認して再試行してください。",
+  "admin.deckRules.loading": "ルールを読み込み中…",
+  "admin.deckRules.result": "デッキ名",
+  "admin.deckRules.save": "ルールを保存",
+  "admin.deckRules.new": "新しいルール",
+  "admin.deckRules.edit": "編集",
+  "admin.deckRules.delete": "削除",
+  "admin.deckRules.card": "カード",
+  "admin.deckRules.secondCard": "2枚目のカード（任意）",
+  "admin.deckRules.retry": "再試行"
 }
