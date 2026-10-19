@@ -4,6 +4,45 @@ import { battleLogNewStructure } from "@/components/battle-logs/utils/testing-fi
 import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-files/battleLogNoPlayer2Turn";
 
 describe('battle log replay utils', () => {
+  it('preserves stadium ownership, discards replaced stadiums once, and does not consume a hand card to use them', () => {
+    const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+    battleLog.sections = [{ ...battleLog.sections[0], actions: [
+      { title: 'Player2 drew 3 cards.', details: [] },
+      { title: 'Player2 played Grand Tree to the Stadium spot.', details: [] },
+      { title: 'Bassoonboy135 played Grand Tree.', details: [] },
+      { title: 'Bassoonboy135 played Artazon to the Stadium spot.', details: ['- Player2 discarded Grand Tree.'] },
+      { title: 'Bassoonboy135 discarded Artazon.', details: [] },
+    ] }];
+    const { frames } = buildBattleLogReplay(battleLog);
+    expect(frames[1].board.stadium).toMatchObject({ name: 'Grand Tree', owner: 'Player2' });
+    expect(frames[2].board.players.Bassoonboy135.discard).toEqual([]);
+    expect(frames[3].board.stadium?.name).toBe('Artazon');
+    expect(frames[3].board.players.Player2.discard.map((card) => card.name)).toEqual(['Grand Tree']);
+    expect(frames[3].board.players.Player2.hand.unknownCount).toBe(2);
+    expect(frames[4].board.stadium).toBeNull();
+    expect(frames[4].board.players.Bassoonboy135.discard.map((card) => card.name)).toEqual(['Artazon']);
+  });
+
+  it('tracks tools and energy through activation, switching, evolution, removal and knockout', () => {
+    const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+    battleLog.sections = [{ ...battleLog.sections[0], actions: [
+      { title: 'Player2 played Pidgey to the Active Spot.', details: [] },
+      { title: 'Player2 played Froakie to the Bench.', details: [] },
+      { title: "Player2 attached Jet Energy to Player2's Froakie on the Bench. Jet Energy was activated.", details: [] },
+      { title: "Player2's Froakie is now in the Active Spot.", details: [] },
+      { title: 'Player2 attached Air Balloon to Froakie in the Active Spot.', details: [] },
+      { title: 'Player2 evolved Froakie to Frogadier in the Active Spot.', details: [] },
+      { title: "Air Balloon was discarded from Player2's Frogadier.", details: [] },
+      { title: "Player2's Frogadier was Knocked Out!", details: [] },
+    ] }];
+    const { frames } = buildBattleLogReplay(battleLog);
+    expect(frames[2].board.players.Player2.bench[0].attachments.map((card) => card.name)).toEqual(['Jet Energy']);
+    expect(frames[5].board.players.Player2.active?.attachments.map((card) => card.name)).toEqual(['Jet Energy', 'Air Balloon']);
+    expect(frames[6].board.players.Player2.active?.attachments.map((card) => card.name)).toEqual(['Jet Energy']);
+    expect(frames[7].board.players.Player2.active).toBeNull();
+    expect(frames[7].board.players.Player2.discard.map((card) => card.name)).toEqual(['Air Balloon', 'Frogadier', 'Jet Energy']);
+  });
+
   it('places a named deck search on the bench without changing the hand', () => {
     const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
     const replay = buildBattleLogReplay(battleLog, 'Bassoonboy135');

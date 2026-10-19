@@ -1,4 +1,8 @@
 {
+  "battleLogs.replay.board": "Tablero de la repetición",
+  "battleLogs.replay.deck": "Baraja",
+  "battleLogs.replay.close": "Cerrar",
+  "battleLogs.replay.actionDetails": "Detalles de la acción",
   "admin.feedback.email": "Correo electrónico",
   "admin.feedback.emailUnavailable": "Correo electrónico no disponible",
   "admin.feedback.loadError": "No se pudieron cargar los comentarios. Inténtalo de nuevo.",

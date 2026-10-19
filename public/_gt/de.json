@@ -1,4 +1,8 @@
 {
+  "battleLogs.replay.board": "Spielfeld der Wiederholung",
+  "battleLogs.replay.deck": "Deck",
+  "battleLogs.replay.close": "Schließen",
+  "battleLogs.replay.actionDetails": "Aktionsdetails",
   "admin.feedback.email": "E-Mail",
   "admin.feedback.emailUnavailable": "E-Mail nicht verfügbar",
   "admin.feedback.loadError": "Feedback konnte nicht geladen werden. Bitte versuche es erneut.",

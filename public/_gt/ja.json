@@ -1,4 +1,8 @@
 {
+  "battleLogs.replay.board": "リプレイの対戦盤面",
+  "battleLogs.replay.deck": "山札",
+  "battleLogs.replay.close": "閉じる",
+  "battleLogs.replay.actionDetails": "アクションの詳細",
   "admin.feedback.email": "メールアドレス",
   "admin.feedback.emailUnavailable": "メールアドレスを取得できません",
   "admin.feedback.loadError": "フィードバックを読み込めませんでした。もう一度お試しください。",

@@ -1,0 +1,147 @@
+.boardScroll {
+  overflow-x: auto;
+  border: 1px solid #cbd5d1;
+  border-radius: 16px;
+  background: #e8efeb;
+  scrollbar-width: thin;
+}
+
+.surface {
+  container-type: inline-size;
+  min-width: 0;
+  padding: 14px 0;
+  color: #36534b;
+  background: radial-gradient(ellipse at center, #e9f1e9, #d7e6de);
+}
+
+.playerField {
+  --featured-width: clamp(92px, 11.5cqw, 128px);
+  --bench-width: clamp(54px, 7.2cqw, 80px);
+  --side-width: clamp(38px, 5.5cqw, 62px);
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(0, 4fr) minmax(100px, 1fr);
+  column-gap: 14px;
+  row-gap: 14px;
+  padding: 0 24px;
+}
+
+.playerName {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 4px 0;
+}
+
+.playerDot { width: 6px; height: 6px; border-radius: 50%; background: #5f8074; }
+.perspective .playerDot { background: #337b9c; }
+.opponent .playerName { grid-row: 1; }
+.perspective .playerName { grid-row: 4; }
+.opponent .hand { grid-row: 2; }
+.opponent .handScroll { max-height: 76px; overflow-y: hidden; }
+.opponent .handCards { padding-bottom: 0; }
+.perspective .hand { grid-row: 3; }
+.opponent .benchZone { grid-row: 3; }
+.perspective .benchZone { grid-row: 2; }
+.opponent .activeZone, .opponent .prizes, .opponent .piles { grid-row: 4; }
+.perspective .activeZone, .perspective .prizes, .perspective .piles { grid-row: 1; }
+
+.zoneLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #62796f;
+}
+
+.zoneLabel > span { font-variant-numeric: tabular-nums; }
+.hand { grid-column: 1 / -1; min-width: 0; }
+.hand > .zoneLabel { margin-bottom: 4px; }
+.handScroll { overflow-x: auto; scrollbar-width: thin; }
+.handCards { display: flex; align-items: center; justify-content: center; gap: 14px; width: max-content; min-width: 100%; padding: 10px 10px 14px; }
+.emptyHand { display: flex; align-items: center; height: 40px; font-size: 11px; color: #7c8e86; }
+.card { position: relative; flex-shrink: 0; width: var(--featured-width); }
+.featured { width: var(--featured-width); }
+.bench { width: var(--bench-width); }
+.side { width: var(--side-width); }
+.attachment { width: 24px; }
+.cardButton { position: relative; z-index: 1; display: block; width: 100%; border-radius: 5px; outline-offset: 4px; transition: transform 120ms ease; }
+.cardButton:hover { transform: translateY(-3px); }
+.cardButton:focus-visible { outline: 2px solid #256887; }
+.artwork, .cardFallback, .cardBack { display: block; width: 100%; aspect-ratio: 5 / 7; border-radius: 5px; }
+.artwork { object-fit: contain; background: #e2e7df; box-shadow: 0 2px 5px #183c2929; }
+.cardFallback { display: flex; align-items: center; justify-content: center; padding: 5px; border: 1px solid #aabcb0; background: #f8faf6; font-size: 11px; text-align: center; color: #324a40; }
+.cardBack { position: relative; display: grid; place-items: center; overflow: hidden; border: 3px solid #e2e9d7; background: #38566b; box-shadow: 0 2px 4px #183c2926; }
+.cardBack::before { content: ''; position: absolute; inset: 6px; border: 1px solid #d7e4db66; border-radius: 40%; transform: rotate(-25deg); }
+.cardBack > span { width: 34%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #c4d6cf99; background: linear-gradient(#9bb5aa 46%, #38566b 46%, #38566b 54%, #dce5d6 54%); }
+.hiddenHand { position: relative; width: var(--featured-width); flex-shrink: 0; }
+.fanned { display: flex; width: auto; }
+.fanned > .cardBack { width: var(--featured-width); flex-shrink: 0; }
+.fanned > .cardBack + .cardBack { margin-left: calc(var(--featured-width) * -.45); }
+.fanned > .count { left: 50%; right: auto; transform: translateX(-50%); }
+.stacked::before, .stacked::after { content: ''; position: absolute; inset: 0; border: 1px solid #b2bfae; border-radius: 5px; background: #e8eee1; }
+.stacked::before { transform: translate(6px, -6px); }
+.stacked::after { transform: translate(3px, -3px); }
+.stacked > .cardBack { z-index: 1; }
+.count { position: absolute; z-index: 3; top: -9px; right: -7px; display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 50%; background: #fafcf7; border: 1px solid #c6d0c3; box-shadow: 0 1px 3px #183c2926; font-size: 12px; font-weight: 700; color: #354b40; }
+.benchZone { grid-column: 2; min-width: 0; }
+.benchZone > .zoneLabel { margin-bottom: 7px; }
+.benchCards { display: flex; justify-content: flex-start; gap: 10px; overflow-x: auto; padding: 7px 5px; border-top: 1px solid #668a752e; scrollbar-width: thin; }
+.pokemon { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; gap: 5px; }
+.emptySlot { aspect-ratio: 5 / 7; border: 1px solid #74938130; border-radius: 5px; }
+.activeZone { grid-column: 2; display: flex; justify-content: center; align-items: start; padding: 6px 0; }
+.damage { position: absolute; z-index: 2; top: -6px; right: -10px; padding: 3px 7px; border-radius: 20px; border: 1px solid #b75735; background: #c9623a; color: white; font-size: 12px; font-weight: 700; pointer-events: none; }
+.attachments { display: flex; justify-content: center; flex-wrap: wrap; gap: 3px; max-width: var(--featured-width); }
+.attachments .cardButton { border-radius: 2px; }
+.attachments .cardButton:hover, .attachments .cardButton:focus-visible { z-index: 5; transform: scale(2); }
+.attachment .artwork, .attachment .cardFallback { border-radius: 2px; font-size: 6px; padding: 0; }
+.status { max-width: var(--featured-width); font-size: 9px; text-align: center; }
+.prizes { grid-column: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.prizeCards { display: flex; align-items: center; min-height: calc(var(--side-width) * 1.4); }
+.prizeCard { width: var(--side-width); }
+.prizeCard + .prizeCard { margin-left: calc(var(--side-width) * -.78); }
+.piles { grid-column: 3; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.pile { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.deck { position: relative; width: var(--side-width); }
+.centerLine { position: relative; display: flex; align-items: center; justify-content: center; height: 32px; margin: 0 24px; }
+.centerLine::before { content: ''; width: 100%; border-top: 1px solid #789b842e; }
+.centerMark { position: absolute; width: 26px; height: 26px; border: 1px solid #789b843d; border-radius: 50%; background: #e4eee4; }
+.stadium { position: absolute; left: 21%; display: flex; align-items: center; gap: 7px; padding: 5px; background: #dfebe0; border-radius: 6px; }
+.stadium .side { width: 48px; }
+.inspectOverlay { position: fixed; inset: 0; z-index: 60; background: #101c20c9; backdrop-filter: blur(4px); }
+.inspectContent { position: fixed; z-index: 61; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(360px, 80vw, 60vh); outline: none; }
+.inspectClose { position: absolute; right: -14px; top: -14px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #fafcf7; color: #263e34; box-shadow: 0 1px 6px #0003; }
+
+@container (max-width: 640px) {
+  .playerField {
+    --featured-width: 74px;
+    --bench-width: 44px;
+    --side-width: 30px;
+    grid-template-columns: 64px minmax(0, 1fr) 64px;
+    column-gap: 8px;
+    row-gap: 10px;
+    padding-inline: 12px;
+  }
+  .benchZone { grid-column: 1 / -1; }
+  .benchCards { gap: 8px; }
+  .piles { gap: 5px; }
+  .zoneLabel { gap: 3px; font-size: 8px; letter-spacing: .02em; }
+  .handCards { gap: 10px; }
+  .attachments { gap: 2px; }
+  .attachment { width: 18px; }
+  .damage { padding: 2px 5px; font-size: 10px; }
+  .count { min-width: 20px; height: 20px; font-size: 10px; }
+  .cardFallback { font-size: 9px; }
+  .stadium { left: 12%; gap: 4px; }
+  .stadium .side { width: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) { .cardButton { transition: none; } }

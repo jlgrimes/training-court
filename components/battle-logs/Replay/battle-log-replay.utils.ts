@@ -161,7 +161,8 @@ const playPokemon = (player: ReplayPlayerState, pokemonName: string, zone: 'acti
 };
 
 const attachCardToPokemon = (player: ReplayPlayerState, cardName: string, pokemonName: string) => {
-  const target = findPokemon(player, pokemonName) ?? player.active;
+  const target = findPokemon(player, pokemonName);
+  if (!target) return;
   const card = removeCardFromHand(player, cardName);
   if (target) target.attachments.push(card);
 };
@@ -195,7 +196,7 @@ const classifyEvent = (line: string): ReplayEventKind => {
   return 'text';
 };
 
-const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number) => {
+const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>) => {
   const line = normalizeLine(rawLine);
   const playerName = findPlayer(line, players);
   const player = playerName ? board.players[playerName] : null;
@@ -273,10 +274,13 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     return;
   }
 
-  const attachedMatch = line.match(/^-? ?(.+) attached (.+) to (?:(?:.+)'s )?(.+) (?:in the Active Spot|on the Bench)\.?$/);
+  const attachedMatch = line.match(/^-? ?(.+?) attached (.+?) to (.+?) (?:in the Active Spot|on the Bench)\.(?: .*)?$/);
   if (attachedMatch) {
     const owner = board.players[attachedMatch[1]];
-    if (owner) attachCardToPokemon(owner, attachedMatch[2], attachedMatch[3]);
+    const targetName = attachedMatch[3].startsWith(`${owner?.name}'s `)
+      ? attachedMatch[3].slice(owner.name.length + 3)
+      : attachedMatch[3];
+    if (owner) attachCardToPokemon(owner, attachedMatch[2], targetName);
     return;
   }
 
@@ -291,15 +295,34 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     return;
   }
 
-  const stadiumMatch = line.match(/^(.+) played (.+) to the Stadium spot\.$/);
+  const stadiumMatch = line.match(/^(.+) played (.+) to the Stadium spot\.$/i);
   if (stadiumMatch) {
     const owner = board.players[stadiumMatch[1]];
-    if (owner) board.stadium = removeCardFromHand(owner, stadiumMatch[2]);
+    if (owner) {
+      const previous = board.stadium;
+      if (previous?.owner && board.players[previous.owner]) {
+        board.players[previous.owner].discard.push(previous);
+        stadiumDiscards.add(`${previous.owner}:${previous.name}`);
+      }
+      board.stadium = { ...removeCardFromHand(owner, stadiumMatch[2]), owner: owner.name };
+    }
+    return;
+  }
+
+  const discardedStadiumMatch = line.match(/^(?:- )?(.+) was discarded from the Stadium spot\.$/i);
+  if (discardedStadiumMatch) {
+    if (board.stadium?.name.toLowerCase() === discardedStadiumMatch[1].toLowerCase()) {
+      const stadium = board.stadium;
+      if (stadium.owner && board.players[stadium.owner]) board.players[stadium.owner].discard.push(stadium);
+      board.stadium = null;
+    }
     return;
   }
 
   const playedCardMatch = line.match(/^(.+) played (.+)\.$/);
   if (playedCardMatch && player) {
+    // Using the Stadium's effect does not play another copy from hand.
+    if (board.stadium?.name === playedCardMatch[2]) return;
     player.discard.push(removeCardFromHand(player, playedCardMatch[2]));
     return;
   }
@@ -315,8 +338,17 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   const discardedNamedMatch = line.match(/^-? ?(.+) discarded (.+)\.$/);
   if (discardedNamedMatch) {
     const owner = board.players[discardedNamedMatch[1]];
-    if (owner) discardCard(owner, discardedNamedMatch[2]);
-    return;
+    const key = `${discardedNamedMatch[1]}:${discardedNamedMatch[2]}`;
+    if (stadiumDiscards.delete(key)) return;
+    if (board.stadium?.name === discardedNamedMatch[2] && board.stadium.owner === owner?.name) {
+      owner.discard.push(board.stadium);
+      board.stadium = null;
+      return;
+    }
+    if (owner) {
+      discardCard(owner, discardedNamedMatch[2]);
+      return;
+    }
   }
 
   const discardedFromMatch = line.match(/^-? ?(.+) was discarded from (.+)'s (.+)\.$/);
@@ -424,7 +456,8 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
   battleLog.sections.forEach((section, sectionIndex) => {
     section.actions.forEach((action, actionIndex) => {
       const lines = getActionLines(action);
-      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex));
+      const stadiumDiscards = new Set<string>();
+      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards));
       pushFrame(sectionIndex, actionIndex, section.turnTitle, section.player, buildEvent(`event-${sectionIndex}-${actionIndex}`, action, lines, players));
     });
 

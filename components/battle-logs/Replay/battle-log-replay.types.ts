@@ -16,6 +16,7 @@ export interface ReplayCard {
   id: string;
   name: string;
   known: boolean;
+  owner?: string;
 }
 
 export interface ReplayPokemon {

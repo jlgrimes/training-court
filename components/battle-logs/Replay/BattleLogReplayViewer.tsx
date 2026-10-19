@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import { Pause, Play, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import { T, useGT } from "gt-react";
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
@@ -9,14 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { buildBattleLogReplay } from "./battle-log-replay.utils";
-import { ReplayBoardState, ReplayCard, ReplayFrame, ReplayPlayerState, ReplayPokemon } from "./battle-log-replay.types";
+import type { ReplayFrame } from "./battle-log-replay.types";
+import { ReplayBoard, type CatalogCard } from "./ReplayBoard";
 
-type CatalogCard = {
-  id: string;
-  name: string;
-  imageUrlHiRes?: string;
-  imageUrl?: string;
-};
+export { ReplayBoard } from "./ReplayBoard";
 
 type SearchCardsResponse = {
   cards?: CatalogCard[];
@@ -27,13 +22,6 @@ interface BattleLogReplayViewerProps {
   battleLog: BattleLog;
   perspectivePlayerName?: string | null;
 }
-
-const buildImageUrl = (imageUrlHiRes?: string, imageUrl?: string): string | undefined => {
-  if (imageUrlHiRes) return imageUrlHiRes;
-  if (!imageUrl) return undefined;
-  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
-  return `${imageUrl}/low.png`;
-};
 
 const getKnownCardNames = (frames: ReplayFrame[]) => {
   const names = new Set<string>();
@@ -129,164 +117,6 @@ function useCardImages(cardNames: string[]) {
   }, [cardNamesKey, cardsByName]);
 
   return cardsByName;
-}
-
-function CardMiniature({ card, image, compact = false }: { card: ReplayCard; image?: CatalogCard; compact?: boolean }) {
-  const imageUrl = buildImageUrl(image?.imageUrlHiRes, image?.imageUrl);
-  const [failedImageUrl, setFailedImageUrl] = useState<string>();
-
-  if (!card.known) {
-    return (
-      <div className={cn(
-        "flex aspect-[5/7] items-center justify-center rounded border bg-zinc-800 text-[10px] font-semibold text-zinc-100",
-        compact ? "w-10" : "w-14"
-      )}>
-        ?
-      </div>
-    );
-  }
-
-  return (
-    <div className={cn("min-w-0", compact ? "w-10" : "w-14")}>
-      {imageUrl && imageUrl !== failedImageUrl ? (
-        <img src={imageUrl} alt={card.name} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[5/7] w-full rounded border bg-muted object-contain" loading="lazy" />
-      ) : (
-        <div className="flex aspect-[5/7] w-full items-center justify-center rounded border bg-muted px-1 text-center text-[9px] leading-tight">
-          {card.name}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PokemonSpot({
-  pokemon,
-  cardsByName,
-  label,
-  active = false,
-}: {
-  pokemon: ReplayPokemon | null;
-  cardsByName: Record<string, CatalogCard | null>;
-  label: ReactNode;
-  active?: boolean;
-}) {
-  return (
-    <div className={cn("min-h-[118px] rounded-md border bg-background p-2", active && "border-primary")}>
-      <div className="mb-1 text-[11px] font-semibold uppercase text-muted-foreground">{label}</div>
-      {pokemon ? (
-        <div className="flex gap-2">
-          <CardMiniature card={{ id: pokemon.id, name: pokemon.name, known: true }} image={cardsByName[pokemon.name] ?? undefined} />
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold">{pokemon.name}</div>
-            <div className="text-xs text-muted-foreground">
-              <T id="battleLogs.replay.damage">Damage</T>: {pokemon.damage}
-            </div>
-            {pokemon.attachments.length > 0 && (
-              <div className="mt-1 flex flex-wrap gap-1">
-                {pokemon.attachments.map((card) => (
-                  <span key={card.id} className="rounded bg-muted px-1.5 py-0.5 text-[10px]">
-                    {card.name}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="flex h-[82px] items-center justify-center rounded border border-dashed text-xs text-muted-foreground">
-          <T id="battleLogs.replay.empty">Empty</T>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlayerBoard({
-  player,
-  cardsByName,
-  isPerspective,
-}: {
-  player: ReplayPlayerState;
-  cardsByName: Record<string, CatalogCard | null>;
-  isPerspective: boolean;
-}) {
-  const shownHandCards = isPerspective ? player.hand.knownCards : [];
-  const hiddenCount = isPerspective ? player.hand.unknownCount : player.hand.knownCards.length + player.hand.unknownCount;
-
-  return (
-    <section className="rounded-md border bg-card p-3">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="text-base font-semibold">{player.name}</h3>
-          <p className="text-xs text-muted-foreground">
-            <T id="battleLogs.replay.prizes">Prizes</T>: {player.prizesRemaining}
-          </p>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          <T id="battleLogs.replay.discard">Discard</T>: {player.discard.length}
-        </div>
-      </div>
-
-      <div className="grid gap-2 md:grid-cols-[1fr_2fr]">
-        <PokemonSpot pokemon={player.active} cardsByName={cardsByName} label={<T id="battleLogs.replay.active">Active</T>} active />
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {Array.from({ length: Math.max(5, player.bench.length) }).map((_, index) => (
-            <PokemonSpot
-              key={`${player.name}-bench-${index}`}
-              pokemon={player.bench[index] ?? null}
-              cardsByName={cardsByName}
-              label={<><T id="battleLogs.replay.bench">Bench</T> {index + 1}</>}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-3 rounded-md border bg-background p-2">
-        <div className="mb-2 flex items-center justify-between text-xs font-semibold text-muted-foreground">
-          <span><T id="battleLogs.replay.hand">Hand</T></span>
-          {hiddenCount > 0 && <span>{hiddenCount} <T id="battleLogs.replay.unknownCards">unknown</T></span>}
-        </div>
-        <div className="flex min-h-14 flex-wrap gap-2">
-          {shownHandCards.map((card) => (
-            <CardMiniature key={card.id} card={card} image={cardsByName[card.name] ?? undefined} compact />
-          ))}
-          {Array.from({ length: Math.min(hiddenCount, 12) }).map((_, index) => (
-            <CardMiniature key={`${player.name}-unknown-${index}`} card={{ id: `${player.name}-unknown-${index}`, name: 'Unknown card', known: false }} compact />
-          ))}
-          {shownHandCards.length === 0 && hiddenCount === 0 && (
-            <span className="text-xs text-muted-foreground"><T id="battleLogs.replay.empty">Empty</T></span>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ReplayBoard({
-  board,
-  perspectivePlayer,
-  cardsByName,
-}: {
-  board: ReplayBoardState;
-  perspectivePlayer: string;
-  cardsByName: Record<string, CatalogCard | null>;
-}) {
-  const perspective = board.players[perspectivePlayer];
-  const opponent = board.playerOrder.map((name) => board.players[name]).find((player) => player.name !== perspectivePlayer);
-
-  return (
-    <div className="grid gap-3">
-      {opponent && <PlayerBoard player={opponent} cardsByName={cardsByName} isPerspective={false} />}
-      <div className="flex min-h-12 items-center justify-center rounded-md border bg-muted/40 px-3 text-sm">
-        {board.stadium ? (
-          <span><T id="battleLogs.replay.stadium">Stadium</T>: {board.stadium.name}</span>
-        ) : (
-          <span className="text-muted-foreground"><T id="battleLogs.replay.noStadium">No Stadium</T></span>
-        )}
-      </div>
-      {perspective && <PlayerBoard player={perspective} cardsByName={cardsByName} isPerspective />}
-    </div>
-  );
 }
 
 function ReplayTimeline({
@@ -400,16 +230,14 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   };
 
   return (
-    <div className="grid gap-4">
-      <div className="rounded-md border bg-card p-3">
-        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+    <div className="grid gap-3">
+      <div className="rounded-xl border bg-card px-4 py-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="truncate text-lg font-semibold"><T id="battleLogs.replay.title">Replay</T></h2>
-            <p className="truncate text-sm text-muted-foreground">{currentFrame.turnTitle}</p>
+            <h2 className="text-sm font-semibold">{currentFrame.turnTitle}</h2>
           </div>
           <div className="text-right text-xs text-muted-foreground">
             <div><T id="battleLogs.replay.frame">Frame</T> {currentIndex + 1}/{replay.frames.length}</div>
-            <div><T id="battleLogs.replay.perspective">Perspective</T>: {replay.perspectivePlayer}</div>
           </div>
         </div>
 
@@ -443,17 +271,20 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
 
       <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByName={cardsByName} />
 
-      <div className="rounded-md border bg-card p-3">
+      <div className="px-1 py-2">
         <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
           <T id="battleLogs.replay.currentAction">Current action</T>
         </div>
         <p className="text-sm font-medium">{currentFrame.event.title}</p>
         {currentFrame.event.details.length > 0 && (
-          <div className="mt-2 grid gap-1 text-sm text-muted-foreground">
-            {currentFrame.event.details.map((detail, index) => (
-              <p key={`${currentFrame.id}-detail-${index}`}>{detail}</p>
-            ))}
-          </div>
+          <details className="mt-2 text-xs text-muted-foreground">
+            <summary className="w-fit cursor-pointer"><T id="battleLogs.replay.actionDetails">Action details</T></summary>
+            <div className="mt-2 grid gap-1">
+              {currentFrame.event.details.map((detail, index) => (
+                <p key={`${currentFrame.id}-detail-${index}`}>{detail}</p>
+              ))}
+            </div>
+          </details>
         )}
       </div>
     </div>
