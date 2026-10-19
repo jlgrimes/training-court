@@ -1,4 +1,8 @@
 {
+  "battleLogs.export.all": "Exporter tous les journaux bruts",
+  "battleLogs.export.single": "Télécharger le journal brut",
+  "battleLogs.export.busy": "Export en cours…",
+  "battleLogs.export.error": "Échec de l’export. Connectez-vous et réessayez.",
   "admin.feedback.email": "E-mail",
   "admin.feedback.emailUnavailable": "E-mail indisponible",
   "admin.feedback.loadError": "Impossible de charger les retours. Veuillez réessayer.",

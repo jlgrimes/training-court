@@ -1,4 +1,8 @@
 {
+  "battleLogs.export.all": "Exportar todos los registros originales",
+  "battleLogs.export.single": "Descargar registro original",
+  "battleLogs.export.busy": "Exportando…",
+  "battleLogs.export.error": "Error al exportar. Inicia sesión e inténtalo de nuevo.",
   "admin.feedback.email": "Correo electrónico",
   "admin.feedback.emailUnavailable": "Correo electrónico no disponible",
   "admin.feedback.loadError": "No se pudieron cargar los comentarios. Inténtalo de nuevo.",

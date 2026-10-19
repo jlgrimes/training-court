@@ -128,3 +128,26 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License.
+
+## Export your stored PTCG Live battle logs
+
+While signed in, open **Battle Logs** and choose **Export all raw logs** to
+download a JSON backup containing `version`, `exported_at`, `count`, and `logs`.
+Each record contains `id`, `created_at` (import time), and the unchanged stored
+`log` string. This includes older games beyond the loaded list page. Open one
+of your games and choose **Download raw log** for its UTF-8 `.txt` file.
+
+The importer stores the pasted input in `logs.log`; the formatted viewer parses
+a separate representation. Exports return the stored text without parsing,
+trimming, or reconstructing it. JSON escapes line breaks; decoding the JSON
+restores the stored string. Export cannot restore anything absent from the
+original paste or later removed from the database. Avoid importing, editing, or
+deleting games during a bulk backup: pagination is not a database snapshot.
+
+`GET /api/battle-logs/export` exports the caller's own records; optional `?id=UUID`
+downloads one owned record. The route validates the session with `getUser()`, uses
+the session-bound Supabase client with RLS, and explicitly filters every query
+by the authenticated user's id. It accepts no user selector, uses no service
+role key, returns no notes or account/session data, disables caching, and fails
+without returning a partial backup if a page query fails. Missing and non-owned
+ids both return 404. No schema migration or new database permissions are needed.

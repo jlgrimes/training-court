@@ -1,4 +1,8 @@
 {
+  "battleLogs.export.all": "すべての元のログをエクスポート",
+  "battleLogs.export.single": "元のログをダウンロード",
+  "battleLogs.export.busy": "エクスポート中…",
+  "battleLogs.export.error": "エクスポートに失敗しました。ログインして再試行してください。",
   "admin.feedback.email": "メールアドレス",
   "admin.feedback.emailUnavailable": "メールアドレスを取得できません",
   "admin.feedback.loadError": "フィードバックを読み込めませんでした。もう一度お試しください。",

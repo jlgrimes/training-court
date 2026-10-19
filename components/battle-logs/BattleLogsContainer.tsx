@@ -19,6 +19,8 @@ import { Database } from "@/database.types";
 import { T } from "gt-react";
 import { isBattleLogCacheKeyForUser, isPrimaryBattleLogCacheKeyForUser } from "@/lib/swr-options";
 
+import { BattleLogExportButton } from "./BattleLogExportButton";
+
 interface BattleLogsContainerProps {
   userId?: string;
   allowPagination?: boolean;
@@ -175,6 +177,8 @@ export function BattleLogsContainer({
         {userData?.live_screen_name && (
           <AddBattleLogInput userData={userData} onLogAdded={handleLogAdded} />
         )}
+
+        {userId && <div><BattleLogExportButton /></div>}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">

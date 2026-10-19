@@ -14,6 +14,8 @@ import { Notes } from '@/components/battle-logs/Notes/Notes';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
 import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
+import { BattleLogExportButton } from '../BattleLogExportButton';
+
 type LogRow = Database['public']['Tables']['logs']['Row'];
 
 interface LogPageClientProps {
@@ -96,6 +98,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
         {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
           <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
         )}
+        {user?.id === logData.user && <BattleLogExportButton logId={logData.id} />}
         <div className="mt-6">
           <BattleLogCarousel battleLog={battleLog} />
         </div>
