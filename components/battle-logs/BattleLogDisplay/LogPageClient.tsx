@@ -15,6 +15,7 @@ import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils'
 import { BattleLogReplayViewer } from '@/components/battle-logs/Replay/BattleLogReplayViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { T } from 'gt-react';
+import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 type LogRow = Database['public']['Tables']['logs']['Row'];
 
@@ -22,28 +23,35 @@ interface LogPageClientProps {
   logId: string;
   /** When true, unauthenticated visitors are sent to /login (legacy /logs/[id] behavior) */
   requireAuth?: boolean;
+  initialLog?: LogRow | null;
 }
 
 /**
  * Client-side body shared by the battle log share pages. The page files keep
  * a server-side generateMetadata for link previews; everything else loads here.
  */
-export function LogPageClient({ logId, requireAuth = false }: LogPageClientProps) {
+export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPageClientProps) {
   const user = useRecoilValue(userAtom);
   const authLoading = useRecoilValue(authLoadingAtom);
   const userData = useRecoilValue(userDataAtom);
   const router = useRouter();
 
-  const { data: logData, isLoading } = useSWR(['log', logId], async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('logs')
-      .select()
-      .eq('id', logId)
-      .returns<LogRow[]>()
-      .maybeSingle();
-    return data ?? null;
-  });
+  const { data: logData, isLoading } = useSWR(
+    ['log', logId],
+    async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('logs')
+        .select()
+        .eq('id', logId)
+        .returns<LogRow[]>()
+        .maybeSingle();
+      return data ?? null;
+    },
+    initialLog !== undefined
+      ? { ...HISTORICAL_SWR_OPTIONS, fallbackData: initialLog, revalidateOnMount: false }
+      : HISTORICAL_SWR_OPTIONS
+  );
 
   useEffect(() => {
     if (requireAuth && !authLoading && !user) {

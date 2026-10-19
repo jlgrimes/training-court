@@ -18,8 +18,9 @@ import { useTournamentRounds } from "@/hooks/tournaments/useTournamentRounds";
  */
 export function TournamentsHomePreview() {
   const user = useRecoilValue(userAtom);
-  const { data: tournaments, isLoading: tournamentsLoading } = useTournaments(user?.id);
-  const { data: rounds } = useTournamentRounds(user?.id);
+  const { data: tournaments, isLoading: tournamentsLoading } = useTournaments(user?.id, 5);
+  const tournamentIds = (tournaments ?? []).map((tournament) => tournament.id);
+  const { data: rounds } = useTournamentRounds(user?.id, tournamentIds);
 
   if (!user || tournamentsLoading) return null;
 
@@ -47,7 +48,7 @@ export function TournamentsHomePreview() {
         ><TranslatedText id="tournaments.ptcgHeader">PTCG Tournaments</TranslatedText></Header>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            {tournaments.slice(0, 5).map((tournament) => (
+            {tournaments.map((tournament) => (
               <TournamentPreview
                 tournament={tournament}
                 key={tournament.id}

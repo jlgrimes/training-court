@@ -97,13 +97,14 @@ function useCardImages(cardNames: string[]) {
       const entries = await Promise.all(
         missingNames.map(async (name) => {
           try {
-            const params = new URLSearchParams({ setId: 'all', query: name, limit: '8' });
+            // Filter before limiting, so partial matches cannot hide the exact name.
+            const params = new URLSearchParams({ setId: 'all', query: name, exactName: 'true', limit: '8' });
             const response = await fetch(`/api/ptcg/cards/search?${params.toString()}`);
             if (!response.ok) return [name, null] as const;
             const data = (await response.json()) as SearchCardsResponse;
             const cards = data.cards ?? [];
             const exact = cards.find((card) => card.name.toLowerCase() === name.toLowerCase());
-            return [name, exact ?? cards[0] ?? null] as const;
+            return [name, exact ?? null] as const;
           } catch {
             return [name, null] as const;
           }
@@ -132,6 +133,7 @@ function useCardImages(cardNames: string[]) {
 
 function CardMiniature({ card, image, compact = false }: { card: ReplayCard; image?: CatalogCard; compact?: boolean }) {
   const imageUrl = buildImageUrl(image?.imageUrlHiRes, image?.imageUrl);
+  const [failedImageUrl, setFailedImageUrl] = useState<string>();
 
   if (!card.known) {
     return (
@@ -146,8 +148,8 @@ function CardMiniature({ card, image, compact = false }: { card: ReplayCard; ima
 
   return (
     <div className={cn("min-w-0", compact ? "w-10" : "w-14")}>
-      {imageUrl ? (
-        <img src={imageUrl} alt={card.name} className="aspect-[5/7] w-full rounded border bg-muted object-contain" loading="lazy" />
+      {imageUrl && imageUrl !== failedImageUrl ? (
+        <img src={imageUrl} alt={card.name} onError={() => setFailedImageUrl(imageUrl)} className="aspect-[5/7] w-full rounded border bg-muted object-contain" loading="lazy" />
       ) : (
         <div className="flex aspect-[5/7] w-full items-center justify-center rounded border bg-muted px-1 text-center text-[9px] leading-tight">
           {card.name}

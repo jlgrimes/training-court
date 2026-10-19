@@ -1,6 +1,7 @@
 import { GeistSans } from 'geist/font/sans';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import HeaderBreadcrumbs from '@/components/app-bar/HeaderBreadcrumbs';
@@ -60,6 +61,7 @@ export default function RootLayout({
                   </div>
                   <Toaster />
                   <Analytics />
+                  <SpeedInsights />
                 </main>
               </SidebarProvider>
 

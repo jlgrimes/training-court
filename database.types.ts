@@ -15,6 +15,7 @@ export type Database = {
           created_at: string
           description: string | null
           dev_notes: string | null
+          email: string | null
           feature_name: string
           id: number
           is_fixed: boolean | null
@@ -25,6 +26,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           dev_notes?: string | null
+          email?: string | null
           feature_name: string
           id?: number
           is_fixed?: boolean | null
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           dev_notes?: string | null
+          email?: string | null
           feature_name?: string
           id?: number
           is_fixed?: boolean | null
@@ -511,6 +514,26 @@ export type Database = {
         Returns: {
           avatar: string
           avatar_count: number
+        }[]
+      }
+      get_authenticated_user_matchup_aggregates_v1: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          source: string
+          deck: string
+          decklist_id: string | null
+          opp_deck: string
+          format: string
+          wins: number
+          losses: number
+          ties: number
+          going_first_wins: number
+          going_first_losses: number
+          going_first_ties: number
+          going_second_wins: number
+          going_second_losses: number
+          going_second_ties: number
+          last_played: string
         }[]
       }
       get_tournament_rounds_by_user: {

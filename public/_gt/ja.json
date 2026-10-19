@@ -1,4 +1,9 @@
 {
+  "admin.feedback.email": "メールアドレス",
+  "admin.feedback.emailUnavailable": "メールアドレスを取得できません",
+  "admin.feedback.loadError": "フィードバックを読み込めませんでした。もう一度お試しください。",
+  "preferences.avatar.select": "アバターを選択",
+  "preferences.avatar.saveError": "アバターを保存できませんでした",
   "about.header": "概要",
   "about.paragraph1": "Training Courtは、Pokemon Trading Card Gameの大会と練習ラウンドを一か所にまとめるために作られました。使いやすく、アクセスしやすく、プレイヤーを中心に設計しています。",
   "about.paragraph2": "PTCG Liveのログを取り込み、バトルログの文字の壁よりもずっと見やすい形式でターンを表示できます。このように可視化することで、練習でのミスを理解し、今後の対戦に役立てられます。将来的には、練習内容を分析する機能も追加予定です。",
@@ -112,6 +117,7 @@
   "common.confirm": "確認",
   "common.date": "日付",
   "common.errorTitle": "問題が発生しました。",
+  "common.loadMore": "さらに読み込む",
   "common.opponent": "相手",
   "common.pleaseTryAgain": "もう一度お試しください。",
   "common.result": "結果",

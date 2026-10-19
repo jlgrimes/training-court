@@ -211,7 +211,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     return;
   }
 
-  const addedKnownCardMatch = line.match(/^(.+) was added to (.+)'s hand\.$/);
+  const addedKnownCardMatch = line.match(/^(?!A card was added)(.+) was added to (.+)'s hand\.$/);
   if (addedKnownCardMatch) {
     const owner = board.players[addedKnownCardMatch[2]];
     if (owner) addKnownCardsToHand(owner, [addedKnownCardMatch[1]]);
@@ -222,6 +222,14 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   if (genericAddedMatch) {
     const owner = board.players[genericAddedMatch[1]];
     if (owner) addUnknownCardsToHand(owner, 1);
+    return;
+  }
+
+  const drewToBenchMatch = line.match(/^-? ?(.+) drew (.+) and played it to the Bench\.$/);
+  if (drewToBenchMatch) {
+    const owner = board.players[drewToBenchMatch[1]];
+    // These cards come directly from the deck, so the hand is unchanged.
+    if (owner) owner.bench.push(makePokemon(drewToBenchMatch[2]));
     return;
   }
 
@@ -237,7 +245,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     const owner = board.players[drewCountMatch[1]];
     if (owner) {
       const cardNames = getFollowingCardList(lines, index);
-      if (line.includes('played them to the Bench')) cardNames.forEach((cardName) => playPokemon(owner, cardName, 'bench'));
+      if (line.includes('played them to the Bench')) owner.bench.push(...cardNames.map(makePokemon));
       else if (cardNames.length > 0) addKnownCardsToHand(owner, cardNames);
       else addUnknownCardsToHand(owner, Number(drewCountMatch[2]));
     }

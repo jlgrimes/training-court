@@ -58,6 +58,7 @@ export const ReportBugDialog = (props: ReportBugDialogProps) => {
 
   const submitFeedback = useCallback(async () => {
     const supabase = createClient();
+    // The database captures the account email in this same insert.
     const { error } = await supabase.from('feedback').insert({
       user_id: props.user?.id,
       feature_name: featureName,

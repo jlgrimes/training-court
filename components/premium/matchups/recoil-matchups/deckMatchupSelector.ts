@@ -1,5 +1,5 @@
 import { selector } from "recoil";
-import { MatchupResult, MatchupRow, Matchups } from "../Matchups.types";
+import { MatchupAggregateRow, MatchupResult, Matchups } from "../Matchups.types";
 import { flattenMatchupsToDeckSummary, getTotalDeckMatchupResult } from "../Matchups.utils";
 import {
 	decklistFilterAtom,
@@ -7,7 +7,7 @@ import {
 	rawMatchupsAtom,
 	sourceFilterAtom,
 } from "./deckMatchupAtom";
-import { convertRpcRetToMatchups } from "../CombinedMatchups/CombinedMatchups.utils";
+import { convertAggregatesToMatchups } from "../CombinedMatchups/CombinedMatchups.utils";
 
 // export const deckMatchupsSelector = selector<[string, MatchupResult][]>({
 //   key: 'deckMatchupsSelector',
@@ -26,7 +26,7 @@ import { convertRpcRetToMatchups } from "../CombinedMatchups/CombinedMatchups.ut
 // });
 
 /** Rows filtered by source + format (cheap) */
-export const filteredRowsSelector = selector<MatchupRow[] | null>({
+export const filteredRowsSelector = selector<MatchupAggregateRow[] | null>({
 	key: "filteredRowsSelector",
 	get: ({ get }) => {
 		const rows = get(rawMatchupsAtom);
@@ -58,7 +58,7 @@ export const transformedMatchupsSelector = selector<Matchups | null>({
 	get: ({ get }) => {
 		const filtered = get(filteredRowsSelector);
 		if (!filtered) return null;
-		return convertRpcRetToMatchups(filtered);
+		return convertAggregatesToMatchups(filtered);
 	},
 });
 

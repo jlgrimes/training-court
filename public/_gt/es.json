@@ -1,4 +1,9 @@
 {
+  "admin.feedback.email": "Correo electrónico",
+  "admin.feedback.emailUnavailable": "Correo electrónico no disponible",
+  "admin.feedback.loadError": "No se pudieron cargar los comentarios. Inténtalo de nuevo.",
+  "preferences.avatar.select": "Seleccionar un avatar",
+  "preferences.avatar.saveError": "No se pudo guardar el avatar",
   "about.header": "Acerca de",
   "about.paragraph1": "Training Court se creo para consolidar todos tus torneos y rondas de practica del Pokemon Trading Card Game. Fue disenado para ser lo mas facil de usar y accesible posible, con el jugador como centro del diseno.",
   "about.paragraph2": "Puedes importar registros de PTCG Live y ver los turnos en un formato mucho mejor que el muro de texto del registro de batalla. Visualizar la partida de esta manera ayuda a entender errores de practica y a mejorar futuros encuentros. En el futuro, habra funciones de analisis para estudiar tu practica.",
@@ -112,6 +117,7 @@
   "common.confirm": "Confirmar",
   "common.date": "Fecha",
   "common.errorTitle": "Algo salio mal.",
+  "common.loadMore": "Cargar mas",
   "common.opponent": "Oponente",
   "common.pleaseTryAgain": "Intentalo de nuevo.",
   "common.result": "Resultado",

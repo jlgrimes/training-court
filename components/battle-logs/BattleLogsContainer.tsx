@@ -9,21 +9,20 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { AddBattleLogInput } from "./BattleLogInput/AddBattleLogInput";
 import { MyBattleLogPreviews } from "./BattleLogDisplay/MyBattleLogPreviews";
 import { useUserData } from "@/hooks/user-data/useUserData";
-import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
 import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
-import { useLiveLogs } from "@/hooks/logs/useLiveLogs";
-import { battleLogsAtom, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
+import { battleLogsAtom, BattleLogListRecord, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
 import type { BattleLog, BattleLogSortBy } from "./utils/battle-log.types";
-import { parseBattleLog } from "./utils/battle-log.utils";
+import { battleLogListRecordToPreview } from "./utils/battle-log.utils";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
 import { Database } from "@/database.types";
 import { T } from "gt-react";
+import { isBattleLogCacheKeyForUser, isPrimaryBattleLogCacheKeyForUser } from "@/lib/swr-options";
 
 interface BattleLogsContainerProps {
   userId?: string;
   allowPagination?: boolean;
-  initialLogs?: BattleLogRecord[];
+  initialLogs?: BattleLogListRecord[];
   initialUserData?: Database['public']['Tables']['user data']['Row'] | null;
 }
 
@@ -53,26 +52,13 @@ export function BattleLogsContainer({
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const pageSize = 50;
-  const daysPerPage = 5;
-
-  const isSortByDay = sortBy === "Day";
-  const isSortByDeck = sortBy === "Deck";
-  const isSortByAll = sortBy === "All";
 
   const effectivePage = allowPagination ? page : 0;
 
-  const { data: logsDay,  isLoading: loadingDay  } =
-    usePaginatedLogsByDay(userId, effectivePage, daysPerPage);
-
-  const { data: logsDeck, isLoading: loadingDeck } =
-    useLiveLogs(userId);
-
-  const { data: logsAll,  isLoading: loadingAll  } =
+  // Day, Deck, and All are presentation modes over one bounded result page.
+  const { data: paginatedLogs, isLoading } =
     usePaginatedLiveLogs(userId, effectivePage, pageSize);
-
-  const isLoading = isSortByDay ? loadingDay : isSortByDeck ? loadingDeck : loadingAll;
-  const incoming: BattleLogRecord[] =
-    isSortByDay ? (logsDay ?? []) : isSortByDeck ? (logsDeck ?? []) : (logsAll ?? []);
+  const incoming: BattleLogListRecord[] = paginatedLogs ?? [];
 
   const setBattleLogs = useSetRecoilState(battleLogsAtom);
   const rawRows = useRecoilValue(battleLogsAtom);
@@ -89,15 +75,19 @@ export function BattleLogsContainer({
       setBattleLogs((prev) =>
         prev.some((r) => r.id === saved.id) ? prev : [saved, ...prev]
       );
-      // Revalidate every SWR cache scoped to this user (Day / Deck / All views)
-      // so the optimistic row reconciles with authoritative server data.
-      mutate((key) => Array.isArray(key) && key[1] === userId);
+      // Clear shifted historical pages, but only re-query page zero and stats.
+      void (async () => {
+        await mutate(
+          (key) => isBattleLogCacheKeyForUser(key, userId),
+          undefined,
+          { revalidate: false }
+        );
+        await mutate((key) => isPrimaryBattleLogCacheKeyForUser(key, userId));
+      })();
     },
     [mutate, setBattleLogs, userId]
   );
 
-  const viewKey = `${userId ?? "anon"}|${sortBy}`;
-  const prevViewKeyRef = useRef<string | undefined>();
   const initializedRef = useRef(false);
 
   // Initialize with server data on first render
@@ -107,18 +97,6 @@ export function BattleLogsContainer({
       initializedRef.current = true;
     }
   }, [initialLogs, setBattleLogs]);
-
-  useEffect(() => {
-    if (prevViewKeyRef.current !== viewKey) {
-      prevViewKeyRef.current = viewKey;
-      // Only clear if we've already initialized (user changed tabs)
-      if (initializedRef.current) {
-        setBattleLogs([]);
-      }
-      setPage(0);
-      setHasReachedEnd(false);
-    }
-  }, [viewKey, setBattleLogs]);
 
   const incomingIds = useMemo(
     () => incoming.map(r => r.id).join("|"),
@@ -166,21 +144,12 @@ export function BattleLogsContainer({
 
   // Use initialLogs directly on first render (before useEffect runs)
   // This prevents the loading spinner from showing
-  const effectiveRows = rawRows.length > 0 ? rawRows : (isSortByDay && effectivePage === 0 && initialLogs ? initialLogs : []);
+  const effectiveRows = rawRows.length > 0 ? rawRows : (effectivePage === 0 && initialLogs ? initialLogs : []);
 
   const battleLogs: BattleLog[] = useMemo(
     () =>
-      effectiveRows.map((l) =>
-        parseBattleLog(
-          l.log,
-          l.id,
-          l.created_at,
-          l.archetype,
-          l.opp_archetype,
-          userData?.live_screen_name ?? "",
-          l.format,
-          l.decklist_id
-        )
+      effectiveRows.map((row) =>
+        battleLogListRecordToPreview(row, userData?.live_screen_name)
       ),
     [effectiveRows, userData?.live_screen_name]
   );
@@ -193,7 +162,6 @@ export function BattleLogsContainer({
 
   const showPagination =
     allowPagination &&
-    (isSortByDay || isSortByAll) &&
     !!userData?.live_screen_name;
 
   const canLoadMore =

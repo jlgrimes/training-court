@@ -6,5 +6,5 @@ export function fetchAvatarImages() {
   const dir = path.resolve('./public', dirRelativeToPublicFolder);
   const filenames = fs.readdirSync(dir);
 
-  return filenames.map(name => path.join('/', dirRelativeToPublicFolder, name))
+  return filenames.map(name => path.posix.join('/', dirRelativeToPublicFolder, name))
 }

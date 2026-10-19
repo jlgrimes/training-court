@@ -18,13 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useToast } from '../ui/use-toast';
 import { useSWRConfig } from 'swr';
 import { formatDistanceToNowStrict } from 'date-fns';
 import type { PocketGame } from '@/lib/server/home-data';
 import { T, useGT } from 'gt-react';
+import { Button } from '@/components/ui/button';
 
 interface PocketMatchesListProps {
   userId: string | undefined;
@@ -41,10 +42,14 @@ export const PocketMatchesList = ({
   const { toast } = useToast();
   const gt = useGT();
   const { mutate } = useSWRConfig();
+  const [visibleLimit, setVisibleLimit] = useState(limit ?? 50);
+  const queryLimit = limit ?? visibleLimit + 1;
   // Only fetch via SWR if no initial games provided
-  const { data: swrGames } = usePocketGames(initialGames ? undefined : userId);
+  const { data: swrGames } = usePocketGames(initialGames ? undefined : userId, queryLimit);
 
   const games = initialGames ?? swrGames;
+  const hasMore = !limit && (games?.length ?? 0) > visibleLimit;
+  const visibleGames = limit ? games?.slice(0, limit) : games?.slice(0, visibleLimit);
 
   const handleDeletePocketGame = useCallback(
     async (gameId: number) => {
@@ -62,13 +67,16 @@ export const PocketMatchesList = ({
           description: error.message,
         });
       } else {
-        mutate(['pocket-games', userId], data);
+        await mutate(
+          (key) => Array.isArray(key) && key[0] === 'pocket-games' && key[1] === userId
+        );
       }
     },
     [userId, toast, mutate]
   );
 
   return (
+    <>
     <Table>
       <TableHeader>
         <TableRow>
@@ -79,7 +87,7 @@ export const PocketMatchesList = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {games?.slice(0, limit).map((game, idx) => (
+        {visibleGames?.map((game, idx) => (
           <TableRow key={`pocket-game-${idx}`} result={game.result} className={cn(
               'font-bold',
               game.result === 'W' && 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300',
@@ -110,5 +118,18 @@ export const PocketMatchesList = ({
         ))}
       </TableBody>
     </Table>
+    {hasMore && (
+      <div className="flex justify-center pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setVisibleLimit((current) => current + 50)}
+        >
+          <T id="common.loadMore">Load more</T>
+        </Button>
+      </div>
+    )}
+    </>
   );
 };

@@ -12,6 +12,7 @@ import {
   POCKET_TOURNAMENT_CONFIG,
   PTCG_TOURNAMENT_CONFIG,
 } from '@/components/tournaments/utils/tournament-game-config';
+import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 type TournamentRow = Database['public']['Tables']['tournaments']['Row'];
 type RoundRow = Database['public']['Tables']['tournament rounds']['Row'];
@@ -26,6 +27,8 @@ interface TournamentPageClientProps {
   game?: 'ptcg' | 'pocket';
   /** Where to send the visitor if the tournament doesn't exist */
   redirectTo?: string;
+  initialTournament?: TournamentRow | null;
+  initialRounds?: RoundRow[];
 }
 
 /**
@@ -36,6 +39,8 @@ export function TournamentPageClient({
   tournamentId,
   game = 'ptcg',
   redirectTo = '/',
+  initialTournament,
+  initialRounds,
 }: TournamentPageClientProps) {
   const user = useRecoilValue(userAtom);
   const router = useRouter();
@@ -52,7 +57,10 @@ export function TournamentPageClient({
         .eq('id', tournamentId)
         .maybeSingle();
       return (data as TournamentRow | null) ?? null;
-    }
+    },
+    initialTournament !== undefined
+      ? { ...HISTORICAL_SWR_OPTIONS, fallbackData: initialTournament, revalidateOnMount: false }
+      : HISTORICAL_SWR_OPTIONS
   );
 
   const { data: rounds, isLoading: roundsLoading } = useSWR(
@@ -65,7 +73,10 @@ export function TournamentPageClient({
         .eq('tournament', tournamentId)
         .order('round_num', { ascending: true });
       return ((data ?? []) as RoundRow[]);
-    }
+    },
+    initialRounds !== undefined
+      ? { ...HISTORICAL_SWR_OPTIONS, fallbackData: initialRounds, revalidateOnMount: false }
+      : HISTORICAL_SWR_OPTIONS
   );
 
   useEffect(() => {

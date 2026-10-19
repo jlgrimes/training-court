@@ -1,12 +1,12 @@
 import { atom } from "recoil";
-import { MatchupRow } from "../Matchups.types";
+import { MatchupAggregateRow } from "../Matchups.types";
 
 // export const deckMatchupsAtom = atom<Record<string, DeckMatchup> | null>({
 //   key: 'deckMatchupsAtom',
 //   default: null,
 // });
 
-export const rawMatchupsAtom = atom<MatchupRow[] | null>({
+export const rawMatchupsAtom = atom<MatchupAggregateRow[] | null>({
 	key: "rawMatchupsAtom",
 	default: null,
 });

@@ -5,12 +5,13 @@ import { useSWRConfig } from "swr";
 import { Header } from "@/components/ui/header";
 import { AddBattleLogInput } from "../BattleLogInput/AddBattleLogInput";
 import { BattleLogsByDayPreview } from "./BattleLogsByDayPreview";
-import { parseBattleLog } from "../utils/battle-log.utils";
+import { battleLogListRecordToPreview } from "../utils/battle-log.utils";
 import { TranslatedText } from "@/components/general-translation/TranslatedText";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userDataAtom } from "@/app/recoil/atoms/user";
-import { usePaginatedLogsByDay } from "@/hooks/logs/usePaginatedLogsByDay";
-import { battleLogsAtom, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
+import { usePaginatedLiveLogs } from "@/hooks/logs/usePaginatedLiveLogs";
+import { battleLogsAtom, BattleLogListRecord, BattleLogRecord } from "@/app/recoil/atoms/battle-logs";
+import { isBattleLogCacheKeyForUser, isPrimaryBattleLogCacheKeyForUser } from "@/lib/swr-options";
 
 interface BattleLogsHomePreviewProps {
   userId: string;
@@ -21,7 +22,7 @@ interface BattleLogsHomePreviewProps {
  */
 export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
   const userData = useRecoilValue(userDataAtom);
-  const { data: fetchedBattleLogs } = usePaginatedLogsByDay(userId, 0, 4);
+  const { data: fetchedBattleLogs } = usePaginatedLiveLogs(userId, 0, 50);
   const battleLogRows = useRecoilValue(battleLogsAtom);
   const setBattleLogs = useSetRecoilState(battleLogsAtom);
   const { mutate } = useSWRConfig();
@@ -52,7 +53,14 @@ export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
           ? prev
           : sortLogsByCreatedAt([saved, ...prev])
       );
-      mutate((key) => Array.isArray(key) && key[1] === userId);
+      void (async () => {
+        await mutate(
+          (key) => isBattleLogCacheKeyForUser(key, userId),
+          undefined,
+          { revalidate: false }
+        );
+        await mutate((key) => isPrimaryBattleLogCacheKeyForUser(key, userId));
+      })();
     },
     [mutate, setBattleLogs, userId]
   );
@@ -67,9 +75,9 @@ export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
 
   if (!userId) return null;
 
-  const parsedLogs = recentBattleLogs.map(log => (
-    parseBattleLog(log.log, log.id, log.created_at, log.archetype, log.opp_archetype, userData?.live_screen_name ?? null, log.format, log.decklist_id)
-  ));
+  const parsedLogs = recentBattleLogs.map((log) =>
+    battleLogListRecordToPreview(log, userData?.live_screen_name)
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -87,13 +95,13 @@ export function BattleLogsHomePreview({ userId }: BattleLogsHomePreviewProps) {
   );
 }
 
-function sortLogsByCreatedAt(logs: BattleLogRecord[]) {
+function sortLogsByCreatedAt<T extends BattleLogListRecord>(logs: T[]) {
   return [...logs].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 }
 
-function getRecentLogsByDistinctDays(logs: BattleLogRecord[], daysToShow: number) {
+function getRecentLogsByDistinctDays(logs: BattleLogListRecord[], daysToShow: number) {
   const sorted = sortLogsByCreatedAt(logs);
   const selectedDays = new Set<string>();
 

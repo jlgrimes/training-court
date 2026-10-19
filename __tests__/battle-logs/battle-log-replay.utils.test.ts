@@ -4,6 +4,39 @@ import { battleLogNewStructure } from "@/components/battle-logs/utils/testing-fi
 import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-files/battleLogNoPlayer2Turn";
 
 describe('battle log replay utils', () => {
+  it('places a named deck search on the bench without changing the hand', () => {
+    const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+    const replay = buildBattleLogReplay(battleLog, 'Bassoonboy135');
+    const index = replay.frames.findIndex((frame) => frame.event.details.some((line) => line.includes('drew Genesect ex and played it')));
+    const before = replay.frames[index - 1].board.players.Bassoonboy135;
+    const after = replay.frames[index].board.players.Bassoonboy135;
+
+    expect(after.bench.map((pokemon) => pokemon.name)).toContain('Genesect ex');
+    expect(after.hand.knownCards.map((card) => card.name)).not.toContain('Genesect ex and played it to the Bench');
+    expect(after.hand.knownCards).toEqual(before.hand.knownCards.filter((card) => card.name !== 'Nest Ball'));
+    expect(after.hand.unknownCount).toBe(before.hand.unknownCount);
+  });
+
+  it('keeps hidden hand counts unchanged when cards go directly from deck to bench', () => {
+    const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+    const replay = buildBattleLogReplay(battleLog, 'Bassoonboy135');
+    const index = replay.frames.findIndex((frame) => frame.event.title === 'Player2 played Buddy-Buddy Poffin.');
+    const before = replay.frames[index - 1].board.players.Player2;
+    const after = replay.frames[index].board.players.Player2;
+
+    expect(after.bench.map((pokemon) => pokemon.name)).toEqual(['Froakie', 'Froakie']);
+    expect(after.hand.unknownCount).toBe(before.hand.unknownCount - 1);
+  });
+
+  it('treats an anonymous card added to hand as unknown', () => {
+    const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+    battleLog.sections[0].actions = [{ title: "A card was added to Player2's hand.", details: [] }];
+    const player = buildBattleLogReplay(battleLog).frames[0].board.players.Player2;
+
+    expect(player.hand.unknownCount).toBe(1);
+    expect(player.hand.knownCards).toEqual([]);
+  });
+
   it('builds frames from parsed battle log actions', () => {
     const battleLog = parseBattleLog(battleLogNoPlayer2Turn, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
     const replay = buildBattleLogReplay(battleLog, 'Bassoonboy135');

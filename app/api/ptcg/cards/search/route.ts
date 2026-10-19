@@ -54,6 +54,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const setId = searchParams.get('setId')?.trim();
     const query = searchParams.get('query')?.trim().toLowerCase() ?? '';
+    const exactName = searchParams.get('exactName') === 'true';
     const rawLimit = Number(searchParams.get('limit'));
     const limit = Number.isFinite(rawLimit)
       ? Math.max(1, Math.min(MAX_LIMIT, Math.floor(rawLimit)))
@@ -71,6 +72,7 @@ export async function GET(request: Request) {
           const localId = card.localId.toLowerCase();
           const id = card.id.toLowerCase();
           const name = card.name.toLowerCase();
+          if (exactName) return name === query;
           return name.includes(query) || id.includes(query) || localId.includes(query);
         })
       : safeSetCards;

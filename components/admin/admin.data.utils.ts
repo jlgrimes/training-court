@@ -1,6 +1,7 @@
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
 import { getAvatarSrc } from "../avatar/avatar.utils";
+import type { AdminFeedback } from "./feedback.types";
 
 export async function fetchCommonlyUsedAvatars() {
   const supabase = createClient();
@@ -9,15 +10,16 @@ export async function fetchCommonlyUsedAvatars() {
   return data?.filter(({ avatar }) => avatar).map(({ avatar, avatar_count }) => ({ avatar: getAvatarSrc(avatar), avatar_count }));
 }
 
-export async function fetchAllFeedback() {
-  const supabase = createClient();
-  const { data, error } = await supabase.from('feedback').select('*').order('created_at', { ascending: false }).returns<Database['public']['Tables']['feedback']['Row'][]>();
+export async function fetchAllFeedback(): Promise<AdminFeedback[]> {
+  const response = await fetch('/api/admin/feedback', { cache: 'no-store' });
+  if (!response.ok) throw new Error('Could not load feedback.');
+  const { data } = await response.json();
   return data;
 }
 
 export async function countAllUsers() {
   const supabase = createClient();
-  const { data, error, count } = await supabase.from('user data').select('*', { count: 'exact', head: true }).returns<Database['public']['Tables']['feedback']['Row'][]>();
+  const { data, error, count } = await supabase.from('user data').select('id', { count: 'exact', head: true });
   
   if (error) {
     console.error('Error fetching users count:', error);
@@ -40,7 +42,11 @@ export async function countUsersInLastXDays(startDaysAgo: number, endDaysAgo: nu
   const formattedStartDate = startDate.toISOString();
   const formattedEndDate = endDate.toISOString();
 
-  const { data, error, count } = await supabase.from('user data').select('*', { count: 'exact' }).gte('created_at', formattedEndDate).lt('created_at', formattedStartDate);
+  const { data, error, count } = await supabase
+    .from('user data')
+    .select('id', { count: 'exact', head: true })
+    .gte('created_at', formattedEndDate)
+    .lt('created_at', formattedStartDate);
 
   if (error) {
     console.error(`Error fetching users count for date range ${startDaysAgo} to ${endDaysAgo} days ago: `, error);
@@ -52,7 +58,7 @@ export async function countUsersInLastXDays(startDaysAgo: number, endDaysAgo: nu
 
 export async function countAllLogs() {
   const supabase = createClient();
-  const { data, error, count } = await supabase.from('logs').select('*', { count: 'exact', head: true }).returns<Database['public']['Tables']['feedback']['Row'][]>();
+  const { data, error, count } = await supabase.from('logs').select('id', { count: 'exact', head: true });
   
   if (error) {
     console.error('Error fetching users count:', error);

@@ -1,11 +1,37 @@
-import { determineWinner, getPlayerNames, parseBattleLog, trimBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { battleLogListRecordToPreview, determineWinner, getPlayerNames, getTurnOrderOfPlayer, parseBattleLog, trimBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { battleLogBrazilianPortuguese } from "@/components/battle-logs/utils/testing-files/battleLogBrazilianPortuguese";
 import { battleLogGerman } from "@/components/battle-logs/utils/testing-files/battleLogGerman";
 import { battleLogItalian } from "@/components/battle-logs/utils/testing-files/battleLogItalian";
 import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-files/battleLogNoPlayer2Turn";
 import { battleLogSpanish } from "@/components/battle-logs/utils/testing-files/battleLogSpanish";
+import { battleLogConcessionReported } from "@/components/battle-logs/utils/testing-files/battleLogConcessionReported";
+import { getBattleLogMetadataFromLog } from "@/components/battle-logs/BattleLogInput/BattleLogInput.utils";
 
 describe('battle log utils', () => {
+  it('builds list previews without the raw replay body', () => {
+    const preview = battleLogListRecordToPreview({
+      id: 'log-id',
+      created_at: '2026-01-01T00:00:00.000Z',
+      user: 'user-id',
+      archetype: 'gardevoir',
+      opp_archetype: 'charizard',
+      result: 'W',
+      turn_order: '1',
+      format: 'Standard',
+      decklist_id: null,
+      notes: null,
+    }, 'Player One');
+
+    expect(preview.sections).toEqual([]);
+    expect(preview.players[0]).toMatchObject({
+      name: 'Player One',
+      deck: 'gardevoir',
+      oppDeck: 'charizard',
+      result: 'W',
+    });
+    expect(getTurnOrderOfPlayer(preview, 'Player One')).toBe('1st');
+  });
+
   it('should correctly extract player names', () => {
     const mockLog = [
       `Bassoonboy135 drew 7 cards for the opening hand. - 7 drawn cards.`,
@@ -58,6 +84,18 @@ describe('battle log utils', () => {
   });
 
   describe('parseBattleLog', () => {
+    it.each([null, 'Alienaura1'])('parses the reported indented concession log for screen name %s', (screenName) => {
+      const parsedLog = parseBattleLog(battleLogConcessionReported, 'logId', '2026-01-01', null, null, screenName);
+
+      expect(parsedLog.winner).toBe('Alienaura1');
+      expect(parsedLog.players).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name: 'Alienaura1', result: 'W' }),
+        expect.objectContaining({ name: 'Vertuistik', result: 'L' }),
+      ]));
+      if (screenName) expect(parsedLog.players[0].name).toBe(screenName);
+      expect(getBattleLogMetadataFromLog(parsedLog, 'Alienaura1')).toMatchObject({ result: 'W', turn_order: '2' });
+    });
+
     it('should correctly parse a detailed battle log', () => {
       const battleLog = battleLogNoPlayer2Turn;
       const parsedLog = parseBattleLog(battleLog, 'logId', '2024-01-01', null, null, null);
