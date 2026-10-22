@@ -79,27 +79,24 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
   );
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full max-w-6xl justify-between gap-2 p-4">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-evenly w-full">
-            <div className="flex items-center gap-2">
+    <div className="flex-1 flex min-w-0 flex-col w-full max-w-6xl gap-2">
+      <div className="flex min-w-0 flex-col gap-2">
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center justify-evenly gap-3 w-full">
+            <div className="flex min-w-0 items-center gap-2">
               <Sprite name={logData.archetype} />
-              <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
+              <h2 className="truncate text-sm font-semibold">{battleLog.players[0].name}</h2>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <Sprite name={logData.opp_archetype ? logData.opp_archetype : battleLog.players[1].deck} />
-              <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
+              <h2 className="truncate text-sm font-semibold">{battleLog.players[1].name}</h2>
             </div>
           </div>
-          <h3 className="text-sm text-muted-foreground">
+          <h3 className="text-[11px] text-muted-foreground">
             {formatDistanceToNowStrict(battleLog.date)} ago
           </h3>
         </div>
-        {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
-          <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
-        )}
-        <div className="mt-6">
+        <div className="min-w-0">
           <Tabs defaultValue="replay" className="w-full">
             <TabsList>
               <TabsTrigger value="replay">
@@ -120,6 +117,9 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
             </TabsContent>
           </Tabs>
         </div>
+        {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
+          <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
+        )}
       </div>
     </div>
   );

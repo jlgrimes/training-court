@@ -36,3 +36,21 @@ it('preserves partial search for existing deckbuilder callers', async () => {
   expect(data.cards).toHaveLength(8);
   expect(data.totalMatched).toBe(11);
 });
+
+it.each(['Poké Pad', 'Poke\u0301 Pad', ' POKE   PAD '])('matches catalog Poke Pad for %s', async (query) => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'ASC-198', localId: '198', name: 'Poke Pad', metadata: {} },
+    { id: 'other', localId: '1', name: 'Poke Pad ex', metadata: {} },
+  ]);
+  const params = new URLSearchParams({ query, exactName: 'true', limit: '8' });
+  const response = await GET(new Request(`http://localhost/api/ptcg/cards/search?${params}`));
+  expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual(['ASC-198']);
+});
+
+it('matches unaccented queries to accented catalog names', async () => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'pad', localId: '198', name: 'Poké Pad', metadata: {} },
+  ]);
+  const response = await GET(new Request('http://localhost/api/ptcg/cards/search?query=Poke%20Pad&exactName=true'));
+  expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual(['pad']);
+});

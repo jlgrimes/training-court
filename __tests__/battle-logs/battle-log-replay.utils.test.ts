@@ -4,6 +4,22 @@ import { battleLogNewStructure } from "@/components/battle-logs/utils/testing-fi
 import { battleLogNoPlayer2Turn } from "@/components/battle-logs/utils/testing-files/battleLogNoPlayer2Turn";
 
 describe('battle log replay utils', () => {
+  it('recognizes accented card lists and removes played Poke Pad from the known hand regardless of its accent', () => {
+    const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+    battleLog.sections = [{ ...battleLog.sections[0], actions: [
+      { title: 'Bassoonboy135 drew a card.', details: [] },
+      { title: 'Bassoonboy135 drew Poké Pad.', details: [] },
+      { title: 'Cards revealed.', details: ['- Poké Pad'] },
+      { title: 'Bassoonboy135 played Poke Pad.', details: [] },
+    ] }];
+    const { frames } = buildBattleLogReplay(battleLog);
+    expect(frames[2].event.cards?.map((card) => card.name)).toContain('Poké Pad');
+    const player = frames[3].board.players.Bassoonboy135;
+    expect(player.hand.knownCards).toEqual([]);
+    expect(player.hand.unknownCount).toBe(1);
+    expect(player.discard.map((card) => card.name)).toEqual(['Poké Pad']);
+  });
+
   it('preserves stadium ownership, discards replaced stadiums once, and does not consume a hand card to use them', () => {
     const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
     battleLog.sections = [{ ...battleLog.sections[0], actions: [

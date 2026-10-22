@@ -1,4 +1,5 @@
 import { BattleLog, BattleLogAction } from "@/components/battle-logs/utils/battle-log.types";
+import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
 import {
   BattleLogReplay,
   ReplayBoardState,
@@ -36,7 +37,7 @@ const stripListPrefix = (line: string) =>
 const isCardListLine = (line: string) => {
   const stripped = stripListPrefix(line);
   if (!stripped || stripped.endsWith('.') || stripped.includes(' shuffled ')) return false;
-  return stripped.includes(',') || /^[A-Z][A-Za-z0-9:'\-. ]+(?: ex| V)?$/.test(stripped);
+  return stripped.includes(',') || /^[a-z][a-z0-9:'\-. ]+(?: ex| v)?$/.test(normalizeCardNameForLookup(stripped));
 };
 
 const parseCardList = (line: string): string[] => {
@@ -115,8 +116,8 @@ const addUnknownCardsToHand = (player: ReplayPlayerState, count: number) => {
 };
 
 const removeCardFromHand = (player: ReplayPlayerState, cardName: string) => {
-  const normalized = normalizeReplayCardName(cardName).toLowerCase();
-  const idx = player.hand.knownCards.findIndex((card) => card.name.toLowerCase() === normalized);
+  const normalized = normalizeCardNameForLookup(normalizeReplayCardName(cardName));
+  const idx = player.hand.knownCards.findIndex((card) => normalizeCardNameForLookup(card.name) === normalized);
   if (idx >= 0) return player.hand.knownCards.splice(idx, 1)[0];
   if (player.hand.unknownCount > 0) player.hand.unknownCount -= 1;
   return makeCard(cardName);

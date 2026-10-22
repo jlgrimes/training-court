@@ -1,15 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { Pause, Play, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ChevronRight, Pause, Play, SkipBack, SkipForward, StepBack, StepForward, X } from "lucide-react";
+import * as Dialog from '@radix-ui/react-dialog';
 import { T, useGT } from "gt-react";
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
 import { buildBattleLogReplay } from "./battle-log-replay.utils";
 import type { ReplayFrame } from "./battle-log-replay.types";
 import { ReplayBoard, type CatalogCard } from "./ReplayBoard";
+import styles from './ReplayViewer.module.css';
 
 export { ReplayBoard } from "./ReplayBoard";
 
@@ -91,7 +94,7 @@ function useCardImages(cardNames: string[]) {
             if (!response.ok) return [name, null] as const;
             const data = (await response.json()) as SearchCardsResponse;
             const cards = data.cards ?? [];
-            const exact = cards.find((card) => card.name.toLowerCase() === name.toLowerCase());
+            const exact = cards.find((card) => normalizeCardNameForLookup(card.name) === normalizeCardNameForLookup(name));
             return [name, exact ?? null] as const;
           } catch {
             return [name, null] as const;
@@ -140,7 +143,7 @@ function ReplayTimeline({
 
   return (
     <TooltipProvider delayDuration={120}>
-      <div className="min-w-48 flex-1 pt-5">
+      <div className="min-w-0 flex-1 px-2 pt-4">
         <div className="relative">
           <input
             aria-label={timelineLabel}
@@ -196,7 +199,29 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   const replay = useMemo(() => buildBattleLogReplay(battleLog, perspectivePlayerName), [battleLog, perspectivePlayerName]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [frameHeight, setFrameHeight] = useState<number>();
   const gt = useGT();
+
+  useLayoutEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const update = () => {
+      const viewport = window.visualViewport;
+      const top = Math.max(0, frame.getBoundingClientRect().top - (viewport?.offsetTop ?? 0));
+      setFrameHeight(Math.max(0, Math.floor((viewport?.height ?? window.innerHeight) - top - 24)));
+    };
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    if (frame.parentElement) observer?.observe(frame.parentElement);
+    window.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('resize', update);
+    update();
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('resize', update);
+    };
+  }, []);
 
   const currentFrame = replay.frames[currentIndex] ?? replay.frames[0];
   const cardNames = useMemo(() => getKnownCardNames(replay.frames), [replay.frames]);
@@ -230,33 +255,31 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   };
 
   return (
-    <div className="grid gap-3">
-      <div className="rounded-xl border bg-card px-4 py-3">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold">{currentFrame.turnTitle}</h2>
-          </div>
-          <div className="text-right text-xs text-muted-foreground">
-            <div><T id="battleLogs.replay.frame">Frame</T> {currentIndex + 1}/{replay.frames.length}</div>
-          </div>
+    <div ref={frameRef} className={styles.frame} style={frameHeight === undefined ? undefined : { height: frameHeight }} data-replay-frame>
+      <div className={styles.toolbar}>
+        <div className={styles.heading}>
+          <h2 title={currentFrame.turnTitle}>{currentFrame.turnTitle}</h2>
+          <span className={styles.frameCount}><T id="battleLogs.replay.frame">Frame</T> {currentIndex + 1}/{replay.frames.length}</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" size="icon" variant="outline" aria-label={gt("Start", { $id: "battleLogs.replay.start" })} onClick={() => goToFrame(0)}>
-            <SkipBack className="h-4 w-4" />
-          </Button>
-          <Button type="button" size="icon" variant="outline" aria-label={gt("Previous", { $id: "battleLogs.replay.previous" })} onClick={() => goToFrame(currentIndex - 1)}>
-            <StepBack className="h-4 w-4" />
-          </Button>
-          <Button type="button" size="icon" aria-label={isPlaying ? gt("Pause", { $id: "battleLogs.replay.pause" }) : gt("Play", { $id: "battleLogs.replay.play" })} onClick={() => setIsPlaying((value) => !value)}>
-            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          </Button>
-          <Button type="button" size="icon" variant="outline" aria-label={gt("Next", { $id: "battleLogs.replay.next" })} onClick={() => goToFrame(currentIndex + 1)}>
-            <StepForward className="h-4 w-4" />
-          </Button>
-          <Button type="button" size="icon" variant="outline" aria-label={gt("End", { $id: "battleLogs.replay.end" })} onClick={() => goToFrame(replay.frames.length - 1)}>
-            <SkipForward className="h-4 w-4" />
-          </Button>
+        <div className={styles.controls}>
+          <div className={styles.buttons}>
+            <Button type="button" size="icon" variant="outline" aria-label={gt("Start", { $id: "battleLogs.replay.start" })} onClick={() => goToFrame(0)}>
+              <SkipBack className="h-4 w-4" />
+            </Button>
+            <Button type="button" size="icon" variant="outline" aria-label={gt("Previous", { $id: "battleLogs.replay.previous" })} onClick={() => goToFrame(currentIndex - 1)}>
+              <StepBack className="h-4 w-4" />
+            </Button>
+            <Button type="button" size="icon" aria-label={isPlaying ? gt("Pause", { $id: "battleLogs.replay.pause" }) : gt("Play", { $id: "battleLogs.replay.play" })} onClick={() => setIsPlaying((value) => !value)}>
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+            <Button type="button" size="icon" variant="outline" aria-label={gt("Next", { $id: "battleLogs.replay.next" })} onClick={() => goToFrame(currentIndex + 1)}>
+              <StepForward className="h-4 w-4" />
+            </Button>
+            <Button type="button" size="icon" variant="outline" aria-label={gt("End", { $id: "battleLogs.replay.end" })} onClick={() => goToFrame(replay.frames.length - 1)}>
+              <SkipForward className="h-4 w-4" />
+            </Button>
+          </div>
           <ReplayTimeline
             currentFrame={currentFrame}
             currentIndex={currentIndex}
@@ -269,24 +292,30 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
         </div>
       </div>
 
-      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByName={cardsByName} />
+      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByName={cardsByName} fit />
 
-      <div className="px-1 py-2">
-        <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
-          <T id="battleLogs.replay.currentAction">Current action</T>
-        </div>
-        <p className="text-sm font-medium">{currentFrame.event.title}</p>
-        {currentFrame.event.details.length > 0 && (
-          <details className="mt-2 text-xs text-muted-foreground">
-            <summary className="w-fit cursor-pointer"><T id="battleLogs.replay.actionDetails">Action details</T></summary>
-            <div className="mt-2 grid gap-1">
+      <Dialog.Root onOpenChange={(open) => { if (open) setIsPlaying(false); }}>
+        <Dialog.Trigger asChild>
+          <button type="button" className={styles.action} aria-label={gt('Action details', { $id: 'battleLogs.replay.actionDetails' })}>
+            <span className="sr-only"><T id="battleLogs.replay.currentAction">Current action</T></span>
+            <span className={styles.actionText}>{currentFrame.event.title}</span>
+            <ChevronRight size={14} />
+          </button>
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.overlay} />
+          <Dialog.Content className={styles.details} aria-describedby={undefined}>
+            <Dialog.Title className="mb-3 text-sm font-semibold"><T id="battleLogs.replay.currentAction">Current action</T></Dialog.Title>
+            <p className="text-sm font-medium">{currentFrame.event.title}</p>
+            <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
               {currentFrame.event.details.map((detail, index) => (
                 <p key={`${currentFrame.id}-detail-${index}`}>{detail}</p>
               ))}
             </div>
-          </details>
-        )}
-      </div>
+            <Dialog.Close className={styles.close} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}><X size={18} /></Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

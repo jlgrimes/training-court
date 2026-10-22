@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { T, useGT } from 'gt-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
@@ -74,12 +74,12 @@ function Hand({ player, isPerspective, ...cards }: BoardCards & { player: Replay
   return (
     <div className={styles.hand} data-zone="hand">
       <div className={styles.zoneLabel}><T id="battleLogs.replay.hand">Hand</T><span>{total}</span></div>
-      <div className={styles.handScroll} tabIndex={total > 0 ? 0 : undefined}>
-        <div className={styles.handCards}>
+      <div className={styles.handScroll}>
+        <div className={styles.handCards} style={{ '--card-count': Math.max(1, groups.length + (hiddenCount > 0 ? 1 : 0)) } as CSSProperties}>
           {groups.map(({ card, count }) => <Card key={card.id} card={card} count={count} {...cards} />)}
           {hiddenCount > 0 && (
-            <div className={`${styles.hiddenHand} ${isPerspective ? styles.stacked : styles.fanned}`}>
-              {Array.from({ length: isPerspective ? 1 : Math.min(hiddenCount, 10) }).map((_, index) => <CardBack key={index} />)}
+            <div className={`${styles.hiddenHand} ${styles.stacked}`}>
+              <CardBack />
               <span className={styles.count}>{hiddenCount}</span>
               <span className="sr-only"><T id="battleLogs.replay.unknownCards">unknown</T></span>
             </div>
@@ -93,7 +93,7 @@ function Hand({ player, isPerspective, ...cards }: BoardCards & { player: Replay
 
 function Pokemon({ pokemon, active = false, ...cards }: BoardCards & { pokemon: ReplayPokemon | null; active?: boolean }) {
   return (
-    <div className={styles.pokemon}>
+    <div className={`${styles.pokemon} ${active ? styles.activePokemon : ''}`}>
       {pokemon ? (
         <>
           <Card card={{ id: pokemon.id, name: pokemon.name, known: true }} size={active ? 'featured' : 'bench'} {...cards}>
@@ -102,11 +102,11 @@ function Pokemon({ pokemon, active = false, ...cards }: BoardCards & { pokemon: 
             )}
           </Card>
           {pokemon.attachments.length > 0 && (
-            <div className={styles.attachments}>
+            <div className={styles.attachments} style={{ '--card-count': pokemon.attachments.length } as CSSProperties}>
               {pokemon.attachments.map((card) => <Card key={card.id} card={card} size="attachment" {...cards} />)}
             </div>
           )}
-          {pokemon.status.length > 0 && <span className={styles.status}>{pokemon.status.join(', ')}</span>}
+          {pokemon.status.length > 0 && <span className={styles.status} title={pokemon.status.join(', ')}>{pokemon.status.join(', ')}</span>}
         </>
       ) : <div className={`${styles.emptySlot} ${active ? styles.featured : styles.bench}`} aria-hidden="true" />}
     </div>
@@ -148,7 +148,7 @@ function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player:
       <Hand player={player} isPerspective={isPerspective} {...cards} />
       <div className={styles.benchZone} data-zone="bench">
         <div className={styles.zoneLabel}><T id="battleLogs.replay.bench">Bench</T></div>
-        <div className={styles.benchCards}>
+        <div className={styles.benchCards} style={{ '--card-count': Math.max(5, player.bench.length) } as CSSProperties}>
           {Array.from({ length: Math.max(5, player.bench.length) }).map((_, index) => <Pokemon key={index} pokemon={player.bench[index] ?? null} {...cards} />)}
         </div>
       </div>
@@ -162,31 +162,62 @@ function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player:
   );
 }
 
-export function ReplayBoard({ board, perspectivePlayer, cardsByName }: {
+export function ReplayBoard({ board, perspectivePlayer, cardsByName, fit = false }: {
   board: ReplayBoardState;
   perspectivePlayer: string;
   cardsByName: Record<string, CatalogCard | null>;
+  fit?: boolean;
 }) {
   const gt = useGT();
   const [inspectedCard, setInspectedCard] = useState<ReplayCard | null>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [layout, setLayout] = useState<{ width: number; height: number; scale: number } | null>(null);
+  useLayoutEffect(() => {
+    if (!fit) return;
+    const viewport = viewportRef.current;
+    const canvas = canvasRef.current;
+    if (!viewport || !canvas) return;
+    const update = () => {
+      const width = Math.min(1120, viewport.clientWidth);
+      if (!width || !viewport.clientHeight) return;
+      canvas.style.width = `${width}px`;
+      const height = canvas.offsetHeight;
+      if (!height) return;
+      const scale = Math.min(1, viewport.clientHeight / height);
+      setLayout((previous) => previous?.width === width && previous.height === height && previous.scale === scale
+        ? previous : { width, height, scale });
+    };
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(viewport);
+    observer?.observe(canvas);
+    window.addEventListener('resize', update);
+    update();
+    return () => { observer?.disconnect(); window.removeEventListener('resize', update); };
+  }, [fit]);
   const perspective = board.players[perspectivePlayer];
   const opponent = board.playerOrder.map((name) => board.players[name]).find((player) => player.name !== perspectivePlayer);
   const cards = { cardsByName, onInspect: setInspectedCard };
   return (
     <>
-      <div className={styles.boardScroll} role="region" tabIndex={0} aria-label={gt('Replay board', { $id: 'battleLogs.replay.board' })}>
-        <div className={styles.surface}>
-          {opponent && <PlayerField player={opponent} isPerspective={false} {...cards} />}
-          <div className={styles.centerLine}>
-            <div className={styles.centerMark} aria-hidden="true" />
-            {board.stadium && (
-              <div className={styles.stadium} data-zone="stadium">
-                <Card card={board.stadium} size="side" {...cards} />
-                <span className={styles.zoneLabel}><T id="battleLogs.replay.stadium">Stadium</T></span>
+      <div ref={viewportRef} className={`${styles.boardViewport} ${fit ? styles.fitted : ''}`}>
+        <div className={styles.scaledBoard} style={fit && layout ? { width: layout.width * layout.scale, height: layout.height * layout.scale } : undefined}>
+          <div ref={canvasRef} className={styles.boardScroll} role="region" aria-label={gt('Replay board', { $id: 'battleLogs.replay.board' })}
+            style={fit ? { width: layout?.width, transform: `scale(${layout?.scale ?? 1})`, visibility: layout ? 'visible' : 'hidden' } : undefined}>
+            <div className={styles.surface}>
+              {opponent && <PlayerField player={opponent} isPerspective={false} {...cards} />}
+              <div className={styles.centerLine}>
+                <div className={styles.centerMark} aria-hidden="true" />
+                {board.stadium && (
+                  <div className={styles.stadium} data-zone="stadium">
+                    <Card card={board.stadium} size="side" {...cards} />
+                    <span className={styles.zoneLabel}><T id="battleLogs.replay.stadium">Stadium</T></span>
+                  </div>
+                )}
               </div>
-            )}
+              {perspective && <PlayerField player={perspective} isPerspective {...cards} />}
+            </div>
           </div>
-          {perspective && <PlayerField player={perspective} isPerspective {...cards} />}
         </div>
       </div>
       <Dialog.Root open={!!inspectedCard} onOpenChange={(open) => { if (!open) setInspectedCard(null); }}>

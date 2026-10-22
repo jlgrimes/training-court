@@ -3,6 +3,7 @@ import {
   getDeckbuilderCardsBySet,
   type DeckbuilderCatalogCard,
 } from '@/lib/server/ptcg-card-catalog';
+import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
 
 const DEFAULT_LIMIT = 400;
 const MAX_LIMIT = 1200;
@@ -53,7 +54,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const setId = searchParams.get('setId')?.trim();
-    const query = searchParams.get('query')?.trim().toLowerCase() ?? '';
+    const query = normalizeCardNameForLookup(searchParams.get('query') ?? '');
     const exactName = searchParams.get('exactName') === 'true';
     const rawLimit = Number(searchParams.get('limit'));
     const limit = Number.isFinite(rawLimit)
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
       ? safeSetCards.filter((card) => {
           const localId = card.localId.toLowerCase();
           const id = card.id.toLowerCase();
-          const name = card.name.toLowerCase();
+          const name = normalizeCardNameForLookup(card.name);
           if (exactName) return name === query;
           return name.includes(query) || id.includes(query) || localId.includes(query);
         })
