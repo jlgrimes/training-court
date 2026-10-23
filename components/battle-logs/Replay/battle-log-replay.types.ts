@@ -15,6 +15,7 @@ export type ReplayEventKind =
 export interface ReplayCard {
   id: string;
   name: string;
+  identifier?: string;
   known: boolean;
   owner?: string;
 }
@@ -22,6 +23,7 @@ export interface ReplayCard {
 export interface ReplayPokemon {
   id: string;
   name: string;
+  identifier?: string;
   damage: number;
   attachments: ReplayCard[];
   status: string[];

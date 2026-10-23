@@ -54,3 +54,100 @@ it('matches unaccented queries to accented catalog names', async () => {
   const response = await GET(new Request('http://localhost/api/ptcg/cards/search?query=Poke%20Pad&exactName=true'));
   expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual(['pad']);
 });
+
+
+it('resolves identifiers by set and number without substituting the same name', async () => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'sv6-64', localId: '64', name: 'Ogerpon ex', metadata: { setId: 'sv6', number: '64' } },
+    { id: 'other-64', localId: '64', name: 'Ogerpon ex', metadata: { setId: 'other', number: '64', setReleaseDate: '2026-01-01' } },
+    { id: 'special', localId: '76', name: 'Clefairy ex', metadata: { setCode: 'me2-5', number: '76' } },
+  ]);
+  for (const [identifier, expected] of [['sv6_064', ['sv6-64']], ['me2-5_76', ['special']], ['missing_64', []]]) {
+    const response = await GET(new Request(`http://localhost/api/ptcg/cards/search?identifier=${identifier}`));
+    expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual(expected);
+  }
+});
+
+
+it('uses Live set codes instead of conflicting catalog codes', async () => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'PRE-056', localId: '056', name: 'Wrong card', metadata: { setId: 'sv9', setCode: 'PRE', number: '056' } },
+    { id: 'JTG-056', localId: '056', name: "Lillie's Clefairy ex", metadata: { setId: 'sv10', setCode: 'JTG', number: '056' } },
+    { id: 'SFA-072', localId: '072', name: 'Munkidori', metadata: { setId: 's6.5', setCode: 'SFA', number: '072' } },
+    { id: 'PRE-072', localId: '072', name: 'Drakloak', metadata: { setId: 'sv9', setCode: 'PRE', number: '072' } },
+  ]);
+  for (const [identifier, expected] of [['sv9_56', 'JTG-056'], ['sv6-5_72', 'SFA-072'], ['sv8-5_72', 'PRE-072']]) {
+    const response = await GET(new Request(`http://localhost/api/ptcg/cards/search?identifier=${identifier}`));
+    expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual([expected]);
+  }
+});
+
+it('rejects a different card name at the requested identifier without falling back', async () => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'wrong', localId: '5', name: 'Wrong Pokemon', metadata: { setId: 'me1', number: '5' } },
+    { id: 'same-name', localId: '6', name: 'Munkidori', metadata: { setId: 'me1', number: '6' } },
+  ]);
+  const response = await GET(new Request('http://localhost/api/ptcg/cards/search?identifier=me1_5&query=Munkidori'));
+  expect((await response.json()).cards).toEqual([]);
+});
+
+
+it('resolves the missing and incorrect artwork from the reported opening hand', async () => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'SFA-072', localId: '072', name: 'Munkidori', metadata: { setId: 's6.5', setCode: 'SFA', number: '072' } },
+    { id: 'PRE-072', localId: '072', name: 'Drakloak', metadata: { setId: 'sv9', setCode: 'PRE', number: '072' } },
+    { id: 'PAR-230', localId: '230', name: 'Aegislash ex', metadata: { setId: 'sv3', setCode: 'PAR', number: '230' } },
+    { id: 'OBF-230', localId: '230', name: 'Basic {R} Energy', metadata: { setId: 'sv3', setCode: 'OBF', number: '230' } },
+    { id: 'PRE-080', localId: '080', name: 'Dudunsparce', metadata: { setId: 'sv9', setCode: 'PRE', number: '080' } },
+  ]);
+  for (const [identifier, query, expected] of [
+    ['sv6-5_72', 'Munkidori', 'SFA-072'],
+    ['sv8-5_72_ph', 'Drakloak', 'PRE-072'],
+    ['sv3_230', 'Basic Fire Energy', 'OBF-230'],
+    ['sv8-5_80_mph', 'Dudunsparce', 'PRE-080'],
+  ]) {
+    const params = new URLSearchParams({ identifier, query });
+    const response = await GET(new Request(`http://localhost/api/ptcg/cards/search?${params}`));
+    expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual([expected]);
+  }
+});
+
+
+it('matches legacy basic Energy names while preserving exact identifiers', async () => {
+  (getAllDeckbuilderCards as jest.Mock).mockResolvedValue([
+    { id: 'BUS-168', localId: '168', name: 'Darkness Energy', metadata: { setId: 'sm3', number: '168' } },
+    { id: 'SUM-162', localId: '162', name: 'Psychic Energy', metadata: { setId: 'sm1', number: '162' } },
+    { id: 'special', localId: '1', name: 'Special Darkness Energy', metadata: { setId: 'sm3', number: '1' } },
+  ]);
+  for (const [identifier, query, expected] of [
+    ['sm3_168', 'Basic Darkness Energy', ['BUS-168']],
+    ['sm1_162', 'Basic Psychic Energy', ['SUM-162']],
+    ['missing_21_ph', 'Basic Psychic Energy', []],
+    ['sm3_1', 'Basic Darkness Energy', []],
+  ] as const) {
+    const params = new URLSearchParams({ identifier, query });
+    const response = await GET(new Request(`http://localhost/api/ptcg/cards/search?${params}`));
+    expect((await response.json()).cards.map((card: { id: string }) => card.id)).toEqual(expected);
+  }
+});
+
+
+it('provides the exact missing SVE 21 Psychic Energy printing', async () => {
+  const response = await GET(new Request('http://localhost/api/ptcg/cards/search?identifier=sve_21_ph&query=Basic%20Psychic%20Energy'));
+  expect((await response.json()).cards).toEqual([expect.objectContaining({
+    id: 'sve_21', imageUrl: '/images/replay/sve-021.png',
+    metadata: expect.objectContaining({ setId: 'sve', number: '21' }),
+  })]);
+});
+
+
+it.each([
+  ['sve_21_ph', '/images/replay/sve-021.png'],
+  ['svalt_116', '/images/replay/svalt-116.webp'],
+])('renders local Psychic Energy %s without the remote catalog', async (identifier, imageUrl) => {
+  (getAllDeckbuilderCards as jest.Mock).mockRejectedValue(new Error('Catalog unavailable'));
+  const params = new URLSearchParams({ identifier, query: 'Basic Psychic Energy' });
+  const response = await GET(new Request(`http://localhost/api/ptcg/cards/search?${params}`));
+  expect(response.status).toBe(200);
+  expect((await response.json()).cards).toEqual([expect.objectContaining({ imageUrl })]);
+});

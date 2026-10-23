@@ -137,3 +137,55 @@ describe('battle log replay utils', () => {
     expect(() => buildBattleLogReplay(battleLog, 'Bassoonboy135')).not.toThrow();
   });
 });
+
+
+it('preserves identifiers through draws, lists, evolution, attachments and knockouts', () => {
+  const battleLog = parseBattleLog(battleLogNewStructure, 'logId', '2024-01-01', null, null, 'Bassoonboy135');
+  battleLog.sections = [{ ...battleLog.sections[0], actions: [
+    { title: 'Bassoonboy135 drew 3 cards.', details: ['- (mee_5) Basic Psychic Energy, (mee_13) Basic Psychic Energy, (me5_5) Poltchageist'] },
+    { title: 'Bassoonboy135 played (me5_5) Poltchageist to the Active Spot.', details: [] },
+    { title: 'Bassoonboy135 attached (mee_13) Basic Psychic Energy to (me5_5) Poltchageist in the Active Spot.', details: [] },
+    { title: 'Bassoonboy135 drew (me5_6) Sinistcha.', details: [] },
+    { title: 'Bassoonboy135 evolved (me5_5) Poltchageist to (me5_6) Sinistcha in the Active Spot.', details: [] },
+    { title: "Bassoonboy135's (me5_6) Sinistcha was Knocked Out!", details: [] },
+  ] }];
+  const { frames } = buildBattleLogReplay(battleLog);
+  expect(frames[0].board.players.Bassoonboy135.hand.knownCards.map((card) => card.identifier)).toEqual(['mee_5', 'mee_13', 'me5_5']);
+  expect(frames[2].board.players.Bassoonboy135.hand.knownCards.map((card) => card.identifier)).toEqual(['mee_5']);
+  expect(frames[3].board.players.Bassoonboy135.hand.knownCards[1]).toMatchObject({ name: 'Sinistcha', identifier: 'me5_6' });
+  expect(frames[4].board.players.Bassoonboy135.active).toMatchObject({ name: 'Sinistcha', identifier: 'me5_6', attachments: [{ identifier: 'mee_13' }] });
+  expect(frames[5].board.players.Bassoonboy135.discard.map((card) => card.identifier)).toEqual(['me5_6', 'mee_13']);
+});
+
+
+it('removes shuffled hands before redraws instead of accumulating duplicate cards', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'Bassoonboy135 drew 3 cards.', details: ["- (sv8_251) Night Stretcher, (sv8_251) Night Stretcher, (me3_123) Rosa's Encouragement"] },
+    { title: "Bassoonboy135 played (me1_184) Lillie's Determination.", details: [
+      '- Bassoonboy135 shuffled 3 cards into their deck.',
+      "- (sv8_251) Night Stretcher, (sv8_251) Night Stretcher, (me3_123) Rosa's Encouragement",
+      '- Bassoonboy135 drew 2 cards.', "- (sv8_251) Night Stretcher, (me3_123) Rosa's Encouragement",
+    ] },
+    { title: 'Bassoonboy135 shuffled 2 cards into their deck.', details: [] },
+    { title: 'Bassoonboy135 drew 2 cards.', details: ["- (sv8_251) Night Stretcher, (me3_123) Rosa's Encouragement"] },
+  ] }];
+  const { frames } = buildBattleLogReplay(log);
+  expect(frames[1].board.players.Bassoonboy135.hand.knownCards.map((card) => card.identifier)).toEqual(['sv8_251', 'me3_123']);
+  expect(frames[2].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 0 });
+  expect(frames[3].board.players.Bassoonboy135.hand.knownCards).toHaveLength(2);
+});
+
+it('replaces a mulligan hand and removes returned Pokemon from the board', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'Bassoonboy135 drew 7 cards for the opening hand.', details: ['- 7 drawn cards.', '- (sv8_251) Night Stretcher'] },
+    { title: 'Bassoonboy135 took a mulligan.', details: [] },
+    { title: 'Bassoonboy135 played (sv8-5_80_mph) Dudunsparce to the Bench.', details: [] },
+    { title: 'Bassoonboy135 shuffled 2 cards into their deck.', details: ['- (sv8-5_80_mph) Dudunsparce, (sv9_120) Dunsparce'] },
+  ] }];
+  const { frames } = buildBattleLogReplay(log);
+  expect(frames[1].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 7 });
+  expect(frames[3].board.players.Bassoonboy135.bench).toEqual([]);
+  expect(frames[3].board.players.Bassoonboy135.hand.unknownCount).toBe(6);
+});

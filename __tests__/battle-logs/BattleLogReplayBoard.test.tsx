@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { replayCardKey } from '@/components/battle-logs/Replay/card-identity';
+import { fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { BattleLogReplayViewer, ReplayBoard } from '@/components/battle-logs/Replay/BattleLogReplayViewer';
 import { buildBattleLogReplay } from '@/components/battle-logs/Replay/battle-log-replay.utils';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
@@ -21,8 +22,8 @@ it('renders stadium and every attached card as images on both sides of the board
   ] }];
   const replay = buildBattleLogReplay(log);
   const names = ['Solrock', 'Froakie', 'Basic Fighting Energy', 'Air Balloon', 'Grand Tree'];
-  const cardsByName = Object.fromEntries(names.map((name) => [name, { id: name, name, imageUrl: `https://example.com/${encodeURIComponent(name)}.png` }]));
-  render(<ReplayBoard board={replay.frames.at(-1)!.board} perspectivePlayer="Bassoonboy135" cardsByName={cardsByName} />);
+  const cardsByKey = Object.fromEntries(names.map((name) => [replayCardKey({ name }), { id: name, name, imageUrl: `https://example.com/${encodeURIComponent(name)}.png` }]));
+  render(<ReplayBoard board={replay.frames.at(-1)!.board} perspectivePlayer="Bassoonboy135" cardsByKey={cardsByKey} />);
   expect(screen.getAllByAltText('Basic Fighting Energy')).toHaveLength(2);
   expect(screen.getByAltText('Air Balloon').getAttribute('src')).toContain('Air%20Balloon');
   expect(screen.getByAltText('Grand Tree').getAttribute('src')).toContain('Grand%20Tree');
@@ -60,8 +61,8 @@ it('stacks duplicate hand cards, masks the opponent hand, and opens visible card
   board.players.Bassoonboy135.hand.unknownCount = 1;
   board.players.Player2.hand.knownCards = [{ id: 'secret', name: 'Arven', known: true }];
   board.players.Player2.hand.unknownCount = 2;
-  render(<ReplayBoard board={board} perspectivePlayer="Bassoonboy135" cardsByName={{
-    'Basic Fighting Energy': { id: 'energy', name: 'Basic Fighting Energy', imageUrl: 'https://example.com/energy.png' },
+  render(<ReplayBoard board={board} perspectivePlayer="Bassoonboy135" cardsByKey={{
+    [replayCardKey({ name: 'Basic Fighting Energy' })]: { id: 'energy', name: 'Basic Fighting Energy', imageUrl: 'https://example.com/energy.png' },
   }} />);
 
   const hand = screen.getByRole('region', { name: 'Bassoonboy135' }).querySelector('[data-zone="hand"]') as HTMLElement;
@@ -85,12 +86,56 @@ it('opens action details in an overlay and pauses playback while reading', () =>
     { title: 'The next action happened.', details: [] },
   ] }];
   render(<BattleLogReplayViewer battleLog={log} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Play', exact: true }));
-  expect(screen.getByRole('button', { name: 'Pause', exact: true })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Action details', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Play' }));
+  expect(screen.getByRole('button', { name: 'Pause' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Action details' }));
   const dialog = screen.getByRole('dialog', { name: 'Current action' });
   expect(within(dialog).getByText('A long explanation belongs in the overlay.')).toBeTruthy();
   fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
-  expect(screen.getByRole('button', { name: 'Play', exact: true })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Play' })).toBeTruthy();
   expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+
+it('requests exact identifiers and keeps different printings separate in the hand', async () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [{ title: 'Bassoonboy135 drew 2 cards.', details: ['- (mee_5) Basic Psychic Energy, (mee_13) Basic Psychic Energy'] }] }];
+  const originalFetch = global.fetch;
+  const fetchMock = jest.fn(async (url: string) => {
+    const identifier = new URL(url, 'http://localhost').searchParams.get('identifier');
+    return { ok: true, json: async () => ({ cards: [{ id: identifier, name: 'Psychic Energy', imageUrl: `https://example.com/${identifier}.png` }], code: 200 }) };
+  });
+  global.fetch = fetchMock as unknown as typeof fetch;
+  try {
+    render(<BattleLogReplayViewer battleLog={log} />);
+    const images = await screen.findAllByAltText('Basic Psychic Energy');
+    expect(images.map((image) => image.getAttribute('src')).sort()).toEqual(['https://example.com/mee_13.png', 'https://example.com/mee_5.png']);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    for (const [url] of fetchMock.mock.calls) {
+      const params = new URL(url, 'http://localhost').searchParams;
+      expect(params.has('identifier')).toBe(true);
+      expect(params.get('query')).toBe('Basic Psychic Energy');
+    }
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+it('does not search by name when an identifier has no catalog match', async () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [{ title: 'Bassoonboy135 drew (missing_5) Basic Psychic Energy.', details: [] }] }];
+  const originalFetch = global.fetch;
+  const fetchMock = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ cards: [], code: 200 }) });
+  global.fetch = fetchMock;
+  try {
+    render(<BattleLogReplayViewer battleLog={log} />);
+    await screen.findByText('Basic Psychic Energy');
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const params = new URL(fetchMock.mock.calls[0][0], 'http://localhost').searchParams;
+    expect(params.get('identifier')).toBe('missing_5');
+    expect(params.get('query')).toBe('Basic Psychic Energy');
+    expect(screen.queryByAltText('Basic Psychic Energy')).toBeNull();
+  } finally {
+    global.fetch = originalFetch;
+  }
 });

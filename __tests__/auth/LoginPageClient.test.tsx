@@ -71,7 +71,8 @@ function mockAuth() {
     signUp: jest.fn(),
     resend: jest.fn(),
   };
-  mockedCreateClient.mockReturnValue({ auth } as ReturnType<typeof createClient>);
+  // This component only uses these auth methods from the Supabase client.
+  mockedCreateClient.mockReturnValue({ auth } as unknown as ReturnType<typeof createClient>);
   return auth;
 }
 
@@ -90,7 +91,14 @@ describe('LoginPageClient', () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockedCreateClient.mockReset();
-    mockedUseRouter.mockReturnValue({ push: mockPush } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({
+      push: mockPush,
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+    });
     reportValiditySpy = jest
       .spyOn(HTMLFormElement.prototype, 'reportValidity')
       .mockReturnValue(true);

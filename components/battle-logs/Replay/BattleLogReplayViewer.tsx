@@ -10,7 +10,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
 import { buildBattleLogReplay } from "./battle-log-replay.utils";
-import type { ReplayFrame } from "./battle-log-replay.types";
+import { replayCardKey } from './card-identity';
+import type { ReplayCard, ReplayFrame } from "./battle-log-replay.types";
 import { ReplayBoard, type CatalogCard } from "./ReplayBoard";
 import styles from './ReplayViewer.module.css';
 
@@ -26,24 +27,25 @@ interface BattleLogReplayViewerProps {
   perspectivePlayerName?: string | null;
 }
 
-const getKnownCardNames = (frames: ReplayFrame[]) => {
-  const names = new Set<string>();
+const getKnownCards = (frames: ReplayFrame[]) => {
+  const names = new Map<string, Pick<ReplayCard, 'name' | 'identifier'>>();
+  const add = (card: Pick<ReplayCard, 'name' | 'identifier'>) => names.set(replayCardKey(card), card);
   frames.forEach((frame) => {
     Object.values(frame.board.players).forEach((player) => {
-      player.hand.knownCards.forEach((card) => names.add(card.name));
-      player.discard.forEach((card) => names.add(card.name));
+      player.hand.knownCards.forEach((card) => add(card));
+      player.discard.forEach((card) => add(card));
       if (player.active) {
-        names.add(player.active.name);
-        player.active.attachments.forEach((card) => names.add(card.name));
+        add(player.active);
+        player.active.attachments.forEach((card) => add(card));
       }
       player.bench.forEach((pokemon) => {
-        names.add(pokemon.name);
-        pokemon.attachments.forEach((card) => names.add(card.name));
+        add(pokemon);
+        pokemon.attachments.forEach((card) => add(card));
       });
     });
-    if (frame.board.stadium) names.add(frame.board.stadium.name);
+    if (frame.board.stadium) add(frame.board.stadium);
   });
-  return Array.from(names).filter((name) => name !== 'Unknown card');
+  return Array.from(names.values()).filter((card) => card.name !== 'Unknown card');
 };
 
 const getTurnLabel = (frame: ReplayFrame) => {
@@ -74,36 +76,40 @@ const getTurnMarkers = (frames: ReplayFrame[]) => {
   );
 };
 
-function useCardImages(cardNames: string[]) {
-  const [cardsByName, setCardsByName] = useState<Record<string, CatalogCard | null>>({});
-  const cardNamesKey = useMemo(() => cardNames.join('|'), [cardNames]);
+function useCardImages(knownCards: Pick<ReplayCard, 'name' | 'identifier'>[]) {
+  const [cardsByKey, setCardsByKey] = useState<Record<string, CatalogCard | null>>({});
+  const cardKeys = useMemo(() => knownCards.map(replayCardKey).join('|'), [knownCards]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadCards() {
-      const missingNames = cardNames.filter((name) => !(name in cardsByName));
-      if (missingNames.length === 0) return;
+      const missingCards = knownCards.filter((card) => !(replayCardKey(card) in cardsByKey));
+      if (missingCards.length === 0) return;
 
       const entries = await Promise.all(
-        missingNames.map(async (name) => {
+        missingCards.map(async (card) => {
+          const name = card.name;
+          const key = replayCardKey(card);
           try {
             // Filter before limiting, so partial matches cannot hide the exact name.
-            const params = new URLSearchParams({ setId: 'all', query: name, exactName: 'true', limit: '8' });
+            const params = new URLSearchParams(card.identifier
+              ? { identifier: card.identifier, query: name, exactName: 'true', limit: '1' }
+              : { setId: 'all', query: name, exactName: 'true', limit: '8' });
             const response = await fetch(`/api/ptcg/cards/search?${params.toString()}`);
-            if (!response.ok) return [name, null] as const;
+            if (!response.ok) return [key, null] as const;
             const data = (await response.json()) as SearchCardsResponse;
             const cards = data.cards ?? [];
             const exact = cards.find((card) => normalizeCardNameForLookup(card.name) === normalizeCardNameForLookup(name));
-            return [name, exact ?? null] as const;
+            return [key, exact ?? null] as const;
           } catch {
-            return [name, null] as const;
+            return [key, null] as const;
           }
         })
       );
 
       if (cancelled) return;
-      setCardsByName((prev) => {
+      setCardsByKey((prev) => {
         const next = { ...prev };
         entries.forEach((entry) => {
           next[entry[0]] = entry[1];
@@ -117,9 +123,9 @@ function useCardImages(cardNames: string[]) {
     return () => {
       cancelled = true;
     };
-  }, [cardNamesKey, cardsByName]);
+  }, [cardKeys, cardsByKey]);
 
-  return cardsByName;
+  return cardsByKey;
 }
 
 function ReplayTimeline({
@@ -224,9 +230,9 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   }, []);
 
   const currentFrame = replay.frames[currentIndex] ?? replay.frames[0];
-  const cardNames = useMemo(() => getKnownCardNames(replay.frames), [replay.frames]);
+  const knownCards = useMemo(() => getKnownCards(replay.frames), [replay.frames]);
   const turnMarkers = useMemo(() => getTurnMarkers(replay.frames), [replay.frames]);
-  const cardsByName = useCardImages(cardNames);
+  const cardsByKey = useCardImages(knownCards);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -292,7 +298,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
         </div>
       </div>
 
-      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByName={cardsByName} fit />
+      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByKey={cardsByKey} fit />
 
       <Dialog.Root onOpenChange={(open) => { if (open) setIsPlaying(false); }}>
         <Dialog.Trigger asChild>

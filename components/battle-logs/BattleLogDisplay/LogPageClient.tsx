@@ -96,6 +96,9 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
             {formatDistanceToNowStrict(battleLog.date)} ago
           </h3>
         </div>
+        {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
+          <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
+        )}
         <div className="min-w-0">
           <Tabs defaultValue="replay" className="w-full">
             <TabsList>
@@ -117,9 +120,6 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
             </TabsContent>
           </Tabs>
         </div>
-        {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
-          <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
-        )}
       </div>
     </div>
   );

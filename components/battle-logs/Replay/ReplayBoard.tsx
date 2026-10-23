@@ -1,5 +1,7 @@
 'use client';
 
+import { replayCardKey } from './card-identity';
+
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { T, useGT } from 'gt-react';
@@ -17,7 +19,7 @@ export type CatalogCard = {
 
 type CardSize = 'featured' | 'bench' | 'side' | 'attachment';
 type BoardCards = {
-  cardsByName: Record<string, CatalogCard | null>;
+  cardsByKey: Record<string, CatalogCard | null>;
   onInspect: (card: ReplayCard) => void;
 };
 
@@ -37,7 +39,7 @@ function Artwork({ name, card }: { name: string; card?: CatalogCard | null }) {
   ) : <div className={styles.cardFallback}>{name}</div>;
 }
 
-function Card({ card, size = 'featured', count = 1, cardsByName, onInspect, children }: BoardCards & {
+function Card({ card, size = 'featured', count = 1, cardsByKey, onInspect, children }: BoardCards & {
   card: ReplayCard;
   size?: CardSize;
   count?: number;
@@ -46,7 +48,7 @@ function Card({ card, size = 'featured', count = 1, cardsByName, onInspect, chil
   return (
     <div className={`${styles.card} ${styles[size]} ${count > 1 ? styles.stacked : ''}`} data-card-name={card.name}>
       <button className={styles.cardButton} type="button" onClick={() => onInspect(card)} aria-label={card.name}>
-        <Artwork name={card.name} card={cardsByName[card.name]} />
+        <Artwork name={card.name} card={cardsByKey[replayCardKey(card)]} />
         {count > 1 && <span className={styles.count}>{count}</span>}
       </button>
       {children}
@@ -59,7 +61,7 @@ function Card({ card, size = 'featured', count = 1, cardsByName, onInspect, chil
 function groupHand(cards: ReplayCard[]) {
   const groups = new Map<string, { card: ReplayCard; count: number }>();
   cards.forEach((card) => {
-    const key = card.name.trim().toLowerCase();
+    const key = replayCardKey(card);
     const group = groups.get(key);
     if (group) group.count += 1;
     else groups.set(key, { card, count: 1 });
@@ -96,7 +98,7 @@ function Pokemon({ pokemon, active = false, ...cards }: BoardCards & { pokemon: 
     <div className={`${styles.pokemon} ${active ? styles.activePokemon : ''}`}>
       {pokemon ? (
         <>
-          <Card card={{ id: pokemon.id, name: pokemon.name, known: true }} size={active ? 'featured' : 'bench'} {...cards}>
+          <Card card={{ id: pokemon.id, name: pokemon.name, identifier: pokemon.identifier, known: true }} size={active ? 'featured' : 'bench'} {...cards}>
             {pokemon.damage > 0 && (
               <span className={styles.damage}><span className="sr-only"><T id="battleLogs.replay.damage">Damage</T>: </span>{pokemon.damage}</span>
             )}
@@ -162,10 +164,10 @@ function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player:
   );
 }
 
-export function ReplayBoard({ board, perspectivePlayer, cardsByName, fit = false }: {
+export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false }: {
   board: ReplayBoardState;
   perspectivePlayer: string;
-  cardsByName: Record<string, CatalogCard | null>;
+  cardsByKey: Record<string, CatalogCard | null>;
   fit?: boolean;
 }) {
   const gt = useGT();
@@ -197,7 +199,7 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByName, fit = false
   }, [fit]);
   const perspective = board.players[perspectivePlayer];
   const opponent = board.playerOrder.map((name) => board.players[name]).find((player) => player.name !== perspectivePlayer);
-  const cards = { cardsByName, onInspect: setInspectedCard };
+  const cards = { cardsByKey, onInspect: setInspectedCard };
   return (
     <>
       <div ref={viewportRef} className={`${styles.boardViewport} ${fit ? styles.fitted : ''}`}>
@@ -207,7 +209,6 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByName, fit = false
             <div className={styles.surface}>
               {opponent && <PlayerField player={opponent} isPerspective={false} {...cards} />}
               <div className={styles.centerLine}>
-                <div className={styles.centerMark} aria-hidden="true" />
                 {board.stadium && (
                   <div className={styles.stadium} data-zone="stadium">
                     <Card card={board.stadium} size="side" {...cards} />
@@ -225,7 +226,7 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByName, fit = false
           <Dialog.Overlay className={styles.inspectOverlay} />
           <Dialog.Content className={styles.inspectContent} aria-describedby={undefined}>
             <Dialog.Title className="sr-only">{inspectedCard?.name}</Dialog.Title>
-            {inspectedCard && <Artwork name={inspectedCard.name} card={cardsByName[inspectedCard.name]} />}
+            {inspectedCard && <Artwork name={inspectedCard.name} card={cardsByKey[replayCardKey(inspectedCard)]} />}
             <Dialog.Close className={styles.inspectClose} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}><X size={20} /></Dialog.Close>
           </Dialog.Content>
         </Dialog.Portal>

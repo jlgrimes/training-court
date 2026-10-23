@@ -1,3 +1,5 @@
+import { ReplayHandKnowledge } from './hand-knowledge';
+import { replayCardIdentifier, matchesReplayCard } from './card-identity';
 import { BattleLog, BattleLogAction } from "@/components/battle-logs/utils/battle-log.types";
 import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
 import {
@@ -37,24 +39,26 @@ const stripListPrefix = (line: string) =>
 const isCardListLine = (line: string) => {
   const stripped = stripListPrefix(line);
   if (!stripped || stripped.endsWith('.') || stripped.includes(' shuffled ')) return false;
-  return stripped.includes(',') || /^[a-z][a-z0-9:'\-. ]+(?: ex| v)?$/.test(normalizeCardNameForLookup(stripped));
+  return stripped.includes(',') || /^[a-z][a-z0-9:'\-. ]+(?: ex| v)?$/.test(normalizeCardNameForLookup(normalizeReplayCardName(stripped)));
 };
 
 const parseCardList = (line: string): string[] => {
   const stripped = stripListPrefix(line);
   if (!isCardListLine(stripped)) return [];
-  return stripped.split(',').map((card) => normalizeReplayCardName(card)).filter(Boolean);
+  return stripped.split(',').map((card) => card.trim()).filter(Boolean);
 };
 
 const makeCard = (name: string, known = true): ReplayCard => ({
   id: makeEntityId(known ? 'known' : 'unknown', name),
   name: normalizeReplayCardName(name),
+  identifier: replayCardIdentifier(name),
   known,
 });
 
 const makePokemon = (name: string): ReplayPokemon => ({
   id: makeEntityId('pokemon', name),
   name: normalizeReplayCardName(name),
+  identifier: replayCardIdentifier(name),
   damage: 0,
   attachments: [],
   status: [],
@@ -111,36 +115,32 @@ const addKnownCardsToHand = (player: ReplayPlayerState, cardNames: string[]) => 
   player.hand.knownCards.push(...cardNames.map((name) => makeCard(name)));
 };
 
-const addUnknownCardsToHand = (player: ReplayPlayerState, count: number) => {
-  player.hand.unknownCount += Math.max(0, count);
+const addUnknownCardsToHand = (player: ReplayPlayerState, count: number, knowledge: ReplayHandKnowledge) => {
+  knowledge.addUnknown(player, count);
 };
 
-const removeCardFromHand = (player: ReplayPlayerState, cardName: string) => {
-  const normalized = normalizeCardNameForLookup(normalizeReplayCardName(cardName));
-  const idx = player.hand.knownCards.findIndex((card) => normalizeCardNameForLookup(card.name) === normalized);
+const removeCardFromHand = (player: ReplayPlayerState, cardName: string, knowledge: ReplayHandKnowledge) => {
+  const idx = player.hand.knownCards.findIndex((card) => matchesReplayCard(card, cardName));
   if (idx >= 0) return player.hand.knownCards.splice(idx, 1)[0];
-  if (player.hand.unknownCount > 0) player.hand.unknownCount -= 1;
-  return makeCard(cardName);
+  return knowledge.removeUnknown(player, cardName) ?? makeCard(cardName);
 };
 
-const discardCard = (player: ReplayPlayerState, cardName: string) => {
-  player.discard.push(removeCardFromHand(player, cardName));
+const discardCard = (player: ReplayPlayerState, cardName: string, knowledge: ReplayHandKnowledge) => {
+  player.discard.push(removeCardFromHand(player, cardName, knowledge));
 };
 
 const findPokemon = (player: ReplayPlayerState, pokemonName: string) => {
-  const normalizedName = normalizeReplayCardName(pokemonName).toLowerCase();
-  if (player.active?.name.toLowerCase() === normalizedName) return player.active;
-  return player.bench.find((pokemon) => pokemon.name.toLowerCase() === normalizedName) ?? null;
+  if (player.active && matchesReplayCard(player.active, pokemonName)) return player.active;
+  return player.bench.find((pokemon) => matchesReplayCard(pokemon, pokemonName)) ?? null;
 };
 
 const removePokemonFromBoard = (player: ReplayPlayerState, pokemonName: string) => {
-  const normalizedName = normalizeReplayCardName(pokemonName).toLowerCase();
-  if (player.active?.name.toLowerCase() === normalizedName) {
+  if (player.active && matchesReplayCard(player.active, pokemonName)) {
     const removed = player.active;
     player.active = null;
     return removed;
   }
-  const idx = player.bench.findIndex((pokemon) => pokemon.name.toLowerCase() === normalizedName);
+  const idx = player.bench.findIndex((pokemon) => matchesReplayCard(pokemon, pokemonName));
   return idx >= 0 ? player.bench.splice(idx, 1)[0] : null;
 };
 
@@ -150,9 +150,9 @@ const setActivePokemon = (player: ReplayPlayerState, pokemonName: string) => {
   player.active = existing;
 };
 
-const playPokemon = (player: ReplayPlayerState, pokemonName: string, zone: 'active' | 'bench') => {
-  removeCardFromHand(player, pokemonName);
-  const pokemon = makePokemon(pokemonName);
+const playPokemon = (player: ReplayPlayerState, pokemonName: string, zone: 'active' | 'bench', knowledge: ReplayHandKnowledge) => {
+  const card = removeCardFromHand(player, pokemonName, knowledge);
+  const pokemon = { ...makePokemon(pokemonName), identifier: card.identifier };
   if (zone === 'active') {
     if (player.active) player.bench.push(player.active);
     player.active = pokemon;
@@ -161,10 +161,10 @@ const playPokemon = (player: ReplayPlayerState, pokemonName: string, zone: 'acti
   }
 };
 
-const attachCardToPokemon = (player: ReplayPlayerState, cardName: string, pokemonName: string) => {
+const attachCardToPokemon = (player: ReplayPlayerState, cardName: string, pokemonName: string, fromDeck: boolean, knowledge: ReplayHandKnowledge) => {
   const target = findPokemon(player, pokemonName);
   if (!target) return;
-  const card = removeCardFromHand(player, cardName);
+  const card = fromDeck ? makeCard(cardName) : removeCardFromHand(player, cardName, knowledge);
   if (target) target.attachments.push(card);
 };
 
@@ -174,8 +174,7 @@ const discardAttachedCard = (player: ReplayPlayerState, cardName: string, pokemo
     player.discard.push(makeCard(cardName));
     return;
   }
-  const normalized = normalizeReplayCardName(cardName).toLowerCase();
-  const idx = pokemon.attachments.findIndex((card) => card.name.toLowerCase() === normalized);
+  const idx = pokemon.attachments.findIndex((card) => matchesReplayCard(card, cardName));
   player.discard.push(idx >= 0 ? pokemon.attachments.splice(idx, 1)[0] : makeCard(cardName));
 };
 
@@ -197,10 +196,41 @@ const classifyEvent = (line: string): ReplayEventKind => {
   return 'text';
 };
 
-const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>) => {
+const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>, knowledge: ReplayHandKnowledge) => {
   const line = normalizeLine(rawLine);
   const playerName = findPlayer(line, players);
   const player = playerName ? board.players[playerName] : null;
+
+  const mulliganMatch = line.match(/^(.+) took (?:a|\d+) mulligans?\.$/);
+  if (mulliganMatch) {
+    const owner = board.players[mulliganMatch[1]];
+    // Revealed mulligan cards were returned, and the replacement hand is hidden.
+    if (owner) knowledge.reset(owner, 7);
+    return;
+  }
+
+  const shuffledMatch = line.match(/^-? ?(.+) shuffled (a card|\d+ cards) into their deck\.$/);
+  if (shuffledMatch) {
+    const owner = board.players[shuffledMatch[1]];
+    if (!owner) return;
+    const listed = getFollowingCardList(lines, index);
+    if (listed.length > 0) {
+      const returned = listed.map((name) => ({ name, pokemon: removePokemonFromBoard(owner, name) }));
+      const fromBoard = returned.some(({ pokemon }) => pokemon !== null);
+      returned.forEach(({ name, pokemon }) => {
+        // Evolution cards beneath a returned Pokemon were not in hand.
+        if (!pokemon && (!fromBoard || owner.hand.knownCards.some((card) => matchesReplayCard(card, name)))) {
+          removeCardFromHand(owner, name, knowledge);
+        }
+      });
+    } else {
+      const count = shuffledMatch[2] === 'a card' ? 1 : parseInt(shuffledMatch[2], 10);
+      const remaining = Math.max(0, owner.hand.knownCards.length + owner.hand.unknownCount - count);
+      // Without a list we cannot know which identities remain in hand.
+      knowledge.reset(owner, remaining);
+    }
+    return;
+  }
 
   const openingHandMatch = line.match(/^(.+) drew 7 cards for the opening hand\.?/);
   if (openingHandMatch) {
@@ -208,7 +238,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     if (actingPlayer) {
       const listIndex = lines[index + 1]?.includes('drawn cards') ? index + 1 : index;
       const listedCards = getFollowingCardList(lines, listIndex);
-      listedCards.length > 0 ? addKnownCardsToHand(actingPlayer, listedCards) : addUnknownCardsToHand(actingPlayer, 7);
+      listedCards.length > 0 ? addKnownCardsToHand(actingPlayer, listedCards) : addUnknownCardsToHand(actingPlayer, 7, knowledge);
     }
     return;
   }
@@ -223,7 +253,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   const genericAddedMatch = line.match(/^A card was added to (.+)'s hand\.$/);
   if (genericAddedMatch) {
     const owner = board.players[genericAddedMatch[1]];
-    if (owner) addUnknownCardsToHand(owner, 1);
+    if (owner) addUnknownCardsToHand(owner, 1, knowledge);
     return;
   }
 
@@ -235,7 +265,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     return;
   }
 
-  const drewNamedMatch = line.match(/^-? ?(.+) drew ([A-Z][^\.]+)\.$/);
+  const drewNamedMatch = line.match(/^-? ?(.+) drew ((?:\([^)]+\)\s+)?[A-Z][^\.]+)\.$/);
   if (drewNamedMatch && !line.includes(' drew a card') && !line.match(/drew \d+ cards/)) {
     const owner = board.players[drewNamedMatch[1]];
     if (owner) addKnownCardsToHand(owner, [drewNamedMatch[2]]);
@@ -249,7 +279,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
       const cardNames = getFollowingCardList(lines, index);
       if (line.includes('played them to the Bench')) owner.bench.push(...cardNames.map(makePokemon));
       else if (cardNames.length > 0) addKnownCardsToHand(owner, cardNames);
-      else addUnknownCardsToHand(owner, Number(drewCountMatch[2]));
+      else addUnknownCardsToHand(owner, Number(drewCountMatch[2]), knowledge);
     }
     return;
   }
@@ -257,14 +287,14 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   const drewSingleUnknownMatch = line.match(/^-? ?(.+) drew a card\.$/);
   if (drewSingleUnknownMatch) {
     const owner = board.players[drewSingleUnknownMatch[1]];
-    if (owner) addUnknownCardsToHand(owner, 1);
+    if (owner) addUnknownCardsToHand(owner, 1, knowledge);
     return;
   }
 
   const playedPokemonMatch = line.match(/^(.+) played (.+) to the (Active Spot|Bench)\.$/);
   if (playedPokemonMatch) {
     const owner = board.players[playedPokemonMatch[1]];
-    if (owner) playPokemon(owner, playedPokemonMatch[2], playedPokemonMatch[3] === 'Active Spot' ? 'active' : 'bench');
+    if (owner) playPokemon(owner, playedPokemonMatch[2], playedPokemonMatch[3] === 'Active Spot' ? 'active' : 'bench', knowledge);
     return;
   }
 
@@ -281,7 +311,9 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     const targetName = attachedMatch[3].startsWith(`${owner?.name}'s `)
       ? attachedMatch[3].slice(owner.name.length + 3)
       : attachedMatch[3];
-    if (owner) attachCardToPokemon(owner, attachedMatch[2], targetName);
+    const playedCard = lines[0]?.match(/^.+ played (.+)\.$/)?.[1];
+    const fromDeck = !!playedCard && normalizeCardNameForLookup(normalizeReplayCardName(playedCard)) === 'crispin';
+    if (owner) attachCardToPokemon(owner, attachedMatch[2], targetName, fromDeck, knowledge);
     return;
   }
 
@@ -290,8 +322,9 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     const owner = board.players[evolvedMatch[1]];
     const pokemon = owner ? findPokemon(owner, evolvedMatch[2]) : null;
     if (owner && pokemon) {
-      removeCardFromHand(owner, evolvedMatch[3]);
+      const evolvedCard = removeCardFromHand(owner, evolvedMatch[3], knowledge);
       pokemon.name = normalizeReplayCardName(evolvedMatch[3]);
+      pokemon.identifier = evolvedCard.identifier;
     }
     return;
   }
@@ -303,16 +336,16 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
       const previous = board.stadium;
       if (previous?.owner && board.players[previous.owner]) {
         board.players[previous.owner].discard.push(previous);
-        stadiumDiscards.add(`${previous.owner}:${previous.name}`);
+        stadiumDiscards.add(`${previous.owner}:${previous.identifier ?? previous.name}`);
       }
-      board.stadium = { ...removeCardFromHand(owner, stadiumMatch[2]), owner: owner.name };
+      board.stadium = { ...removeCardFromHand(owner, stadiumMatch[2], knowledge), owner: owner.name };
     }
     return;
   }
 
   const discardedStadiumMatch = line.match(/^(?:- )?(.+) was discarded from the Stadium spot\.$/i);
   if (discardedStadiumMatch) {
-    if (board.stadium?.name.toLowerCase() === discardedStadiumMatch[1].toLowerCase()) {
+    if (board.stadium && matchesReplayCard(board.stadium, discardedStadiumMatch[1])) {
       const stadium = board.stadium;
       if (stadium.owner && board.players[stadium.owner]) board.players[stadium.owner].discard.push(stadium);
       board.stadium = null;
@@ -323,8 +356,8 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   const playedCardMatch = line.match(/^(.+) played (.+)\.$/);
   if (playedCardMatch && player) {
     // Using the Stadium's effect does not play another copy from hand.
-    if (board.stadium?.name === playedCardMatch[2]) return;
-    player.discard.push(removeCardFromHand(player, playedCardMatch[2]));
+    if (board.stadium && matchesReplayCard(board.stadium, playedCardMatch[2])) return;
+    player.discard.push(removeCardFromHand(player, playedCardMatch[2], knowledge));
     return;
   }
 
@@ -332,22 +365,22 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   if (discardedListMatch) {
     const owner = board.players[discardedListMatch[1]];
     const cardNames = getFollowingCardList(lines, index);
-    if (owner && cardNames.length > 0) cardNames.forEach((cardName) => discardCard(owner, cardName));
+    if (owner && cardNames.length > 0) cardNames.forEach((cardName) => discardCard(owner, cardName, knowledge));
     return;
   }
 
   const discardedNamedMatch = line.match(/^-? ?(.+) discarded (.+)\.$/);
   if (discardedNamedMatch) {
     const owner = board.players[discardedNamedMatch[1]];
-    const key = `${discardedNamedMatch[1]}:${discardedNamedMatch[2]}`;
+    const key = `${discardedNamedMatch[1]}:${replayCardIdentifier(discardedNamedMatch[2]) ?? discardedNamedMatch[2]}`;
     if (stadiumDiscards.delete(key)) return;
-    if (board.stadium?.name === discardedNamedMatch[2] && board.stadium.owner === owner?.name) {
+    if (board.stadium && matchesReplayCard(board.stadium, discardedNamedMatch[2]) && board.stadium.owner === owner?.name) {
       owner.discard.push(board.stadium);
       board.stadium = null;
       return;
     }
     if (owner) {
-      discardCard(owner, discardedNamedMatch[2]);
+      discardCard(owner, discardedNamedMatch[2], knowledge);
       return;
     }
   }
@@ -362,14 +395,18 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   const movedToDiscardMatch = line.match(/^-? ?(.+) moved (.+)'s (.+) to the discard pile\.$/);
   if (movedToDiscardMatch) {
     const owner = board.players[movedToDiscardMatch[2]];
-    if (owner) discardCard(owner, movedToDiscardMatch[3]);
+    if (owner) discardCard(owner, movedToDiscardMatch[3], knowledge);
     return;
   }
 
   const movedToHandMatch = line.match(/^-? ?(.+) moved (.+)'s (.+) to their hand\.$/);
   if (movedToHandMatch) {
     const owner = board.players[movedToHandMatch[2]];
-    if (owner) addKnownCardsToHand(owner, [movedToHandMatch[3]]);
+    if (owner) {
+      const discardIndex = owner.discard.findIndex((card) => matchesReplayCard(card, movedToHandMatch[3]));
+      const card = discardIndex >= 0 ? owner.discard.splice(discardIndex, 1)[0] : makeCard(movedToHandMatch[3]);
+      owner.hand.knownCards.push(card);
+    }
     return;
   }
 
@@ -402,7 +439,7 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     const owner = board.players[knockedOutMatch[1]];
     const pokemon = owner ? removePokemonFromBoard(owner, knockedOutMatch[2]) : null;
     if (owner && pokemon) {
-      owner.discard.push(makeCard(pokemon.name));
+      owner.discard.push({ ...makeCard(pokemon.name), identifier: pokemon.identifier });
       owner.discard.push(...pokemon.attachments);
     }
     return;
@@ -438,10 +475,13 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
   nextEntityId = 0;
   const players = battleLog.players.map((player) => player.name);
   const perspectivePlayer = players.find((player) => player.toLowerCase() === perspectivePlayerName?.toLowerCase()) ?? players[0];
+  const knowledge = new ReplayHandKnowledge(perspectivePlayer, makeCard);
   const board = createInitialBoard(players);
   const frames: ReplayFrame[] = [];
 
   const pushFrame = (sectionIndex: number, actionIndex: number | null, turnTitle: string, currentPlayer: string, event: ReplayEvent) => {
+    const snapshot = cloneBoard(board);
+    Object.values(board.players).forEach((player) => knowledge.captureFrame(player, snapshot.players[player.name]));
     frames.push({
       id: `frame-${frames.length}`,
       index: frames.length,
@@ -449,7 +489,7 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
       actionIndex,
       turnTitle,
       currentPlayer,
-      board: cloneBoard(board),
+      board: snapshot,
       event,
     });
   };
@@ -458,7 +498,7 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
     section.actions.forEach((action, actionIndex) => {
       const lines = getActionLines(action);
       const stadiumDiscards = new Set<string>();
-      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards));
+      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards, knowledge));
       pushFrame(sectionIndex, actionIndex, section.turnTitle, section.player, buildEvent(`event-${sectionIndex}-${actionIndex}`, action, lines, players));
     });
 
@@ -470,6 +510,8 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
   if (frames.length === 0) {
     pushFrame(0, null, 'Setup', '', { id: 'event-empty', kind: 'setup', title: 'Setup', details: [] });
   }
+
+  knowledge.resolve();
 
   return {
     players: [perspectivePlayer, ...players.filter((player) => player !== perspectivePlayer)],
