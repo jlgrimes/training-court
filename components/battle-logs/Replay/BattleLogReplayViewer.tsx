@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ChevronRight, Pause, Play, SkipBack, SkipForward, StepBack, StepForward, X } from "lucide-react";
+import { ChevronRight, Maximize2, Minimize2, Pause, Play, SkipBack, SkipForward, StepBack, StepForward, X } from "lucide-react";
+import { createPortal } from 'react-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import { T, useGT } from "gt-react";
 import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
@@ -205,6 +206,9 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   const replay = useMemo(() => buildBattleLogReplay(battleLog, perspectivePlayerName), [battleLog, perspectivePlayerName]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenToggleRef = useRef<HTMLButtonElement>(null);
+  const hasEnteredFullscreen = useRef(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const [frameHeight, setFrameHeight] = useState<number>();
   const gt = useGT();
@@ -227,7 +231,26 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
       window.removeEventListener('resize', update);
       window.visualViewport?.removeEventListener('resize', update);
     };
-  }, []);
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    if (isFullscreen || hasEnteredFullscreen.current) fullscreenToggleRef.current?.focus();
+    hasEnteredFullscreen.current = isFullscreen;
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !document.querySelector('[role="dialog"]')) setIsFullscreen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isFullscreen]);
 
   const currentFrame = replay.frames[currentIndex] ?? replay.frames[0];
   const knownCards = useMemo(() => getKnownCards(replay.frames), [replay.frames]);
@@ -266,12 +289,17 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
     setCurrentIndex(Math.max(0, Math.min(replay.frames.length - 1, index)));
   };
 
-  return (
-    <div ref={frameRef} className={styles.frame} style={frameHeight === undefined ? undefined : { height: frameHeight }} data-replay-frame>
+  const content = (
+    <div ref={frameRef} className={`${styles.frame} ${isFullscreen ? styles.fullscreen : ''}`} style={isFullscreen ? { height: '100dvh' } : frameHeight === undefined ? undefined : { height: frameHeight }} data-replay-frame>
       <div className={styles.toolbar}>
         <div className={styles.heading}>
           <h2 title={currentFrame.turnTitle}>{currentFrame.turnTitle}</h2>
           <span className={styles.frameCount}><T id="battleLogs.replay.frame">Frame</T> {currentIndex + 1}/{replay.frames.length}</span>
+          <Button ref={fullscreenToggleRef} type="button" size="icon" variant="ghost" className="h-7 w-7 shrink-0" aria-pressed={isFullscreen}
+            aria-label={isFullscreen ? gt('Exit full screen', { $id: 'battleLogs.replay.exitFullscreen' }) : gt('Full-screen replay', { $id: 'battleLogs.replay.fullscreen' })}
+            onClick={() => setIsFullscreen((value) => !value)}>
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
         </div>
 
         <div className={styles.controls}>
@@ -330,4 +358,5 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
       </Dialog.Root>
     </div>
   );
+  return isFullscreen ? createPortal(content, document.body) : content;
 }

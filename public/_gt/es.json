@@ -266,5 +266,14 @@
   "tournaments.header": "Torneos",
   "tournaments.newTournament": "Nuevo torneo",
   "tournaments.ptcgHeader": "Torneos PTCG",
-  "battleLogs.replay.mulliganBonus": "{player} robó {cards} cartas adicionales porque {opponent} hizo {opponentMulligans} mulligans y {player} hizo {playerMulligans}."
+  "battleLogs.replay.mulliganBonus": "{player} robó {cards} cartas adicionales porque {opponent} hizo {opponentMulligans} mulligans y {player} hizo {playerMulligans}.",
+  "battleLogs.notes.title": "Notas",
+  "battleLogs.notes.open": "Abrir notas",
+  "battleLogs.notes.add": "Añadir una nota",
+  "battleLogs.notes.saveError": "No se pudieron guardar las notas. Inténtalo de nuevo.",
+  "battleLogs.notes.saving": "Guardando...",
+  "battleLogs.notes.save": "Guardar",
+  "battleLogs.notes.edit": "Editar notas",
+  "battleLogs.replay.fullscreen": "Repetición a pantalla completa",
+  "battleLogs.replay.exitFullscreen": "Salir de pantalla completa"
 }

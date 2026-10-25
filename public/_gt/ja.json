@@ -266,5 +266,14 @@
   "tournaments.header": "大会",
   "tournaments.newTournament": "新しい大会",
   "tournaments.ptcgHeader": "PTCG大会",
-  "battleLogs.replay.mulliganBonus": "{opponent}が{opponentMulligans}回、{player}が{playerMulligans}回マリガンしたため、{player}は追加で{cards}枚引いた。"
+  "battleLogs.replay.mulliganBonus": "{opponent}が{opponentMulligans}回、{player}が{playerMulligans}回マリガンしたため、{player}は追加で{cards}枚引いた。",
+  "battleLogs.notes.title": "メモ",
+  "battleLogs.notes.open": "メモを開く",
+  "battleLogs.notes.add": "メモを追加",
+  "battleLogs.notes.saveError": "メモを保存できませんでした。もう一度お試しください。",
+  "battleLogs.notes.saving": "保存中...",
+  "battleLogs.notes.save": "保存",
+  "battleLogs.notes.edit": "メモを編集",
+  "battleLogs.replay.fullscreen": "リプレイを全画面表示",
+  "battleLogs.replay.exitFullscreen": "全画面表示を終了"
 }

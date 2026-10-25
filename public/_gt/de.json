@@ -266,5 +266,14 @@
   "tournaments.header": "Turniere",
   "tournaments.newTournament": "Neues Turnier",
   "tournaments.ptcgHeader": "PTCG-Turniere",
-  "battleLogs.replay.mulliganBonus": "{player} zog {cards} Bonuskarten, weil {opponent} {opponentMulligans} Mulligans nahm und {player} {playerMulligans}."
+  "battleLogs.replay.mulliganBonus": "{player} zog {cards} Bonuskarten, weil {opponent} {opponentMulligans} Mulligans nahm und {player} {playerMulligans}.",
+  "battleLogs.notes.title": "Notizen",
+  "battleLogs.notes.open": "Notizen öffnen",
+  "battleLogs.notes.add": "Notiz hinzufügen",
+  "battleLogs.notes.saveError": "Notizen konnten nicht gespeichert werden. Bitte versuche es erneut.",
+  "battleLogs.notes.saving": "Wird gespeichert...",
+  "battleLogs.notes.save": "Speichern",
+  "battleLogs.notes.edit": "Notizen bearbeiten",
+  "battleLogs.replay.fullscreen": "Wiedergabe im Vollbild",
+  "battleLogs.replay.exitFullscreen": "Vollbild beenden"
 }

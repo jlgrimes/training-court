@@ -7,10 +7,11 @@
   min-height: 0;
   overflow: hidden;
 }
+.fullscreen { position: fixed; inset: 0; z-index: 50; width: 100%; padding: 12px; background: hsl(var(--background)); }
 .toolbar { padding: 6px 8px; border: 1px solid hsl(var(--border)); border-radius: 10px; background: hsl(var(--card)); }
 .heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; font-size: 11px; }
 .heading h2 { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
-.frameCount { flex-shrink: 0; color: hsl(var(--muted-foreground)); font-variant-numeric: tabular-nums; }
+.frameCount { flex-shrink: 0; margin-left: auto; color: hsl(var(--muted-foreground)); font-variant-numeric: tabular-nums; }
 .controls { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
 .buttons { display: flex; gap: 4px; }
 .buttons > button { width: 36px; height: 36px; }

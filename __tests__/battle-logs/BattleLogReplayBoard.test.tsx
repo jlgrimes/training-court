@@ -222,3 +222,22 @@ it('shows a 20 damage badge on Budew when Risky Ruins places two counters', () =
   const budew = within(player).getByRole('button', { name: 'Budew' }).parentElement!;
   expect(within(budew).getByText('20')).toBeTruthy();
 });
+
+
+it('keeps the current frame when entering and leaving full-screen replay', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'First action.', details: [] }, { title: 'Second action.', details: [] },
+  ] }];
+  const previousOverflow = document.body.style.overflow;
+  render(<BattleLogReplayViewer battleLog={log} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Full-screen replay' }));
+  expect(screen.getByText('Second action.')).toBeTruthy();
+  expect(document.body.style.overflow).toBe('hidden');
+  expect(screen.getByRole('button', { name: 'Exit full screen' }).getAttribute('aria-pressed')).toBe('true');
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(screen.getByText('Second action.')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Full-screen replay' })).toBeTruthy();
+  expect(document.body.style.overflow).toBe(previousOverflow);
+});

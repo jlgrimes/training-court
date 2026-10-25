@@ -266,5 +266,14 @@
   "tournaments.header": "Tournois",
   "tournaments.newTournament": "Nouveau tournoi",
   "tournaments.ptcgHeader": "Tournois PTCG",
-  "battleLogs.replay.mulliganBonus": "{player} a pioché {cards} cartes bonus car {opponent} a fait {opponentMulligans} mulligans et {player} en a fait {playerMulligans}."
+  "battleLogs.replay.mulliganBonus": "{player} a pioché {cards} cartes bonus car {opponent} a fait {opponentMulligans} mulligans et {player} en a fait {playerMulligans}.",
+  "battleLogs.notes.title": "Notes",
+  "battleLogs.notes.open": "Ouvrir les notes",
+  "battleLogs.notes.add": "Ajouter une note",
+  "battleLogs.notes.saveError": "Impossible d’enregistrer les notes. Veuillez réessayer.",
+  "battleLogs.notes.saving": "Enregistrement...",
+  "battleLogs.notes.save": "Enregistrer",
+  "battleLogs.notes.edit": "Modifier les notes",
+  "battleLogs.replay.fullscreen": "Rediffusion en plein écran",
+  "battleLogs.replay.exitFullscreen": "Quitter le plein écran"
 }
