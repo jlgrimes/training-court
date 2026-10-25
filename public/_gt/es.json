@@ -265,5 +265,6 @@
   "tournaments.empty.description": "Puedes agregar torneos del pasado, presente o futuro.",
   "tournaments.header": "Torneos",
   "tournaments.newTournament": "Nuevo torneo",
-  "tournaments.ptcgHeader": "Torneos PTCG"
+  "tournaments.ptcgHeader": "Torneos PTCG",
+  "battleLogs.replay.mulliganBonus": "{player} robó {cards} cartas adicionales porque {opponent} hizo {opponentMulligans} mulligans y {player} hizo {playerMulligans}."
 }

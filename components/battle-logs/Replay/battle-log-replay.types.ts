@@ -56,6 +56,13 @@ export interface ReplayEvent {
   cards?: ReplayCard[];
   damage?: number;
   targetName?: string;
+  mulliganBonus?: {
+    player: string;
+    opponent: string;
+    cards: number;
+    playerMulligans: number;
+    opponentMulligans: number;
+  };
 }
 
 export interface ReplayFrame {

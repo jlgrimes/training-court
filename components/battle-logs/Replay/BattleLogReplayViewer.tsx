@@ -255,6 +255,12 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   }, [isPlaying, replay.frames.length]);
 
   if (!currentFrame) return null;
+  const bonus = currentFrame.event.mulliganBonus;
+  const actionTitle = bonus
+    ? gt('{player} drew {cards} bonus cards because {opponent} took {opponentMulligans} mulligans and {player} took {playerMulligans}.', {
+        $id: 'battleLogs.replay.mulliganBonus', ...bonus,
+      })
+    : currentFrame.event.title;
 
   const goToFrame = (index: number) => {
     setCurrentIndex(Math.max(0, Math.min(replay.frames.length - 1, index)));
@@ -304,7 +310,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
         <Dialog.Trigger asChild>
           <button type="button" className={styles.action} aria-label={gt('Action details', { $id: 'battleLogs.replay.actionDetails' })}>
             <span className="sr-only"><T id="battleLogs.replay.currentAction">Current action</T></span>
-            <span className={styles.actionText}>{currentFrame.event.title}</span>
+            <span className={styles.actionText}>{actionTitle}</span>
             <ChevronRight size={14} />
           </button>
         </Dialog.Trigger>
@@ -312,7 +318,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
           <Dialog.Overlay className={styles.overlay} />
           <Dialog.Content className={styles.details} aria-describedby={undefined}>
             <Dialog.Title className="mb-3 text-sm font-semibold"><T id="battleLogs.replay.currentAction">Current action</T></Dialog.Title>
-            <p className="text-sm font-medium">{currentFrame.event.title}</p>
+            <p className="text-sm font-medium">{actionTitle}</p>
             <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
               {currentFrame.event.details.map((detail, index) => (
                 <p key={`${currentFrame.id}-detail-${index}`}>{detail}</p>

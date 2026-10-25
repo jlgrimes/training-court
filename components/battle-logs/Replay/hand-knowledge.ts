@@ -1,61 +1,51 @@
 import type { ReplayCard, ReplayPlayerState } from './battle-log-replay.types';
 
-type UnknownSlot = {
-  id: string;
-  batch: number;
-  inferable: boolean;
-  revealed?: ReplayCard;
-};
+type Reveal = { acquiredBy: number; removedAt: number; card: ReplayCard };
 
-/** Tracks anonymous card occurrences, then applies later evidence to earlier frames. */
+/** Reconstructs earlier hands from subsequent plays and complete return lists. */
 export class ReplayHandKnowledge {
-  private slots = new Map<string, UnknownSlot[]>();
-  private snapshots: Array<{ hand: ReplayPlayerState['hand']; slots: UnknownSlot[] }> = [];
-  private sequence = 0;
-  private batch = 0;
+  private time = 0;
+  private lastUnknownDraw = new Map<string, number>();
+  private reveals: Reveal[] = [];
+  private snapshots: Array<{ time: number; hand: ReplayPlayerState['hand'] }> = [];
 
   constructor(private perspectivePlayer: string, private makeCard: (name: string) => ReplayCard) {}
 
   addUnknown(player: ReplayPlayerState, count: number) {
-    const slots = this.slots.get(player.name) ?? [];
-    const batch = this.batch++;
-    for (let index = 0; index < Math.max(0, count); index++) {
-      slots.push({ id: `hand-unknown-${this.sequence++}`, batch, inferable: true });
-    }
-    this.slots.set(player.name, slots);
-    player.hand.unknownCount = slots.length;
+    if (count <= 0) return;
+    this.lastUnknownDraw.set(player.name, ++this.time);
+    player.hand.unknownCount += count;
   }
 
   reset(player: ReplayPlayerState, count: number) {
-    this.slots.set(player.name, []);
+    ++this.time;
     player.hand = { knownCards: [], unknownCount: 0 };
     this.addUnknown(player, count);
   }
 
   removeUnknown(player: ReplayPlayerState, name: string): ReplayCard | undefined {
-    const slots = this.slots.get(player.name) ?? [];
-    if (new Set(slots.map((slot) => slot.batch)).size > 1) {
-      // A later unnamed draw could be the card being played. Do not assign its
-      // identity to an earlier hand unless its acquisition is unambiguous.
-      slots.forEach((slot) => { slot.inferable = false; });
+    if (player.hand.unknownCount <= 0) return undefined;
+    const removedAt = ++this.time;
+    player.hand.unknownCount -= 1;
+    const card = this.makeCard(name);
+    if (player.name === this.perspectivePlayer) {
+      // The card must already be in hand after the last unnamed acquisition.
+      // Before that acquisition, assigning it to an older draw would be a guess.
+      this.reveals.push({ acquiredBy: this.lastUnknownDraw.get(player.name) ?? removedAt, removedAt, card });
     }
-    const slot = slots.shift();
-    player.hand.unknownCount = slots.length;
-    if (!slot) return undefined;
-    const card = { ...this.makeCard(name), id: slot.id };
-    if (slot.inferable && player.name === this.perspectivePlayer) slot.revealed = card;
     return card;
   }
 
   captureFrame(player: ReplayPlayerState, snapshot: ReplayPlayerState) {
-    if (player.name !== this.perspectivePlayer) return;
-    this.snapshots.push({ hand: snapshot.hand, slots: [...(this.slots.get(player.name) ?? [])] });
+    if (player.name === this.perspectivePlayer) {
+      this.snapshots.push({ time: this.time, hand: snapshot.hand });
+    }
   }
 
   resolve() {
-    this.snapshots.forEach(({ hand, slots }) => {
-      const inferred = slots.flatMap((slot) => slot.revealed ? [{ ...slot.revealed }] : []);
-      hand.knownCards.push(...inferred);
+    this.snapshots.forEach(({ time, hand }) => {
+      const inferred = this.reveals.filter(({ acquiredBy, removedAt }) => acquiredBy <= time && time < removedAt);
+      hand.knownCards.push(...inferred.map(({ card }) => ({ ...card })));
       hand.unknownCount -= inferred.length;
     });
   }

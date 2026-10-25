@@ -265,5 +265,6 @@
   "tournaments.empty.description": "Vous pouvez ajouter des tournois passes, presents ou futurs.",
   "tournaments.header": "Tournois",
   "tournaments.newTournament": "Nouveau tournoi",
-  "tournaments.ptcgHeader": "Tournois PTCG"
+  "tournaments.ptcgHeader": "Tournois PTCG",
+  "battleLogs.replay.mulliganBonus": "{player} a pioché {cards} cartes bonus car {opponent} a fait {opponentMulligans} mulligans et {player} en a fait {playerMulligans}."
 }

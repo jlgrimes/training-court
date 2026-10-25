@@ -28,7 +28,7 @@ function imageUrl(card?: CatalogCard | null) {
 }
 
 function CardBack() {
-  return <div className={styles.cardBack} aria-hidden="true"><span /></div>;
+  return <div className={styles.cardBack} aria-hidden="true" />;
 }
 
 function Artwork({ name, card }: { name: string; card?: CatalogCard | null }) {
@@ -86,7 +86,6 @@ function Hand({ player, isPerspective, ...cards }: BoardCards & { player: Replay
               <span className="sr-only"><T id="battleLogs.replay.unknownCards">unknown</T></span>
             </div>
           )}
-          {total === 0 && <span className={styles.emptyHand}><T id="battleLogs.replay.empty">Empty</T></span>}
         </div>
       </div>
     </div>
@@ -127,17 +126,42 @@ function Prizes({ count }: { count: number }) {
 }
 
 function DeckAndDiscard({ player, ...cards }: BoardCards & { player: ReplayPlayerState }) {
+  const gt = useGT();
   const topDiscard = player.discard.at(-1);
   return (
     <div className={styles.piles}>
       <div className={styles.pile} data-zone="deck">
         {/* The replay model does not track deck size. Do not invent a count. */}
         <div className={`${styles.deck} ${styles.stacked}`}><CardBack /></div>
-        <div className={styles.zoneLabel}><T id="battleLogs.replay.deck">Deck</T></div>
+        <span className="sr-only"><T id="battleLogs.replay.deck">Deck</T></span>
       </div>
       <div className={styles.pile} data-zone="discard">
-        {topDiscard ? <Card card={topDiscard} size="side" {...cards} /> : <div className={`${styles.emptySlot} ${styles.side}`} aria-hidden="true" />}
-        <div className={styles.zoneLabel}><T id="battleLogs.replay.discard">Discard</T><span>{player.discard.length}</span></div>
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <button type="button" className={`${styles.cardButton} ${styles.side} ${styles.discardTrigger}`}
+              aria-label={`${player.name}: ${gt('Discard', { $id: 'battleLogs.replay.discard' })}`}>
+              {topDiscard
+                ? <Artwork name={topDiscard.name} card={cards.cardsByKey[replayCardKey(topDiscard)]} />
+                : <span className={styles.emptySlot} aria-hidden="true" />}
+              <span className={styles.count}>{player.discard.length}</span>
+            </button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay className={styles.inspectOverlay} />
+            <Dialog.Content className={styles.discardContent} aria-describedby={undefined}>
+              <Dialog.Title className={styles.discardTitle}>
+                {player.name}: <T id="battleLogs.replay.discard">Discard</T> ({player.discard.length})
+              </Dialog.Title>
+              <div className={styles.discardCards}>
+                {player.discard.map((card) => <Card key={card.id} card={card} {...cards} />)}
+              </div>
+              {player.discard.length === 0 && <p><T id="battleLogs.replay.empty">Empty</T></p>}
+              <Dialog.Close className={styles.inspectClose} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}>
+                <X size={20} />
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </div>
     </div>
   );
@@ -149,9 +173,10 @@ function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player:
       <div className={styles.playerName}><span className={styles.playerDot} />{player.name}</div>
       <Hand player={player} isPerspective={isPerspective} {...cards} />
       <div className={styles.benchZone} data-zone="bench">
-        <div className={styles.zoneLabel}><T id="battleLogs.replay.bench">Bench</T></div>
-        <div className={styles.benchCards} style={{ '--card-count': Math.max(5, player.bench.length) } as CSSProperties}>
-          {Array.from({ length: Math.max(5, player.bench.length) }).map((_, index) => <Pokemon key={index} pokemon={player.bench[index] ?? null} {...cards} />)}
+        <span className="sr-only"><T id="battleLogs.replay.bench">Bench</T></span>
+        <div className={styles.benchCards} style={{ '--card-count': Math.max(1, player.bench.length) } as CSSProperties}>
+          {player.bench.map((pokemon) => <Pokemon key={pokemon.id} pokemon={pokemon} {...cards} />)}
+          {player.bench.length === 0 && <div className={styles.benchPlaceholder} aria-hidden="true"><Pokemon pokemon={null} {...cards} /></div>}
         </div>
       </div>
       <div className={styles.activeZone} data-zone="active">
@@ -212,7 +237,7 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false 
                 {board.stadium && (
                   <div className={styles.stadium} data-zone="stadium">
                     <Card card={board.stadium} size="side" {...cards} />
-                    <span className={styles.zoneLabel}><T id="battleLogs.replay.stadium">Stadium</T></span>
+                    <span className="sr-only"><T id="battleLogs.replay.stadium">Stadium</T></span>
                   </div>
                 )}
               </div>

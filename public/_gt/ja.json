@@ -265,5 +265,6 @@
   "tournaments.empty.description": "過去、現在、未来の大会を追加できます。",
   "tournaments.header": "大会",
   "tournaments.newTournament": "新しい大会",
-  "tournaments.ptcgHeader": "PTCG大会"
+  "tournaments.ptcgHeader": "PTCG大会",
+  "battleLogs.replay.mulliganBonus": "{opponent}が{opponentMulligans}回、{player}が{playerMulligans}回マリガンしたため、{player}は追加で{cards}枚引いた。"
 }

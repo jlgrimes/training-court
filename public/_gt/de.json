@@ -265,5 +265,6 @@
   "tournaments.empty.description": "Du kannst vergangene, aktuelle oder kunftige Turniere hinzufugen.",
   "tournaments.header": "Turniere",
   "tournaments.newTournament": "Neues Turnier",
-  "tournaments.ptcgHeader": "PTCG-Turniere"
+  "tournaments.ptcgHeader": "PTCG-Turniere",
+  "battleLogs.replay.mulliganBonus": "{player} zog {cards} Bonuskarten, weil {opponent} {opponentMulligans} Mulligans nahm und {player} {playerMulligans}."
 }

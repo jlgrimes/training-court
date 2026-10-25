@@ -185,7 +185,70 @@ it('replaces a mulligan hand and removes returned Pokemon from the board', () =>
     { title: 'Bassoonboy135 shuffled 2 cards into their deck.', details: ['- (sv8-5_80_mph) Dudunsparce, (sv9_120) Dunsparce'] },
   ] }];
   const { frames } = buildBattleLogReplay(log);
-  expect(frames[1].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 7 });
+  expect(frames[1].board.players.Bassoonboy135.hand.unknownCount).toBe(6);
+  expect(frames[1].board.players.Bassoonboy135.hand.knownCards).toEqual([expect.objectContaining({ identifier: 'sv8-5_80_mph' })]);
   expect(frames[3].board.players.Bassoonboy135.bench).toEqual([]);
   expect(frames[3].board.players.Bassoonboy135.hand.unknownCount).toBe(6);
+});
+
+
+it('uses future plays to identify unknown draws without changing earlier hand totals', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'Bassoonboy135 drew 2 cards.', details: [] },
+    { title: 'Bassoonboy135 played (sv8_251) Night Stretcher.', details: [] },
+    { title: 'Bassoonboy135 played (sv8_251) Night Stretcher.', details: [] },
+  ] }];
+  const { frames } = buildBattleLogReplay(log);
+  expect(frames[0].board.players.Bassoonboy135.hand.unknownCount).toBe(0);
+  expect(frames[0].board.players.Bassoonboy135.hand.knownCards.map((card) => card.identifier)).toEqual(['sv8_251', 'sv8_251']);
+  expect(frames.map((frame) => frame.board.players.Bassoonboy135.hand.knownCards.length)).toEqual([2, 1, 0]);
+});
+
+it('does not infer a later draw into a hand that was shuffled away', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'Bassoonboy135 drew 2 cards.', details: [] },
+    { title: 'Bassoonboy135 shuffled 2 cards into their deck.', details: [] },
+    { title: 'Bassoonboy135 drew a card.', details: [] },
+    { title: 'Bassoonboy135 played (sv8_251) Night Stretcher.', details: [] },
+  ] }];
+  const { frames } = buildBattleLogReplay(log);
+  expect(frames[0].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 2 });
+  expect(frames[1].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 0 });
+  expect(frames[2].board.players.Bassoonboy135.hand.knownCards).toEqual([expect.objectContaining({ identifier: 'sv8_251' })]);
+});
+
+it('does not guess an acquisition time when multiple unnamed draws could supply a card', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'Bassoonboy135 drew a card.', details: [] },
+    { title: 'Bassoonboy135 drew a card.', details: [] },
+    { title: 'Bassoonboy135 played (sv8_251) Night Stretcher.', details: [] },
+  ] }];
+  const { frames } = buildBattleLogReplay(log);
+  expect(frames[0].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 1 });
+  expect(frames[1].board.players.Bassoonboy135.hand.unknownCount).toBe(1);
+  expect(frames[1].board.players.Bassoonboy135.hand.knownCards).toEqual([expect.objectContaining({ identifier: 'sv8_251' })]);
+  expect(frames[2].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 1 });
+});
+
+
+it('does not consume or infer a hand card when an in-play Pokemon ability is logged as played', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  log.sections = [{ ...log.sections[0], actions: [
+    { title: 'Bassoonboy135 played (sv9_120) Dunsparce to the Bench.', details: [] },
+    { title: 'Bassoonboy135 evolved (sv9_120) Dunsparce to (sv8-5_80_mph) Dudunsparce on the Bench.', details: [] },
+    { title: 'Bassoonboy135 drew a card.', details: [] },
+    { title: 'Bassoonboy135 played (sv8-5_80_mph) Dudunsparce.', details: [
+      '- Bassoonboy135 drew 3 cards.', '- (sv8_251) Night Stretcher, (sv8_251) Night Stretcher, (sv8_251) Night Stretcher',
+      '- Bassoonboy135 shuffled 2 cards into their deck.', '- (sv8-5_80_mph) Dudunsparce, (sv9_120) Dunsparce',
+    ] },
+  ] }];
+  const { frames } = buildBattleLogReplay(log);
+  const hand = frames[3].board.players.Bassoonboy135.hand;
+  expect(hand.unknownCount).toBe(1);
+  expect(hand.knownCards.map((card) => card.identifier)).toEqual(['sv8_251', 'sv8_251', 'sv8_251']);
+  expect(frames[2].board.players.Bassoonboy135.hand).toEqual({ knownCards: [], unknownCount: 1 });
+  expect(frames[3].board.players.Bassoonboy135.discard).toEqual([]);
 });

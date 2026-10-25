@@ -1,5 +1,6 @@
+import { readFileSync } from 'fs';
 import { replayCardKey } from '@/components/battle-logs/Replay/card-identity';
-import { fireEvent, render, screen, within, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { BattleLogReplayViewer, ReplayBoard } from '@/components/battle-logs/Replay/BattleLogReplayViewer';
 import { buildBattleLogReplay } from '@/components/battle-logs/Replay/battle-log-replay.utils';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
@@ -7,7 +8,8 @@ import { battleLogNewStructure } from '@/components/battle-logs/utils/testing-fi
 
 jest.mock('gt-react', () => ({
   T: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useGT: () => (text: string) => text,
+  useGT: () => (text: string, values: Record<string, string | number> = {}) =>
+    text.replace(/\{(\w+)\}/g, (match, key: string) => String(values[key] ?? match)),
 }));
 
 it('renders stadium and every attached card as images on both sides of the board', () => {
@@ -138,4 +140,85 @@ it('does not search by name when an identifier has no catalog match', async () =
   } finally {
     global.fetch = originalFetch;
   }
+});
+
+
+it('opens every discarded card, preserves duplicates, and lets cards be inspected', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const board = buildBattleLogReplay(log).frames[0].board;
+  board.players.Bassoonboy135.discard = [
+    { id: 'stretcher-1', name: 'Night Stretcher', identifier: 'sv8_251', known: true },
+    { id: 'stretcher-2', name: 'Night Stretcher', identifier: 'sv8_251', known: true },
+    { id: 'energy', name: 'Basic Psychic Energy', identifier: 'sve_21_ph', known: true },
+  ];
+  board.players.Player2.discard = [{ id: 'opponent-ball', name: 'Ultra Ball', known: true }];
+  render(<ReplayBoard board={board} perspectivePlayer="Bassoonboy135" cardsByKey={{
+    'id:sv8_251': { id: 'sv8_251', name: 'Night Stretcher', imageUrl: 'https://example.com/stretcher.png' },
+    'id:sve_21_ph': { id: 'sve_21', name: 'Basic Psychic Energy', imageUrl: '/images/replay/sve-021.png' },
+  }} />);
+  const trigger = screen.getByRole('button', { name: 'Bassoonboy135: Discard' });
+  expect(within(trigger).getByText('3')).toBeTruthy();
+  fireEvent.click(trigger);
+  const discard = screen.getByRole('dialog', { name: 'Bassoonboy135: Discard (3)' });
+  expect(within(discard).getAllByRole('button', { name: 'Night Stretcher' })).toHaveLength(2);
+  expect(within(discard).getByRole('button', { name: 'Basic Psychic Energy' })).toBeTruthy();
+  expect(within(discard).queryByRole('button', { name: 'Ultra Ball' })).toBeNull();
+  fireEvent.click(within(discard).getAllByRole('button', { name: 'Night Stretcher' })[0]);
+  const inspection = screen.getByRole('dialog', { name: 'Night Stretcher' });
+  expect(within(inspection).getByAltText('Night Stretcher').getAttribute('src')).toBe('https://example.com/stretcher.png');
+  fireEvent.click(within(inspection).getByRole('button', { name: 'Close' }));
+  expect(screen.getByRole('dialog', { name: 'Bassoonboy135: Discard (3)' })).toBeTruthy();
+  fireEvent.click(within(discard).getByRole('button', { name: 'Close' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Player2: Discard' }));
+  const opponentDiscard = screen.getByRole('dialog', { name: 'Player2: Discard (1)' });
+  expect(within(opponentDiscard).getByRole('button', { name: 'Ultra Ball' })).toBeTruthy();
+  expect(within(opponentDiscard).queryByRole('button', { name: 'Night Stretcher' })).toBeNull();
+});
+
+it('opens an empty discard pile', () => {
+  const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const board = buildBattleLogReplay(log).frames[0].board;
+  board.players.Bassoonboy135.discard = [];
+  render(<ReplayBoard board={board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Bassoonboy135: Discard' }));
+  const discard = screen.getByRole('dialog', { name: 'Bassoonboy135: Discard (0)' });
+  expect(within(discard).getByText('Empty')).toBeTruthy();
+  fireEvent.click(within(discard).getByRole('button', { name: 'Close' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+
+it('shows both final mulligan totals in the bonus-draw action and its details', async () => {
+  const raw = readFileSync('__tests__/battle-logs/fixtures/dragapult-identifiers.txt', 'utf8').replace(/\r\n/g, '\n');
+  const log = parseBattleLog(raw, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const bonusIndex = buildBattleLogReplay(log).frames.findIndex((frame) => !!frame.event.mulliganBonus);
+  await act(async () => { render(<BattleLogReplayViewer battleLog={log} />); });
+  for (let index = 0; index < bonusIndex; index++) fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+  const expected = 'Bassoonboy135 drew 3 bonus cards because Oyauguru took 4 mulligans and Bassoonboy135 took 1.';
+  expect(screen.getByText(expected)).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Action details' }));
+  expect(within(screen.getByRole('dialog', { name: 'Current action' })).getByText(expected)).toBeTruthy();
+});
+
+
+it('shows a 10 damage badge on Munkidori after Itchy Pollen', () => {
+  const raw = readFileSync('__tests__/battle-logs/fixtures/dragapult-identifiers.txt', 'utf8').replace(/\r\n/g, '\n');
+  const log = parseBattleLog(raw, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const hit = buildBattleLogReplay(log).frames.find((frame) => frame.event.title.includes('Itchy Pollen on Bassoonboy135'))!;
+  render(<ReplayBoard board={hit.board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  const player = screen.getByRole('region', { name: 'Bassoonboy135' });
+  const munkidori = within(player).getByRole('button', { name: 'Munkidori' }).parentElement!;
+  expect(within(munkidori).getByText('Damage:')).toBeTruthy();
+  expect(within(munkidori).getByText('10')).toBeTruthy();
+});
+
+
+it('shows a 20 damage badge on Budew when Risky Ruins places two counters', () => {
+  const raw = readFileSync('__tests__/battle-logs/fixtures/dragapult-identifiers.txt', 'utf8').replace(/\r\n/g, '\n');
+  const log = parseBattleLog(raw, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const played = buildBattleLogReplay(log).frames.find((frame) => frame.event.title === 'Bassoonboy135 played (sv8-5_4_mph) Budew to the Bench.')!;
+  render(<ReplayBoard board={played.board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  const player = screen.getByRole('region', { name: 'Bassoonboy135' });
+  const budew = within(player).getByRole('button', { name: 'Budew' }).parentElement!;
+  expect(within(budew).getByText('20')).toBeTruthy();
 });

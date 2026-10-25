@@ -28,6 +28,7 @@ export const normalizeReplayCardName = (name: string) => {
 
 const normalizeLine = (line: string) =>
   line
+    .replace(/[\u2018\u2019]/g, "'")
     .replace(/â€™/g, "'")
     .replace(/PokÃ©mon/g, 'Pokemon')
     .replace(/Pokémon/g, 'Pokemon')
@@ -181,6 +182,42 @@ const discardAttachedCard = (player: ReplayPlayerState, cardName: string, pokemo
 const getActionLines = (action: BattleLogAction) => [action.title, ...action.details].map(normalizeLine);
 
 const getFollowingCardList = (lines: string[], index: number) => parseCardList(lines[index + 1] ?? '');
+
+/** Live can print mulligan bonus draws before starting Pokemon placements. */
+const orderSetupActions = (actions: BattleLogAction[], players: string[]): BattleLogAction[] => {
+  const placed = new Set(actions.flatMap((action) => getActionLines(action).flatMap((line) => {
+    const match = line.match(/^(.+) played .+ to the Active Spot\.$/);
+    return match ? [match[1]] : [];
+  })));
+  if (!players.every((player) => placed.has(player))) return actions;
+
+  const setup: BattleLogAction[] = [];
+  const bonuses: BattleLogAction[] = [];
+  actions.forEach((action) => {
+    const lines = getActionLines(action);
+    const retained: string[] = [];
+    for (let index = 0; index < lines.length; index++) {
+      const bonus = lines[index].match(/^(.+) drew (\d+) more cards? because .+ took at least 1 mulligan\.$/);
+      if (!bonus) {
+        retained.push(lines[index]);
+        continue;
+      }
+      const title = lines[index];
+      const details: string[] = [];
+      const draw = lines[index + 1]?.match(/^-? ?(.+) drew (\d+) cards?\.$/);
+      if (draw && draw[1] === bonus[1] && draw[2] === bonus[2]) {
+        details.push(lines[++index]);
+      } else {
+        // Some log formats report the bonus only in the summary line.
+        details.push(`${bonus[1]} drew ${bonus[2]} cards.`);
+      }
+      if (parseCardList(lines[index + 1] ?? '').length > 0) details.push(lines[++index]);
+      bonuses.push({ title, details });
+    }
+    if (retained.length > 0) setup.push({ title: retained[0], details: retained.slice(1) });
+  });
+  return [...setup, ...bonuses];
+};
 
 const classifyEvent = (line: string): ReplayEventKind => {
   if (line.includes(' drew ') || (line.includes(' was added to ') && line.includes("'s hand"))) return 'draw';
@@ -355,8 +392,10 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
 
   const playedCardMatch = line.match(/^(.+) played (.+)\.$/);
   if (playedCardMatch && player) {
-    // Using the Stadium's effect does not play another copy from hand.
+    // Logs can say "played" when activating a Stadium or an in-play Pokemon.
+    // Actual Pokemon plays have already matched the explicit board-zone form.
     if (board.stadium && matchesReplayCard(board.stadium, playedCardMatch[2])) return;
+    if (findPokemon(player, playedCardMatch[2])) return;
     player.discard.push(removeCardFromHand(player, playedCardMatch[2], knowledge));
     return;
   }
@@ -415,6 +454,15 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     const owner = board.players[attackMatch[4]];
     const target = owner ? findPokemon(owner, attackMatch[5]) : null;
     if (target) target.damage += Number(attackMatch[6]) + Number(attackMatch[7] ?? 0);
+    return;
+  }
+
+  const placedCounters = line.match(/^-? ?.+? put (a|\d+) damage counters? on (.+)'s (.+)\.$/);
+  if (placedCounters) {
+    const owner = board.players[placedCounters[2]];
+    const target = owner ? findPokemon(owner, placedCounters[3]) : null;
+    const count = placedCounters[1] === 'a' ? 1 : Number(placedCounters[1]);
+    if (target) target.damage += count * 10;
     return;
   }
 
@@ -478,6 +526,16 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
   const knowledge = new ReplayHandKnowledge(perspectivePlayer, makeCard);
   const board = createInitialBoard(players);
   const frames: ReplayFrame[] = [];
+  const mulligans: Record<string, number> = {};
+  battleLog.sections[0]?.actions.forEach((action) => {
+    getActionLines(action).forEach((line) => {
+      const match = line.match(/^(.+) took (a|\d+) mulligans?\.$/);
+      if (match && players.includes(match[1])) {
+        // Live can report an intermediate count followed by the final total.
+        mulligans[match[1]] = Math.max(mulligans[match[1]] ?? 0, match[2] === 'a' ? 1 : Number(match[2]));
+      }
+    });
+  });
 
   const pushFrame = (sectionIndex: number, actionIndex: number | null, turnTitle: string, currentPlayer: string, event: ReplayEvent) => {
     const snapshot = cloneBoard(board);
@@ -495,11 +553,20 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
   };
 
   battleLog.sections.forEach((section, sectionIndex) => {
-    section.actions.forEach((action, actionIndex) => {
+    const actions = sectionIndex === 0 ? orderSetupActions(section.actions, players) : section.actions;
+    actions.forEach((action, actionIndex) => {
       const lines = getActionLines(action);
       const stadiumDiscards = new Set<string>();
       lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards, knowledge));
-      pushFrame(sectionIndex, actionIndex, section.turnTitle, section.player, buildEvent(`event-${sectionIndex}-${actionIndex}`, action, lines, players));
+      const event = buildEvent(`event-${sectionIndex}-${actionIndex}`, action, lines, players);
+      const bonus = action.title.match(/^(.+) drew (\d+) more cards? because (.+) took at least 1 mulligan\.$/);
+      if (sectionIndex === 0 && bonus && mulligans[bonus[3]] !== undefined) {
+        event.mulliganBonus = {
+          player: bonus[1], opponent: bonus[3], cards: Number(bonus[2]),
+          playerMulligans: mulligans[bonus[1]] ?? 0, opponentMulligans: mulligans[bonus[3]],
+        };
+      }
+      pushFrame(sectionIndex, actionIndex, section.turnTitle, section.player, event);
     });
 
     Object.entries(section.prizesAfterTurn).forEach(([playerName, prizesRemaining]) => {
