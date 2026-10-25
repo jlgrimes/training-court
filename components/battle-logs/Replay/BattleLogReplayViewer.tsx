@@ -170,6 +170,7 @@ function ReplayTimeline({
 export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: BattleLogReplayViewerProps) {
   const replay = useMemo(() => buildBattleLogReplay(battleLog, perspectivePlayerName), [battleLog, perspectivePlayerName]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [motionFrame, setMotionFrame] = useState<number>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const fullscreenToggleRef = useRef<HTMLButtonElement>(null);
@@ -224,23 +225,23 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
 
   useEffect(() => {
     setCurrentIndex(0);
+    setMotionFrame(undefined);
     setIsPlaying(false);
   }, [battleLog.id, replay.perspectivePlayer]);
 
   useEffect(() => {
     if (!isPlaying) return;
-    const id = window.setInterval(() => {
-      setCurrentIndex((index) => {
-        if (index >= replay.frames.length - 1) {
-          setIsPlaying(false);
-          return index;
-        }
-        return index + 1;
-      });
+    if (currentIndex >= replay.frames.length - 1) {
+      setIsPlaying(false);
+      return;
+    }
+    const id = window.setTimeout(() => {
+      setMotionFrame(currentIndex + 1);
+      setCurrentIndex(currentIndex + 1);
     }, 1400);
 
-    return () => window.clearInterval(id);
-  }, [isPlaying, replay.frames.length]);
+    return () => window.clearTimeout(id);
+  }, [isPlaying, currentIndex, replay.frames.length]);
 
   if (!currentFrame) return null;
   const bonus = currentFrame.event.mulliganBonus;
@@ -250,8 +251,10 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
       })
     : currentFrame.event.title;
 
-  const goToFrame = (index: number) => {
-    setCurrentIndex(Math.max(0, Math.min(replay.frames.length - 1, index)));
+  const goToFrame = (index: number, animate = false) => {
+    const next = Math.max(0, Math.min(replay.frames.length - 1, index));
+    setMotionFrame(animate && next === currentIndex + 1 ? next : undefined);
+    setCurrentIndex(next);
   };
 
   const content = (
@@ -278,7 +281,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
             <Button type="button" size="icon" aria-label={isPlaying ? gt("Pause", { $id: "battleLogs.replay.pause" }) : gt("Play", { $id: "battleLogs.replay.play" })} onClick={() => setIsPlaying((value) => !value)}>
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
-            <Button type="button" size="icon" variant="outline" aria-label={gt("Next", { $id: "battleLogs.replay.next" })} onClick={() => goToFrame(currentIndex + 1)}>
+            <Button type="button" size="icon" variant="outline" aria-label={gt("Next", { $id: "battleLogs.replay.next" })} onClick={() => goToFrame(currentIndex + 1, true)}>
               <StepForward className="h-4 w-4" />
             </Button>
             <Button type="button" size="icon" variant="outline" aria-label={gt("End", { $id: "battleLogs.replay.end" })} onClick={() => goToFrame(replay.frames.length - 1)}>
@@ -297,7 +300,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
         </div>
       </div>
 
-      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByKey={cardsByKey} fit />
+      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByKey={cardsByKey} motionFrame={motionFrame} fit />
 
       <Dialog.Root onOpenChange={(open) => { if (open) setIsPlaying(false); }}>
         <Dialog.Trigger asChild>

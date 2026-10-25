@@ -9,6 +9,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import type { ReplayBoardState, ReplayCard, ReplayPlayerState, ReplayPokemon } from './battle-log-replay.types';
 import styles from './ReplayBoard.module.css';
+import { useCardMotion } from './use-card-motion';
 
 export type CatalogCard = {
   id: string;
@@ -39,14 +40,15 @@ function Artwork({ name, card }: { name: string; card?: CatalogCard | null }) {
   ) : <div className={styles.cardFallback}>{name}</div>;
 }
 
-function Card({ card, size = 'featured', count = 1, cardsByKey, onInspect, children }: BoardCards & {
+function Card({ card, size = 'featured', count = 1, cardsByKey, onInspect, children, motionId }: BoardCards & {
   card: ReplayCard;
   size?: CardSize;
   count?: number;
   children?: ReactNode;
+  motionId?: string;
 }) {
   return (
-    <div className={`${styles.card} ${styles[size]} ${count > 1 ? styles.stacked : ''}`} data-card-name={card.name}>
+    <div className={`${styles.card} ${styles[size]} ${count > 1 ? styles.stacked : ''}`} data-card-name={card.name} data-motion-id={motionId}>
       <button className={styles.cardButton} type="button" onClick={() => onInspect(card)} aria-label={card.name}>
         <Artwork name={card.name} card={cardsByKey[replayCardKey(card)]} />
         {count > 1 && <span className={styles.count}>{count}</span>}
@@ -78,9 +80,9 @@ function Hand({ player, isPerspective, ...cards }: BoardCards & { player: Replay
       <div className={styles.zoneLabel}><T id="battleLogs.replay.hand">Hand</T><span>{total}</span></div>
       <div className={styles.handScroll}>
         <div className={styles.handCards} style={{ '--card-count': Math.max(1, groups.length + (hiddenCount > 0 ? 1 : 0)) } as CSSProperties}>
-          {groups.map(({ card, count }) => <Card key={card.id} card={card} count={count} {...cards} />)}
+          {groups.map(({ card, count }) => <Card key={card.id} card={card} count={count} motionId={`hand:${player.name}:${replayCardKey(card)}`} {...cards} />)}
           {hiddenCount > 0 && (
-            <div className={`${styles.hiddenHand} ${styles.stacked}`}>
+            <div className={`${styles.hiddenHand} ${styles.stacked}`} data-motion-id={`hidden-hand:${player.name}`}>
               <CardBack />
               <span className={styles.count}>{hiddenCount}</span>
               <span className="sr-only"><T id="battleLogs.replay.unknownCards">unknown</T></span>
@@ -97,14 +99,14 @@ function Pokemon({ pokemon, active = false, ...cards }: BoardCards & { pokemon: 
     <div className={`${styles.pokemon} ${active ? styles.activePokemon : ''}`}>
       {pokemon ? (
         <>
-          <Card card={{ id: pokemon.id, name: pokemon.name, identifier: pokemon.identifier, known: true }} size={active ? 'featured' : 'bench'} {...cards}>
+          <Card card={{ id: pokemon.id, name: pokemon.name, identifier: pokemon.identifier, known: true }} motionId={`pokemon:${pokemon.id}`} size={active ? 'featured' : 'bench'} {...cards}>
             {pokemon.damage > 0 && (
               <span className={styles.damage}><span className="sr-only"><T id="battleLogs.replay.damage">Damage</T>: </span>{pokemon.damage}</span>
             )}
           </Card>
           {pokemon.attachments.length > 0 && (
             <div className={styles.attachments} style={{ '--card-count': pokemon.attachments.length } as CSSProperties}>
-              {pokemon.attachments.map((card) => <Card key={card.id} card={card} size="attachment" {...cards} />)}
+              {pokemon.attachments.map((card) => <Card key={card.id} card={card} size="attachment" motionId={`attachment:${pokemon.id}:${card.id}`} {...cards} />)}
             </div>
           )}
           {pokemon.status.length > 0 && <span className={styles.status} title={pokemon.status.join(', ')}>{pokemon.status.join(', ')}</span>}
@@ -132,13 +134,14 @@ function DeckAndDiscard({ player, ...cards }: BoardCards & { player: ReplayPlaye
     <div className={styles.piles}>
       <div className={styles.pile} data-zone="deck">
         {/* The replay model does not track deck size. Do not invent a count. */}
-        <div className={`${styles.deck} ${styles.stacked}`}><CardBack /></div>
+        <div className={`${styles.deck} ${styles.stacked}`} data-motion-id={`deck:${player.name}`}><CardBack /></div>
         <span className="sr-only"><T id="battleLogs.replay.deck">Deck</T></span>
       </div>
       <div className={styles.pile} data-zone="discard">
         <Dialog.Root>
           <Dialog.Trigger asChild>
             <button type="button" className={`${styles.cardButton} ${styles.side} ${styles.discardTrigger}`}
+              data-motion-id={`discard:${player.name}`}
               aria-label={`${player.name}: ${gt('Discard', { $id: 'battleLogs.replay.discard' })}`}>
               {topDiscard
                 ? <Artwork name={topDiscard.name} card={cards.cardsByKey[replayCardKey(topDiscard)]} />
@@ -189,16 +192,18 @@ function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player:
   );
 }
 
-export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false }: {
+export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false, motionFrame }: {
   board: ReplayBoardState;
   perspectivePlayer: string;
   cardsByKey: Record<string, CatalogCard | null>;
   fit?: boolean;
+  motionFrame?: number;
 }) {
   const gt = useGT();
   const [inspectedCard, setInspectedCard] = useState<ReplayCard | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  useCardMotion(viewportRef, board, perspectivePlayer, cardsByKey, motionFrame);
   const [layout, setLayout] = useState<{ width: number; height: number; scale: number } | null>(null);
   useLayoutEffect(() => {
     if (!fit) return;

@@ -230,6 +230,32 @@ it('shows a 20 damage badge on Budew when Risky Ruins places two counters', () =
   expect(within(budew).getByText('20')).toBeTruthy();
 });
 
+it('moves the visible damage badge between sides after Adrena-Brain', () => {
+  const raw = readFileSync('__tests__/battle-logs/fixtures/dragapult-identifiers.txt', 'utf8').replace(/\r\n/g, '\n');
+  const log = parseBattleLog(raw, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const { frames } = buildBattleLogReplay(log);
+  const index = frames.findIndex((frame) => frame.event.title.endsWith('used Adrena-Brain.'));
+  const { rerender } = render(<ReplayBoard board={frames[index - 1].board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  const budew = (owner: string) => within(screen.getByRole('region', { name: owner })).getByRole('button', { name: 'Budew' }).parentElement!;
+  expect(within(budew('Bassoonboy135')).getByText('20')).toBeTruthy();
+  expect(within(budew('Oyauguru')).queryByText('Damage:')).toBeNull();
+  rerender(<ReplayBoard board={frames[index].board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  expect(within(budew('Bassoonboy135')).queryByText('Damage:')).toBeNull();
+  expect(within(budew('Oyauguru')).getByText('20')).toBeTruthy();
+});
+
+it('shows the Risky Ruins damage badge on the newly played second Dreepy', () => {
+  const raw = readFileSync('__tests__/battle-logs/fixtures/dragapult-identifiers.txt', 'utf8').replace(/\r\n/g, '\n');
+  const log = parseBattleLog(raw, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const frame = buildBattleLogReplay(log).frames.find((frame) => frame.event.title === 'Bassoonboy135 played (me2-5_158) Dreepy to the Bench.')!;
+  render(<ReplayBoard board={frame.board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  const player = screen.getByRole('region', { name: 'Bassoonboy135' });
+  const dreepy = within(player).getAllByRole('button', { name: 'Dreepy' }).map((button) => button.parentElement!);
+  expect(dreepy).toHaveLength(2);
+  expect(within(dreepy[0]).queryByText('Damage:')).toBeNull();
+  expect(within(dreepy[1]).getByText('20')).toBeTruthy();
+});
+
 
 it('keeps the current frame when entering and leaving full-screen replay', () => {
   const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');

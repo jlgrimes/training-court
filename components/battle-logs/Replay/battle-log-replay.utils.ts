@@ -127,10 +127,18 @@ const discardCard = (player: ReplayPlayerState, cardName: string, knowledge: Rep
   player.discard.push(removeCardFromHand(player, cardName, knowledge));
 };
 
-const findPokemon = (player: ReplayPlayerState, pokemonName: string) => {
-  if (player.active && matchesReplayCard(player.active, pokemonName)) return player.active;
-  return player.bench.find((pokemon) => matchesReplayCard(pokemon, pokemonName)) ?? null;
+const findPokemon = (player: ReplayPlayerState, pokemonName: string, eligible: (pokemon: ReplayPokemon) => boolean = () => true) => {
+  if (player.active && matchesReplayCard(player.active, pokemonName) && eligible(player.active)) return player.active;
+  return player.bench.find((pokemon) => matchesReplayCard(pokemon, pokemonName) && eligible(pokemon)) ?? null;
 };
+
+// Split at a known player's possessive, not at a possessive inside a card name.
+const pokemonReference = (board: ReplayBoardState, reference: string) => {
+  const owner = board.playerOrder.find((name) => reference.startsWith(`${name}'s `));
+  return owner ? { player: board.players[owner], name: reference.slice(owner.length + 3) } : null;
+};
+
+type DamageContext = { existingPokemonIds: Set<string>; ruinsTargets: Set<string> };
 
 const removePokemonFromBoard = (player: ReplayPlayerState, pokemonName: string) => {
   if (player.active && matchesReplayCard(player.active, pokemonName)) {
@@ -230,7 +238,7 @@ const classifyEvent = (line: string): ReplayEventKind => {
   return 'text';
 };
 
-const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>, knowledge: ReplayHandKnowledge) => {
+const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>, knowledge: ReplayHandKnowledge, damageContext: DamageContext) => {
   const line = normalizeLine(rawLine);
   const playerName = findPlayer(line, players);
   const player = playerName ? board.players[playerName] : null;
@@ -446,36 +454,76 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
     return;
   }
 
-  const attackMatch = line.match(/^(.+)'s (.+) used (.+) on (.+)'s (.+) for (\d+) damage(?:\. .+ took (\d+) more damage.*)?\.$/);
+  const attackMatch = line.match(/^.+? used .+? on (.+) for (\d+) damage(?:\. .+ took (\d+) more damage.*)?\.$/);
   if (attackMatch) {
-    const owner = board.players[attackMatch[4]];
-    const target = owner ? findPokemon(owner, attackMatch[5]) : null;
-    if (target) target.damage += Number(attackMatch[6]) + Number(attackMatch[7] ?? 0);
+    const reference = pokemonReference(board, attackMatch[1]);
+    const target = reference ? findPokemon(reference.player, reference.name) : null;
+    if (target) target.damage += Number(attackMatch[2]) + Number(attackMatch[3] ?? 0);
     return;
   }
 
-  const placedCounters = line.match(/^-? ?.+? put (a|\d+) damage counters? on (.+)'s (.+)\.$/);
+  const movedCounters = line.match(/^-? ?.+? moved (a|\d+) damage counters? from (.+?) to (.+)\.$/);
+  if (movedCounters) {
+    const adrenaBrain = lines[0]?.match(/^(.+)'s .+ used Adrena-Brain\.$/);
+    const sourceReference = pokemonReference(board, movedCounters[2]);
+    const targetReference = pokemonReference(board, movedCounters[3]);
+    const sourceOwner = adrenaBrain ? board.players[adrenaBrain[1]] : sourceReference?.player;
+    // Live can label both ends with the ability user's name. Adrena-Brain
+    // transfers from the user's side to the opponent, even for identical printings.
+    const targetOwnerName = adrenaBrain
+      ? players.find((name) => name !== adrenaBrain[1])
+      : targetReference?.player.name;
+    const targetOwner = targetOwnerName ? board.players[targetOwnerName] : null;
+    const count = movedCounters[1] === 'a' ? 1 : Number(movedCounters[1]);
+    const amount = count * 10;
+    // A printing identifies a card, not an individual copy. An undamaged copy
+    // cannot be the source of a transfer when another matching copy has damage.
+    const source = sourceOwner && sourceReference
+      ? findPokemon(sourceOwner, sourceReference.name, (pokemon) => pokemon.damage >= amount)
+        ?? findPokemon(sourceOwner, sourceReference.name, (pokemon) => pokemon.damage > 0)
+      : null;
+    const target = targetOwner && targetReference ? findPokemon(targetOwner, targetReference.name) : null;
+    if (source && target && source !== target) {
+      const damage = Math.min(source.damage, amount);
+      source.damage -= damage;
+      target.damage += damage;
+    }
+    return;
+  }
+
+  const placedCounters = line.match(/^-? ?.+? put (a|\d+) damage counters? on (.+)\.$/);
   if (placedCounters) {
-    const owner = board.players[placedCounters[2]];
-    const target = owner ? findPokemon(owner, placedCounters[3]) : null;
+    const reference = pokemonReference(board, placedCounters[2]);
+    const riskyRuins = lines.slice(0, index).includes('Risky Ruins was activated.');
+    // Stadium counters belong to the copy just benched in this action, even
+    // when Live prints an incorrect owner or another copy is already in play.
+    const newlyBenched = riskyRuins && reference
+      ? Object.values(board.players).flatMap((owner) => owner.bench).find((pokemon) =>
+        !damageContext.existingPokemonIds.has(pokemon.id) && !damageContext.ruinsTargets.has(pokemon.id)
+        && matchesReplayCard(pokemon, reference.name))
+      : null;
+    const target = newlyBenched ?? (reference ? findPokemon(reference.player, reference.name) : null);
     const count = placedCounters[1] === 'a' ? 1 : Number(placedCounters[1]);
-    if (target) target.damage += count * 10;
+    if (target) {
+      target.damage += count * 10;
+      if (riskyRuins) damageContext.ruinsTargets.add(target.id);
+    }
     return;
   }
 
-  const damageCounterMatch = line.match(/^(\d+) damage counters? (?:was|were) placed on (.+)'s (.+?)(?: for .*)?\.$/);
+  const damageCounterMatch = line.match(/^(\d+) damage counters? (?:was|were) placed on (.+?)(?: for .*)?\.$/);
   if (damageCounterMatch) {
-    const owner = board.players[damageCounterMatch[2]];
-    const target = owner ? findPokemon(owner, damageCounterMatch[3]) : null;
+    const reference = pokemonReference(board, damageCounterMatch[2]);
+    const target = reference ? findPokemon(reference.player, reference.name) : null;
     if (target) target.damage += Number(damageCounterMatch[1]) * 10;
     return;
   }
 
-  const healedMatch = line.match(/^-? ?(.+)'s (.+) healed (\d+) damage\.$/);
+  const healedMatch = line.match(/^-? ?(.+) healed (\d+) damage\.$/);
   if (healedMatch) {
-    const owner = board.players[healedMatch[1]];
-    const target = owner ? findPokemon(owner, healedMatch[2]) : null;
-    if (target) target.damage = Math.max(0, target.damage - Number(healedMatch[3]));
+    const reference = pokemonReference(board, healedMatch[1]);
+    const target = reference ? findPokemon(reference.player, reference.name, (pokemon) => pokemon.damage > 0) : null;
+    if (target) target.damage = Math.max(0, target.damage - Number(healedMatch[2]));
     return;
   }
 
@@ -554,7 +602,12 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
     actions.forEach((action, actionIndex) => {
       const lines = getActionLines(action);
       const stadiumDiscards = new Set<string>();
-      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards, knowledge));
+      const damageContext: DamageContext = {
+        existingPokemonIds: new Set(Object.values(board.players).flatMap((player) =>
+          [...(player.active ? [player.active] : []), ...player.bench].map((pokemon) => pokemon.id))),
+        ruinsTargets: new Set(),
+      };
+      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards, knowledge, damageContext));
       const event = buildEvent(`event-${sectionIndex}-${actionIndex}`, action, lines, players);
       const bonus = action.title.match(/^(.+) drew (\d+) more cards? because (.+) took at least 1 mulligan\.$/);
       if (sectionIndex === 0 && bonus && mulligans[bonus[3]] !== undefined) {
