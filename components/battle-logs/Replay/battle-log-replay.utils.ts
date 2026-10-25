@@ -29,18 +29,15 @@ export const normalizeReplayCardName = (name: string) => {
 const normalizeLine = (line: string) =>
   line
     .replace(/[\u2018\u2019]/g, "'")
-    .replace(/â€™/g, "'")
-    .replace(/PokÃ©mon/g, 'Pokemon')
-    .replace(/Pokémon/g, 'Pokemon')
     .trim();
 
 const stripListPrefix = (line: string) =>
-  normalizeLine(line).replace(/^[-\sâ€¢•]+/, '').trim();
+  normalizeLine(line).replace(/^[-\s\u2022]+/, '');
 
 const isCardListLine = (line: string) => {
   const stripped = stripListPrefix(line);
   if (!stripped || stripped.endsWith('.') || stripped.includes(' shuffled ')) return false;
-  return stripped.includes(',') || /^[a-z][a-z0-9:'\-. ]+(?: ex| v)?$/.test(normalizeCardNameForLookup(normalizeReplayCardName(stripped)));
+  return stripped.includes(',') || /^[a-z][a-z0-9:'\-. ]+$/.test(normalizeCardNameForLookup(normalizeReplayCardName(stripped)));
 };
 
 const parseCardList = (line: string): string[] => {

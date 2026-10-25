@@ -9,7 +9,7 @@ import { BattleLog } from "@/components/battle-logs/utils/battle-log.types";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
+import useSWR from 'swr';
 import { buildBattleLogReplay } from "./battle-log-replay.utils";
 import { replayCardKey } from './card-identity';
 import type { ReplayCard, ReplayFrame } from "./battle-log-replay.types";
@@ -17,11 +17,6 @@ import { ReplayBoard, type CatalogCard } from "./ReplayBoard";
 import styles from './ReplayViewer.module.css';
 
 export { ReplayBoard } from "./ReplayBoard";
-
-type SearchCardsResponse = {
-  cards?: CatalogCard[];
-  code: number;
-};
 
 interface BattleLogReplayViewerProps {
   battleLog: BattleLog;
@@ -78,55 +73,25 @@ const getTurnMarkers = (frames: ReplayFrame[]) => {
 };
 
 function useCardImages(knownCards: Pick<ReplayCard, 'name' | 'identifier'>[]) {
-  const [cardsByKey, setCardsByKey] = useState<Record<string, CatalogCard | null>>({});
-  const cardKeys = useMemo(() => knownCards.map(replayCardKey).join('|'), [knownCards]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadCards() {
-      const missingCards = knownCards.filter((card) => !(replayCardKey(card) in cardsByKey));
-      if (missingCards.length === 0) return;
-
-      const entries = await Promise.all(
-        missingCards.map(async (card) => {
-          const name = card.name;
-          const key = replayCardKey(card);
-          try {
-            // Filter before limiting, so partial matches cannot hide the exact name.
-            const params = new URLSearchParams(card.identifier
-              ? { identifier: card.identifier, query: name, exactName: 'true', limit: '1' }
-              : { setId: 'all', query: name, exactName: 'true', limit: '8' });
-            const response = await fetch(`/api/ptcg/cards/search?${params.toString()}`);
-            if (!response.ok) return [key, null] as const;
-            const data = (await response.json()) as SearchCardsResponse;
-            const cards = data.cards ?? [];
-            const exact = cards.find((card) => normalizeCardNameForLookup(card.name) === normalizeCardNameForLookup(name));
-            return [key, exact ?? null] as const;
-          } catch {
-            return [key, null] as const;
-          }
-        })
-      );
-
-      if (cancelled) return;
-      setCardsByKey((prev) => {
-        const next = { ...prev };
-        entries.forEach((entry) => {
-          next[entry[0]] = entry[1];
+  const payload = JSON.stringify(knownCards.map(({ name, identifier }) => ({ name, identifier })).sort((a, b) => replayCardKey(a).localeCompare(replayCardKey(b))));
+  const { data } = useSWR<Record<string, CatalogCard | null>>(
+    knownCards.length ? ['replay-card-images', payload] : null,
+    async ([, serialized]: [string, string]) => {
+      const cards = JSON.parse(serialized);
+      const batches = [];
+      for (let offset = 0; offset < cards.length; offset += 512) {
+        const response = await fetch('/api/ptcg/cards/replay', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cards: cards.slice(offset, offset + 512) }),
         });
-        return next;
-      });
-    }
-
-    loadCards();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [cardKeys, cardsByKey]);
-
-  return cardsByKey;
+        if (!response.ok) throw new Error('Failed to load replay card images');
+        batches.push((await response.json()).cardsByKey);
+      }
+      return Object.assign({}, ...batches);
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: false, revalidateIfStale: false, dedupingInterval: 600_000, errorRetryCount: 2 }
+  );
+  return data ?? {};
 }
 
 function ReplayTimeline({
@@ -260,7 +225,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
   useEffect(() => {
     setCurrentIndex(0);
     setIsPlaying(false);
-  }, [replay]);
+  }, [battleLog.id, replay.perspectivePlayer]);
 
   useEffect(() => {
     if (!isPlaying) return;

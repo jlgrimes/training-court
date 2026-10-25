@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
 import useSWR from 'swr';
@@ -53,6 +53,16 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
       : HISTORICAL_SWR_OPTIONS
   );
 
+  const battleLog = useMemo(() => logData ? parseBattleLog(
+    logData.log,
+    logData.id,
+    logData.created_at,
+    logData.archetype,
+    logData.opp_archetype,
+    userData?.live_screen_name ?? null,
+    logData.format
+  ) : null, [logData, userData?.live_screen_name]);
+
   useEffect(() => {
     if (requireAuth && !authLoading && !user) {
       router.push('/login');
@@ -66,17 +76,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
   }, [isLoading, logData, router]);
 
   if (requireAuth && (authLoading || !user)) return null;
-  if (isLoading || !logData) return null;
-
-  const battleLog = parseBattleLog(
-    logData.log,
-    logData.id,
-    logData.created_at,
-    logData.archetype,
-    logData.opp_archetype,
-    userData?.live_screen_name ?? null,
-    logData.format
-  );
+  if (isLoading || !logData || !battleLog) return null;
 
   return (
     <div className="flex-1 flex min-w-0 flex-col w-full max-w-6xl gap-2">
