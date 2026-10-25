@@ -256,6 +256,36 @@ it('shows the Risky Ruins damage badge on the newly played second Dreepy', () =>
   expect(within(dreepy[1]).getByText('20')).toBeTruthy();
 });
 
+it('renders Phantom Dive damage on the defending Active and Bench after the preceding evolutions', () => {
+  const prefix = readFileSync('__tests__/battle-logs/fixtures/dragapult-identifiers.txt', 'utf8').replace(/Opponent conceded\. Bassoonboy135 wins\.\s*$/, '');
+  const continuation = readFileSync('__tests__/battle-logs/fixtures/dragapult-phantom-dive-continuation.txt', 'utf8');
+  const log = parseBattleLog(`${prefix}\n${continuation}`.replace(/\r\n/g, '\n'), 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const frame = buildBattleLogReplay(log).frames.find((frame) => frame.event.title.includes(' used Phantom Dive '))!;
+  render(<ReplayBoard board={frame.board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  const opponent = screen.getByRole('region', { name: 'Oyauguru' });
+  const card = (name: string) => within(opponent).getByRole('button', { name }).parentElement!;
+  expect(within(card('Dreepy')).getByText('200')).toBeTruthy();
+  expect(within(card('Fezandipiti ex')).getByText('10')).toBeTruthy();
+  expect(within(card('Munkidori')).getByText('30')).toBeTruthy();
+  const drakloak = within(opponent).getAllByRole('button', { name: 'Drakloak' });
+  expect(within(drakloak[0].parentElement!).getByText('50')).toBeTruthy();
+  expect(within(drakloak[1].parentElement!).getByText('10')).toBeTruthy();
+  const player = screen.getByRole('region', { name: 'Bassoonboy135' });
+  expect(within(within(player).getByRole('button', { name: 'Munkidori' }).parentElement!).getByText('10')).toBeTruthy();
+});
+
+
+it('shows the Psychic Energy below the Active Dragapult at the second opposing Jet Headbutt', () => {
+  const raw = readFileSync('__tests__/battle-logs/fixtures/dragapult-full.txt', 'utf8').replace(/\r\n/g, '\n');
+  const log = parseBattleLog(raw, 'id', '2024-01-01', null, null, 'Bassoonboy135');
+  const attacks = buildBattleLogReplay(log).frames.filter((frame) => frame.event.title.startsWith("Oyauguru's (sv8-5_165) Dragapult ex used Jet Headbutt"));
+  render(<ReplayBoard board={attacks[1].board} perspectivePlayer="Bassoonboy135" cardsByKey={{}} />);
+  const opponent = screen.getByRole('region', { name: 'Oyauguru' });
+  const active = opponent.querySelector<HTMLElement>('[data-zone="active"]')!;
+  expect(within(active).getByRole('button', { name: 'Dragapult ex' })).toBeTruthy();
+  expect(within(active).getByRole('button', { name: 'Basic Psychic Energy' })).toBeTruthy();
+  expect(within(opponent).getAllByRole('button', { name: 'Basic Psychic Energy' })).toHaveLength(1);
+});
 
 it('keeps the current frame when entering and leaving full-screen replay', () => {
   const log = parseBattleLog(battleLogNewStructure, 'id', '2024-01-01', null, null, 'Bassoonboy135');

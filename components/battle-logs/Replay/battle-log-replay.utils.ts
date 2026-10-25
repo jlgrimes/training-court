@@ -132,13 +132,23 @@ const findPokemon = (player: ReplayPlayerState, pokemonName: string, eligible: (
   return player.bench.find((pokemon) => matchesReplayCard(pokemon, pokemonName) && eligible(pokemon)) ?? null;
 };
 
+const findPokemonInZone = (player: ReplayPlayerState, pokemonName: string, zone: string) =>
+  findPokemon(player, pokemonName, (pokemon) => zone === 'in the Active Spot'
+    ? pokemon === player.active : pokemon !== player.active);
+
 // Split at a known player's possessive, not at a possessive inside a card name.
 const pokemonReference = (board: ReplayBoardState, reference: string) => {
   const owner = board.playerOrder.find((name) => reference.startsWith(`${name}'s `));
   return owner ? { player: board.players[owner], name: reference.slice(owner.length + 3) } : null;
 };
 
-type DamageContext = { existingPokemonIds: Set<string>; ruinsTargets: Set<string> };
+type ActionContext = {
+  existingPokemonIds: Set<string>;
+  ruinsTargets: Set<string>;
+  spreadTargets: Set<string>;
+  actions: BattleLogAction[];
+  actionIndex: number;
+};
 
 const removePokemonFromBoard = (player: ReplayPlayerState, pokemonName: string) => {
   if (player.active && matchesReplayCard(player.active, pokemonName)) {
@@ -150,8 +160,25 @@ const removePokemonFromBoard = (player: ReplayPlayerState, pokemonName: string) 
   return idx >= 0 ? player.bench.splice(idx, 1)[0] : null;
 };
 
-const setActivePokemon = (player: ReplayPlayerState, pokemonName: string) => {
-  const existing = removePokemonFromBoard(player, pokemonName) ?? makePokemon(pokemonName);
+const setActivePokemon = (player: ReplayPlayerState, pokemonName: string, context: ActionContext) => {
+  const candidates = player.bench.filter((pokemon) => matchesReplayCard(pokemon, pokemonName));
+  let promoted: ReplayPokemon | undefined;
+  if (candidates.length > 1 && (!player.active || !matchesReplayCard(player.active, pokemonName))
+    && normalizeCardNameForLookup(candidates[0].name) === 'dragapult ex') {
+    const nextTitle = normalizeLine(context.actions[context.actionIndex + 1]?.title ?? '');
+    const prefix = `${player.name}'s `;
+    const attacker = nextTitle.startsWith(prefix)
+      ? nextTitle.slice(prefix.length).match(/^(.+) used Jet Headbutt on .+ for \d+ damage\.$/)?.[1] : undefined;
+    // Jet Headbutt needs one Colorless Energy. With only Basic Energy attached,
+    // a unique powered copy resolves an otherwise identical-printing promotion.
+    // Tools or Special Energy can change costs, so leave those cases ambiguous.
+    const onlyBasicEnergy = candidates.every((pokemon) => pokemon.attachments.every((card) =>
+      /^basic (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy) energy$/.test(normalizeCardNameForLookup(card.name))));
+    const powered = candidates.filter((pokemon) => pokemon.attachments.length > 0);
+    if (attacker && matchesReplayCard(candidates[0], attacker) && onlyBasicEnergy && powered.length === 1) promoted = powered[0];
+  }
+  const existing = promoted ? player.bench.splice(player.bench.indexOf(promoted), 1)[0]
+    : removePokemonFromBoard(player, pokemonName) ?? makePokemon(pokemonName);
   if (player.active) player.bench.push(player.active);
   player.active = existing;
 };
@@ -167,11 +194,44 @@ const playPokemon = (player: ReplayPlayerState, pokemonName: string, zone: 'acti
   }
 };
 
-const attachCardToPokemon = (player: ReplayPlayerState, cardName: string, pokemonName: string, fromDeck: boolean, knowledge: ReplayHandKnowledge) => {
-  const target = findPokemon(player, pokemonName);
+const findAttachmentTarget = (player: ReplayPlayerState, cardName: string, pokemonName: string, zone: string, context: ActionContext) => {
+  const target = findPokemonInZone(player, pokemonName, zone);
+  if (!target || normalizeCardNameForLookup(target.name) !== 'munkidori'
+    || normalizeCardNameForLookup(normalizeReplayCardName(cardName)) !== 'basic darkness energy') return target;
+
+  const copies = [...(player.active ? [player.active] : []), ...player.bench]
+    .filter((pokemon) => normalizeCardNameForLookup(pokemon.name) === 'munkidori');
+  const unpowered = copies.find((pokemon) => pokemon.attachments.length === 0);
+  const hasDarkness = target.attachments.some((card) => normalizeCardNameForLookup(card.name) === 'basic darkness energy');
+  if (copies.length !== 2 || !unpowered || !hasDarkness || !matchesReplayCard(unpowered, pokemonName)
+    || (zone === 'in the Active Spot' ? unpowered !== player.active : unpowered === player.active)) return target;
+
+  // An attachment line cannot distinguish identical copies. Two subsequent
+  // once-per-copy activations before any Energy/board change require both to
+  // be powered. Do not spread attachments merely because a copy is unpowered.
+  let uses = 0;
+  for (let index = context.actionIndex + 1; index < context.actions.length; index++) {
+    const lines = getActionLines(context.actions[index]);
+    if (lines.some((line) => / attached | was discarded from | was Knocked Out!| retreated | shuffled .+ into their deck\./.test(line))) break;
+    const title = lines[0];
+    const prefix = `${player.name}'s `;
+    const suffix = ' used Adrena-Brain.';
+    if (title.startsWith(prefix) && title.endsWith(suffix)
+      && matchesReplayCard(target, title.slice(prefix.length, -suffix.length))) {
+      if (++uses === 2) return unpowered;
+    }
+  }
+  return target;
+};
+
+type AttachmentSource = 'hand' | 'deck' | 'discard';
+const attachCardToPokemon = (player: ReplayPlayerState, cardName: string, pokemonName: string, zone: string, source: AttachmentSource, knowledge: ReplayHandKnowledge, context: ActionContext) => {
+  const target = findAttachmentTarget(player, cardName, pokemonName, zone, context);
   if (!target) return;
-  const card = fromDeck ? makeCard(cardName) : removeCardFromHand(player, cardName, knowledge);
-  if (target) target.attachments.push(card);
+  const discardIndex = source === 'discard' ? player.discard.findIndex((card) => matchesReplayCard(card, cardName)) : -1;
+  const card = source === 'hand' ? removeCardFromHand(player, cardName, knowledge)
+    : discardIndex >= 0 ? player.discard.splice(discardIndex, 1)[0] : makeCard(cardName);
+  target.attachments.push(card);
 };
 
 const discardAttachedCard = (player: ReplayPlayerState, cardName: string, pokemonName: string) => {
@@ -238,7 +298,7 @@ const classifyEvent = (line: string): ReplayEventKind => {
   return 'text';
 };
 
-const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>, knowledge: ReplayHandKnowledge, damageContext: DamageContext) => {
+const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[], lines: string[], index: number, stadiumDiscards: Set<string>, knowledge: ReplayHandKnowledge, context: ActionContext) => {
   const line = normalizeLine(rawLine);
   const playerName = findPlayer(line, players);
   const player = playerName ? board.players[playerName] : null;
@@ -343,26 +403,27 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   const activeSpotMatch = line.match(/^(.+)'s (.+) is now in the Active Spot\.$/);
   if (activeSpotMatch) {
     const owner = board.players[activeSpotMatch[1]];
-    if (owner) setActivePokemon(owner, activeSpotMatch[2]);
+    if (owner) setActivePokemon(owner, activeSpotMatch[2], context);
     return;
   }
 
-  const attachedMatch = line.match(/^-? ?(.+?) attached (.+?) to (.+?) (?:in the Active Spot|on the Bench)\.(?: .*)?$/);
+  const attachedMatch = line.match(/^-? ?(.+?) attached (.+?) to (.+?) (in the Active Spot|on the Bench)\.(?: .*)?$/);
   if (attachedMatch) {
     const owner = board.players[attachedMatch[1]];
     const targetName = attachedMatch[3].startsWith(`${owner?.name}'s `)
       ? attachedMatch[3].slice(owner.name.length + 3)
       : attachedMatch[3];
     const playedCard = lines[0]?.match(/^.+ played (.+)\.$/)?.[1];
-    const fromDeck = !!playedCard && normalizeCardNameForLookup(normalizeReplayCardName(playedCard)) === 'crispin';
-    if (owner) attachCardToPokemon(owner, attachedMatch[2], targetName, fromDeck, knowledge);
+    const effect = playedCard ? normalizeCardNameForLookup(normalizeReplayCardName(playedCard)) : '';
+    const source: AttachmentSource = effect === 'crispin' ? 'deck' : effect === "rosa's encouragement" ? 'discard' : 'hand';
+    if (owner) attachCardToPokemon(owner, attachedMatch[2], targetName, attachedMatch[4], source, knowledge, context);
     return;
   }
 
-  const evolvedMatch = line.match(/^-? ?(.+) evolved (.+) to (.+) (?:in the Active Spot|on the Bench)\.$/);
+  const evolvedMatch = line.match(/^-? ?(.+) evolved (.+) to (.+) (in the Active Spot|on the Bench)\.$/);
   if (evolvedMatch) {
     const owner = board.players[evolvedMatch[1]];
-    const pokemon = owner ? findPokemon(owner, evolvedMatch[2]) : null;
+    const pokemon = owner ? findPokemonInZone(owner, evolvedMatch[2], evolvedMatch[4]) : null;
     if (owner && pokemon) {
       const evolvedCard = removeCardFromHand(owner, evolvedMatch[3], knowledge);
       pokemon.name = normalizeReplayCardName(evolvedMatch[3]);
@@ -495,18 +556,28 @@ const mutateLine = (board: ReplayBoardState, rawLine: string, players: string[],
   if (placedCounters) {
     const reference = pokemonReference(board, placedCounters[2]);
     const riskyRuins = lines.slice(0, index).includes('Risky Ruins was activated.');
+    const phantomDive = lines[0]?.match(/^.+ used Phantom Dive on (.+) for \d+ damage\./);
     // Stadium counters belong to the copy just benched in this action, even
     // when Live prints an incorrect owner or another copy is already in play.
     const newlyBenched = riskyRuins && reference
       ? Object.values(board.players).flatMap((owner) => owner.bench).find((pokemon) =>
-        !damageContext.existingPokemonIds.has(pokemon.id) && !damageContext.ruinsTargets.has(pokemon.id)
+        !context.existingPokemonIds.has(pokemon.id) && !context.ruinsTargets.has(pokemon.id)
         && matchesReplayCard(pokemon, reference.name))
       : null;
-    const target = newlyBenched ?? (reference ? findPokemon(reference.player, reference.name) : null);
+    const defendingPlayer = phantomDive ? pokemonReference(board, phantomDive[1])?.player : null;
+    const spreadCandidates = defendingPlayer && reference
+      ? defendingPlayer.bench.filter((pokemon) => matchesReplayCard(pokemon, reference.name)) : [];
+    // Phantom Dive's counters affect the defending Bench. Live can repeat the
+    // attacker's owner label and cannot distinguish identical printings. Assign
+    // separate placement lines to separate matching copies in bench order.
+    const spreadTarget = spreadCandidates.find((pokemon) => !context.spreadTargets.has(pokemon.id)) ?? spreadCandidates[0];
+    const target = newlyBenched ?? (phantomDive && !riskyRuins
+      ? spreadTarget : reference ? findPokemon(reference.player, reference.name) : null);
     const count = placedCounters[1] === 'a' ? 1 : Number(placedCounters[1]);
     if (target) {
       target.damage += count * 10;
-      if (riskyRuins) damageContext.ruinsTargets.add(target.id);
+      if (riskyRuins) context.ruinsTargets.add(target.id);
+      if (phantomDive && !riskyRuins) context.spreadTargets.add(target.id);
     }
     return;
   }
@@ -602,12 +673,15 @@ export function buildBattleLogReplay(battleLog: BattleLog, perspectivePlayerName
     actions.forEach((action, actionIndex) => {
       const lines = getActionLines(action);
       const stadiumDiscards = new Set<string>();
-      const damageContext: DamageContext = {
+      const context: ActionContext = {
         existingPokemonIds: new Set(Object.values(board.players).flatMap((player) =>
           [...(player.active ? [player.active] : []), ...player.bench].map((pokemon) => pokemon.id))),
         ruinsTargets: new Set(),
+        spreadTargets: new Set(),
+        actions,
+        actionIndex,
       };
-      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards, knowledge, damageContext));
+      lines.forEach((line, lineIndex) => mutateLine(board, line, players, lines, lineIndex, stadiumDiscards, knowledge, context));
       const event = buildEvent(`event-${sectionIndex}-${actionIndex}`, action, lines, players);
       const bonus = action.title.match(/^(.+) drew (\d+) more cards? because (.+) took at least 1 mulligan\.$/);
       if (sectionIndex === 0 && bonus && mulligans[bonus[3]] !== undefined) {
