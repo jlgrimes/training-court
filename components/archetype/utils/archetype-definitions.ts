@@ -10,8 +10,9 @@
  *  - IGNORE: cards whose name contains a deck's name but must not count for
  *    it (e.g. "Radiant Charizard" is a tech in Regidrago, not a Charizard deck).
  *
- * Format metadata is intentionally omitted unless it is known. A definition
- * without `formats` is eligible in every format.
+ * Format scoping: the detector accepts the log's format and a definition may
+ * list `formats`, but NO definition is format-scoped yet because rotation data
+ * hasn't been confirmed. Today every definition applies to every format.
  */
 
 export const SIGNATURE = 3;
