@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
 import { parseBattleLog } from "../utils/battle-log.utils";
+import { useDeckDetectionMode } from '@/lib/posthog/deck-detection-flag';
 import { getBattleLogMetadataFromLog } from './BattleLogInput.utils';
 import {
   Dialog,
@@ -34,6 +35,7 @@ interface AddBattleLogInputRecoilProps {
 }
 
 export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilProps) => {
+  const deckDetectionMode = useDeckDetectionMode();
   const { addBattleLog } = useBattleLogs();
   const { showSuccessToast, showErrorToast } = useUI();
   const { preferences } = usePreferences();
@@ -127,7 +129,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
     const supabase = createClient();
     
     // Parse the log first
-    const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+    const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '', undefined, undefined, deckDetectionMode);
     const logMetadata = getBattleLogMetadataFromLog(parsedLog, username ?? '');
     
     if (!logMetadata) {
@@ -201,7 +203,7 @@ export const AddBattleLogInputRecoil = ({ userData }: AddBattleLogInputRecoilPro
     }
 
     try {
-      const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '');
+      const parsedLog = parseBattleLog(log, 'temp-id', new Date().toISOString(), archetype ?? '', oppArchetype ?? '', username ?? '', undefined, undefined, deckDetectionMode);
       const logMetadata = getBattleLogMetadataFromLog(parsedLog, username ?? '');
       if (logMetadata) {
         setParsedLogDetails(logMetadata);

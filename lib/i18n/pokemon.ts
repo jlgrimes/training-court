@@ -69,9 +69,6 @@ export function getEnglishPokemon(pokemonInAnotherLanguage: string | undefined, 
   return pokemonInAnotherLanguage?.replaceAll(' ', '-');
 }
 
-/** Support Pokemon that should never name a deck on their own. */
-export const SUPPORT_POKEMON = ['iron valiant', 'ogerpon', 'pidgeot', 'flutter mane', 'sneasler'];
-
 export function getPokemonToFind(language: Language) {
   return [
     // niche unplayed decks that have priority over the others for some reason

@@ -4,7 +4,7 @@
  * logs in components/battle-logs/utils/testing-files (e.g. battleLogNewStructure.ts),
  * but player names and games are made up.
  */
-import { determineArchetype, findCardNames, MIN_WINNER_MARGIN, scoreArchetypes } from "@/components/archetype/utils/archetype.utils";
+import { determineScoredArchetype as determineArchetype, findCardNames, MIN_WINNER_MARGIN, scoreArchetypes } from "@/components/archetype/utils/archetype-scoring";
 import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 
 describe('scored deck detection (synthetic fixtures)', () => {
@@ -193,7 +193,7 @@ describe('scored deck detection (synthetic fixtures)', () => {
   });
 });
 
-describe('manual override integration (synthetic fixture)', () => {
+describe('manual override integration, scored mode (synthetic fixture)', () => {
   const log = [
     'Setup',
     'alice chose tails for the opening coin flip.',
@@ -222,7 +222,7 @@ describe('manual override integration (synthetic fixture)', () => {
   ].join('\n');
 
   it('uses detection when there is no manual archetype', () => {
-    const parsed = parseBattleLog(log, '1', '2026-11-06', null, null, 'alice');
+    const parsed = parseBattleLog(log, '1', '2026-11-06', null, null, 'alice', null, null, 'scored');
     const alice = parsed.players.find((p) => p.name === 'alice');
     expect(alice?.deck).toBe('dragapult');
     expect(alice?.oppDeck).toBe('lucario-mega');
@@ -230,7 +230,7 @@ describe('manual override integration (synthetic fixture)', () => {
   });
 
   it('keeps the manual archetypes over detection', () => {
-    const parsed = parseBattleLog(log, '1', '2026-11-06', 'gholdengo', 'slowking', 'alice', 'DLR');
+    const parsed = parseBattleLog(log, '1', '2026-11-06', 'gholdengo', 'slowking', 'alice', 'DLR', null, 'scored');
     const alice = parsed.players.find((p) => p.name === 'alice');
     expect(alice?.deck).toBe('gholdengo');
     expect(alice?.oppDeck).toBe('slowking');
