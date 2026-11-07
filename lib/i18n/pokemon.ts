@@ -78,6 +78,47 @@ export function getPokemonToFind(language: Language) {
 
     // surging sparks
     'ceruledge',
+
+    // current decks, in Limitless Standard deck list order (limitlesstcg.com/decks, Nov 2026).
+    // Decks already matched by an existing entry aren't repeated here.
+    'slowking',
+    "n's zoroark",
+    'alakazam',
+    'dhelmise',
+    'mega lopunny',
+    'crustle',
+    'mega excadrill',
+    'mega lucario',
+    'honchkrow',
+    'mega sharpedo',
+    'garchomp',
+    'meganium',
+    // Impidimp still maps to 'grimmsnarl,froslass' via associatedPokemon
+    'grimmsnarl',
+    "team rocket's mewtwo",
+    // mega greninja has to come before 'greninja ex' or it gets matched as Greninja
+    'mega greninja',
+    'greninja ex',
+    'trevenant',
+    'mega starmie',
+    'clefairy',
+    'mega absol',
+    'beedrill',
+    'toucannon',
+    'toxtricity',
+    'typhlosion',
+    'mega chandelure',
+    'metagross',
+    'mega kangaskhan',
+    'mega manectric',
+    'mega venusaur',
+    'eelektrik',
+    'mega diancie',
+    'yanmega',
+    'mega darkrai',
+    'cinccino',
+    // Standard (JP), past 3 months (limitlesstcg.com/decks?format=standard-jp&time=3months)
+    'mega rayquaza',
   
     // tier one as of 2024
     'miraidon',
