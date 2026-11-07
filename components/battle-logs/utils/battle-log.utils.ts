@@ -1,5 +1,5 @@
 import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromSetup, getPlayerNameFromTurnLine, getPrizesTakenFromLine, Language } from "@/lib/i18n/battle-log";
-import { DeckDetectionMode, detectArchetype } from "../../archetype/utils/archetype-detection";
+import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 import type { BattleLogListRecord } from "@/app/recoil/atoms/battle-logs";
 
@@ -234,11 +234,7 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
   return false;
 };
 
-export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, opp_archetype: string | null, currentUserScreenName: string | null, format?: string | null, decklistId?: string | null, deckDetectionMode: DeckDetectionMode = 'legacy') {
-  // Defaults to the original detector; callers opt into v2 via the PostHog flag.
-  const determineArchetype = (lines: string[], player: string, lang: Language) =>
-    detectArchetype(lines, player, lang, format, deckDetectionMode);
-
+export function parseBattleLog(log: string, id: string, created_at: string, user_entered_archetype: string | null, opp_archetype: string | null, currentUserScreenName: string | null, format?: string | null, decklistId?: string | null) {
   const language = detectBattleLogLanguage(log);
 
   if (!language) throw 'Language not supported. Please DM @training_court on X with your battle log so we can add your language!';

@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/client";
 import { parseBattleLog } from "../utils/battle-log.utils";
-import { useDeckDetectionMode } from '@/lib/posthog/deck-detection-flag';
 import { getBattleLogMetadataFromLog } from './BattleLogInput.utils';
 import {
   Dialog,
@@ -36,7 +35,6 @@ interface AddBattleLogInputProps {
 }
 
 export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
-  const deckDetectionMode = useDeckDetectionMode();
   const [log, setLog] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [format, setFormat] = useState<LogFormats | undefined>(Cookies.get("format") as LogFormats | undefined);
@@ -69,7 +67,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     setLog(pastedText);
 
     try {
-      const parsedLog = parseBattleLog(pastedText, '', '', '', '', null, undefined, undefined, deckDetectionMode);
+      const parsedLog = parseBattleLog(pastedText, '', '', '', '', null);
       const details = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
       setParsedLogDetails(details);
       setShowDialog(true);
@@ -91,7 +89,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const handleAddButtonClick = async () => {
     let parsedLog;
     try {
-      parsedLog = parseBattleLog(log, '', '', '', '', null, undefined, undefined, deckDetectionMode);
+      parsedLog = parseBattleLog(log, '', '', '', '', null);
     } catch(error) {
       setLog('');
       return toast({
@@ -164,7 +162,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             }
 
             setLog(text);
-            const parsed = parseBattleLog(text, '', '', '', '', null, undefined, undefined, deckDetectionMode);
+            const parsed = parseBattleLog(text, '', '', '', '', null);
             const details = getBattleLogMetadataFromLog(parsed, props.userData?.live_screen_name);
             setParsedLogDetails(details);
             setShowDialog(true);

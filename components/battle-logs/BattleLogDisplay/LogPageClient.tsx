@@ -12,7 +12,6 @@ import { Sprite } from '@/components/archetype/sprites/Sprite';
 import { BattleLogCarousel } from './BattleLogCarousel';
 import { Notes } from '@/components/battle-logs/Notes/Notes';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
-import { useDeckDetectionMode } from '@/lib/posthog/deck-detection-flag';
 import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 type LogRow = Database['public']['Tables']['logs']['Row'];
@@ -29,7 +28,6 @@ interface LogPageClientProps {
  * a server-side generateMetadata for link previews; everything else loads here.
  */
 export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPageClientProps) {
-  const deckDetectionMode = useDeckDetectionMode();
   const user = useRecoilValue(userAtom);
   const authLoading = useRecoilValue(authLoadingAtom);
   const userData = useRecoilValue(userDataAtom);
@@ -74,9 +72,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
     logData.archetype,
     logData.opp_archetype,
     userData?.live_screen_name ?? null,
-    logData.format,
-    undefined,
-    deckDetectionMode
+    logData.format
   );
 
   return (

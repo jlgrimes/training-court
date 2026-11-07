@@ -78,6 +78,25 @@ export function getPokemonToFind(language: Language) {
 
     // surging sparks
     'ceruledge',
+
+    // current decks, in Limitless deck list order (limitlesstcg.com/decks, Nov 2026)
+    'slowking',
+    'alakazam',
+    'dhelmise',
+    'mega lopunny',
+    'crustle',
+    'mega excadrill',
+    'mega lucario',
+    'honchkrow',
+    'mega sharpedo',
+    'garchomp',
+    'meganium',
+    "team rocket's mewtwo",
+    'greninja ex',
+    'trevenant',
+    'mega starmie',
+    'clefairy',
+    'mega absol',
   
     // tier one as of 2024
     'miraidon',
