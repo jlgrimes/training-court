@@ -109,6 +109,9 @@ export function getPokemonToFind(language: Language) {
     'typhlosion',
     'mega chandelure',
     'metagross',
+    // Mega Rayquaza (Standard JP, limitlesstcg.com/decks?format=standard-jp&time=3months)
+    // goes before Mega Kangaskhan so Rayquaza/Kangaskhan decks are labeled Mega Rayquaza
+    'mega rayquaza',
     'mega kangaskhan',
     'mega manectric',
     'mega venusaur',
@@ -117,8 +120,6 @@ export function getPokemonToFind(language: Language) {
     'yanmega',
     'mega darkrai',
     'cinccino',
-    // Standard (JP), past 3 months (limitlesstcg.com/decks?format=standard-jp&time=3months)
-    'mega rayquaza',
   
     // tier one as of 2024
     'miraidon',

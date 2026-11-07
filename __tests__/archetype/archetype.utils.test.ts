@@ -82,4 +82,12 @@ describe('archetype utils', () => {
   it('plain Rayquaza is not Mega Rayquaza', () => {
     expect(determineArchetype(['comp0cker played Rayquaza to the Bench.'], 'comp0cker', 'en')).toBeUndefined();
   });
+
+  it('Mega Rayquaza beats Mega Kangaskhan regardless of log order', () => {
+    const ray = 'comp0cker played Mega Rayquaza ex to the Bench.';
+    const kang = 'comp0cker played Mega Kangaskhan ex to the Bench.';
+    expect(determineArchetype([ray, kang], 'comp0cker', 'en')).toEqual('rayquaza-mega');
+    expect(determineArchetype([kang, ray], 'comp0cker', 'en')).toEqual('rayquaza-mega');
+    expect(determineArchetype([kang], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
+  });
 });
