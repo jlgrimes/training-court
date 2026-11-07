@@ -24,7 +24,8 @@ describe('archetype utils', () => {
 
   // Synthetic log lines for the newly listed archetypes
   it.each([
-    ['comp0cker played Slowking to the Bench.', 'slowking'],
+    ['comp0cker evolved Slowpoke to Slowking on the Bench.', 'slowking'],
+    ["comp0cker played N's Zoroark ex to the Bench.", 'zoroark'],
     ['comp0cker evolved Kadabra to Alakazam on the Bench.', 'alakazam'],
     ['comp0cker played Dhelmise to the Bench.', 'dhelmise'],
     ['comp0cker evolved Buneary to Mega Lopunny ex on the Bench.', 'lopunny-mega'],
@@ -35,12 +36,29 @@ describe('archetype utils', () => {
     ['comp0cker evolved Carvanha to Mega Sharpedo ex on the Bench.', 'sharpedo-mega'],
     ["comp0cker evolved Cynthia's Gabite to Cynthia's Garchomp ex on the Bench.", 'garchomp'],
     ['comp0cker evolved Bayleef to Meganium on the Bench.', 'meganium'],
+    ["comp0cker evolved Marnie's Morgrem to Marnie's Grimmsnarl ex on the Bench.", 'grimmsnarl'],
     ["comp0cker played Team Rocket's Mewtwo ex to the Bench.", 'mewtwo'],
+    ['comp0cker evolved Frogadier to Mega Greninja ex on the Bench.', 'greninja-mega'],
     ['comp0cker evolved Frogadier to Greninja ex on the Bench.', 'greninja'],
     ["comp0cker evolved Hop's Phantump to Hop's Trevenant on the Bench.", 'trevenant'],
     ['comp0cker evolved Staryu to Mega Starmie ex on the Bench.', 'starmie-mega'],
     ["comp0cker played Lillie's Clefairy ex to the Bench.", 'clefairy'],
     ['comp0cker played Mega Absol ex to the Bench.', 'absol-mega'],
+    ['comp0cker evolved Kakuna to Beedrill ex on the Bench.', 'beedrill'],
+    ['comp0cker evolved Trumbeak to Toucannon on the Bench.', 'toucannon'],
+    ['comp0cker evolved Toxel to Toxtricity on the Bench.', 'toxtricity'],
+    ["comp0cker evolved Ethan's Quilava to Ethan's Typhlosion on the Bench.", 'typhlosion'],
+    ['comp0cker evolved Lampent to Mega Chandelure ex on the Bench.', 'chandelure-mega'],
+    ["comp0cker evolved Steven's Metang to Steven's Metagross ex on the Bench.", 'metagross'],
+    ['comp0cker played Mega Kangaskhan ex to the Bench.', 'kangaskhan-mega'],
+    ['comp0cker evolved Electrike to Mega Manectric ex on the Bench.', 'manectric-mega'],
+    ['comp0cker evolved Ivysaur to Mega Venusaur ex on the Bench.', 'venusaur-mega'],
+    ['comp0cker evolved Tynamo to Eelektrik on the Bench.', 'eelektrik'],
+    ['comp0cker played Mega Diancie ex to the Bench.', 'diancie-mega'],
+    ['comp0cker evolved Yanma to Yanmega ex on the Bench.', 'yanmega'],
+    ['comp0cker played Mega Darkrai ex to the Bench.', 'darkrai-mega'],
+    ['comp0cker evolved Minccino to Cinccino ex on the Bench.', 'cinccino'],
+    ['comp0cker played Mega Rayquaza ex to the Bench.', 'rayquaza-mega'],
   ])('detects new archetype: %s', (line, expected) => {
     expect(determineArchetype([line], 'comp0cker', 'en')).toEqual(expected);
   });
@@ -53,7 +71,15 @@ describe('archetype utils', () => {
     expect(determineArchetype(mockLog, 'comp0cker', 'en')).toEqual('regigigas');
   });
 
+  it('keeps existing associations: Impidimp still maps to grimmsnarl,froslass', () => {
+    expect(determineArchetype(["comp0cker played Marnie's Impidimp to the Bench.", "comp0cker evolved Marnie's Morgrem to Marnie's Grimmsnarl ex on the Bench."], 'comp0cker', 'en')).toEqual('grimmsnarl,froslass');
+  });
+
   it('Radiant Greninja alone does not count as a Greninja deck', () => {
     expect(determineArchetype(['comp0cker played Radiant Greninja to the Bench.'], 'comp0cker', 'en')).toBeUndefined();
+  });
+
+  it('plain Rayquaza is not Mega Rayquaza', () => {
+    expect(determineArchetype(['comp0cker played Rayquaza to the Bench.'], 'comp0cker', 'en')).toBeUndefined();
   });
 });
