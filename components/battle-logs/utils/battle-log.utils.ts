@@ -250,12 +250,12 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
 
   const playerDecks: { [key: string]: string } = {
     [playerNames[0]]: (currentUserScreenName && playerNames[0].toLowerCase() === currentUserScreenName.toLowerCase()) 
-      ? (user_entered_archetype || determineArchetype(cleanedLog, playerNames[0], language) || "")
-      : (determineArchetype(cleanedLog, playerNames[0], language) || ""),
+      ? (user_entered_archetype || determineArchetype(cleanedLog, playerNames[0], language, format) || "")
+      : (determineArchetype(cleanedLog, playerNames[0], language, format) || ""),
       
     [playerNames[1]]: (currentUserScreenName && playerNames[1].toLowerCase() === currentUserScreenName.toLowerCase()) 
-      ? (opp_archetype || determineArchetype(cleanedLog, playerNames[1], language) || "")
-      : (determineArchetype(cleanedLog, playerNames[1], language) || ""),
+      ? (opp_archetype || determineArchetype(cleanedLog, playerNames[1], language, format) || "")
+      : (determineArchetype(cleanedLog, playerNames[1], language, format) || ""),
   };
 
   const players: BattleLogPlayer[] = playerNames.map((player, index) => {
@@ -266,10 +266,10 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
       name: player,
       deck: isCurrentUser && user_entered_archetype 
         ? user_entered_archetype 
-        : determineArchetype(cleanedLog, player, language),
+        : determineArchetype(cleanedLog, player, language, format),
       oppDeck: isCurrentUser 
-        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)) 
-        : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)),
+        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language, format)) 
+        : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language, format)),
       result: winner.toLowerCase() === player.toLowerCase() ? 'W' : 'L',
     };
   });
