@@ -47,14 +47,14 @@ export default function RootLayout({
 
                 <SidebarProvider>
                 <AppSidebar />
-                <main className='min-h-screen h-full w-full'>
-                  <header className='fixed w-full z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
+                <main className='min-h-screen h-full w-full min-w-0'>
+                  <header className='sticky top-0 z-50 flex flex-col gap-2 bg-white dark:bg-zinc-900'>
                     <div className='flex px-4 py-4 gap-4 items-center'>
                       <SidebarTrigger />
                       <HeaderBreadcrumbs />
                     </div>
                   </header>
-                  <div className='flex flex-col items-center h-full pt-[52px]'>
+                  <div className='flex flex-col items-center h-full'>
                     <div className='flex flex-col p-4 gap-6 w-full h-full'>
                       {children}
                     </div>

@@ -76,7 +76,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
   );
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full sm:max-w-lg justify-between gap-2 p-4">
+    <div className="flex-1 flex flex-col w-full h-full sm:max-w-2xl mx-auto justify-between gap-2 p-4">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center justify-evenly w-full">

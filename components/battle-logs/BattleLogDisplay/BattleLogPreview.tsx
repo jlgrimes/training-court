@@ -9,7 +9,7 @@ import {
 import { format } from "date-fns";
 import { BattleLog } from "../utils/battle-log.types";
 import { Sprite } from "../../archetype/sprites/Sprite";
-import Link from "next/link";
+import { HoverPrefetchLink } from "@/components/HoverPrefetchLink";
 import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { capitalizeName, getTurnOrderOfPlayer } from "../utils/battle-log.utils";
@@ -77,7 +77,7 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
   }
 
   return (
-    <Link className="flex-grow" href={`/ptcg/logs/${props.battleLog.id}`}>
+    <HoverPrefetchLink className="flex-grow" href={`/ptcg/logs/${props.battleLog.id}`}>
       <Card result={gameResult} className={cn(
           "clickable",
           gameResult === "W" && "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:hover:bg-emerald-700",
@@ -100,6 +100,6 @@ export function BattleLogPreview (props: BattleLogPreviewProps) {
           </div>
         </SmallCardHeader>
       </Card>
-    </Link>
+    </HoverPrefetchLink>
   )
 }

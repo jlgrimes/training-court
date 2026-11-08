@@ -1,6 +1,6 @@
 'use client';
 
-import Link from "next/link";
+import { HoverPrefetchLink } from "@/components/HoverPrefetchLink";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "@/components/ui/card";
 import { displayTournamentDate, getRecord } from "@/components/tournaments/utils/tournaments.utils";
 import { renderTournamentPlacement, TournamentPlacement } from "@/components/tournaments/Placement/tournament-placement.types";
@@ -15,7 +15,7 @@ interface PocketTournamentPreviewProps {
 
 export default function PocketTournamentPreview({ tournament, rounds, hatType }: PocketTournamentPreviewProps) {
   return (
-    <Link href={`/pocket/tournaments/${tournament.id}`}>
+    <HoverPrefetchLink href={`/pocket/tournaments/${tournament.id}`}>
       <Card clickable>
         <SmallCardHeader>
           <div className="grid grid-cols-two-sprite+3 items-center">
@@ -33,6 +33,6 @@ export default function PocketTournamentPreview({ tournament, rounds, hatType }:
           </div>
         </SmallCardHeader>
       </Card>
-    </Link>
+    </HoverPrefetchLink>
   )
 }

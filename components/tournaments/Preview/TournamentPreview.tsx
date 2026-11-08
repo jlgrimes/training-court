@@ -1,6 +1,6 @@
 'use client';
 
-import Link from "next/link";
+import { HoverPrefetchLink } from "@/components/HoverPrefetchLink";
 import { Card, CardDescription, CardTitle, SmallCardHeader } from "../../ui/card";
 import { displayTournamentDate, getRecord } from "../utils/tournaments.utils";
 import { Database } from "@/database.types";
@@ -18,7 +18,7 @@ interface TournamentPreviewProps {
 export default function TournamentPreview(props: TournamentPreviewProps) {
   const basePath = props.basePath ?? '/tournaments';
   return (
-    <Link href={`${basePath}/${props.tournament.id}`}>
+    <HoverPrefetchLink href={`${basePath}/${props.tournament.id}`}>
       <Card clickable>
         <SmallCardHeader>
           <div className="grid grid-cols-two-sprite+3 items-center">
@@ -36,6 +36,6 @@ export default function TournamentPreview(props: TournamentPreviewProps) {
           </div>
         </SmallCardHeader>
       </Card>
-    </Link>
+    </HoverPrefetchLink>
   )
 }
