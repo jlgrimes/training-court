@@ -224,7 +224,7 @@ export function AppSidebar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
-                  <MyProfileAvatar user={user} /> {user?.email}
+                  <MyProfileAvatar user={user} /> <span className="truncate">{user?.email}</span>
                     <ChevronUp className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
