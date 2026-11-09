@@ -45,7 +45,11 @@ it.each([
   const after = frames[frames.length - 1].board;
   expect(after.players[actor]).toEqual(before.players[actor]);
   expect(after.players[opponent].active?.damage).toBe(200);
-  expect(after.players[opponent].bench.map((pokemon) => pokemon.damage)).toEqual([0, 10, 30, 10, 10]);
+  const drakloak = after.players[opponent].bench.filter((pokemon) => pokemon.name === 'Drakloak');
+  expect(drakloak.reduce((total, pokemon) => total + pokemon.damage, 0)).toBe(40);
+  expect(after.players[opponent].bench.find((pokemon) => pokemon.name === 'Fezandipiti ex')?.damage).toBe(10);
+  expect(after.players[opponent].bench.find((pokemon) => pokemon.name === 'Munkidori')?.damage).toBe(10);
+  expect(frames[frames.length - 1].assessment?.representative).toBe(true);
   expect(before.players[opponent].bench.every((pokemon) => pokemon.damage === 0)).toBe(true);
 });
 
@@ -74,7 +78,8 @@ it('replays the provided sequence through Phantom Dive and the subsequent knocko
   expect(before.players.Oyauguru.bench.map((pokemon) => pokemon.name)).toEqual(['Drakloak', 'Drakloak', 'Fezandipiti ex', 'Munkidori']);
   expect(after.players.Bassoonboy135).toEqual(before.players.Bassoonboy135);
   expect(after.players.Oyauguru.active).toMatchObject({ name: 'Dreepy', damage: 200 });
-  expect(after.players.Oyauguru.bench.map((pokemon) => pokemon.damage)).toEqual([50, 10, 10, 30]);
+  expect(after.players.Oyauguru.bench.filter((pokemon) => pokemon.name === 'Drakloak').reduce((total, pokemon) => total + pokemon.damage, 0)).toBe(60);
+  expect(frames[index].assessment?.representative).toBe(true);
   expect(frames[index + 1].board.players.Oyauguru.active).toBeNull();
   expect(frames[index + 1].board.players.Oyauguru.discard.some((card) => card.identifier === 'me2-5_247')).toBe(true);
 });

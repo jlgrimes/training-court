@@ -37,6 +37,7 @@ export const Notes = ({ logId, serverLoadedNotes }: NotesProps) => {
       if (error) throw error;
       setSavedNotes(draft);
       setIsEditing(false);
+      setOpen(false);
     } catch {
       setSaveError(true);
     } finally {

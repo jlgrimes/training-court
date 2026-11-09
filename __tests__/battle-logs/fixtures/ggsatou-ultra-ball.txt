@@ -1,0 +1,41 @@
+Setup
+ggsatou chose tails for the opening coin flip.
+Bassoonboy135 won the coin toss.
+Bassoonboy135 decided to go second.
+ggsatou drew 7 cards for the opening hand.
+- 7 drawn cards.
+Bassoonboy135 drew 7 cards for the opening hand.
+- 7 drawn cards.
+   • (sv6_223) Buddy-Buddy Poffin, (sv6_165) Unfair Stamp, (sv6_130) Dragapult ex, (sv8_251) Night Stretcher, (me1_127) Risky Ruins, (me2-5_158) Dreepy, (sv2_265) Boss's Orders
+ggsatou played (me1_88) Yveltal to the Active Spot.
+Bassoonboy135 played (me2-5_158) Dreepy to the Active Spot.
+
+ggsatou's Turn
+ggsatou drew a card.
+ggsatou played (sv5_144) Buddy-Buddy Poffin.
+- ggsatou drew 2 cards and played them to the Bench.
+   • (sv9_97) N's Zorua, (sv9_97) N's Zorua
+- ggsatou shuffled their deck.
+ggsatou attached (mee_7) Basic Darkness Energy to (me1_88) Yveltal in the Active Spot.
+ggsatou ended their turn.
+
+Bassoonboy135's Turn
+Bassoonboy135 drew (sv8-5_80_mph) Dudunsparce.
+Bassoonboy135 played (sv6_223) Buddy-Buddy Poffin.
+- Bassoonboy135 drew 2 cards and played them to the Bench.
+   • (me2-5_158) Dreepy, (me2-5_158) Dreepy
+- Bassoonboy135 shuffled their deck.
+Bassoonboy135 played (sv2_265) Boss's Orders.
+- ggsatou's (sv9_97) N's Zorua was switched with ggsatou's (me1_88) Yveltal to become the Active Pokémon.
+ggsatou's (sv9_97) N's Zorua is now in the Active Spot.
+Bassoonboy135 ended their turn.
+
+ggsatou's Turn
+ggsatou drew a card.
+ggsatou played (me1_131) Ultra Ball.
+- ggsatou discarded 2 cards.
+   • (me3_81) Poké Pad, (sv5_144) Buddy-Buddy Poffin
+- ggsatou drew (sv9_98) N's Zoroark ex.
+- ggsatou shuffled their deck.
+
+Opponent conceded. Bassoonboy135 wins.

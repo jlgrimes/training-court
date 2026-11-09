@@ -1,5 +1,17 @@
 import type { DeckbuilderCatalogCard } from './ptcg-card-catalog';
 
+// Exact MEE 001–008 artwork, including sets missing from the upstream catalog.
+// Source: https://images.pokedata.ovh/en/mee/{number}_hires.webp
+const meeBasicEnergyCards = ['Grass', 'Fire', 'Water', 'Lightning', 'Psychic', 'Fighting', 'Darkness', 'Metal']
+  .map((type, index): DeckbuilderCatalogCard => {
+    const number = String(index + 1);
+    const image = `/images/replay/mee-${number.padStart(3, '0')}.webp`;
+    return {
+      id: `mee_${number}`, localId: number, name: `Basic ${type} Energy`, category: 'Energy', imageUrl: image, imageUrlHiRes: image,
+      metadata: { setId: 'mee', setCode: 'MEE', number, energyKind: 'Basic', cardText: [], weakness: [], resistance: [], retreatCost: [], rulebox: [] },
+    };
+  });
+
 // This printing is absent from the upstream catalog.
 // Artwork: https://limitlesstcg.com/cards/en/SVE/21
 export const supplementalReplayCards: DeckbuilderCatalogCard[] = [{
@@ -18,13 +30,5 @@ export const supplementalReplayCards: DeckbuilderCatalogCard[] = [{
     setId: 'svalt', number: '116', energyKind: 'Basic',
     cardText: [], weakness: [], resistance: [], retreatCost: [], rulebox: [],
   },
-}, {
-  // Artwork: https://images.pokedata.ovh/en/mee/4_hires.webp
-  id: 'mee_4', localId: '4', name: 'Basic Lightning Energy', category: 'Energy',
-  imageUrl: '/images/replay/mee-004.webp', imageUrlHiRes: '/images/replay/mee-004.webp',
-  metadata: {
-    setId: 'mee', setCode: 'MEE', number: '4', energyKind: 'Basic',
-    cardText: [], weakness: [], resistance: [], retreatCost: [], rulebox: [],
-  },
-}];
+}, ...meeBasicEnergyCards];
 

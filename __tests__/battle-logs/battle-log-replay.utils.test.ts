@@ -56,7 +56,7 @@ describe('battle log replay utils', () => {
     expect(frames[5].board.players.Player2.active?.attachments.map((card) => card.name)).toEqual(['Jet Energy', 'Air Balloon']);
     expect(frames[6].board.players.Player2.active?.attachments.map((card) => card.name)).toEqual(['Jet Energy']);
     expect(frames[7].board.players.Player2.active).toBeNull();
-    expect(frames[7].board.players.Player2.discard.map((card) => card.name)).toEqual(['Air Balloon', 'Frogadier', 'Jet Energy']);
+    expect(frames[7].board.players.Player2.discard.map((card) => card.name)).toEqual(['Air Balloon', 'Froakie', 'Frogadier', 'Jet Energy']);
   });
 
   it('places a named deck search on the bench without changing the hand', () => {
@@ -154,7 +154,7 @@ it('preserves identifiers through draws, lists, evolution, attachments and knock
   expect(frames[2].board.players.Bassoonboy135.hand.knownCards.map((card) => card.identifier)).toEqual(['mee_5']);
   expect(frames[3].board.players.Bassoonboy135.hand.knownCards[1]).toMatchObject({ name: 'Sinistcha', identifier: 'me5_6' });
   expect(frames[4].board.players.Bassoonboy135.active).toMatchObject({ name: 'Sinistcha', identifier: 'me5_6', attachments: [{ identifier: 'mee_13' }] });
-  expect(frames[5].board.players.Bassoonboy135.discard.map((card) => card.identifier)).toEqual(['me5_6', 'mee_13']);
+  expect(frames[5].board.players.Bassoonboy135.discard.map((card) => card.identifier)).toEqual(['me5_5', 'me5_6', 'mee_13']);
 });
 
 
@@ -181,14 +181,16 @@ it('replaces a mulligan hand and removes returned Pokemon from the board', () =>
   log.sections = [{ ...log.sections[0], actions: [
     { title: 'Bassoonboy135 drew 7 cards for the opening hand.', details: ['- 7 drawn cards.', '- (sv8_251) Night Stretcher'] },
     { title: 'Bassoonboy135 took a mulligan.', details: [] },
-    { title: 'Bassoonboy135 played (sv8-5_80_mph) Dudunsparce to the Bench.', details: [] },
-    { title: 'Bassoonboy135 shuffled 2 cards into their deck.', details: ['- (sv8-5_80_mph) Dudunsparce, (sv9_120) Dunsparce'] },
+    { title: 'Bassoonboy135 played (sv9_120) Dunsparce to the Bench.', details: [] },
+    { title: 'Bassoonboy135 evolved (sv9_120) Dunsparce to (sv8-5_80_mph) Dudunsparce on the Bench.', details: [] },
+    { title: 'Bassoonboy135 played (sv8-5_80_mph) Dudunsparce.', details: ['- Bassoonboy135 shuffled 2 cards into their deck.', '- (sv8-5_80_mph) Dudunsparce, (sv9_120) Dunsparce'] },
   ] }];
   const { frames } = buildBattleLogReplay(log);
-  expect(frames[1].board.players.Bassoonboy135.hand.unknownCount).toBe(6);
-  expect(frames[1].board.players.Bassoonboy135.hand.knownCards).toEqual([expect.objectContaining({ identifier: 'sv8-5_80_mph' })]);
-  expect(frames[3].board.players.Bassoonboy135.bench).toEqual([]);
-  expect(frames[3].board.players.Bassoonboy135.hand.unknownCount).toBe(6);
+  expect(frames[1].board.players.Bassoonboy135.hand.unknownCount).toBe(5);
+  expect(frames[1].board.players.Bassoonboy135.hand.knownCards.map((card) => card.identifier)).toEqual(['sv9_120', 'sv8-5_80_mph']);
+  expect(frames[4].board.players.Bassoonboy135.bench).toEqual([]);
+  expect(frames[4].board.players.Bassoonboy135.hand.unknownCount).toBe(5);
+  expect(frames[4].board.players.Bassoonboy135.returnedToDeck?.map((card) => card.identifier)).toEqual(['sv9_120', 'sv8-5_80_mph']);
 });
 
 

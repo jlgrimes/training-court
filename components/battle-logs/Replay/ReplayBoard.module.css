@@ -75,6 +75,8 @@
 .handScroll { height: calc(var(--featured-width) * 1.4 + 40px); }
 .handCards { display: grid; grid-template-columns: repeat(var(--card-count), minmax(0, var(--featured-width))); align-items: start; justify-content: center; gap: 10px; width: 100%; height: 100%; padding: 10px 10px 14px; }
 .handCards > .card, .handCards > .hiddenHand { width: 100%; min-width: 0; }
+.handCards { position: relative; }
+.handTarget { position: absolute; left: 50%; top: 10px; width: var(--featured-width); aspect-ratio: 5 / 7; transform: translateX(-50%); pointer-events: none; visibility: hidden; }
 .card { position: relative; flex-shrink: 0; width: var(--featured-width); }
 .featured { width: var(--featured-width); }
 .bench { width: var(--bench-width); }

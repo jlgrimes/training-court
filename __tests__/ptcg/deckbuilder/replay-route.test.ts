@@ -45,3 +45,17 @@ it('resolves mee_4 Lightning Energy by its exact identifier without the incomple
   });
   expect(getAllDeckbuilderCards).not.toHaveBeenCalled();
 });
+
+it('resolves all eight MEE Basic Energy printings locally, including Darkness and finish suffixes', async () => {
+  const types = ['Grass', 'Fire', 'Water', 'Lightning', 'Psychic', 'Fighting', 'Darkness', 'Metal'];
+  const cards = types.map((type, index) => ({ name: `Basic ${type} Energy`, identifier: `mee_${index + 1}` }));
+  cards.push({ name: 'Basic Darkness Energy', identifier: 'mee_007_ph' });
+  const response = await POST(request(cards));
+  expect(response.status).toBe(200);
+  const { cardsByKey } = await response.json();
+  types.forEach((type, index) => expect(cardsByKey[`id:mee_${index + 1}`]).toMatchObject({
+    name: `Basic ${type} Energy`, imageUrl: `/images/replay/mee-${String(index + 1).padStart(3, '0')}.webp`,
+  }));
+  expect(cardsByKey['id:mee_007_ph'].imageUrl).toBe('/images/replay/mee-007.webp');
+  expect(getAllDeckbuilderCards).not.toHaveBeenCalled();
+});

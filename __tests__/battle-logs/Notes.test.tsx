@@ -44,8 +44,10 @@ it('saves a new note to the correct log and updates the summary', async () => {
   expect(from).toHaveBeenCalledWith('logs');
   expect(update).toHaveBeenCalledWith({ notes: 'Saved note' });
   expect(eq).toHaveBeenCalledWith('id', 'log-2');
-  fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
   expect(within(screen.getByRole('button', { name: 'Open notes' })).getByText('Saved note')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Open notes' }));
+  expect(within(screen.getByRole('dialog', { name: 'Notes' })).getByText('Saved note')).toBeTruthy();
 });
 
 it('keeps a failed save editable and preserves the saved preview', async () => {
@@ -56,6 +58,7 @@ it('keeps a failed save editable and preserves the saved preview', async () => {
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Retry this' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save' }));
   expect(await screen.findByRole('alert')).toBeTruthy();
+  expect(screen.getByRole('dialog', { name: 'Notes' })).toBeTruthy();
   expect((screen.getByRole('textbox') as HTMLTextAreaElement).value).toBe('Retry this');
   fireEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(within(screen.getByRole('button', { name: 'Open notes' })).getByText('Original')).toBeTruthy();

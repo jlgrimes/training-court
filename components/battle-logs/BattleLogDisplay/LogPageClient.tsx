@@ -103,7 +103,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
           <Tabs defaultValue="replay" className="w-full">
             <TabsList>
               <TabsTrigger value="replay">
-                <T id="battleLogs.replay.title">Replay</T>
+                <T id="battleLogs.replay.title">Replay (Beta)</T>
               </TabsTrigger>
               <TabsTrigger value="log">
                 <T id="battleLogs.replay.logView">Log</T>

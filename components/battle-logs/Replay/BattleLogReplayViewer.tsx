@@ -15,6 +15,8 @@ import { replayCardKey } from './card-identity';
 import type { ReplayCard, ReplayFrame } from "./battle-log-replay.types";
 import { ReplayBoard, type CatalogCard } from "./ReplayBoard";
 import styles from './ReplayViewer.module.css';
+import { ReplayEvidence, ReplayCertaintyLabel } from './ReplayEvidence';
+import { CARD_MOTION_DURATION, getCardMovements } from './card-motion';
 
 export { ReplayBoard } from "./ReplayBoard";
 
@@ -235,13 +237,17 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
       setIsPlaying(false);
       return;
     }
+    const movements = motionFrame === currentIndex && currentIndex > 0
+      ? getCardMovements(replay.frames[currentIndex - 1].board, currentFrame.board, currentFrame.operations) : [];
+    const actionDuration = movements.reduce((duration, movement) => Math.max(duration,
+      movement.delay + (movement.kind === 'knockout' ? 450 : CARD_MOTION_DURATION)), 0);
     const id = window.setTimeout(() => {
       setMotionFrame(currentIndex + 1);
       setCurrentIndex(currentIndex + 1);
-    }, 1400);
+    }, Math.max(1400, actionDuration + 180));
 
     return () => window.clearTimeout(id);
-  }, [isPlaying, currentIndex, replay.frames.length]);
+  }, [isPlaying, currentIndex, replay.frames, currentFrame, motionFrame]);
 
   if (!currentFrame) return null;
   const bonus = currentFrame.event.mulliganBonus;
@@ -298,9 +304,15 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
             onChange={goToFrame}
           />
         </div>
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          {currentFrame.assessment && <span role="status"><ReplayCertaintyLabel certainty={currentFrame.assessment.certainty} />
+            {currentFrame.assessment.representative && <> · <T id="battleLogs.replay.evidence.possibleBoard">One possible board</T></>}
+          </span>}
+        </div>
       </div>
 
-      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByKey={cardsByKey} motionFrame={motionFrame} fit />
+      <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByKey={cardsByKey} motionFrame={motionFrame}
+        operations={currentFrame.operations} fit />
 
       <Dialog.Root onOpenChange={(open) => { if (open) setIsPlaying(false); }}>
         <Dialog.Trigger asChild>
@@ -320,6 +332,7 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
                 <p key={`${currentFrame.id}-detail-${index}`}>{detail}</p>
               ))}
             </div>
+            <ReplayEvidence frame={currentFrame} />
             <Dialog.Close className={styles.close} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}><X size={18} /></Dialog.Close>
           </Dialog.Content>
         </Dialog.Portal>

@@ -7,7 +7,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { T, useGT } from 'gt-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import type { ReplayBoardState, ReplayCard, ReplayPlayerState, ReplayPokemon } from './battle-log-replay.types';
+import type { ReplayBoardState, ReplayCard, ReplayPlayerState, ReplayPokemon, ReplayOperation } from './battle-log-replay.types';
 import styles from './ReplayBoard.module.css';
 import { useCardMotion } from './use-card-motion';
 
@@ -48,7 +48,7 @@ function Card({ card, size = 'featured', count = 1, cardsByKey, onInspect, child
   motionId?: string;
 }) {
   return (
-    <div className={`${styles.card} ${styles[size]} ${count > 1 ? styles.stacked : ''}`} data-card-name={card.name} data-motion-id={motionId}>
+    <div className={`${styles.card} ${styles[size]} ${count > 1 ? styles.stacked : ''}`} data-card-name={card.name} data-motion-id={motionId} data-knowledge={card.knowledge ?? 'observed'}>
       <button className={styles.cardButton} type="button" onClick={() => onInspect(card)} aria-label={card.name}>
         <Artwork name={card.name} card={cardsByKey[replayCardKey(card)]} />
         {count > 1 && <span className={styles.count}>{count}</span>}
@@ -71,15 +71,16 @@ function groupHand(cards: ReplayCard[]) {
   return Array.from(groups.values());
 }
 
-function Hand({ player, isPerspective, ...cards }: BoardCards & { player: ReplayPlayerState; isPerspective: boolean }) {
+function Hand({ player, isPerspective, displayCount, ...cards }: BoardCards & { player: ReplayPlayerState; isPerspective: boolean; displayCount?: number }) {
   const groups = isPerspective ? groupHand(player.hand.knownCards) : [];
-  const hiddenCount = player.hand.unknownCount + (isPerspective ? 0 : player.hand.knownCards.length);
-  const total = player.hand.knownCards.length + player.hand.unknownCount;
+  const total = displayCount ?? player.hand.knownCards.length + player.hand.unknownCount;
+  const hiddenCount = isPerspective ? player.hand.unknownCount : total;
   return (
     <div className={styles.hand} data-zone="hand">
       <div className={styles.zoneLabel}><T id="battleLogs.replay.hand">Hand</T><span>{total}</span></div>
       <div className={styles.handScroll}>
         <div className={styles.handCards} style={{ '--card-count': Math.max(1, groups.length + (hiddenCount > 0 ? 1 : 0)) } as CSSProperties}>
+          <span className={styles.handTarget} data-motion-id={`hand-target:${player.name}`} aria-hidden="true" />
           {groups.map(({ card, count }) => <Card key={card.id} card={card} count={count} motionId={`hand:${player.name}:${replayCardKey(card)}`} {...cards} />)}
           {hiddenCount > 0 && (
             <div className={`${styles.hiddenHand} ${styles.stacked}`} data-motion-id={`hidden-hand:${player.name}`}>
@@ -127,9 +128,10 @@ function Prizes({ count }: { count: number }) {
   );
 }
 
-function DeckAndDiscard({ player, ...cards }: BoardCards & { player: ReplayPlayerState }) {
+function DeckAndDiscard({ player, displayDiscard, ...cards }: BoardCards & { player: ReplayPlayerState; displayDiscard?: ReplayCard[] }) {
   const gt = useGT();
-  const topDiscard = player.discard.at(-1);
+  const discard = displayDiscard ?? player.discard;
+  const topDiscard = discard.at(-1);
   return (
     <div className={styles.piles}>
       <div className={styles.pile} data-zone="deck">
@@ -146,19 +148,19 @@ function DeckAndDiscard({ player, ...cards }: BoardCards & { player: ReplayPlaye
               {topDiscard
                 ? <Artwork name={topDiscard.name} card={cards.cardsByKey[replayCardKey(topDiscard)]} />
                 : <span className={styles.emptySlot} aria-hidden="true" />}
-              <span className={styles.count}>{player.discard.length}</span>
+              <span className={styles.count}>{discard.length}</span>
             </button>
           </Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Overlay className={styles.inspectOverlay} />
             <Dialog.Content className={styles.discardContent} aria-describedby={undefined}>
               <Dialog.Title className={styles.discardTitle}>
-                {player.name}: <T id="battleLogs.replay.discard">Discard</T> ({player.discard.length})
+                {player.name}: <T id="battleLogs.replay.discard">Discard</T> ({discard.length})
               </Dialog.Title>
               <div className={styles.discardCards}>
-                {player.discard.map((card) => <Card key={card.id} card={card} {...cards} />)}
+                {discard.map((card) => <Card key={card.id} card={card} {...cards} />)}
               </div>
-              {player.discard.length === 0 && <p><T id="battleLogs.replay.empty">Empty</T></p>}
+              {discard.length === 0 && <p><T id="battleLogs.replay.empty">Empty</T></p>}
               <Dialog.Close className={styles.inspectClose} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}>
                 <X size={20} />
               </Dialog.Close>
@@ -170,11 +172,11 @@ function DeckAndDiscard({ player, ...cards }: BoardCards & { player: ReplayPlaye
   );
 }
 
-function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player: ReplayPlayerState; isPerspective: boolean }) {
+function PlayerField({ player, isPerspective, handCount, displayDiscard, ...cards }: BoardCards & { player: ReplayPlayerState; isPerspective: boolean; handCount?: number; displayDiscard?: ReplayCard[] }) {
   return (
     <section aria-label={player.name} className={`${styles.playerField} ${isPerspective ? styles.perspective : styles.opponent}`}>
       <div className={styles.playerName}><span className={styles.playerDot} />{player.name}</div>
-      <Hand player={player} isPerspective={isPerspective} {...cards} />
+      <Hand player={player} isPerspective={isPerspective} displayCount={handCount} {...cards} />
       <div className={styles.benchZone} data-zone="bench">
         <span className="sr-only"><T id="battleLogs.replay.bench">Bench</T></span>
         <div className={styles.benchCards} style={{ '--card-count': Math.max(1, player.bench.length) } as CSSProperties}>
@@ -187,23 +189,24 @@ function PlayerField({ player, isPerspective, ...cards }: BoardCards & { player:
         <Pokemon pokemon={player.active} active {...cards} />
       </div>
       <Prizes count={player.prizesRemaining} />
-      <DeckAndDiscard player={player} {...cards} />
+      <DeckAndDiscard player={player} displayDiscard={displayDiscard} {...cards} />
     </section>
   );
 }
 
-export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false, motionFrame }: {
+export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false, motionFrame, operations }: {
   board: ReplayBoardState;
   perspectivePlayer: string;
   cardsByKey: Record<string, CatalogCard | null>;
   fit?: boolean;
   motionFrame?: number;
+  operations?: ReplayOperation[];
 }) {
   const gt = useGT();
   const [inspectedCard, setInspectedCard] = useState<ReplayCard | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  useCardMotion(viewportRef, board, perspectivePlayer, cardsByKey, motionFrame);
+  const presentation = useCardMotion(viewportRef, board, perspectivePlayer, cardsByKey, motionFrame, operations);
   const [layout, setLayout] = useState<{ width: number; height: number; scale: number } | null>(null);
   useLayoutEffect(() => {
     if (!fit) return;
@@ -237,7 +240,7 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false,
           <div ref={canvasRef} className={styles.boardScroll} role="region" aria-label={gt('Replay board', { $id: 'battleLogs.replay.board' })}
             style={fit ? { width: layout?.width, transform: `scale(${layout?.scale ?? 1})`, visibility: layout ? 'visible' : 'hidden' } : undefined}>
             <div className={styles.surface}>
-              {opponent && <PlayerField player={opponent} isPerspective={false} {...cards} />}
+              {opponent && <PlayerField player={opponent} isPerspective={false} handCount={presentation?.hands[opponent.name]} displayDiscard={presentation?.discards[opponent.name]} {...cards} />}
               <div className={styles.centerLine}>
                 {board.stadium && (
                   <div className={styles.stadium} data-zone="stadium">
@@ -246,7 +249,7 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false,
                   </div>
                 )}
               </div>
-              {perspective && <PlayerField player={perspective} isPerspective {...cards} />}
+              {perspective && <PlayerField player={perspective} isPerspective handCount={presentation?.hands[perspective.name]} displayDiscard={presentation?.discards[perspective.name]} {...cards} />}
             </div>
           </div>
         </div>

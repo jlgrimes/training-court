@@ -45,7 +45,7 @@ export class ReplayHandKnowledge {
   resolve() {
     this.snapshots.forEach(({ time, hand }) => {
       const inferred = this.reveals.filter(({ acquiredBy, removedAt }) => acquiredBy <= time && time < removedAt);
-      hand.knownCards.push(...inferred.map(({ card }) => ({ ...card })));
+      hand.knownCards.push(...inferred.map(({ card }) => ({ ...card, knowledge: 'inferred' as const })));
       hand.unknownCount -= inferred.length;
     });
   }
