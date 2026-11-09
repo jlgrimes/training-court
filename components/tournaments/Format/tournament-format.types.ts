@@ -8,3 +8,6 @@ export const logFormats: LogFormats[] = ['TEF-DLR', 'TEF-30C', 'TEF-PBL', 'TEF-C
 export type TournamentFormats = 'TEF-DLR' | 'TEF-30C' | 'TEF-PBL' | 'TEF-CRI' | 'TEF-POR' | 'SVI-ASC' | 'SVI-PFL' | 'SVI-MEG' | 'SVI-WHT/BLK' | 'SVI-DRI' | 'SVI-JTG' | 'BRS-PRE' | 'BRS-SSP' | 'BRS-SCR' | 'PTCG Pocket' | 'GLC' | 'Expanded' ;
 export type TournamentFormatsTab = TournamentFormats | 'All';
 export const tournamentFormats: TournamentFormats[] = ['TEF-DLR', 'TEF-30C', 'TEF-PBL', 'TEF-CRI', 'TEF-POR', 'SVI-ASC', 'SVI-PFL', 'SVI-MEG', 'SVI-WHT/BLK', 'SVI-DRI', 'SVI-JTG', 'BRS-PRE', 'BRS-SSP', 'BRS-SCR', 'PTCG Pocket', 'GLC', 'Expanded']
+
+export const isLogFormat = (value: string): value is LogFormats =>
+  logFormats.includes(value as LogFormats);
