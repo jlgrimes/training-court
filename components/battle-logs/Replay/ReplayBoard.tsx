@@ -1,0 +1,271 @@
+'use client';
+
+import { replayCardKey } from './card-identity';
+
+import { useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { T, useGT } from 'gt-react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
+import type { ReplayBoardState, ReplayCard, ReplayPlayerState, ReplayPokemon, ReplayOperation } from './battle-log-replay.types';
+import styles from './ReplayBoard.module.css';
+import { useCardMotion } from './use-card-motion';
+
+export type CatalogCard = {
+  id: string;
+  name: string;
+  imageUrlHiRes?: string;
+  imageUrl?: string;
+};
+
+type CardSize = 'featured' | 'bench' | 'side' | 'attachment';
+type BoardCards = {
+  cardsByKey: Record<string, CatalogCard | null>;
+  onInspect: (card: ReplayCard) => void;
+};
+
+function imageUrl(card?: CatalogCard | null) {
+  return card?.imageUrlHiRes || card?.imageUrl;
+}
+
+function CardBack() {
+  return <div className={styles.cardBack} aria-hidden="true" />;
+}
+
+function Artwork({ name, card }: { name: string; card?: CatalogCard | null }) {
+  const url = imageUrl(card);
+  const [failedUrl, setFailedUrl] = useState<string>();
+  return url && url !== failedUrl ? (
+    <img className={styles.artwork} src={url} alt={name} loading="lazy" onError={() => setFailedUrl(url)} />
+  ) : <div className={styles.cardFallback}>{name}</div>;
+}
+
+function Card({ card, size = 'featured', count = 1, cardsByKey, onInspect, children, motionId }: BoardCards & {
+  card: ReplayCard;
+  size?: CardSize;
+  count?: number;
+  children?: ReactNode;
+  motionId?: string;
+}) {
+  return (
+    <div className={`${styles.card} ${styles[size]} ${count > 1 ? styles.stacked : ''}`} data-card-name={card.name} data-motion-id={motionId} data-knowledge={card.knowledge ?? 'observed'}>
+      <button className={styles.cardButton} type="button" onClick={() => onInspect(card)} aria-label={card.name}>
+        <Artwork name={card.name} card={cardsByKey[replayCardKey(card)]} />
+        {count > 1 && <span className={styles.count}>{count}</span>}
+      </button>
+      {children}
+    </div>
+  );
+}
+
+// Group only the visible hand. Opponent identities remain hidden, even when
+// the log revealed a card earlier in the game.
+function groupHand(cards: ReplayCard[]) {
+  const groups = new Map<string, { card: ReplayCard; count: number }>();
+  cards.forEach((card) => {
+    const key = replayCardKey(card);
+    const group = groups.get(key);
+    if (group) group.count += 1;
+    else groups.set(key, { card, count: 1 });
+  });
+  return Array.from(groups.values());
+}
+
+function Hand({ player, isPerspective, displayCount, ...cards }: BoardCards & { player: ReplayPlayerState; isPerspective: boolean; displayCount?: number }) {
+  const groups = isPerspective ? groupHand(player.hand.knownCards) : [];
+  const total = displayCount ?? player.hand.knownCards.length + player.hand.unknownCount;
+  const hiddenCount = isPerspective ? player.hand.unknownCount : total;
+  return (
+    <div className={styles.hand} data-zone="hand">
+      <div className={styles.zoneLabel}><T id="battleLogs.replay.hand">Hand</T><span>{total}</span></div>
+      <div className={styles.handScroll}>
+        <div className={styles.handCards} style={{ '--card-count': Math.max(1, groups.length + (hiddenCount > 0 ? 1 : 0)) } as CSSProperties}>
+          <span className={styles.handTarget} data-motion-id={`hand-target:${player.name}`} aria-hidden="true" />
+          {groups.map(({ card, count }) => <Card key={card.id} card={card} count={count} motionId={`hand:${player.name}:${replayCardKey(card)}`} {...cards} />)}
+          {hiddenCount > 0 && (
+            <div className={`${styles.hiddenHand} ${styles.stacked}`} data-motion-id={`hidden-hand:${player.name}`}>
+              <CardBack />
+              <span className={styles.count}>{hiddenCount}</span>
+              <span className="sr-only"><T id="battleLogs.replay.unknownCards">unknown</T></span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Pokemon({ pokemon, active = false, ...cards }: BoardCards & { pokemon: ReplayPokemon | null; active?: boolean }) {
+  return (
+    <div className={`${styles.pokemon} ${active ? styles.activePokemon : ''}`}>
+      {pokemon ? (
+        <>
+          <Card card={{ id: pokemon.id, name: pokemon.name, identifier: pokemon.identifier, known: true }} motionId={`pokemon:${pokemon.id}`} size={active ? 'featured' : 'bench'} {...cards}>
+            {pokemon.damage > 0 && (
+              <span className={styles.damage}><span className="sr-only"><T id="battleLogs.replay.damage">Damage</T>: </span>{pokemon.damage}</span>
+            )}
+          </Card>
+          {pokemon.attachments.length > 0 && (
+            <div className={styles.attachments} style={{ '--card-count': pokemon.attachments.length } as CSSProperties}>
+              {pokemon.attachments.map((card) => <Card key={card.id} card={card} size="attachment" motionId={`attachment:${pokemon.id}:${card.id}`} {...cards} />)}
+            </div>
+          )}
+          {pokemon.status.length > 0 && <span className={styles.status} title={pokemon.status.join(', ')}>{pokemon.status.join(', ')}</span>}
+        </>
+      ) : <div className={`${styles.emptySlot} ${active ? styles.featured : styles.bench}`} aria-hidden="true" />}
+    </div>
+  );
+}
+
+function Prizes({ count }: { count: number }) {
+  return (
+    <div className={styles.prizes} data-zone="prizes">
+      <div className={styles.prizeCards} aria-hidden="true">
+        {Array.from({ length: Math.max(0, count) }).map((_, index) => <div key={index} className={styles.prizeCard}><CardBack /></div>)}
+      </div>
+      <div className={styles.zoneLabel}><T id="battleLogs.replay.prizes">Prizes</T><span>{count}</span></div>
+    </div>
+  );
+}
+
+function DeckAndDiscard({ player, displayDiscard, ...cards }: BoardCards & { player: ReplayPlayerState; displayDiscard?: ReplayCard[] }) {
+  const gt = useGT();
+  const discard = displayDiscard ?? player.discard;
+  const topDiscard = discard.at(-1);
+  return (
+    <div className={styles.piles}>
+      <div className={styles.pile} data-zone="deck">
+        {/* The replay model does not track deck size. Do not invent a count. */}
+        <div className={`${styles.deck} ${styles.stacked}`} data-motion-id={`deck:${player.name}`}><CardBack /></div>
+        <span className="sr-only"><T id="battleLogs.replay.deck">Deck</T></span>
+      </div>
+      <div className={styles.pile} data-zone="discard">
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <button type="button" className={`${styles.cardButton} ${styles.side} ${styles.discardTrigger}`}
+              data-motion-id={`discard:${player.name}`}
+              aria-label={`${player.name}: ${gt('Discard', { $id: 'battleLogs.replay.discard' })}`}>
+              {topDiscard
+                ? <Artwork name={topDiscard.name} card={cards.cardsByKey[replayCardKey(topDiscard)]} />
+                : <span className={styles.emptySlot} aria-hidden="true" />}
+              <span className={styles.count}>{discard.length}</span>
+            </button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay className={styles.inspectOverlay} />
+            <Dialog.Content className={styles.discardContent} aria-describedby={undefined}>
+              <Dialog.Title className={styles.discardTitle}>
+                {player.name}: <T id="battleLogs.replay.discard">Discard</T> ({discard.length})
+              </Dialog.Title>
+              <div className={styles.discardCards}>
+                {discard.map((card) => <Card key={card.id} card={card} {...cards} />)}
+              </div>
+              {discard.length === 0 && <p><T id="battleLogs.replay.empty">Empty</T></p>}
+              <Dialog.Close className={styles.inspectClose} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}>
+                <X size={20} />
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </div>
+    </div>
+  );
+}
+
+function PlayerField({ player, isPerspective, handCount, displayDiscard, ...cards }: BoardCards & { player: ReplayPlayerState; isPerspective: boolean; handCount?: number; displayDiscard?: ReplayCard[] }) {
+  return (
+    <section aria-label={player.name} className={`${styles.playerField} ${isPerspective ? styles.perspective : styles.opponent}`}>
+      <div className={styles.playerName}><span className={styles.playerDot} />{player.name}</div>
+      <Hand player={player} isPerspective={isPerspective} displayCount={handCount} {...cards} />
+      <div className={styles.benchZone} data-zone="bench">
+        <span className="sr-only"><T id="battleLogs.replay.bench">Bench</T></span>
+        <div className={styles.benchCards} style={{ '--card-count': Math.max(1, player.bench.length) } as CSSProperties}>
+          {player.bench.map((pokemon) => <Pokemon key={pokemon.id} pokemon={pokemon} {...cards} />)}
+          {player.bench.length === 0 && <div className={styles.benchPlaceholder} aria-hidden="true"><Pokemon pokemon={null} {...cards} /></div>}
+        </div>
+      </div>
+      <div className={styles.activeZone} data-zone="active">
+        <span className="sr-only"><T id="battleLogs.replay.active">Active</T></span>
+        <Pokemon pokemon={player.active} active {...cards} />
+      </div>
+      <Prizes count={player.prizesRemaining} />
+      <DeckAndDiscard player={player} displayDiscard={displayDiscard} {...cards} />
+    </section>
+  );
+}
+
+export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false, motionFrame, operations, note }: {
+  board: ReplayBoardState;
+  perspectivePlayer: string;
+  cardsByKey: Record<string, CatalogCard | null>;
+  fit?: boolean;
+  motionFrame?: number;
+  operations?: ReplayOperation[];
+  note?: ReactNode;
+}) {
+  const gt = useGT();
+  const [inspectedCard, setInspectedCard] = useState<ReplayCard | null>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const presentation = useCardMotion(viewportRef, board, perspectivePlayer, cardsByKey, motionFrame, operations);
+  const [layout, setLayout] = useState<{ width: number; height: number; scale: number } | null>(null);
+  useLayoutEffect(() => {
+    if (!fit) return;
+    const viewport = viewportRef.current;
+    const canvas = canvasRef.current;
+    if (!viewport || !canvas) return;
+    const update = () => {
+      const width = Math.min(1120, viewport.clientWidth);
+      if (!width || !viewport.clientHeight) return;
+      canvas.style.width = `${width}px`;
+      const height = canvas.offsetHeight;
+      if (!height) return;
+      const scale = Math.min(1, viewport.clientHeight / height);
+      setLayout((previous) => previous?.width === width && previous.height === height && previous.scale === scale
+        ? previous : { width, height, scale });
+    };
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(viewport);
+    observer?.observe(canvas);
+    window.addEventListener('resize', update);
+    update();
+    return () => { observer?.disconnect(); window.removeEventListener('resize', update); };
+  }, [fit]);
+  const perspective = board.players[perspectivePlayer];
+  const opponent = board.playerOrder.map((name) => board.players[name]).find((player) => player.name !== perspectivePlayer);
+  const cards = { cardsByKey, onInspect: setInspectedCard };
+  return (
+    <>
+      <div ref={viewportRef} className={`${styles.boardViewport} ${fit ? styles.fitted : ''}`}>
+        <div className={styles.scaledBoard} style={fit && layout ? { width: layout.width * layout.scale, height: layout.height * layout.scale } : undefined}>
+          <div ref={canvasRef} className={styles.boardScroll} role="region" aria-label={gt('Replay board', { $id: 'battleLogs.replay.board' })}
+            style={fit ? { width: layout?.width, transform: `scale(${layout?.scale ?? 1})`, visibility: layout ? 'visible' : 'hidden' } : undefined}>
+            {note && <div className={styles.boardNote}>{note}</div>}
+            <div className={styles.surface}>
+              {opponent && <PlayerField player={opponent} isPerspective={false} handCount={presentation?.hands[opponent.name]} displayDiscard={presentation?.discards[opponent.name]} {...cards} />}
+              <div className={styles.centerLine}>
+                {board.stadium && (
+                  <div className={styles.stadium} data-zone="stadium">
+                    <Card card={board.stadium} size="side" {...cards} />
+                    <span className="sr-only"><T id="battleLogs.replay.stadium">Stadium</T></span>
+                  </div>
+                )}
+              </div>
+              {perspective && <PlayerField player={perspective} isPerspective handCount={presentation?.hands[perspective.name]} displayDiscard={presentation?.discards[perspective.name]} {...cards} />}
+            </div>
+          </div>
+        </div>
+      </div>
+      <Dialog.Root open={!!inspectedCard} onOpenChange={(open) => { if (!open) setInspectedCard(null); }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.inspectOverlay} />
+          <Dialog.Content className={styles.inspectContent} aria-describedby={undefined}>
+            <Dialog.Title className="sr-only">{inspectedCard?.name}</Dialog.Title>
+            {inspectedCard && <Artwork name={inspectedCard.name} card={cardsByKey[replayCardKey(inspectedCard)]} />}
+            <Dialog.Close className={styles.inspectClose} aria-label={gt('Close', { $id: 'battleLogs.replay.close' })}><X size={20} /></Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </>
+  );
+}

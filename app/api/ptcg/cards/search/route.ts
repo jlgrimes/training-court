@@ -1,8 +1,12 @@
+import { replayCatalogSetIds } from '@/lib/ptcg/replay-card-lookup';
 import {
   getAllDeckbuilderCards,
   getDeckbuilderCardsBySet,
   type DeckbuilderCatalogCard,
 } from '@/lib/server/ptcg-card-catalog';
+import { normalizeCardNameForLookup } from '@/lib/ptcg/card-name';
+
+import { supplementalReplayCards } from '@/lib/server/replay-card-images';
 
 const DEFAULT_LIMIT = 400;
 const MAX_LIMIT = 1200;
@@ -53,7 +57,11 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const setId = searchParams.get('setId')?.trim();
-    const query = searchParams.get('query')?.trim().toLowerCase() ?? '';
+    const query = normalizeCardNameForLookup(searchParams.get('query') ?? '');
+    const identifier = searchParams.get('identifier')?.trim().toLowerCase();
+    const identifierParts = identifier?.match(/^([^_]+)_([^_]+)(?:_(?:ph|mph))?$/);
+    const normalizeNumber = (value: string) => value.toLowerCase().replace(/^0+(?=\d)/, '');
+    const exactName = searchParams.get('exactName') === 'true';
     const rawLimit = Number(searchParams.get('limit'));
     const limit = Number.isFinite(rawLimit)
       ? Math.max(1, Math.min(MAX_LIMIT, Math.floor(rawLimit)))
@@ -61,16 +69,41 @@ export async function GET(request: Request) {
     const sortParam = searchParams.get('sort')?.trim().toLowerCase() as CardSort | null;
     const sort: CardSort = sortParam === 'name-asc' || sortParam === 'name-desc' || sortParam === 'recent' ? sortParam : 'recent';
 
+    // Local artwork must remain available when the remote catalog is unavailable.
+    const supplementalMatches = identifier ? supplementalReplayCards.filter((card) => {
+      if (query && normalizeCardNameForLookup(card.name) !== query) return false;
+      if (card.id.toLowerCase() === identifier) return true;
+      return !!identifierParts && replayCatalogSetIds(card.metadata).includes(identifierParts[1])
+        && normalizeNumber(card.localId) === normalizeNumber(identifierParts[2]);
+    }) : [];
+    if (supplementalMatches.length > 0) {
+      return Response.json({
+        cards: supplementalMatches.slice(0, limit), totalInSet: supplementalMatches.length,
+        totalMatched: supplementalMatches.length, returned: Math.min(limit, supplementalMatches.length), sort, code: 200,
+      });
+    }
+
     const isAllSets = !setId || setId === 'all';
     const setCards = isAllSets
       ? await getAllDeckbuilderCards()
       : await getDeckbuilderCardsBySet(setId);
     const safeSetCards = Array.isArray(setCards) ? setCards : [];
-    const filteredCards = query
+    const filteredCards = identifier
+      ? safeSetCards.filter((card) => {
+          // A supplied name validates the exact printing; it is never a fallback.
+          if (query && normalizeCardNameForLookup(card.name) !== query) return false;
+          if (card.id.toLowerCase() === identifier) return true;
+          if (!identifierParts) return false;
+          const [, set, number] = identifierParts;
+          return replayCatalogSetIds(card.metadata).includes(set)
+            && normalizeNumber(card.metadata.number ?? card.localId) === normalizeNumber(number);
+        })
+      : query
       ? safeSetCards.filter((card) => {
           const localId = card.localId.toLowerCase();
           const id = card.id.toLowerCase();
-          const name = card.name.toLowerCase();
+          const name = normalizeCardNameForLookup(card.name);
+          if (exactName) return name === query;
           return name.includes(query) || id.includes(query) || localId.includes(query);
         })
       : safeSetCards;

@@ -275,6 +275,7 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
   });
 
   const battleLog: BattleLog = {
+    sourceText: log,
     id,
     decklist_id: decklistId ?? null,
     format,

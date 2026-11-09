@@ -1,0 +1,130 @@
+Setup
+Bassoonboy135 chose tails for the opening coin flip.
+Oyauguru won the coin toss.
+Oyauguru decided to go second.
+Bassoonboy135 drew 7 cards for the opening hand.
+- 7 drawn cards.
+   • (sm5_166) Crushing Hammer, (sv6_200) Dragapult ex, (swsh9_186) Ultra Ball, (sv6_223) Buddy-Buddy Poffin, (sv8-5_72_ph) Drakloak, (sv8_251) Night Stretcher, (sv3_230) Basic Fire Energy
+Oyauguru drew 7 cards for the opening hand.
+- 7 drawn cards.
+Bassoonboy135 took a mulligan.
+- Cards revealed from Mulligan 1
+   • (sm5_166) Crushing Hammer, (sv6_200) Dragapult ex, (swsh9_186) Ultra Ball, (sv6_223) Buddy-Buddy Poffin, (sv8-5_72_ph) Drakloak, (sv8_251) Night Stretcher, (sv3_230) Basic Fire Energy
+Oyauguru took 2 mulligans.
+- Cards revealed from Mulligan 1
+   • (me3_113) Poké Pad, (me3_113) Poké Pad, (sm1_162) Basic Psychic Energy, (sm5_166) Crushing Hammer, (sv8_251) Night Stretcher, (sm1_162) Basic Psychic Energy, (sv6_223) Buddy-Buddy Poffin
+- Cards revealed from Mulligan 2
+   • (me1_127) Risky Ruins, (me1_127) Risky Ruins, (me1_184) Lillie's Determination, (sv8-5_165) Dragapult ex, (me4_113) Special Red Card, (sv8-5_165) Dragapult ex, (me2-5_248) Drakloak
+Oyauguru took 4 mulligans.
+- Cards revealed from Mulligan 3
+   • (sv6_223) Buddy-Buddy Poffin, (me3_123) Rosa's Encouragement, (me1_127) Risky Ruins, (swsh9_186) Ultra Ball, (me2-5_248) Drakloak, (me1_184) Lillie's Determination, (sv8-5_80_mph) Dudunsparce
+- Cards revealed from Mulligan 4
+   • (sv7_164) Crispin, (sv6_223) Buddy-Buddy Poffin, (sm5_166) Crushing Hammer, (sv8-5_165) Dragapult ex, (swsh2_189) Boss's Orders, (sv6_165) Unfair Stamp, (me3_113) Poké Pad
+Bassoonboy135 drew 3 more cards because Oyauguru took at least 1 mulligan.
+- Bassoonboy135 drew 3 cards.
+   • (sv6_223) Buddy-Buddy Poffin, (me3_123) Rosa's Encouragement, (me1_184) Lillie's Determination
+Bassoonboy135 played (sv6-5_72) Munkidori to the Active Spot.
+Oyauguru played (me2-5_288) Fezandipiti ex to the Active Spot.
+
+Bassoonboy135's Turn
+Bassoonboy135 drew (sv8-5_171) Crispin.
+Bassoonboy135 played (sv6_223) Buddy-Buddy Poffin.
+- Bassoonboy135 drew 2 cards and played them to the Bench.
+   • (me2-5_158) Dreepy, (me2-5_158) Dreepy
+- Bassoonboy135 shuffled their deck.
+Bassoonboy135 played (me3_81_ph) Poké Pad.
+- Bassoonboy135 drew (sv8-5_4_mph) Budew.
+- Bassoonboy135 shuffled their deck.
+Bassoonboy135 played (me3_81_ph) Poké Pad.
+- Bassoonboy135 drew (me2-5_159) Drakloak.
+- Bassoonboy135 shuffled their deck.
+Bassoonboy135 ended their turn.
+
+Oyauguru's Turn
+Oyauguru drew a card.
+Oyauguru played (me3_113) Poké Pad.
+- Oyauguru drew (me2-5_247) Dreepy.
+- Oyauguru shuffled their deck.
+Oyauguru played (me2-5_247) Dreepy to the Bench.
+Oyauguru attached (sm3_167) Basic Fire Energy to (me2-5_288) Fezandipiti ex in the Active Spot.
+Oyauguru played (me1_184) Lillie's Determination.
+- Oyauguru shuffled 4 cards into their deck.
+- Oyauguru drew 8 cards.
+Oyauguru played (sv6_223) Buddy-Buddy Poffin.
+- Oyauguru drew 2 cards and played them to the Bench.
+   • (me2-5_247) Dreepy, (me2-5_247) Dreepy
+- Oyauguru shuffled their deck.
+Oyauguru played (me2-5_221) Budew to the Bench.
+Oyauguru played (me3_113) Poké Pad.
+- Oyauguru drew (me2-5_248) Drakloak.
+- Oyauguru shuffled their deck.
+Oyauguru retreated (me2-5_288) Fezandipiti ex to the Bench.
+- (sm3_167) Basic Fire Energy was discarded from Oyauguru's (me2-5_288) Fezandipiti ex.
+Oyauguru's (me2-5_221) Budew is now in the Active Spot.
+Oyauguru's (me2-5_221) Budew used Itchy Pollen on Bassoonboy135’s (sv6-5_72) Munkidori for 10 damage.
+
+Bassoonboy135's Turn
+Bassoonboy135 drew (sv6_165) Unfair Stamp.
+Bassoonboy135 played (me1_127) Risky Ruins to the Stadium spot.
+Bassoonboy135 evolved (me2-5_158) Dreepy to (me2-5_159) Drakloak on the Bench.
+Bassoonboy135 played (sv8-5_4_mph) Budew to the Bench.
+Risky Ruins was activated.
+- Bassoonboy135 put 2 damage counters on Bassoonboy135's (sv8-5_4_mph) Budew.
+Bassoonboy135 played (sv8-5_171) Crispin.
+- Bassoonboy135 drew (sv3_230) Basic Fire Energy.
+- Bassoonboy135 attached (sm3_168) Basic Darkness Energy to (sv6-5_72) Munkidori in the Active Spot.
+- Bassoonboy135 shuffled their deck.
+Bassoonboy135 attached (sv3_230) Basic Fire Energy to (me2-5_159) Drakloak on the Bench.
+Bassoonboy135's (sv6-5_72) Munkidori used Adrena-Brain.
+- Bassoonboy135 moved 2 damage counters from Bassoonboy135's (sv8-5_4_mph) Budew to Bassoonboy135's (me2-5_221) Budew.
+Bassoonboy135's (me2-5_159) Drakloak used Recon Directive.
+- Bassoonboy135 drew (me2-5_158) Dreepy.
+Bassoonboy135 played (me2-5_158) Dreepy to the Bench.
+Risky Ruins was activated.
+- Bassoonboy135 put 2 damage counters on Bassoonboy135's (me2-5_158) Dreepy.
+Bassoonboy135 retreated (sv6-5_72) Munkidori to the Bench.
+- (sm3_168) Basic Darkness Energy was discarded from Bassoonboy135's (sv6-5_72) Munkidori.
+Bassoonboy135's (sv8-5_4_mph) Budew is now in the Active Spot.
+Bassoonboy135's (sv8-5_4_mph) Budew used Itchy Pollen on Oyauguru’s (me2-5_221) Budew for 10 damage.
+Oyauguru's (me2-5_221) Budew was Knocked Out!
+Bassoonboy135 took a Prize card.
+(sm3_168) Basic Darkness Energy was added to Bassoonboy135's hand.
+Oyauguru's (me2-5_247) Dreepy is now in the Active Spot.
+
+Oyauguru's Turn
+Oyauguru drew a card.
+Oyauguru's (me2-5_288) Fezandipiti ex used Flip the Script.
+- Oyauguru drew 3 cards.
+Oyauguru evolved (me2-5_247) Dreepy to (me2-5_248) Drakloak on the Bench.
+Oyauguru's (me2-5_248) Drakloak used Recon Directive.
+- Oyauguru drew a card.
+Oyauguru evolved (me2-5_247) Dreepy to (me2-5_248) Drakloak on the Bench.
+Oyauguru's (me2-5_248) Drakloak used Recon Directive.
+- Oyauguru drew a card.
+Oyauguru played (sv7_164) Crispin.
+- Oyauguru drew (sm3_168) Basic Darkness Energy.
+- Oyauguru attached (sm1_162) Basic Psychic Energy to (me2-5_247) Dreepy in the Active Spot.
+- Oyauguru shuffled their deck.
+Oyauguru attached (sm3_167) Basic Fire Energy to (me2-5_247) Dreepy in the Active Spot.
+Oyauguru's (me2-5_247) Dreepy used Bite on Bassoonboy135’s (sv8-5_4_mph) Budew for 40 damage.
+Bassoonboy135's (sv8-5_4_mph) Budew was Knocked Out!
+Oyauguru took a Prize card.
+A card was added to Oyauguru's hand.
+Bassoonboy135's (me2-5_159) Drakloak is now in the Active Spot.
+
+Bassoonboy135's Turn
+Bassoonboy135 drew (sv8_251) Night Stretcher.
+Bassoonboy135 attached (sm3_168) Basic Darkness Energy to (sv6-5_72) Munkidori on the Bench.
+Bassoonboy135 played (sv6_165) Unfair Stamp.
+- Bassoonboy135 shuffled 6 cards into their deck.
+   • (me1_184) Lillie's Determination, (sv2_265) Boss's Orders, (sv8-5_80_mph) Dudunsparce, (me3_123) Rosa's Encouragement, (me1_184) Lillie's Determination, (sv8_251) Night Stretcher
+- Oyauguru shuffled 10 cards into their deck.
+- Bassoonboy135 drew 5 cards.
+   • (me1_184) Lillie's Determination, (sv2_265) Boss's Orders, (me1_184) Lillie's Determination, (sv8-5_4_mph) Budew, (sv3_230) Basic Fire Energy
+- Oyauguru drew 2 cards.
+Bassoonboy135 played (me1_184) Lillie's Determination.
+- Bassoonboy135 shuffled 4 cards into their deck.
+   • (sv2_265) Boss's Orders, (me1_184) Lillie's Determination, (sv8-5_4_mph) Budew, (sv3_230) Basic Fire Energy
+- Bassoonboy135 drew 6 cards.
+   • (me3_123) Rosa's Encouragement, (me3_121) Meowth ex, (me3_113) Poké Pad, (me1_184) Lillie's Determination, (sv8_251) Night Stretcher, (sve_21_ph) Basic Psychic Energy
+Opponent conceded. Bassoonboy135 wins.

@@ -201,7 +201,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'created_at', direction: 'desc' });
+        set(battleLogsSortAtom, { field: 'created_at', direction: 'desc' } as const);
       });
 
       const sorted = snapshot.getLoadable(sortedBattleLogsSelector).getValue();
@@ -220,7 +220,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'created_at', direction: 'asc' });
+        set(battleLogsSortAtom, { field: 'created_at', direction: 'asc' } as const);
       });
 
       const sorted = snapshot.getLoadable(sortedBattleLogsSelector).getValue();
@@ -239,7 +239,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'format', direction: 'asc' });
+        set(battleLogsSortAtom, { field: 'format', direction: 'asc' } as const);
       });
 
       const sorted = snapshot.getLoadable(sortedBattleLogsSelector).getValue();
@@ -258,7 +258,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'archetype', direction: 'asc' });
+        set(battleLogsSortAtom, { field: 'archetype', direction: 'asc' } as const);
       });
 
       // Should not throw
@@ -276,7 +276,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'created_at', direction: 'desc' });
+        set(battleLogsSortAtom, { field: 'created_at', direction: 'desc' } as const);
         set(battleLogsPageAtom, 1);
         set(battleLogsPageSizeAtom, 10);
       });
@@ -297,7 +297,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'created_at', direction: 'asc' });
+        set(battleLogsSortAtom, { field: 'created_at', direction: 'asc' } as const);
         set(battleLogsPageAtom, 2);
         set(battleLogsPageSizeAtom, 10);
       });
@@ -315,7 +315,7 @@ describe('Battle Logs Selectors', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
         set(battleLogsAtom, logs);
         set(battleLogsFilterAtom, {});
-        set(battleLogsSortAtom, { field: 'created_at', direction: 'desc' });
+        set(battleLogsSortAtom, { field: 'created_at', direction: 'desc' } as const);
         set(battleLogsPageAtom, 3);
         set(battleLogsPageSizeAtom, 10);
       });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
 import useSWR from 'swr';
@@ -12,6 +12,9 @@ import { Sprite } from '@/components/archetype/sprites/Sprite';
 import { BattleLogCarousel } from './BattleLogCarousel';
 import { Notes } from '@/components/battle-logs/Notes/Notes';
 import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
+import { BattleLogReplayViewer } from '@/components/battle-logs/Replay/BattleLogReplayViewer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { T } from 'gt-react';
 import { HISTORICAL_SWR_OPTIONS } from '@/lib/swr-options';
 
 type LogRow = Database['public']['Tables']['logs']['Row'];
@@ -50,6 +53,16 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
       : HISTORICAL_SWR_OPTIONS
   );
 
+  const battleLog = useMemo(() => logData ? parseBattleLog(
+    logData.log,
+    logData.id,
+    logData.created_at,
+    logData.archetype,
+    logData.opp_archetype,
+    userData?.live_screen_name ?? null,
+    logData.format
+  ) : null, [logData, userData?.live_screen_name]);
+
   useEffect(() => {
     if (requireAuth && !authLoading && !user) {
       router.push('/login');
@@ -63,41 +76,49 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
   }, [isLoading, logData, router]);
 
   if (requireAuth && (authLoading || !user)) return null;
-  if (isLoading || !logData) return null;
-
-  const battleLog = parseBattleLog(
-    logData.log,
-    logData.id,
-    logData.created_at,
-    logData.archetype,
-    logData.opp_archetype,
-    userData?.live_screen_name ?? null,
-    logData.format
-  );
+  if (isLoading || !logData || !battleLog) return null;
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full sm:max-w-2xl mx-auto justify-between gap-2 p-4">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-evenly w-full">
-            <div className="flex items-center gap-2">
+    <div className="flex-1 flex min-w-0 flex-col w-full max-w-6xl gap-2">
+      <div className="flex min-w-0 flex-col gap-2">
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center justify-evenly gap-3 w-full">
+            <div className="flex min-w-0 items-center gap-2">
               <Sprite name={logData.archetype} />
-              <h2 className="text-xl font-semibold">{battleLog.players[0].name}</h2>
+              <h2 className="truncate text-sm font-semibold">{battleLog.players[0].name}</h2>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <Sprite name={logData.opp_archetype ? logData.opp_archetype : battleLog.players[1].deck} />
-              <h2 className="text-xl font-semibold">{battleLog.players[1].name}</h2>
+              <h2 className="truncate text-sm font-semibold">{battleLog.players[1].name}</h2>
             </div>
           </div>
-          <h3 className="text-sm text-muted-foreground">
+          <h3 className="text-[11px] text-muted-foreground">
             {formatDistanceToNowStrict(battleLog.date)} ago
           </h3>
         </div>
         {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
           <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
         )}
-        <div className="mt-6">
-          <BattleLogCarousel battleLog={battleLog} />
+        <div className="min-w-0">
+          <Tabs defaultValue="replay" className="w-full">
+            <TabsList>
+              <TabsTrigger value="replay">
+                <T id="battleLogs.replay.title">Replay (Beta)</T>
+              </TabsTrigger>
+              <TabsTrigger value="log">
+                <T id="battleLogs.replay.logView">Log</T>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="replay">
+              <BattleLogReplayViewer
+                battleLog={battleLog}
+                perspectivePlayerName={userData?.live_screen_name ?? battleLog.players[0].name}
+              />
+            </TabsContent>
+            <TabsContent value="log">
+              <BattleLogCarousel battleLog={battleLog} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

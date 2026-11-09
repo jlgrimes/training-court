@@ -28,6 +28,8 @@ export interface BattleLogAction {
 }
 
 export interface BattleLog {
+  /** Original import, retained for replay provenance. Optional for older records. */
+  sourceText?: string;
   language: Language;
   id: string;
   decklist_id?: string | null;
