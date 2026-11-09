@@ -5,7 +5,24 @@ const pngMap = {
   'bloodmoon ursaluna': 'ursaluna-bloodmoon',
   'origin forme dialga': 'dialga-origin',
   'origin forme palkia': 'palkia-origin',
-  'hisuian zoroark': 'zoroark-hisui'
+  'hisuian zoroark': 'zoroark-hisui',
+  "n's zoroark": 'zoroark',
+  'mega lopunny': 'lopunny-mega',
+  'mega excadrill': 'excadrill-mega',
+  'mega lucario': 'lucario-mega',
+  'mega sharpedo': 'sharpedo-mega',
+  'mega starmie': 'starmie-mega',
+  'mega absol': 'absol-mega',
+  "team rocket's mewtwo": 'mewtwo',
+  'greninja ex': 'greninja',
+  'mega greninja': 'greninja-mega',
+  'mega chandelure': 'chandelure-mega',
+  'mega kangaskhan': 'kangaskhan-mega',
+  'mega manectric': 'manectric-mega',
+  'mega venusaur': 'venusaur-mega',
+  'mega diancie': 'diancie-mega',
+  'mega darkrai': 'darkrai-mega',
+  'mega rayquaza': 'rayquaza-mega'
 };
 
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
