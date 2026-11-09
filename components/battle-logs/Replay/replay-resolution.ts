@@ -19,14 +19,15 @@ export class ReplayRuntime {
   private ordinal = 0;
   constructor(private plan: Plan, readonly rules: ReplayRules, readonly strict: boolean) {}
   enter(operation: ReplayOperation, frameIndex: number) { this.operation = operation; this.frameIndex = frameIndex; this.ordinal = 0; }
-  pick<T extends { id: string }>(candidates: T[], reason: string): T | undefined {
+  pick<T extends { id: string }>(candidates: T[], reason: ReplayDecision['reason']): T | undefined {
     if (!candidates.length) { this.report('missing-target', 'error'); return undefined; }
     if (candidates.length === 1) return candidates[0];
     const id = `${this.operation.id}:${this.ordinal++}:${reason}`;
     const selected = this.plan[id];
     if (!selected && this.strict) throw new Choice(id, candidates.map((candidate) => candidate.id));
     const result = candidates.find((candidate) => candidate.id === selected) ?? candidates[0];
-    this.decisions.push({ id, operationId: this.operation.id, frameIndex: this.frameIndex, candidates: candidates.map((candidate) => candidate.id), selected: result.id });
+    this.decisions.push({ id, operationId: this.operation.id, reason, operationKind: this.operation.kind, source: this.operation.source,
+      frameIndex: this.frameIndex, candidates: candidates.map((candidate) => candidate.id), selected: result.id });
     return result;
   }
   report(code: string, severity: 'warning' | 'error' = 'warning', entityIds?: string[]) {
@@ -105,6 +106,7 @@ export function resolveReplay(log: BattleLog, reconstruct: (runtime: ReplayRunti
       || pass.inferredFrames?.includes(index)
       || Object.values(pass.replay.frames[index].board.players).some((player) => player.hand.knownCards.some((card) => card.knowledge === 'inferred')));
     frame.assessment = {
+      possibleBoardCount: noWitness ? 0 : signatures.size,
       certainty: diagnostics.some((item) => item.severity === 'error' || /unsupported|search-limit/.test(item.code)) ? 'unsupported'
         : ambiguous ? 'ambiguous' : inferred ? 'inferred' : 'observed',
       representative: ambiguous || inconsistent || !complete,

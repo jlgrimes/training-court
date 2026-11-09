@@ -1,7 +1,47 @@
 'use client';
 
 import { T } from 'gt-react';
-import type { ReplayCertainty, ReplayFrame } from './battle-log-replay.types';
+import { ChevronDown, StickyNote } from 'lucide-react';
+import type { ReplayCertainty, ReplayDecision, ReplayFrame } from './battle-log-replay.types';
+
+function AmbiguityReason({ decision }: { decision: ReplayDecision }) {
+  if (decision.reason === 'attachment-source') return <T id="battleLogs.replay.evidence.reason.attachmentSource">The attachment source (hand, deck, or discard) cannot be determined from the log and supported rules.</T>;
+  if (decision.reason === 'shuffle-origin') return <T id="battleLogs.replay.evidence.reason.shuffleOrigin">The log does not distinguish whether the shuffled card came from the hand or the board.</T>;
+  if (decision.reason === 'ability-user') return <T id="battleLogs.replay.evidence.reason.ability">The log does not distinguish which Pokémon copy used the Ability.</T>;
+  if (decision.reason === 'promotion') return <T id="battleLogs.replay.evidence.reason.promotion">The log does not distinguish which Pokémon copy moved to the Active Spot.</T>;
+  if (decision.reason === 'remove' || decision.reason === 'shuffle-pokemon') return <T id="battleLogs.replay.evidence.reason.removal">The log does not distinguish which Pokémon copy left the board.</T>;
+  if (decision.operationKind === 'attachedMatch' || decision.operationKind === 'discardedFromMatch') return <T id="battleLogs.replay.evidence.reason.attachment">The log does not distinguish which Pokémon copy gained or lost the attached card.</T>;
+  if (decision.operationKind === 'evolvedMatch') return <T id="battleLogs.replay.evidence.reason.evolution">The log does not distinguish which Pokémon copy evolved.</T>;
+  if (decision.reason === 'stadium-target' || decision.reason === 'spread-target' || ['placedCounters', 'movedCounters', 'damageCounterMatch', 'attackMatch', 'healedMatch'].includes(decision.operationKind)) return <T id="battleLogs.replay.evidence.reason.damage">The log does not distinguish which Pokémon copy gained or lost damage.</T>;
+  return <T id="battleLogs.replay.evidence.reason.pokemon">The log does not distinguish which Pokémon copy was involved in this action.</T>;
+}
+
+export function ReplayAmbiguityNotice({ frame }: { frame: ReplayFrame }) {
+  const assessment = frame.assessment;
+  if (!assessment || assessment.possibleBoardCount < 2) return null;
+  // Multiple selections in one operation (for example, a damage transfer) share
+  // one explanation and source line.
+  const decisions = Array.from(new Map(assessment.decisions
+    .filter((decision) => decision.candidates.length > 1)
+    .map((decision) => [decision.operationId + ':' + decision.reason, decision])).values());
+  return (
+    <div role="status">
+      <details>
+        <summary>
+          <StickyNote size={14} aria-hidden="true" />
+          <T id="battleLogs.replay.evidence.possibleBoard">Multiple possible boards</T>
+          <ChevronDown size={12} aria-hidden="true" />
+        </summary>
+        <ul>
+          {decisions.map((decision) => <li key={decision.id}>
+            <AmbiguityReason decision={decision} />{' '}
+            <span><T id="battleLogs.replay.frame">Frame</T> {decision.frameIndex + 1}: {decision.source.raw}</span>
+          </li>)}
+        </ul>
+      </details>
+    </div>
+  );
+}
 
 export function ReplayCertaintyLabel({ certainty }: { certainty: ReplayCertainty }) {
   switch (certainty) {
@@ -29,7 +69,7 @@ export function ReplayEvidence({ frame }: { frame: ReplayFrame }) {
     <section className="mt-4 border-t pt-3 text-xs">
       <h3 className="font-semibold"><T id="battleLogs.replay.evidence.title">Reconstruction evidence</T></h3>
       <p className="mt-1"><ReplayCertaintyLabel certainty={assessment.certainty} /></p>
-      {assessment.representative && <p className="mt-1 text-amber-600"><T id="battleLogs.replay.evidence.representative">One possible board is shown. Individual copy placements may differ.</T></p>}
+      {assessment.possibleBoardCount > 1 && <p className="mt-1 text-amber-600"><T id="battleLogs.replay.evidence.representative">Multiple boards are possible. Individual copy placements may differ.</T></p>}
       {assessment.decisions.some((decision) => decision.candidates.length > 1) && <p className="mt-1"><T id="battleLogs.replay.evidence.alternatives">Multiple card assignments remain compatible with the log.</T></p>}
       {assessment.diagnostics.length > 0 && (
         <ul className="mt-2 grid gap-2">

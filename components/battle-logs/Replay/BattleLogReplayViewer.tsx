@@ -15,7 +15,7 @@ import { replayCardKey } from './card-identity';
 import type { ReplayCard, ReplayFrame } from "./battle-log-replay.types";
 import { ReplayBoard, type CatalogCard } from "./ReplayBoard";
 import styles from './ReplayViewer.module.css';
-import { ReplayEvidence, ReplayCertaintyLabel } from './ReplayEvidence';
+import { ReplayAmbiguityNotice, ReplayEvidence } from './ReplayEvidence';
 import { CARD_MOTION_DURATION, getCardMovements } from './card-motion';
 
 export { ReplayBoard } from "./ReplayBoard";
@@ -304,15 +304,10 @@ export function BattleLogReplayViewer({ battleLog, perspectivePlayerName }: Batt
             onChange={goToFrame}
           />
         </div>
-        <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
-          {currentFrame.assessment && <span role="status"><ReplayCertaintyLabel certainty={currentFrame.assessment.certainty} />
-            {currentFrame.assessment.representative && <> · <T id="battleLogs.replay.evidence.possibleBoard">One possible board</T></>}
-          </span>}
-        </div>
       </div>
 
       <ReplayBoard board={currentFrame.board} perspectivePlayer={replay.perspectivePlayer} cardsByKey={cardsByKey} motionFrame={motionFrame}
-        operations={currentFrame.operations} fit />
+        operations={currentFrame.operations} note={<ReplayAmbiguityNotice frame={currentFrame} />} fit />
 
       <Dialog.Root onOpenChange={(open) => { if (open) setIsPlaying(false); }}>
         <Dialog.Trigger asChild>

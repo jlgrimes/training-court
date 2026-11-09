@@ -18,7 +18,13 @@ it('retains attachment alternatives when the log does not identify an individual
   const frame = replay.frames[2];
   expect(frame.assessment?.certainty).toBe('ambiguous');
   expect(frame.assessment?.representative).toBe(true);
+  expect(frame.assessment?.possibleBoardCount).toBe(2);
+  expect(replay.frames[0].assessment?.possibleBoardCount).toBe(1);
   expect(frame.assessment?.decisions[0].candidates).toHaveLength(2);
+  expect(frame.assessment?.decisions[0]).toMatchObject({
+    reason: 'pokemon', operationKind: 'attachedMatch', frameIndex: 2,
+    source: { raw: 'You attached Basic Darkness Energy to Munkidori on the Bench.' },
+  });
   expect(frame.assessment?.ambiguousEntityIds).toHaveLength(2);
 });
 
@@ -47,6 +53,7 @@ it('applies per-copy ability constraints to three Munkidori and reports unsuppor
   actions.push(...Array.from({ length: 3 }, () => action("You's Munkidori used Adrena-Brain.")));
   const replay = buildBattleLogReplay(log(actions), undefined, { maxPasses: 128 });
   expect(replay.metadata?.search).toMatchObject({ complete: true, viable: 6 });
+  expect(replay.frames.at(-1)?.assessment?.possibleBoardCount).toBe(1);
   expect(replay.diagnostics?.some((item) => item.code === 'ability-requirement')).toBe(false);
   const unknown = buildBattleLogReplay(log([
     action('You played Dragapult ex to the Active Spot.'), action('You attached Mystery Energy to Dragapult ex in the Active Spot.'),
@@ -66,6 +73,7 @@ it('marks a bounded search incomplete without calling unexamined alternatives im
   expect(replay.diagnostics?.map((item) => item.code)).toContain('search-limit');
   expect(replay.diagnostics?.map((item) => item.code)).not.toContain('inconsistent-log');
   expect(replay.frames[2].assessment?.representative).toBe(true);
+  expect(replay.frames[2].assessment?.possibleBoardCount).toBe(0);
 });
 
 it('preserves original lines, operation operands, and deterministic version fingerprints', () => {

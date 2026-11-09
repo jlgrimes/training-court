@@ -151,11 +151,16 @@ export interface ReplayDecision {
   id: string;
   frameIndex: number;
   operationId: string;
+  reason: 'pokemon' | 'remove' | 'promotion' | 'ability-user' | 'shuffle-pokemon' | 'shuffle-origin' | 'attachment-source' | 'stadium-target' | 'spread-target';
+  operationKind: ReplayOperationKind;
+  source: ReplaySource;
   candidates: string[];
   selected: string;
 }
 export interface ReplayAssessment {
   certainty: ReplayCertainty;
+  /** Distinct boards found among viable reconstructions at this frame. */
+  possibleBoardCount: number;
   /** This board is one possible reconstruction, never a claim of exact copy placement. */
   representative: boolean;
   ambiguousEntityIds: string[];

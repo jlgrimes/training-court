@@ -22,14 +22,35 @@ it('keeps reconstruction evidence available without putting question marks on ca
     { title: 'You played Munkidori to the Bench.', details: [] },
     { title: 'You attached Basic Darkness Energy to Munkidori on the Bench.', details: [] },
   ])} />);
+  expect(screen.queryByRole('status')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'End' }));
-  expect(screen.getByRole('status').textContent).toContain('Ambiguous');
-  expect(screen.getByRole('status').textContent).toContain('One possible board');
+  const notice = screen.getByRole('status');
+  const board = screen.getByRole('region', { name: 'Replay board' });
+  expect(board.contains(notice)).toBe(true);
+  const note = notice.querySelector('details')!;
+  expect(note.hasAttribute('open')).toBe(false);
+  fireEvent.click(within(notice).getByText('Multiple possible boards'));
+  expect(note.hasAttribute('open')).toBe(true);
+  expect(notice.textContent).toContain('Multiple possible boards');
+  expect(notice.textContent).toContain('The log does not distinguish which Pokémon copy gained or lost the attached card.');
+  expect(notice.textContent).toContain('Frame 3: You attached Basic Darkness Energy to Munkidori on the Bench.');
   expect(screen.queryByText('?')).toBeNull();
   expect(document.querySelectorAll('[data-knowledge="ambiguous"]')).toHaveLength(0);
   fireEvent.click(screen.getByRole('button', { name: 'Action details' }));
   const dialog = screen.getByRole('dialog', { name: 'Current action' });
   expect(within(dialog).getByText('Multiple card assignments remain compatible with the log.')).toBeTruthy();
+});
+
+it('removes the board note when returning to a frame without ambiguity', () => {
+  render(<BattleLogReplayViewer battleLog={log([
+    { title: 'You played Munkidori to the Bench.', details: [] },
+    { title: 'You played Munkidori to the Bench.', details: [] },
+    { title: 'You attached Basic Darkness Energy to Munkidori on the Bench.', details: [] },
+  ])} />);
+  fireEvent.click(screen.getByRole('button', { name: 'End' }));
+  expect(within(screen.getByRole('region', { name: 'Replay board' })).getByRole('status')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  expect(screen.queryByRole('status')).toBeNull();
 });
 
 it('shows inferred hand cards without a knowledge checkbox', () => {
@@ -43,11 +64,29 @@ it('shows inferred hand cards without a knowledge checkbox', () => {
   expect(screen.queryByText('Show hand cards inferred from later actions')).toBeNull();
 });
 
+it.each([
+  ["You put 2 damage counters on You's Munkidori.", 'The log does not distinguish which Pokémon copy gained or lost damage.'],
+  ["You's Munkidori is now in the Active Spot.", 'The log does not distinguish which Pokémon copy moved to the Active Spot.'],
+])('explains the specific ambiguity for %s', (title, explanation) => {
+  render(<BattleLogReplayViewer battleLog={log([
+    { title: 'You played Munkidori to the Bench.', details: [] },
+    { title: 'You played Munkidori to the Bench.', details: [] },
+    { title, details: [] },
+    { title: 'You drew a card.', details: [] },
+  ])} />);
+  fireEvent.click(screen.getByRole('button', { name: 'End' }));
+  const notice = screen.getByRole('status');
+  expect(notice.textContent).toContain(explanation);
+  expect(notice.textContent).toContain(`Frame 3: ${title}`);
+  expect(notice.textContent).not.toContain('which Pokémon copy gained or lost the attached card');
+});
+
 it('exposes the unsupported line and its original location in the action review', () => {
   const input = log([{ title: 'An unfamiliar field effect changed all cards.', details: [] }]);
   input.sourceText = 'Setup\nAn unfamiliar field effect changed all cards.';
   render(<BattleLogReplayViewer battleLog={input} />);
-  expect(screen.getByRole('status').textContent).toBe('Partial reconstruction');
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByText('Partial reconstruction')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Action details' }));
   expect(screen.getByText('This line could not be reconstructed.')).toBeTruthy();
   expect(screen.getAllByText(/Line 2:/).length).toBeGreaterThan(0);

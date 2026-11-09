@@ -6,12 +6,23 @@
 .fitted .boardScroll { position: absolute; left: 0; top: 0; transform-origin: top left; }
 
 .boardScroll {
+  position: relative;
   overflow: hidden;
   border: 1px solid #cbd5d1;
   border-radius: 16px;
   background: #e8efeb;
   scrollbar-width: thin;
 }
+
+.boardNote { position: absolute; top: 10px; right: 12px; z-index: 3; max-width: min(340px, calc(100% - 24px)); color: #36534b; font-size: 11px; line-height: 1.5; }
+.boardNote details { overflow: hidden; border: 1px solid #b9cec3; border-radius: 8px; background: #f5faf6f5; box-shadow: 0 2px 8px #183c2914; }
+.boardNote summary { display: flex; align-items: center; gap: 6px; padding: 6px 9px; cursor: pointer; list-style: none; font-weight: 500; }
+.boardNote summary::-webkit-details-marker { display: none; }
+.boardNote summary:focus-visible { outline: 2px solid #3283a6; outline-offset: -2px; }
+.boardNote summary svg { flex-shrink: 0; }
+.boardNote details[open] summary svg:last-child { transform: rotate(180deg); }
+.boardNote ul { display: grid; gap: 8px; max-height: min(220px, 35cqh); overflow-y: auto; padding: 0 10px 10px; overflow-wrap: anywhere; }
+.boardNote li span { display: block; margin-top: 3px; font-size: 10px; }
 
 .surface {
   container-type: inline-size;

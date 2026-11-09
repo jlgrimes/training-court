@@ -194,13 +194,14 @@ function PlayerField({ player, isPerspective, handCount, displayDiscard, ...card
   );
 }
 
-export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false, motionFrame, operations }: {
+export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false, motionFrame, operations, note }: {
   board: ReplayBoardState;
   perspectivePlayer: string;
   cardsByKey: Record<string, CatalogCard | null>;
   fit?: boolean;
   motionFrame?: number;
   operations?: ReplayOperation[];
+  note?: ReactNode;
 }) {
   const gt = useGT();
   const [inspectedCard, setInspectedCard] = useState<ReplayCard | null>(null);
@@ -239,6 +240,7 @@ export function ReplayBoard({ board, perspectivePlayer, cardsByKey, fit = false,
         <div className={styles.scaledBoard} style={fit && layout ? { width: layout.width * layout.scale, height: layout.height * layout.scale } : undefined}>
           <div ref={canvasRef} className={styles.boardScroll} role="region" aria-label={gt('Replay board', { $id: 'battleLogs.replay.board' })}
             style={fit ? { width: layout?.width, transform: `scale(${layout?.scale ?? 1})`, visibility: layout ? 'visible' : 'hidden' } : undefined}>
+            {note && <div className={styles.boardNote}>{note}</div>}
             <div className={styles.surface}>
               {opponent && <PlayerField player={opponent} isPerspective={false} handCount={presentation?.hands[opponent.name]} displayDiscard={presentation?.discards[opponent.name]} {...cards} />}
               <div className={styles.centerLine}>
