@@ -301,5 +301,9 @@
   "battleLogs.notes.save": "Guardar",
   "battleLogs.notes.edit": "Editar notas",
   "battleLogs.replay.fullscreen": "Repetición a pantalla completa",
-  "battleLogs.replay.exitFullscreen": "Salir de pantalla completa"
+  "battleLogs.replay.exitFullscreen": "Salir de pantalla completa",
+  "battleLogs.input.selectPlayer": "¿Qué jugador eres?",
+  "battleLogs.input.playerPreference": "El nombre seleccionado se guardará en Preferencias cuando importes este registro.",
+  "battleLogs.input.selectPlayerPlaceholder": "Selecciona tu nombre",
+  "battleLogs.input.usernameUpdateFailed": "Tu registro se ha guardado, pero no se ha podido actualizar tu nombre de usuario. Actualízalo en Preferencias."
 }

@@ -301,5 +301,9 @@
   "battleLogs.notes.save": "Speichern",
   "battleLogs.notes.edit": "Notizen bearbeiten",
   "battleLogs.replay.fullscreen": "Wiedergabe im Vollbild",
-  "battleLogs.replay.exitFullscreen": "Vollbild beenden"
+  "battleLogs.replay.exitFullscreen": "Vollbild beenden",
+  "battleLogs.input.selectPlayer": "Welcher Spieler bist du?",
+  "battleLogs.input.playerPreference": "Dein ausgewählter Benutzername wird beim Import dieses Spielprotokolls in den Einstellungen gespeichert.",
+  "battleLogs.input.selectPlayerPlaceholder": "Wähle deinen Benutzernamen",
+  "battleLogs.input.usernameUpdateFailed": "Dein Spielprotokoll wurde gespeichert, aber dein Benutzername konnte nicht aktualisiert werden. Bitte ändere ihn in den Einstellungen."
 }

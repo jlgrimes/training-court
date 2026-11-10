@@ -15,8 +15,9 @@ export const ScreenNameEditable = ({ userId }: { userId: string }) => {
   const [screenNameValue, setScreenNameValue] = useState('');
 
   const upsertScreenName = useCallback(async () => {
+    if (!screenNameValue.trim()) return;
     const supabase = createClient();
-    await supabase.from('user data').upsert({ id: userId, live_screen_name: screenNameValue });
+    await supabase.from('user data').upsert({ id: userId, live_screen_name: screenNameValue.trim() });
     window.location.href = '/home';
   }, [screenNameValue]);
 
@@ -24,7 +25,7 @@ export const ScreenNameEditable = ({ userId }: { userId: string }) => {
     return (
       <div className="flex w-full max-w-sm items-center space-x-2 gap-2">
         <Input autoFocus value={screenNameValue} onChange={(e) => setScreenNameValue(e.target.value)} placeholder="Name must be an EXACT match" />
-        <Button disabled={screenNameValue.length === 0} onClick={() => upsertScreenName()}>Submit</Button>
+        <Button disabled={!screenNameValue.trim()} onClick={() => upsertScreenName()}>Submit</Button>
       </div>
     )
   }

@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { LogPageClient } from "@/components/battle-logs/BattleLogDisplay/LogPageClient";
-import { parseBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
+import { parseStoredBattleLog } from "@/components/battle-logs/utils/battle-log.utils";
 import { Database } from "@/database.types";
 import { createClient } from "@/utils/supabase/server";
 import { Metadata } from "next";
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     title: 'Battle'
   };
 
-  const battleLog = parseBattleLog(logData.log, logData.id, logData.created_at, logData.archetype, logData.opp_archetype, null, logData.format);
+  const battleLog = parseStoredBattleLog(logData);
 
   return {
     title: `${battleLog.players[0].name} vs ${battleLog.players[1].name}`

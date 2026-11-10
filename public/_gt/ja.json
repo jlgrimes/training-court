@@ -301,5 +301,9 @@
   "battleLogs.notes.save": "保存",
   "battleLogs.notes.edit": "メモを編集",
   "battleLogs.replay.fullscreen": "リプレイを全画面表示",
-  "battleLogs.replay.exitFullscreen": "全画面表示を終了"
+  "battleLogs.replay.exitFullscreen": "全画面表示を終了",
+  "battleLogs.input.selectPlayer": "あなたはどちらのプレイヤーですか？",
+  "battleLogs.input.playerPreference": "このログをインポートすると、選択したユーザー名が設定に保存されます。",
+  "battleLogs.input.selectPlayerPlaceholder": "ユーザー名を選択",
+  "battleLogs.input.usernameUpdateFailed": "ログは保存されましたが、ユーザー名を更新できませんでした。設定で更新してください。"
 }
