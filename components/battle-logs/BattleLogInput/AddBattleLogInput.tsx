@@ -1,5 +1,8 @@
 'use client';
 
+import { useSetRecoilState } from 'recoil';
+import { userDataAtom } from '@/app/recoil/atoms/user';
+import { samePtcglUsername } from '@/lib/ptcgl-username';
 import { track } from '@vercel/analytics';
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -47,7 +50,30 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   const [archetype, setArchetype] = useState<string | undefined>();
   const [oppArchetype, setOppArchetype] = useState<string | undefined>();
   const [decklistId, setDecklistId] = useState<string | null>(null);
+  const setUserData = useSetRecoilState(userDataAtom);
+  const [playerNames, setPlayerNames] = useState<string[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [needsSelection, setNeedsSelection] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const username = props.userData?.live_screen_name;
+  const [lastSavedUsername, setLastSavedUsername] = useState<string>();
+  useEffect(() => { setLastSavedUsername(undefined); }, [username, props.userData?.id]);
+
+  const reviewLog = (text: string) => {
+    const parsed = parseBattleLog(text, '', '', '', '', null);
+    const names = parsed.players.map((player) => player.name);
+    const match = names.find((name) => samePtcglUsername(name, lastSavedUsername ?? username)) ?? '';
+    setPlayerNames(names);
+    setSelectedPlayer(match);
+    setNeedsSelection(!match);
+    setParsedLogDetails(getBattleLogMetadataFromLog(parsed, match));
+    setShowDialog(true);
+  };
+
+  const selectPlayer = (name: string) => {
+    setSelectedPlayer(name);
+    setParsedLogDetails(getBattleLogMetadataFromLog(parseBattleLog(log, '', '', '', '', null), name));
+  };
   const { toast } = useToast();
   const gt = useGT();
 
@@ -64,13 +90,11 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = event.clipboardData.getData('Text');
+    event.preventDefault();
     setLog(pastedText);
 
     try {
-      const parsedLog = parseBattleLog(pastedText, '', '', '', '', null);
-      const details = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
-      setParsedLogDetails(details);
-      setShowDialog(true);
+      reviewLog(pastedText);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -87,6 +111,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
   };
 
   const handleAddButtonClick = async () => {
+    if (isSaving || !selectedPlayer || !props.userData?.id) return;
     let parsedLog;
     try {
       parsedLog = parseBattleLog(log, '', '', '', '', null);
@@ -101,36 +126,64 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
 
     const supabase = createClient();
 
-    const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, props.userData?.live_screen_name);
-
-    const { data, error } = await supabase.from('logs').insert({
-      user: props.userData?.id ?? null,
-      archetype,
-      opp_archetype: oppArchetype,
-      decklist_id: decklistId,
-      log,
-      turn_order,
-      result,
-      format
-    }).select().returns<Database['public']['Tables']['logs']['Row'][]>();
-
-    if (error || !data) {
-      return toast({
+    const { turn_order, result } = getBattleLogMetadataFromLog(parsedLog, selectedPlayer);
+    if (!result || !turn_order) return;
+    setIsSaving(true);
+    let saved: BattleLog;
+    try {
+      const { data, error } = await supabase.from('logs').insert({
+        user: props.userData.id,
+        archetype: archetype ?? null,
+        opp_archetype: oppArchetype ?? null,
+        decklist_id: decklistId,
+        log,
+        turn_order,
+        result,
+        format: format || 'Standard',
+      }).select().single();
+      if (error || !data) throw error ?? new Error('Import failed');
+      saved = data;
+    } catch (error) {
+      toast({
         variant: "destructive",
         title: gt("Uh oh! Something went wrong.", { $id: "common.errorTitle" }),
-        description: error?.message ?? 'Insert failed',
+        description: error instanceof Error ? error.message : String((error as { message?: string })?.message ?? error),
+      });
+      setIsSaving(false);
+      return;
+    }
+
+    const trimmedUsername = selectedPlayer.trim();
+    let usernameSaved = false;
+    try {
+      const { data, error } = await supabase.from('user data')
+        .update({ live_screen_name: trimmedUsername })
+        .eq('id', props.userData.id)
+        .select('id')
+        .single();
+      if (error || !data) throw error ?? new Error('Preferences update failed');
+      usernameSaved = true;
+      setLastSavedUsername(trimmedUsername);
+      setUserData((current) => current && current.id === props.userData?.id
+        ? { ...current, live_screen_name: trimmedUsername }
+        : !current && props.userData ? { ...props.userData, live_screen_name: trimmedUsername } : current);
+    } catch {
+      toast({
+        variant: "destructive",
+        title: gt("Your log was saved, but your username couldn't be updated. Please update it in Preferences.", { $id: "battleLogs.input.usernameUpdateFailed" }),
       });
     }
 
-    const saved = data[0];
-    props.onLogAdded?.(saved);
-
-    track('Import battle log');
-    toast({ title: gt("Battle log successfully imported!", { $id: "battleLogs.input.importSuccess" }) });
-
+    // The log is already saved even if updating Preferences failed. Close the review
+    // so retrying the username update cannot insert the same log again.
+    setIsSaving(false);
     setLog('');
     setParsedLogDetails(null);
     setShowDialog(false);
+    props.onLogAdded?.(saved);
+    track('Import battle log');
+    if (usernameSaved) toast({ title: gt("Battle log successfully imported!", { $id: "battleLogs.input.importSuccess" }) });
+
     if (format) Cookies.set("format", format, { expires: 30 });
   };
 
@@ -140,7 +193,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
     <div className="relative">
       <Textarea
         className="resize-none"
-        disabled={!props.userData?.live_screen_name}
+        disabled={!props.userData?.id}
         placeholder={gt("Paste PTCGL log here", { $id: "battleLogs.input.placeholder" })}
         value={log}
         onPaste={handlePaste}
@@ -149,6 +202,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
       {!log &&
       <Button
       size="sm"
+      disabled={!props.userData?.id}
       className="absolute top-2 right-2 z-10"
       onClick={async () => {
           try {
@@ -162,10 +216,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
             }
 
             setLog(text);
-            const parsed = parseBattleLog(text, '', '', '', '', null);
-            const details = getBattleLogMetadataFromLog(parsed, props.userData?.live_screen_name);
-            setParsedLogDetails(details);
-            setShowDialog(true);
+            reviewLog(text);
           } catch (error) {
             toast({
               variant: "destructive",
@@ -191,7 +242,7 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
         </Button>
       )}
       
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <Dialog open={showDialog} onOpenChange={(open) => { if (!isSaving) setShowDialog(open); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle><T id="battleLogs.input.reviewTitle">Review Battle Log</T></DialogTitle>
@@ -199,7 +250,17 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
               <T id="battleLogs.input.reviewDescription">Below is the parsed information from your battle log. Confirm to add this result to your logs.</T>
             </DialogDescription>
           </DialogHeader>
-          {(parsedLogDetails && (
+          {needsSelection && (
+            <div className="space-y-2">
+              <Label htmlFor="log-player"><T id="battleLogs.input.selectPlayer">Which player are you?</T></Label>
+              <p className="text-sm text-muted-foreground"><T id="battleLogs.input.playerPreference">Your selected username will be saved to Preferences when you import this log.</T></p>
+              <Select value={selectedPlayer} onValueChange={selectPlayer} disabled={isSaving}>
+                <SelectTrigger id="log-player"><SelectValue placeholder={gt("Select your username", { $id: "battleLogs.input.selectPlayerPlaceholder" })} /></SelectTrigger>
+                <SelectContent>{playerNames.map((name) => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          )}
+          {(selectedPlayer && parsedLogDetails && (
             <>
                 <Label><T id="battleLogs.input.yourDeck">Your deck</T></Label>
                 <AddArchetype archetype={archetype} setArchetype={setArchetype} />
@@ -237,14 +298,20 @@ export const AddBattleLogInput = (props: AddBattleLogInputProps) => {
                   </SelectContent>
                 </Select>
 
-              {/* @TODO: Should we be able to toggle who won or lost? How much should a user be able to adjust against our parsing algo? */}
-              <Label><T id="battleLogs.input.result">Result:</T> {parsedLogDetails.result}</Label>
+
+              <div className={`w-full rounded-md px-4 py-3 text-sm font-semibold ${
+                parsedLogDetails.result === 'W'
+                  ? 'bg-emerald-100 text-black dark:bg-emerald-900 dark:text-white'
+                  : 'bg-red-100 text-black dark:bg-red-900 dark:text-white'
+              }`}>
+                <T id="battleLogs.input.result">Result:</T> {parsedLogDetails.result}
+              </div>
             </>
             )
           )}
           <DialogFooter className="mt-4">
-            <Button variant="secondary" onClick={() => setShowDialog(false)}><T id="common.close">Close</T></Button>
-            <Button onClick={handleAddButtonClick}><T id="common.confirm">Confirm</T></Button>
+            <Button disabled={isSaving} variant="secondary" onClick={() => setShowDialog(false)}><T id="common.close">Close</T></Button>
+            <Button disabled={isSaving || !selectedPlayer || !parsedLogDetails?.result} onClick={handleAddButtonClick}><T id="common.confirm">Confirm</T></Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

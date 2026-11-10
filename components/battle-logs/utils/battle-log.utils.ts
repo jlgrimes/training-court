@@ -1,7 +1,19 @@
+import { samePtcglUsername } from "@/lib/ptcgl-username";
 import { BattleLogDetectedStrings, detectBattleLogLanguage, determineWinnerFromLine, getPlayerNameFromSetup, getPlayerNameFromTurnLine, getPrizesTakenFromLine, Language } from "@/lib/i18n/battle-log";
 import { determineArchetype } from "../../archetype/utils/archetype.utils";
 import { BattleLog, BattleLogAction, BattleLogPlayer, BattleLogTurn } from "./battle-log.types";
 import type { BattleLogListRecord } from "@/app/recoil/atoms/battle-logs";
+import type { Database } from "@/database.types";
+
+/** The verified stored result identifies the owner's side independently of Preferences. */
+export function parseStoredBattleLog(row: Database['public']['Tables']['logs']['Row'], fallbackName: string | null = null) {
+  const parsed = parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, null, row.format, row.decklist_id);
+  const playerName = (row.result === 'W' || row.result === 'L'
+      ? parsed.players.find((player) => player.result === row.result)?.name
+      : null)
+    ?? fallbackName;
+  return parseBattleLog(row.log, row.id, row.created_at, row.archetype, row.opp_archetype, playerName, row.format, row.decklist_id);
+}
 
 export function trimBattleLog(log: string): string[] {
   return log.split('\n').reduce((acc: string[], curr: string) => {
@@ -13,11 +25,11 @@ export function trimBattleLog(log: string): string[] {
 export function getPlayerNames(log: string[], language: Language): string[] {
   const playerNames = log.reduce((acc: string[], curr: string) => {
     const playerName = getPlayerNameFromSetup(curr, language)?.trim();
-    
+
     if (playerName && !acc.includes(playerName)) {
       return [...acc, playerName];
     }
-    
+
     return acc;
   }, []);
 
@@ -229,7 +241,7 @@ const shouldReversePlayers = (currentScreenName: string | null, playerNames: str
   // because it doesn't matter
   if (!currentScreenName) return false;
 
-  if (playerNames[1].toLowerCase() === currentScreenName.toLowerCase()) return true;
+  if (samePtcglUsername(playerNames[1], currentScreenName)) return true;
 
   return false;
 };
@@ -249,26 +261,26 @@ export function parseBattleLog(log: string, id: string, created_at: string, user
   const winner = determineWinner(cleanedLog, language);
 
   const playerDecks: { [key: string]: string } = {
-    [playerNames[0]]: (currentUserScreenName && playerNames[0].toLowerCase() === currentUserScreenName.toLowerCase()) 
+    [playerNames[0]]: (currentUserScreenName && samePtcglUsername(playerNames[0], currentUserScreenName))
       ? (user_entered_archetype || determineArchetype(cleanedLog, playerNames[0], language) || "")
       : (determineArchetype(cleanedLog, playerNames[0], language) || ""),
-      
-    [playerNames[1]]: (currentUserScreenName && playerNames[1].toLowerCase() === currentUserScreenName.toLowerCase()) 
+
+    [playerNames[1]]: (currentUserScreenName && samePtcglUsername(playerNames[1], currentUserScreenName))
       ? (opp_archetype || determineArchetype(cleanedLog, playerNames[1], language) || "")
       : (determineArchetype(cleanedLog, playerNames[1], language) || ""),
   };
 
   const players: BattleLogPlayer[] = playerNames.map((player, index) => {
-    const isCurrentUser = currentUserScreenName && player.toLowerCase() === currentUserScreenName.toLowerCase();
+    const isCurrentUser = currentUserScreenName && samePtcglUsername(player, currentUserScreenName);
     const opponentIndex = index === 0 ? 1 : 0;
 
     return {
       name: player,
-      deck: isCurrentUser && user_entered_archetype 
-        ? user_entered_archetype 
+      deck: isCurrentUser && user_entered_archetype
+        ? user_entered_archetype
         : determineArchetype(cleanedLog, player, language),
-      oppDeck: isCurrentUser 
-        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)) 
+      oppDeck: isCurrentUser
+        ? (opp_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language))
         : (user_entered_archetype || determineArchetype(cleanedLog, playerNames[opponentIndex], language)),
       result: winner.toLowerCase() === player.toLowerCase() ? 'W' : 'L',
     };

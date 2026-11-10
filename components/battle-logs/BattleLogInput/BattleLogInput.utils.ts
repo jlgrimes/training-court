@@ -1,7 +1,8 @@
+import { samePtcglUsername } from "@/lib/ptcgl-username";
 import { BattleLog } from "../utils/battle-log.types";
 
 export const getBattleLogMetadataFromLog = (log: BattleLog, screenName: string | null | undefined) => {
-  if (!screenName) {
+  if (!log.players.some((player) => samePtcglUsername(player.name, screenName))) {
     return {
       archetype: null,
       opp_archetype: null,
@@ -10,13 +11,13 @@ export const getBattleLogMetadataFromLog = (log: BattleLog, screenName: string |
     }
   }
 
-  const me = log.players.find((player) => player.name.toLowerCase() === screenName.toLowerCase());
-  const opp = log.players.find((player) => player.name.toLowerCase() !== screenName.toLowerCase());
+  const me = log.players.find((player) => samePtcglUsername(player.name, screenName));
+  const opp = log.players.find((player) => !samePtcglUsername(player.name, screenName));
 
   const myDeck = me?.deck ?? null;
   const oppDeck = opp?.deck ?? null;
-  const turnOrder = log.sections[1].player.toLowerCase() === screenName.toLowerCase() ? '1' : '2';
-  const result = log.winner.toLowerCase() === screenName.toLowerCase() ? 'W' : 'L';
+  const turnOrder = samePtcglUsername(log.sections[1]?.player, screenName) ? '1' : '2';
+  const result = samePtcglUsername(log.winner, screenName) ? 'W' : 'L';
 
   return {
     archetype: myDeck,

@@ -301,5 +301,9 @@
   "battleLogs.notes.save": "Enregistrer",
   "battleLogs.notes.edit": "Modifier les notes",
   "battleLogs.replay.fullscreen": "Rediffusion en plein écran",
-  "battleLogs.replay.exitFullscreen": "Quitter le plein écran"
+  "battleLogs.replay.exitFullscreen": "Quitter le plein écran",
+  "battleLogs.input.selectPlayer": "Quel joueur êtes-vous ?",
+  "battleLogs.input.playerPreference": "Le nom sélectionné sera enregistré dans les préférences lorsque vous importerez ce journal.",
+  "battleLogs.input.selectPlayerPlaceholder": "Sélectionnez votre nom",
+  "battleLogs.input.usernameUpdateFailed": "Votre journal a été enregistré, mais votre nom d’utilisateur n’a pas pu être mis à jour. Veuillez le modifier dans les préférences."
 }

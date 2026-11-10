@@ -9,7 +9,10 @@ import { battleLogConcessionReported } from '@/components/battle-logs/utils/test
 import type { Database } from '@/database.types';
 
 const mockInsert = jest.fn();
-const mockFrom = jest.fn();
+const mockUpdate = jest.fn();
+const mockFrom = jest.fn((table: string) => table === 'logs'
+  ? { insert: (payload: unknown) => ({ select: () => ({ single: () => mockInsert(payload) }) }) }
+  : { update: (payload: unknown) => ({ eq: (key: string, id: string) => ({ select: () => ({ single: () => mockUpdate(payload, key, id) }) }) }) });
 const mockToast = jest.fn();
 
 jest.mock('../../utils/supabase/client', () => ({
@@ -19,6 +22,8 @@ jest.mock('../../utils/supabase/client', () => ({
 jest.mock('../../components/ui/use-toast', () => ({
   useToast: () => ({ toast: mockToast }),
 }));
+
+jest.mock('recoil', () => ({ useSetRecoilState: () => jest.fn(), atom: (v: unknown) => v }));
 
 jest.mock('@vercel/analytics', () => ({ track: jest.fn() }));
 jest.mock('js-cookie', () => ({ get: jest.fn(), set: jest.fn() }));
@@ -68,15 +73,11 @@ describe.each(concessionLogs)('concession imports: $language', ({ log, winner, l
   beforeEach(() => {
     jest.clearAllMocks();
     window.localStorage.clear();
-    mockFrom.mockReturnValue({ insert: mockInsert });
-    mockInsert.mockImplementation((payload) => ({
-      select: () => ({
-        returns: () => Promise.resolve({
-          data: [{ id: 'saved-log', created_at: '2026-01-01T00:00:00.000Z', ...payload }],
-          error: null,
-        }),
-      }),
+    mockInsert.mockImplementation((payload) => Promise.resolve({
+      data: { id: 'saved-log', created_at: '2026-01-01T00:00:00.000Z', ...payload },
+      error: null,
     }));
+    mockUpdate.mockResolvedValue({ data: { id: 'user-1' }, error: null });
   });
 
   it.each([
@@ -105,7 +106,6 @@ describe.each(concessionLogs)('concession imports: $language', ({ log, winner, l
     await waitFor(() => expect(onLogAdded).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'saved-log', result, log })
     ));
-    expect(mockFrom).toHaveBeenCalledWith('logs');
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({
       user: 'user-1',

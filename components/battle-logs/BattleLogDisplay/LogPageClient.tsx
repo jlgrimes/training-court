@@ -11,7 +11,7 @@ import { Database } from '@/database.types';
 import { Sprite } from '@/components/archetype/sprites/Sprite';
 import { BattleLogCarousel } from './BattleLogCarousel';
 import { Notes } from '@/components/battle-logs/Notes/Notes';
-import { parseBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
+import { parseStoredBattleLog } from '@/components/battle-logs/utils/battle-log.utils';
 import { BattleLogReplayViewer } from '@/components/battle-logs/Replay/BattleLogReplayViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { T } from 'gt-react';
@@ -53,15 +53,9 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
       : HISTORICAL_SWR_OPTIONS
   );
 
-  const battleLog = useMemo(() => logData ? parseBattleLog(
-    logData.log,
-    logData.id,
-    logData.created_at,
-    logData.archetype,
-    logData.opp_archetype,
-    userData?.live_screen_name ?? null,
-    logData.format
-  ) : null, [logData, userData?.live_screen_name]);
+  const battleLog = useMemo(() => logData
+    ? parseStoredBattleLog(logData, userData?.live_screen_name ?? null)
+    : null, [logData, userData?.live_screen_name]);
 
   useEffect(() => {
     if (requireAuth && !authLoading && !user) {
@@ -96,7 +90,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
             {formatDistanceToNowStrict(battleLog.date)} ago
           </h3>
         </div>
-        {user && userData?.live_screen_name && (userData.live_screen_name === battleLog.players[0].name) && (
+        {user && (user.id === logData.user) && (
           <Notes logId={logData.id} serverLoadedNotes={logData.notes} />
         )}
         <div className="min-w-0">
@@ -112,7 +106,7 @@ export function LogPageClient({ logId, requireAuth = false, initialLog }: LogPag
             <TabsContent value="replay">
               <BattleLogReplayViewer
                 battleLog={battleLog}
-                perspectivePlayerName={userData?.live_screen_name ?? battleLog.players[0].name}
+                perspectivePlayerName={battleLog.players[0].name}
               />
             </TabsContent>
             <TabsContent value="log">

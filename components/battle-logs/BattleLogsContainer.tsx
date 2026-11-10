@@ -172,7 +172,7 @@ export function BattleLogsContainer({
   return (
     <div className="grid grid-cols-1 gap-8">
       <div className="flex flex-col gap-4">
-        {userData?.live_screen_name && (
+        {userData?.id && (
           <AddBattleLogInput userData={userData} onLogAdded={handleLogAdded} />
         )}
 
