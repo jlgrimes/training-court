@@ -90,4 +90,18 @@ describe('archetype utils', () => {
     expect(determineArchetype([kang, ray], 'comp0cker', 'en')).toEqual('rayquaza-mega');
     expect(determineArchetype([kang], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
   });
+
+  it('Talonflame Dusknoir matches only when both cards are in the log, in either order', () => {
+    const talon = 'comp0cker played Talonflame ex to the Bench.';
+    const dusk = 'comp0cker evolved Dusclops to Dusknoir on the Bench.';
+    const kang = 'comp0cker played Mega Kangaskhan ex to the Bench.';
+    expect(determineArchetype([talon, dusk], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([dusk, talon], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([kang, talon, dusk], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([dusk, kang, talon], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([dusk], 'comp0cker', 'en')).toBeUndefined();
+    expect(determineArchetype([talon], 'comp0cker', 'en')).toBeUndefined();
+    expect(determineArchetype([kang, talon], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
+    expect(determineArchetype([kang, dusk], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
+  });
 });

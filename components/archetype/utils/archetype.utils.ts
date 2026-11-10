@@ -101,7 +101,9 @@ export const determineArchetype = (log: string[], playerName: string, language: 
   });
 
   const pokemonToFind = getPokemonToFind(language);
-  let archetype = pokemonToFind.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.toLowerCase())));
+  const logHas = (needle: string) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(needle.toLowerCase()));
+  const matched = pokemonToFind.find((targetMon) => (Array.isArray(targetMon) ? targetMon : [targetMon]).every(logHas));
+  let archetype = typeof matched === 'string' || matched === undefined ? matched : matched.join(',');
 
   const associatedArchetype = associatedPokemon.find((targetMon) => drawnCardsLines.some((drawnCards) => drawnCards.toLowerCase().includes(targetMon.association.toLowerCase())))?.deck;
   if (associatedArchetype) archetype = associatedArchetype;
