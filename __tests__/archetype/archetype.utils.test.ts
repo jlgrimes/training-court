@@ -91,17 +91,25 @@ describe('archetype utils', () => {
     expect(determineArchetype([kang], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
   });
 
-  it('Talonflame Dusknoir matches only when both cards are in the log, in either order', () => {
+  it('Talonflame Dusknoir matches Talonflame with any Dusknoir-line card and always returns talonflame,dusknoir', () => {
     const talon = 'comp0cker played Talonflame ex to the Bench.';
-    const dusk = 'comp0cker evolved Dusclops to Dusknoir on the Bench.';
+    const dusknoir = 'comp0cker played Dusknoir to the Bench.';
+    const dusclops = 'comp0cker played Dusclops to the Bench.';
+    const duskull = 'comp0cker played Duskull to the Bench.';
     const kang = 'comp0cker played Mega Kangaskhan ex to the Bench.';
-    expect(determineArchetype([talon, dusk], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
-    expect(determineArchetype([dusk, talon], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
-    expect(determineArchetype([kang, talon, dusk], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
-    expect(determineArchetype([dusk, kang, talon], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
-    expect(determineArchetype([dusk], 'comp0cker', 'en')).toBeUndefined();
+    const fletchling = 'comp0cker played Fletchling to the Bench.';
+    expect(determineArchetype([talon, duskull], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([talon, dusclops], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([talon, dusknoir], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([dusknoir, talon], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([kang, talon, duskull], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([kang, talon, dusknoir], 'comp0cker', 'en')).toEqual('talonflame,dusknoir');
+    expect(determineArchetype([duskull], 'comp0cker', 'en')).toBeUndefined();
+    expect(determineArchetype([dusclops], 'comp0cker', 'en')).toBeUndefined();
+    expect(determineArchetype([dusknoir], 'comp0cker', 'en')).toBeUndefined();
     expect(determineArchetype([talon], 'comp0cker', 'en')).toBeUndefined();
+    expect(determineArchetype([fletchling, duskull], 'comp0cker', 'en')).toBeUndefined();
     expect(determineArchetype([kang, talon], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
-    expect(determineArchetype([kang, dusk], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
+    expect(determineArchetype([kang, duskull], 'comp0cker', 'en')).toEqual('kangaskhan-mega');
   });
 });

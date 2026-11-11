@@ -69,7 +69,9 @@ export function getEnglishPokemon(pokemonInAnotherLanguage: string | undefined, 
   return pokemonInAnotherLanguage?.replaceAll(' ', '-');
 }
 
-export type PokemonToFindEntry = string | readonly string[];
+/** A required name, or a list of alternatives (first name is the returned label). */
+export type PokemonToFindPart = string | readonly string[];
+export type PokemonToFindEntry = string | readonly PokemonToFindPart[];
 
 export function getPokemonToFind(language: Language): PokemonToFindEntry[] {
   return [
@@ -84,9 +86,10 @@ export function getPokemonToFind(language: Language): PokemonToFindEntry[] {
     // current decks, in Limitless Standard deck list order (limitlesstcg.com/decks, Nov 2026).
     // Decks already matched by an existing entry aren't repeated here.
     // Talonflame Dusknoir is a current Limitless archetype. An array entry requires
-    // every name to appear in the log; a log with only one keeps its current result.
+    // every part to appear in the log; a nested list is alternatives and the first
+    // name is the returned label, so Duskull or Dusclops still shows the Dusknoir sprite.
     // This sits above Mega Kangaskhan because those lists almost always run Kangaskhan.
-    ['talonflame', 'dusknoir'],
+    ['talonflame', ['dusknoir', 'dusclops', 'duskull']],
     'slowking',
     "n's zoroark",
     'alakazam',
