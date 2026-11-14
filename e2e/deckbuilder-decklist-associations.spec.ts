@@ -154,6 +154,12 @@ test.describe('Decklist associations', () => {
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
+    const playerSelect = dialog.getByRole('combobox', { name: 'Which player are you?' });
+    if (await playerSelect.isVisible()) {
+      await playerSelect.click();
+      await page.getByRole('option', { name: 'Bassoonboy135', exact: true }).click();
+    }
+
     await selectDecklist(page, decklist.name);
     await dialog.getByRole('button', { name: 'Confirm' }).click();
 
