@@ -1,4 +1,13 @@
-import { test as base, Page } from '@playwright/test';
+import { test as base, Page, Route } from '@playwright/test';
+
+async function fulfillSupabaseRow(route: Route, row: object, status: number) {
+  const single = route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json');
+  await route.fulfill({
+    status,
+    contentType: 'application/json',
+    body: JSON.stringify(single ? row : [row]),
+  });
+}
 
 /**
  * Mock client-side Supabase writes (POST/PATCH/DELETE)
@@ -24,11 +33,7 @@ async function mockSupabaseWrites(page: Page) {
         format: postData?.format || '',
       };
 
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        body: JSON.stringify([mockLog]),
-      });
+      await fulfillSupabaseRow(route, mockLog, 201);
     } else if (method === 'PATCH' || method === 'DELETE') {
       await route.fulfill({
         status: 200,
@@ -37,6 +42,19 @@ async function mockSupabaseWrites(page: Page) {
       });
     } else {
       // Let GET requests through (reads from real DB)
+      await route.continue();
+    }
+  });
+
+  // Importing a log also saves the selected username to Preferences.
+  await page.route((url) => decodeURIComponent(url.pathname) === '/rest/v1/user data', async (route) => {
+    const method = route.request().method();
+    if (method === 'PATCH') {
+      const id = new URL(route.request().url()).searchParams.get('id')?.replace(/^eq\./, '');
+      await fulfillSupabaseRow(route, { ...route.request().postDataJSON(), id }, 200);
+    } else if (method === 'POST' || method === 'DELETE') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+    } else {
       await route.continue();
     }
   });
