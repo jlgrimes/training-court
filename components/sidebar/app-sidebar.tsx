@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 import { Atom, ChevronUp, Hammer, Info, LogIn, ScrollText, Trophy, WalletMinimal, ChartBarDecreasing  } from "lucide-react"
@@ -101,6 +102,8 @@ function SidebarItemLabel({ id }: { id: string }) {
 
 export function AppSidebar() {
   const user = useRecoilValue(userAtom);
+  const { setOpenMobile } = useSidebar();
+  const closeMobileSidebar = () => setOpenMobile(false);
   const { preferredGames } = usePreferredGames();
   const showTcg = !!user && preferredGames.includes('pokemon-tcg');
   const showPocket = !!user && preferredGames.includes('pokemon-pocket');
@@ -109,7 +112,7 @@ export function AppSidebar() {
   <Sidebar>
     <SidebarHeader>
       <div className="flex items-center justify-between w-full px-2 py-1">
-        <Link href="/home">
+        <Link href="/home" onClick={closeMobileSidebar}>
           <Image
             src={'/logo.png'}
             alt='logo'
@@ -126,7 +129,7 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
+                    <Link href={item.url} onClick={closeMobileSidebar}>
                       <item.icon />
                       <span>
                         <SidebarItemLabel id={item.id} />
@@ -144,7 +147,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href='/login'>
+                  <Link href='/login' onClick={closeMobileSidebar}>
                     <LogIn />
                     <span><TranslatedText id="sidebar.logIn">Log In</TranslatedText></span>
                   </Link>
@@ -164,7 +167,7 @@ export function AppSidebar() {
               {tcgItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link href={item.url}>
+                      <Link href={item.url} onClick={closeMobileSidebar}>
                         <item.icon />
                         <span>
                           <SidebarItemLabel id={item.id} />
@@ -185,7 +188,7 @@ export function AppSidebar() {
               {pocketItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link href={item.url}>
+                      <Link href={item.url} onClick={closeMobileSidebar}>
                         <item.icon />
                         <span>
                           <SidebarItemLabel id={item.id} />
@@ -205,7 +208,7 @@ export function AppSidebar() {
             <SidebarMenu>
             <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link href='/admin'>
+                    <Link href='/admin' onClick={closeMobileSidebar}>
                       <Atom />
                       <span><TranslatedText id="sidebar.adminStuff">admin stuff</TranslatedText></span>
                     </Link>
@@ -233,7 +236,7 @@ export function AppSidebar() {
                   className="w-[--radix-popper-anchor-width]"
                 >
                   <DropdownMenuItem asChild>
-                    <Link href='/preferences'>
+                    <Link href='/preferences' onClick={closeMobileSidebar}>
                       <TranslatedText id="sidebar.preferences">Preferences</TranslatedText>
                     </Link>
                   </DropdownMenuItem>

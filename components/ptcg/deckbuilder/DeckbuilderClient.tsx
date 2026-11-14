@@ -339,39 +339,136 @@ const getDecklistSection = (entry: DeckEntry): 'pokemon' | 'trainer' | 'energy' 
   return 'other';
 };
 
-const buildDecklistText = (entries: DeckEntry[]): string => {
-  const orderedEntries = entries.slice().sort((left, right) => {
+const getDecklistSectionRank = (entry: DeckEntry): number => {
+  const section = getDecklistSection(entry);
+  if (section === 'pokemon') {
+    return 0;
+  }
+  if (section === 'trainer') {
+    return 1;
+  }
+  if (section === 'energy') {
+    return 2;
+  }
+  return 3;
+};
+
+const getDecklistSubtypeRank = (entry: DeckEntry): number => {
+  const section = getDecklistSection(entry);
+  const subtypes = (entry.metadata?.subtypes ?? []).map(normalizeForMatch);
+
+  if (section === 'pokemon') {
+    if (subtypes.includes('basic')) {
+      return 0;
+    }
+    if (subtypes.includes('stage 1')) {
+      return 1;
+    }
+    if (subtypes.includes('stage 2')) {
+      return 2;
+    }
+    if (subtypes.includes('restored')) {
+      return 3;
+    }
+    return 4;
+  }
+
+  if (section === 'trainer') {
+    if (subtypes.includes('item')) {
+      return 0;
+    }
+    if (subtypes.includes('pokemon tool')) {
+      return 1;
+    }
+    if (subtypes.includes('technical machine')) {
+      return 2;
+    }
+    if (subtypes.includes('supporter')) {
+      return 3;
+    }
+    if (subtypes.includes('stadium')) {
+      return 4;
+    }
+    return 5;
+  }
+
+  if (section === 'energy') {
+    if (entry.metadata?.energyKind === 'Basic' || subtypes.includes('basic')) {
+      return 0;
+    }
+    if (entry.metadata?.energyKind === 'Special' || subtypes.includes('special')) {
+      return 1;
+    }
+    return 2;
+  }
+
+  return 0;
+};
+
+const sortDeckEntriesForExport = (entries: DeckEntry[]): DeckEntry[] => {
+  return entries.slice().sort((left, right) => {
+    const sectionCompare = getDecklistSectionRank(left) - getDecklistSectionRank(right);
+    if (sectionCompare !== 0) {
+      return sectionCompare;
+    }
+
+    const subtypeCompare = getDecklistSubtypeRank(left) - getDecklistSubtypeRank(right);
+    if (subtypeCompare !== 0) {
+      return subtypeCompare;
+    }
+
+    const nameCompare = left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+    if (nameCompare !== 0) {
+      return nameCompare;
+    }
+
+    const leftSetCode = (left.metadata?.setCode ?? left.metadata?.setId ?? '').toUpperCase();
+    const rightSetCode = (right.metadata?.setCode ?? right.metadata?.setId ?? '').toUpperCase();
+    const setCompare = leftSetCode.localeCompare(rightSetCode, undefined, { sensitivity: 'base' });
+    if (setCompare !== 0) {
+      return setCompare;
+    }
+
+    const leftNumber = left.metadata?.number ?? left.localId ?? '';
+    const rightNumber = right.metadata?.number ?? right.localId ?? '';
+    const numberCompare = leftNumber.localeCompare(rightNumber, undefined, { numeric: true, sensitivity: 'base' });
+    if (numberCompare !== 0) {
+      return numberCompare;
+    }
+
     const leftOrder = typeof left.order === 'number' ? left.order : Number.MAX_SAFE_INTEGER;
     const rightOrder = typeof right.order === 'number' ? right.order : Number.MAX_SAFE_INTEGER;
-    if (leftOrder !== rightOrder) {
-      return leftOrder - rightOrder;
-    }
-    return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+    return leftOrder - rightOrder;
   });
+};
+
+const formatDecklistLine = (entry: DeckEntry): string => {
+  const setCode = (entry.metadata?.setCode ?? entry.metadata?.setId ?? '').toUpperCase();
+  const number = entry.metadata?.number ?? entry.localId ?? '';
+  const cardName = formatDecklistName(entry.name);
+  return `${entry.qty} ${cardName}${setCode && number ? ` ${setCode} ${number}` : ''}`;
+};
+
+const buildDecklistText = (entries: DeckEntry[]): string => {
+  if (entries.some((entry) => getDecklistSection(entry) === 'other')) {
+    throw new Error('Cannot export cards without a known category.');
+  }
+  const orderedEntries = sortDeckEntriesForExport(entries);
 
   const pokemon = orderedEntries.filter((entry) => getDecklistSection(entry) === 'pokemon');
   const trainer = orderedEntries.filter((entry) => getDecklistSection(entry) === 'trainer');
   const energy = orderedEntries.filter((entry) => getDecklistSection(entry) === 'energy');
-  const other = orderedEntries.filter((entry) => getDecklistSection(entry) === 'other');
-
-  const formatLine = (entry: DeckEntry): string => {
-    const setCode = (entry.metadata?.setCode ?? entry.metadata?.setId ?? '').toUpperCase();
-    const number = entry.metadata?.number ?? entry.localId ?? '';
-    const cardName = formatDecklistName(entry.name);
-    return `${entry.qty} ${cardName}${setCode && number ? ` ${setCode} ${number}` : ''}`;
-  };
 
   return [
     `Pokemon: ${pokemon.reduce((sum, entry) => sum + entry.qty, 0)}`,
     '',
-    ...pokemon.map(formatLine),
+    ...pokemon.map(formatDecklistLine),
     '',
     `Trainer: ${trainer.reduce((sum, entry) => sum + entry.qty, 0)}`,
-    ...trainer.map(formatLine),
+    ...trainer.map(formatDecklistLine),
     '',
-    `Energy: ${energy.reduce((sum, entry) => sum + entry.qty, 0) + other.reduce((sum, entry) => sum + entry.qty, 0)}`,
-    ...energy.map(formatLine),
-    ...other.map(formatLine),
+    `Energy: ${energy.reduce((sum, entry) => sum + entry.qty, 0)}`,
+    ...energy.map(formatDecklistLine),
   ].join('\n');
 };
 
@@ -1122,7 +1219,39 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const exportToClipboard = useCallback(async () => {
     try {
       const deckEntries = Object.values(deck);
-      const decklistText = buildDecklistText(deckEntries);
+      let exportEntries = deckEntries;
+      const unclassified = deckEntries.filter((entry) => getDecklistSection(entry) === 'other');
+      if (unclassified.length > 0) {
+        // Older saved decks predate catalog type parsing. Resolve their categories
+        // by card ID while preserving the saved quantities, printings, and text.
+        const response = await fetch('/api/ptcg/cards/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decklist: unclassified.map(formatDecklistLine).join('\n') }),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to resolve card categories.');
+        }
+        const payload = (await response.json()) as ImportResponse;
+        const resolved = new Map((payload.entries ?? []).map((entry) => [entry.id, entry]));
+        exportEntries = deckEntries.map((entry) => {
+          const card = resolved.get(entry.id);
+          if (getDecklistSection(entry) !== 'other' || !card) {
+            return entry;
+          }
+          return {
+            ...entry,
+            category: card.category,
+            metadata: {
+              ...entry.metadata!,
+              supertype: card.metadata?.supertype,
+              subtypes: card.metadata?.subtypes,
+              energyKind: card.metadata?.energyKind,
+            },
+          };
+        });
+      }
+      const decklistText = buildDecklistText(exportEntries);
       await navigator.clipboard.writeText(decklistText);
       toast({ title: 'Decklist copied to clipboard.' });
     } catch {
@@ -1427,7 +1556,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       dragCardIdRef.current = null;
                     }}
                   >
-                    <div className="relative overflow-hidden rounded-md bg-muted">
+                    <div className="relative overflow-hidden rounded-md bg-muted [container-type:inline-size]">
                       {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
                         <img
                           src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
@@ -1438,7 +1567,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       ) : (
                         <div className="w-full aspect-[5/7] bg-muted" />
                       )}
-                      <div className="absolute bottom-[7%] left-1/2 flex h-7 min-w-7 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 px-1.5 text-sm font-extrabold leading-none text-white shadow sm:h-9 sm:min-w-9 sm:px-2 sm:text-lg lg:h-12 lg:min-w-12 lg:px-3 lg:text-2xl">
+                      <div className="absolute bottom-[7%] left-1/2 flex aspect-square w-1/2 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 text-[26cqw] font-extrabold tabular-nums leading-none text-white shadow">
                         {entry.qty}
                       </div>
                     </div>

@@ -1,6 +1,6 @@
 const CARD_DATA_SOURCE_URL = 'https://dillonzer.github.io/data/cards.json';
 const CATALOG_TTL_MS = 30 * 60 * 1000;
-const CATALOG_CACHE_VERSION = 2;
+const CATALOG_CACHE_VERSION = 3;
 
 type JsonObject = Record<string, unknown>;
 
@@ -139,6 +139,23 @@ const parseCardCategory = (card: JsonObject): string => {
     return supertype;
   }
 
+  // The catalog uses a singular type: elemental types for Pokemon and
+  // colon-separated values such as Trainer:ITEM and Energy:Basic Energy.
+  const type = toString(card.type)?.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (type === 'trainer' || type?.startsWith('trainer:')) {
+    return 'Trainer';
+  }
+  if (type === 'energy' || type?.startsWith('energy:')) {
+    return 'Energy';
+  }
+  const pokemonTypes = new Set([
+    'pokemon', 'grass', 'fire', 'water', 'lightning', 'psychic', 'fighting',
+    'darkness', 'dark', 'metal', 'fairy', 'dragon', 'colorless', 'normal',
+  ]);
+  if (type && type.split(',').every((value) => pokemonTypes.has(value.trim()))) {
+    return 'Pokemon';
+  }
+
   const types = toStringArray(card.types);
   if (types.includes('Energy')) {
     return 'Energy';
@@ -147,8 +164,28 @@ const parseCardCategory = (card: JsonObject): string => {
   return 'Unknown';
 };
 
+const parseCardSubtypes = (card: JsonObject): string[] => {
+  const subtypes = toStringArray(card.subtypes);
+  if (subtypes.length > 0) {
+    return subtypes;
+  }
+  const typeParts = (toString(card.type) ?? '').split(':').slice(1);
+  const subtypeNames: Record<string, string> = {
+    item: 'Item', supporter: 'Supporter', stadium: 'Stadium',
+    tool: 'Pokemon Tool', 'pokemon tool': 'Pokemon Tool',
+    'basic energy': 'Basic', 'special energy': 'Special',
+  };
+  return typeParts.map((part) => {
+    const normalized = part.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+    return subtypeNames[normalized] ?? part.trim();
+  }).filter(Boolean);
+};
+
 const parseEnergyKind = (card: JsonObject): 'Basic' | 'Special' | undefined => {
-  const subtypes = toStringArray(card.subtypes).map((value) => value.toLowerCase());
+  if (parseCardCategory(card).toLowerCase() !== 'energy') {
+    return undefined;
+  }
+  const subtypes = parseCardSubtypes(card).map((value) => value.toLowerCase());
   if (subtypes.includes('basic')) {
     return 'Basic';
   }
@@ -274,13 +311,13 @@ const parseCard = (rawCard: unknown): (DeckbuilderCatalogCard & { setId: string;
     category: parseCardCategory(card),
     metadata: {
       hp: toString(card.hp),
-      supertype: toString(card.supertype) ?? toString(card.category),
+      supertype: parseCardCategory(card),
       setId: setData.setId,
       setCode: setData.setPtcgoCode,
       setName: setData.setName,
       setSeries: setData.setSeries,
       setReleaseDate: setData.releaseDate,
-      subtypes: toStringArray(card.subtypes),
+      subtypes: parseCardSubtypes(card),
       energyKind: parseEnergyKind(card),
       number: toString(card.number) ?? localId,
       cardText: parseCardText(card),
