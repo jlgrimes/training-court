@@ -206,9 +206,9 @@ function executeQuery(query: any, single: boolean) {
   return { data: [], error: null };
 }
 
-jest.doMock('@/components/ui/use-toast', () => ({
+jest.doMock('../../../components/ui/use-toast', () => ({
   useToast: () => ({ toast }),
-}), { virtual: true });
+}));
 
 jest.doMock('gt-react', () => ({
   T: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -280,6 +280,73 @@ async function openNewDeckAndImport() {
 }
 
 describe('DeckbuilderClient', () => {
+  const reportedDeck = [
+    [1, 'Air Balloon', 'ASC', '181', 'Trainer'],
+    [4, 'Beldum', 'TEF', '113', 'Pokemon'],
+    [3, "Boss's Orders", 'MEG', '114', 'Trainer'],
+    [4, "Brock's Scouting", 'JTG', '146', 'Trainer'],
+    [4, 'Buddy-Buddy Poffin', 'TEF', '144', 'Trainer'],
+    [1, 'Community Center', 'TWM', '146', 'Trainer'],
+    [4, 'Drilbur', 'PBL', '046', 'Pokemon'],
+    [1, 'Energy Recycler', 'DRI', '164', 'Trainer'],
+    [2, 'Genesect ex', 'BLK', '067', 'Pokemon'],
+    [1, "Hero's Cape", 'TEF', '152', 'Trainer'],
+    [2, 'Judge', 'POR', '076', 'Trainer'],
+    [2, 'Jumbo Ice Cream', 'PFL', '091', 'Trainer'],
+    [1, 'Kieran', 'TWM', '154', 'Trainer'],
+    [4, "Lillie's Determination", 'MEG', '119', 'Trainer'],
+    [2, 'Mega excadrill ex', 'PBL', '065', 'Pokemon'],
+    [1, 'Metagross', 'CRI', '061', 'Pokemon'],
+    [15, 'Metal Energy', 'CRZ', '159', 'Energy'],
+    [4, 'Metang', 'TEF', '114', 'Pokemon'],
+    [3, 'Pokegear 3.0', 'SVI', '186', 'Trainer'],
+    [1, 'Switch', 'MEG', '130', 'Trainer'],
+  ].map(([qty, name, setCode, number, category]) => makeCard({
+    id: `${setCode}-${number}`, localId: number, name, qty, category,
+    metadata: { setCode, number, supertype: category, cardText: [], weakness: [], resistance: [], retreatCost: [], rulebox: [] },
+  }));
+
+  it.each([false, true])('exports the reported 60-card deck with correct sections (legacy: %s)', async (legacy) => {
+    dbState.decklists = [baseDecklist({
+      cards: legacy ? reportedDeck.map((card) => ({
+        ...card, category: 'Unknown', metadata: { ...card.metadata, supertype: undefined },
+      })) : reportedDeck,
+    })];
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true, json: async () => ({ entries: reportedDeck, unresolved: [] }),
+    });
+
+    render(<DeckbuilderClient userId="user-1" initialDeckId="deck-1" />);
+    await screen.findByText('Cards: 60/60');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Export' }));
+    });
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
+    const text = (navigator.clipboard.writeText as jest.Mock).mock.calls[0][0] as string;
+    const [pokemon, trainers, energy] = text.split(/\n(?=Trainer:|Energy:)/);
+    expect(pokemon).toMatch(/^Pokemon: 17\n/);
+    expect(trainers).toMatch(/^Trainer: 28\n/);
+    expect(energy).toBe('Energy: 15\n15 Metal Energy CRZ 159');
+    for (const card of reportedDeck) {
+      const section = card.category === 'Pokemon' ? pokemon : card.category === 'Trainer' ? trainers : energy;
+      expect(section.split('\n')).toContain(`${card.qty} ${card.name} ${card.metadata.setCode} ${card.localId}`);
+    }
+    expect(global.fetch).toHaveBeenCalledTimes(legacy ? 1 : 0);
+  });
+
+  it('does not copy a misleading export if legacy card categories cannot be resolved', async () => {
+    dbState.decklists = [baseDecklist({ cards: [makeCard({ category: 'Unknown', metadata: {} })] })];
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => ({ entries: [] }) });
+    render(<DeckbuilderClient userId="user-1" initialDeckId="deck-1" />);
+    await screen.findByText('Cards: 4/60');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Export' }));
+    });
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalled();
+    expect(toast).toHaveBeenCalledWith({ title: 'Unable to copy decklist to clipboard.' });
+  });
+
   it('falls back to manual paste import when clipboard text is blocked', async () => {
     (navigator.clipboard.readText as jest.Mock).mockRejectedValueOnce(new Error('NotAllowedError'));
 

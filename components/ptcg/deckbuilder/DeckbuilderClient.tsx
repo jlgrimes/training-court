@@ -442,32 +442,33 @@ const sortDeckEntriesForExport = (entries: DeckEntry[]): DeckEntry[] => {
   });
 };
 
+const formatDecklistLine = (entry: DeckEntry): string => {
+  const setCode = (entry.metadata?.setCode ?? entry.metadata?.setId ?? '').toUpperCase();
+  const number = entry.metadata?.number ?? entry.localId ?? '';
+  const cardName = formatDecklistName(entry.name);
+  return `${entry.qty} ${cardName}${setCode && number ? ` ${setCode} ${number}` : ''}`;
+};
+
 const buildDecklistText = (entries: DeckEntry[]): string => {
+  if (entries.some((entry) => getDecklistSection(entry) === 'other')) {
+    throw new Error('Cannot export cards without a known category.');
+  }
   const orderedEntries = sortDeckEntriesForExport(entries);
 
   const pokemon = orderedEntries.filter((entry) => getDecklistSection(entry) === 'pokemon');
   const trainer = orderedEntries.filter((entry) => getDecklistSection(entry) === 'trainer');
   const energy = orderedEntries.filter((entry) => getDecklistSection(entry) === 'energy');
-  const other = orderedEntries.filter((entry) => getDecklistSection(entry) === 'other');
-
-  const formatLine = (entry: DeckEntry): string => {
-    const setCode = (entry.metadata?.setCode ?? entry.metadata?.setId ?? '').toUpperCase();
-    const number = entry.metadata?.number ?? entry.localId ?? '';
-    const cardName = formatDecklistName(entry.name);
-    return `${entry.qty} ${cardName}${setCode && number ? ` ${setCode} ${number}` : ''}`;
-  };
 
   return [
     `Pokemon: ${pokemon.reduce((sum, entry) => sum + entry.qty, 0)}`,
     '',
-    ...pokemon.map(formatLine),
+    ...pokemon.map(formatDecklistLine),
     '',
     `Trainer: ${trainer.reduce((sum, entry) => sum + entry.qty, 0)}`,
-    ...trainer.map(formatLine),
+    ...trainer.map(formatDecklistLine),
     '',
-    `Energy: ${energy.reduce((sum, entry) => sum + entry.qty, 0) + other.reduce((sum, entry) => sum + entry.qty, 0)}`,
-    ...energy.map(formatLine),
-    ...other.map(formatLine),
+    `Energy: ${energy.reduce((sum, entry) => sum + entry.qty, 0)}`,
+    ...energy.map(formatDecklistLine),
   ].join('\n');
 };
 
@@ -1218,7 +1219,39 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const exportToClipboard = useCallback(async () => {
     try {
       const deckEntries = Object.values(deck);
-      const decklistText = buildDecklistText(deckEntries);
+      let exportEntries = deckEntries;
+      const unclassified = deckEntries.filter((entry) => getDecklistSection(entry) === 'other');
+      if (unclassified.length > 0) {
+        // Older saved decks predate catalog type parsing. Resolve their categories
+        // by card ID while preserving the saved quantities, printings, and text.
+        const response = await fetch('/api/ptcg/cards/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decklist: unclassified.map(formatDecklistLine).join('\n') }),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to resolve card categories.');
+        }
+        const payload = (await response.json()) as ImportResponse;
+        const resolved = new Map((payload.entries ?? []).map((entry) => [entry.id, entry]));
+        exportEntries = deckEntries.map((entry) => {
+          const card = resolved.get(entry.id);
+          if (getDecklistSection(entry) !== 'other' || !card) {
+            return entry;
+          }
+          return {
+            ...entry,
+            category: card.category,
+            metadata: {
+              ...entry.metadata!,
+              supertype: card.metadata?.supertype,
+              subtypes: card.metadata?.subtypes,
+              energyKind: card.metadata?.energyKind,
+            },
+          };
+        });
+      }
+      const decklistText = buildDecklistText(exportEntries);
       await navigator.clipboard.writeText(decklistText);
       toast({ title: 'Decklist copied to clipboard.' });
     } catch {
