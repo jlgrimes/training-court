@@ -1556,7 +1556,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       dragCardIdRef.current = null;
                     }}
                   >
-                    <div className="relative overflow-hidden rounded-md bg-muted">
+                    <div className="relative overflow-hidden rounded-md bg-muted [container-type:inline-size]">
                       {buildImageUrl(entry.imageUrlHiRes, entry.imageUrl) ? (
                         <img
                           src={buildImageUrl(entry.imageUrlHiRes, entry.imageUrl)}
@@ -1567,7 +1567,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
                       ) : (
                         <div className="w-full aspect-[5/7] bg-muted" />
                       )}
-                      <div className="absolute bottom-[7%] left-1/2 flex h-7 min-w-7 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 px-1.5 text-sm font-extrabold leading-none text-white shadow sm:h-9 sm:min-w-9 sm:px-2 sm:text-lg lg:h-12 lg:min-w-12 lg:px-3 lg:text-2xl">
+                      <div className="absolute bottom-[7%] left-1/2 flex aspect-square w-1/2 -translate-x-1/2 items-center justify-center rounded-full bg-black/85 text-[26cqw] font-extrabold tabular-nums leading-none text-white shadow">
                         {entry.qty}
                       </div>
                     </div>
