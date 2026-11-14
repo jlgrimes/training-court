@@ -339,15 +339,111 @@ const getDecklistSection = (entry: DeckEntry): 'pokemon' | 'trainer' | 'energy' 
   return 'other';
 };
 
-const buildDecklistText = (entries: DeckEntry[]): string => {
-  const orderedEntries = entries.slice().sort((left, right) => {
+const getDecklistSectionRank = (entry: DeckEntry): number => {
+  const section = getDecklistSection(entry);
+  if (section === 'pokemon') {
+    return 0;
+  }
+  if (section === 'trainer') {
+    return 1;
+  }
+  if (section === 'energy') {
+    return 2;
+  }
+  return 3;
+};
+
+const getDecklistSubtypeRank = (entry: DeckEntry): number => {
+  const section = getDecklistSection(entry);
+  const subtypes = (entry.metadata?.subtypes ?? []).map(normalizeForMatch);
+
+  if (section === 'pokemon') {
+    if (subtypes.includes('basic')) {
+      return 0;
+    }
+    if (subtypes.includes('stage 1')) {
+      return 1;
+    }
+    if (subtypes.includes('stage 2')) {
+      return 2;
+    }
+    if (subtypes.includes('restored')) {
+      return 3;
+    }
+    return 4;
+  }
+
+  if (section === 'trainer') {
+    if (subtypes.includes('item')) {
+      return 0;
+    }
+    if (subtypes.includes('pokemon tool')) {
+      return 1;
+    }
+    if (subtypes.includes('technical machine')) {
+      return 2;
+    }
+    if (subtypes.includes('supporter')) {
+      return 3;
+    }
+    if (subtypes.includes('stadium')) {
+      return 4;
+    }
+    return 5;
+  }
+
+  if (section === 'energy') {
+    if (entry.metadata?.energyKind === 'Basic' || subtypes.includes('basic')) {
+      return 0;
+    }
+    if (entry.metadata?.energyKind === 'Special' || subtypes.includes('special')) {
+      return 1;
+    }
+    return 2;
+  }
+
+  return 0;
+};
+
+const sortDeckEntriesForExport = (entries: DeckEntry[]): DeckEntry[] => {
+  return entries.slice().sort((left, right) => {
+    const sectionCompare = getDecklistSectionRank(left) - getDecklistSectionRank(right);
+    if (sectionCompare !== 0) {
+      return sectionCompare;
+    }
+
+    const subtypeCompare = getDecklistSubtypeRank(left) - getDecklistSubtypeRank(right);
+    if (subtypeCompare !== 0) {
+      return subtypeCompare;
+    }
+
+    const nameCompare = left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+    if (nameCompare !== 0) {
+      return nameCompare;
+    }
+
+    const leftSetCode = (left.metadata?.setCode ?? left.metadata?.setId ?? '').toUpperCase();
+    const rightSetCode = (right.metadata?.setCode ?? right.metadata?.setId ?? '').toUpperCase();
+    const setCompare = leftSetCode.localeCompare(rightSetCode, undefined, { sensitivity: 'base' });
+    if (setCompare !== 0) {
+      return setCompare;
+    }
+
+    const leftNumber = left.metadata?.number ?? left.localId ?? '';
+    const rightNumber = right.metadata?.number ?? right.localId ?? '';
+    const numberCompare = leftNumber.localeCompare(rightNumber, undefined, { numeric: true, sensitivity: 'base' });
+    if (numberCompare !== 0) {
+      return numberCompare;
+    }
+
     const leftOrder = typeof left.order === 'number' ? left.order : Number.MAX_SAFE_INTEGER;
     const rightOrder = typeof right.order === 'number' ? right.order : Number.MAX_SAFE_INTEGER;
-    if (leftOrder !== rightOrder) {
-      return leftOrder - rightOrder;
-    }
-    return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+    return leftOrder - rightOrder;
   });
+};
+
+const buildDecklistText = (entries: DeckEntry[]): string => {
+  const orderedEntries = sortDeckEntriesForExport(entries);
 
   const pokemon = orderedEntries.filter((entry) => getDecklistSection(entry) === 'pokemon');
   const trainer = orderedEntries.filter((entry) => getDecklistSection(entry) === 'trainer');
