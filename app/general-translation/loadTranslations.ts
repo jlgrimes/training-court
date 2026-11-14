@@ -1,10 +1,15 @@
+import gtConfig from '../../gt.config.json';
+
 export default async function loadTranslations(locale: string) {
   const normalizedLocale = locale.toLowerCase();
+  const supportedLocales = [gtConfig.defaultLocale, ...gtConfig.locales];
   const localesToTry = [
     normalizedLocale,
     normalizedLocale.split('-')[0],
     'en',
-  ].filter((value, index, self) => self.indexOf(value) === index);
+  ]
+    .map((candidate) => supportedLocales.find((supported) => supported.toLowerCase() === candidate) ?? candidate)
+    .filter((value, index, self) => self.indexOf(value) === index);
 
   for (const localeToTry of localesToTry) {
     try {
