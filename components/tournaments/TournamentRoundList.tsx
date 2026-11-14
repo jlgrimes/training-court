@@ -3,6 +3,7 @@
 import { Database } from "@/database.types";
 import { TournamentRound } from "./TournamentRound";
 import { useCallback, useLayoutEffect, useRef, useState, useEffect } from "react";
+import { T } from "gt-react";
 
 interface TournamentRoundListProps {
   tournament: Database['public']['Tables']['tournaments']['Row'];
@@ -116,9 +117,9 @@ export default function TournamentRoundList(props: TournamentRoundListProps) {
       <div ref={contentRef}>
         <div className="grid grid-cols-8">
           <div className="col-span-8 grid grid-cols-8 text-sm font-medium text-muted-foreground px-3 py-1">
-            <span className="col-span-2">Round</span>
-            <span className="col-span-5">Deck</span>
-            <span className="col-span-1 text-right">Result</span>
+            <span className="col-span-2"><T id="tournaments.rounds.round">Round</T></span>
+            <span className="col-span-5"><T id="tournaments.rounds.deck">Deck</T></span>
+            <span className="col-span-1 text-right"><T id="tournaments.rounds.result">Result</T></span>
           </div>
 
           {rounds.map((round, idx) => (

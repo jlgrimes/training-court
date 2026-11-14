@@ -1,8 +1,8 @@
 import { test, expect } from './fixtures';
 
 /**
- * Real battle log for testing - uses "test" as the player name
- * to match the test user's live_screen_name
+ * Real battle log for testing. The winning player is "test".
+ * The profile fixture uses a different username to exercise player selection.
  */
 const sampleBattleLog = `Setup
 test chose tails for the opening coin flip.
@@ -244,6 +244,25 @@ test.describe('Battle Log Paste Flow', () => {
   // Client-side DB writes are mocked by the fixture
 
   test.beforeEach(async ({ page }) => {
+    await page.route((url) => decodeURIComponent(url.pathname) === '/rest/v1/user data', async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.fallback();
+        return;
+      }
+
+      const id = new URL(route.request().url()).searchParams.get('id')?.replace(/^eq\./, '');
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{
+          id,
+          created_at: '2026-01-01T00:00:00.000Z',
+          avatar: null,
+          live_screen_name: 'UnmatchedE2EPlayer',
+          preferred_games: ['pokemon-tcg'],
+        }]),
+      });
+    });
     await page.goto('/');
   });
 
@@ -271,8 +290,25 @@ test.describe('Battle Log Paste Flow', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    // Click confirm button
-    await dialog.getByRole('button', { name: 'Confirm' }).click();
+    const confirm = dialog.getByRole('button', { name: 'Confirm', exact: true });
+    await expect(confirm).toBeDisabled();
+    await dialog.getByRole('combobox', { name: 'Which player are you?' }).click();
+    await page.getByRole('option', { name: 'test', exact: true }).click();
+    await expect(confirm).toBeEnabled();
+
+    const logRequest = page.waitForRequest((request) =>
+      new URL(request.url()).pathname === '/rest/v1/logs' && request.method() === 'POST'
+    );
+    const profileRequest = page.waitForRequest((request) =>
+      decodeURIComponent(new URL(request.url()).pathname) === '/rest/v1/user data' && request.method() === 'PATCH'
+    );
+    const [savedLog, savedProfile] = await Promise.all([logRequest, profileRequest, confirm.click()]);
+
+    const payload = savedLog.postDataJSON();
+    expect(payload.result).toBe('W');
+    // Clipboard reads on Windows may use CRLF even when the fixture uses LF.
+    expect(payload.log.replace(/\r\n?/g, '\n')).toBe(sampleBattleLog.replace(/\r\n?/g, '\n'));
+    expect(savedProfile.postDataJSON()).toEqual({ live_screen_name: 'test' });
 
     // Verify success toast appears (mocked API returns success)
     // Use .first() because the toast text appears in multiple elements
@@ -322,8 +358,14 @@ test.describe('Battle Log Paste Flow', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    // The result should show the user won (test wins in the sample log)
+    const playerSelect = dialog.getByRole('combobox', { name: 'Which player are you?' });
+    await playerSelect.click();
+    await page.getByRole('option', { name: 'test', exact: true }).click();
     await expect(dialog.getByText(/Result:.*W/i)).toBeVisible();
+
+    await playerSelect.click();
+    await page.getByRole('option', { name: 'testOpp', exact: true }).click();
+    await expect(dialog.getByText(/Result:.*L/i)).toBeVisible();
   });
 });
 

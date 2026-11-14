@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react';
 import TournamentRoundList, { computeRoundListLayout } from '../../components/tournaments/TournamentRoundList';
 import { Database } from '../../database.types';
 
+jest.mock('gt-react', () => ({
+  T: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 jest.mock('../../components/tournaments/TournamentRound', () => ({
   TournamentRound: ({ round }: { round: Database['public']['Tables']['tournament rounds']['Row'] }) => (
     <div data-testid="round-row">{round.round_num}</div>
