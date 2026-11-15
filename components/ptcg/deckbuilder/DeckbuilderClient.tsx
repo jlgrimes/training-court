@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSWRConfig } from 'swr';
 import { Download, Save, Search, Trash2, Upload, XCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ const SAVED_DECKS_BREADCRUMB_STORAGE_KEY = 'ptcg-deckbuilder-saved-v1';
 const SAVED_DECKS_BREADCRUMB_EVENT = 'ptcg-deckbuilder-saved-decks-updated';
 const MAX_DECK_SIZE = 60;
 const ALL_SETS_ID = 'all';
+const DECKLIST_CACHE_TTL_MS = 60 * 1000;
 
 type CardMetadata = {
   hp?: string;
@@ -92,6 +94,10 @@ type DeckbuilderClientProps = {
   userId: string;
 };
 type DecklistRow = Database['public']['Tables']['decklists']['Row'];
+type CachedDecklist = { row: DecklistRow; cachedAt: number };
+
+const decklistCacheKey = (userId: string, deckId: string) =>
+  JSON.stringify(['ptcg-deckbuilder', userId, deckId]);
 type ImportResponse = {
   entries: DeckEntry[];
   totalCards: number;
@@ -206,7 +212,7 @@ const getNextDeckOrder = (deckState: Record<string, DeckEntry>): number => {
   return maxOrder + 1;
 };
 
-const getUniqueDeckName = (requestedName: string, existingDecks: SavedDeck[]): string => {
+const getUniqueDeckName = (requestedName: string, existingDecks: Pick<SavedDeck, 'name'>[]): string => {
   const baseName = requestedName.trim() || 'Untitled Deck';
   const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const suffixPattern = new RegExp(`^${escapedBase}(?:\\s+(\\d+))?$`, 'i');
@@ -537,6 +543,12 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   const router = useRouter();
   const { toast } = useToast();
   const gt = useGT();
+  const { cache, mutate } = useSWRConfig();
+  const cacheDecklist = useCallback((row: DecklistRow) => mutate<CachedDecklist>(
+    decklistCacheKey(props.userId, row.id),
+    { row, cachedAt: Date.now() },
+    { revalidate: false }
+  ), [mutate, props.userId]);
   const deckClickTimersRef = useRef<Record<string, number>>({});
   const lastDeckClickAtRef = useRef<Record<string, number>>({});
   const dragCardIdRef = useRef<string | null>(null);
@@ -572,6 +584,9 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   useEffect(() => {
     try {
       if (!props.initialDeckId) {
+        setView('library');
+        setIsLoadingInitialDeck(false);
+        setSelectedSavedDeckId('');
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = normalizeStoredDeck(JSON.parse(raw) as StoredDeck);
@@ -597,18 +612,46 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
   }, [props.initialDeckId]);
 
   useEffect(() => {
+    if (props.initialDeckId === 'new') {
+      return;
+    }
+    const requestedDeckId = props.initialDeckId;
     let isActive = true;
 
     const loadSavedDecklists = async () => {
+      if (requestedDeckId) {
+        setView('editor');
+        setIsLoadingInitialDeck(true);
+      }
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('decklists')
-        .select('*')
-        .eq('user_id', props.userId)
-        .eq('game', 'pokemon-tcg')
-        .order('updated_at', { ascending: false })
-        .limit(MAX_SAVED_DECKLISTS)
-        .returns<DecklistRow[]>();
+      const readSavedDecklists = async (deckId?: string) => {
+        if (deckId) {
+          const cached = cache.get(decklistCacheKey(props.userId, deckId))?.data as CachedDecklist | undefined;
+          if (cached && Date.now() - cached.cachedAt < DECKLIST_CACHE_TTL_MS) {
+            return { data: [cached.row], error: null };
+          }
+        }
+        const query = supabase
+          .from('decklists')
+          .select('*')
+          .eq('user_id', props.userId)
+          .eq('game', 'pokemon-tcg');
+        // The library needs cards for every preview; the editor only needs its deck.
+        const result = deckId
+          ? await query.eq('id', deckId).returns<DecklistRow[]>()
+          : await query.order('updated_at', { ascending: false }).limit(MAX_SAVED_DECKLISTS).returns<DecklistRow[]>();
+        if (isActive && !result.error) {
+          await Promise.all((result.data ?? []).map(cacheDecklist));
+        }
+        return result;
+      };
+      let result = await readSavedDecklists(requestedDeckId);
+
+      // Preserve the library fallback for deleted or inaccessible deck links.
+      if (isActive && requestedDeckId && !result.error && !result.data?.length) {
+        result = await readSavedDecklists();
+      }
+      const { data, error } = result;
 
       if (!isActive) {
         return;
@@ -627,8 +670,8 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       const nextSavedDecks = (data ?? []).map(toSavedDeck);
       setSavedDecks(nextSavedDecks);
 
-      if (props.initialDeckId && props.initialDeckId !== 'new') {
-        const initialDeck = nextSavedDecks.find((savedDeck) => savedDeck.id === props.initialDeckId);
+      if (requestedDeckId) {
+        const initialDeck = nextSavedDecks.find((savedDeck) => savedDeck.id === requestedDeckId);
         if (initialDeck) {
           setIsLoadingInitialDeck(false);
           setSelectedSavedDeckId(initialDeck.id);
@@ -649,7 +692,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     return () => {
       isActive = false;
     };
-  }, [props.initialDeckId, props.userId, toast]);
+  }, [cache, cacheDecklist, props.initialDeckId, props.userId, toast]);
 
   useEffect(() => {
     if (!submittedQuery.trim()) {
@@ -899,18 +942,39 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       return;
     }
 
+    setIsSavingDeck(true);
+    const supabase = createClient();
+    // Load names at save time without downloading other decks' card contents.
+    const { data: deckNames, error: namesError } = await supabase
+      .from('decklists')
+      .select('id,name')
+      .eq('user_id', props.userId)
+      .eq('game', 'pokemon-tcg')
+      .returns<Pick<DecklistRow, 'id' | 'name'>[]>();
+
+    if (namesError) {
+      setIsSavingDeck(false);
+      toast({
+        variant: 'destructive',
+        title: 'Unable to save decklist.',
+        description: namesError.message,
+      });
+      return;
+    }
+
     const existingById = selectedSavedDeckId && !shouldSaveAsNew
       ? savedDecks.find((savedDeck) => savedDeck.id === selectedSavedDeckId)
       : undefined;
     const nextName = shouldSaveAsNew
-      ? getUniqueDeckName(`${normalizedName} Copy`, savedDecks)
+      ? getUniqueDeckName(`${normalizedName} Copy`, deckNames ?? [])
       : normalizedName;
-    const duplicateName = savedDecks.find((savedDeck) => (
+    const duplicateName = (deckNames ?? []).find((savedDeck) => (
       savedDeck.id !== existingById?.id
       && normalizeDeckNameForComparison(savedDeck.name) === normalizeDeckNameForComparison(nextName)
     ));
 
     if (duplicateName) {
+      setIsSavingDeck(false);
       toast({
         variant: 'destructive',
         title: 'Decklist name already exists.',
@@ -924,9 +988,6 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       ? existingById.contentHash ?? await buildDeckContentHash(existingById.entries)
       : null;
     const didDeckContentChange = Boolean(existingById && existingContentHash !== nextContentHash);
-
-    setIsSavingDeck(true);
-    const supabase = createClient();
 
     const linkedUsage = existingById && didDeckContentChange
       ? await getLinkedUsageCounts(existingById.id)
@@ -1005,6 +1066,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       return;
     }
 
+    await cacheDecklist(data);
     const nextDeck = toSavedDeck(data);
     const nextSavedDecks = existingById
       ? [nextDeck, ...savedDecks.filter((savedDeck) => savedDeck.id !== existingById.id && savedDeck.id !== nextDeck.id)]
@@ -1016,7 +1078,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     setDeckName(nextName);
     router.replace(`/ptcg/deckbuilder/${nextDeck.id}`);
     toast({ title: `Saved "${nextName}"` });
-  }, [deck, deckName, getLinkedUsageCounts, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
+  }, [cacheDecklist, deck, deckName, getLinkedUsageCounts, props.userId, router, savedDecks, selectedSavedDeckId, toast]);
 
   const openSavedDeck = useCallback((savedDeck: SavedDeck) => {
     setPendingLinkedSave(null);
@@ -1077,6 +1139,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
       return;
     }
 
+    await mutate(decklistCacheKey(props.userId, savedDeck.id), undefined, { revalidate: false });
     const nextSavedDecks = savedDecks.filter((deckItem) => deckItem.id !== savedDeck.id);
     setSavedDecks(nextSavedDecks);
     if (selectedSavedDeckId === savedDeck.id) {
@@ -1084,7 +1147,7 @@ export function DeckbuilderClient(props: DeckbuilderClientProps) {
     }
     toast({ title: `Deleted "${savedDeck.name}"` });
     setPendingDeleteDeck(null);
-  }, [getLinkedUsageCounts, props.userId, savedDecks, selectedSavedDeckId, toast]);
+  }, [getLinkedUsageCounts, mutate, props.userId, savedDecks, selectedSavedDeckId, toast]);
 
   const startNewDeck = useCallback(() => {
     setSelectedSavedDeckId('');
