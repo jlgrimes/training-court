@@ -144,11 +144,14 @@ export type Database = {
           archetype: string | null
           created_at: string
           decklist_id: string | null
+          decklist_text: string | null
           id: string
+          import_hash: string | null
           log: string
           notes: string | null
           opp_archetype: string | null
           result: string | null
+          source_credential_id: string | null
           turn_order: string | null
           user: string
           format: string
@@ -157,11 +160,14 @@ export type Database = {
           archetype?: string | null
           created_at?: string
           decklist_id?: string | null
+          decklist_text?: string | null
           id?: string
+          import_hash?: string | null
           log: string
           notes?: string | null
           opp_archetype?: string | null
           result?: string | null
+          source_credential_id?: string | null
           turn_order?: string | null
           user: string
           format: string
@@ -170,11 +176,14 @@ export type Database = {
           archetype?: string | null
           created_at?: string
           decklist_id?: string | null
+          decklist_text?: string | null
           id?: string
+          import_hash?: string | null
           log?: string
           notes?: string | null
           opp_archetype?: string | null
           result?: string | null
+          source_credential_id?: string | null
           turn_order?: string | null
           user?: string
           format: string
@@ -460,6 +469,48 @@ export type Database = {
           },
         ]
       }
+      tracker_credentials: {
+        Row: {
+          created_at: string
+          default_format: string
+          id: string
+          label: string
+          last_used_at: string | null
+          revoked_at: string | null
+          token_hash: string
+          token_hint: string
+          user_id: string
+          window_count: number
+          window_started_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_format: string
+          id?: string
+          label: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          token_hash: string
+          token_hint: string
+          user_id: string
+          window_count?: number
+          window_started_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_format?: string
+          id?: string
+          label?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          token_hash?: string
+          token_hint?: string
+          user_id?: string
+          window_count?: number
+          window_started_at?: string
+        }
+        Relationships: []
+      }
       "user data": {
         Row: {
           avatar: string | null
@@ -514,6 +565,20 @@ export type Database = {
         Returns: {
           avatar: string
           avatar_count: number
+        }[]
+      }
+      claim_tracker_credential_request: {
+        Args: {
+          p_token_hash: string
+          p_limit?: number
+          p_window?: string
+        }
+        Returns: {
+          credential_id: string
+          user_id: string
+          label: string
+          default_format: string
+          allowed: boolean
         }[]
       }
       get_authenticated_user_matchup_aggregates_v1: {
