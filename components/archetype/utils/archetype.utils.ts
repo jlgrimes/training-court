@@ -25,6 +25,22 @@ const pngMap = {
   'mega rayquaza': 'rayquaza-mega'
 };
 
+/**
+ * Normalises a deck label from an external source (the PTCGL Tracker's
+ * archetype label) into the slug this site stores.
+ *
+ * `pngMap` reorders a handful of names for sprite lookup, and log stats group
+ * by the stored string, so the hint path and the parser must produce the same
+ * slug or the same deck splits into two groups.
+ */
+export const archetypeSlugFromName = (name: string): string => {
+  const spaced = name.trim().toLowerCase().replace(/\s+/g, ' ');
+
+  return Object.prototype.hasOwnProperty.call(pngMap, spaced)
+    ? pngMap[spaced as keyof typeof pngMap]
+    : spaced.replace(/ /g, '-');
+};
+
 // Pokemon that might not indicate exactly the archetype we can use to infer the archetype
 const associatedPokemon = [{
   association: 'charmander',

@@ -19,6 +19,9 @@ describe('battle log utils', () => {
       turn_order: '1',
       format: 'Standard',
       decklist_id: null,
+      decklist_text: null,
+      import_hash: null,
+      source_credential_id: null,
       notes: null,
     }, 'Player One');
 
